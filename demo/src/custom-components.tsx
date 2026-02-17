@@ -1,7 +1,15 @@
 import { z } from 'zod';
 import { memo } from 'react';
 import { ComponentBaseSchema } from '@mdma/spec';
-import type { MdmaBlockRendererProps } from '@mdma/renderer-react';
+import type {
+  MdmaBlockRendererProps,
+  FormInputElementProps,
+  FormSelectElementProps,
+  FormCheckboxElementProps,
+  FormTextareaElementProps,
+  FormSubmitElementProps,
+} from '@mdma/renderer-react';
+import type { MdmaCustomizations } from './ChatView.js';
 
 // ─── Progress ────────────────────────────────────────────────────────────────
 
@@ -117,85 +125,68 @@ export const MetricRenderer = memo(function MetricRenderer({
   );
 });
 
-// ─── Custom Form (override) ──────────────────────────────────────────────────
+// ─── Custom Form Element Overrides (scoped) ─────────────────────────────────
 
-export const CustomFormRenderer = memo(function CustomFormRenderer({
-  component,
-  componentState,
-  dispatch,
-}: MdmaBlockRendererProps) {
-  if (component.type !== 'form') return null;
-
+function GlassInput({ id, type, value, onChange, required }: FormInputElementProps) {
   return (
-    <div className="custom-form" data-component-id={component.id}>
-      {component.label && <h3 className="custom-form-label">{component.label}</h3>}
-      <div className="custom-form-grid">
-        {component.fields.map((field: { name: string; label: string; type: string; required?: boolean; options?: { value: string; label: string }[] }) => (
-          <div key={field.name} className="custom-form-field">
-            <label htmlFor={`${component.id}-${field.name}`}>{field.label}</label>
-            {field.type === 'select' ? (
-              <select
-                id={`${component.id}-${field.name}`}
-                value={String(componentState?.values[field.name] ?? '')}
-                required={field.required}
-                onChange={(e) =>
-                  dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: e.target.value })
-                }
-              >
-                <option value="">Pick one...</option>
-                {field.options?.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
-            ) : field.type === 'checkbox' ? (
-              <label className="custom-form-toggle">
-                <input
-                  id={`${component.id}-${field.name}`}
-                  type="checkbox"
-                  checked={Boolean(componentState?.values[field.name])}
-                  onChange={(e) =>
-                    dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: e.target.checked })
-                  }
-                />
-                <span className="custom-form-toggle-track" />
-              </label>
-            ) : field.type === 'textarea' ? (
-              <textarea
-                id={`${component.id}-${field.name}`}
-                value={String(componentState?.values[field.name] ?? '')}
-                required={field.required}
-                onChange={(e) =>
-                  dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: e.target.value })
-                }
-              />
-            ) : (
-              <input
-                id={`${component.id}-${field.name}`}
-                type={field.type}
-                value={String(componentState?.values[field.name] ?? '')}
-                required={field.required}
-                onChange={(e) =>
-                  dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: e.target.value })
-                }
-              />
-            )}
-          </div>
-        ))}
-      </div>
-      {component.onSubmit && (
-        <button
-          type="button"
-          className="custom-form-submit"
-          onClick={() =>
-            dispatch({ type: 'ACTION_TRIGGERED', componentId: component.id, actionId: component.onSubmit! })
-          }
-        >
-          Submit
-        </button>
-      )}
-    </div>
+    <input
+      id={id}
+      type={type}
+      value={value}
+      required={required}
+      className="ce-glass-input"
+      placeholder={`Enter ${type}...`}
+      onChange={(e) => onChange(e.target.value)}
+    />
   );
-});
+}
+
+function GlassSelect({ id, value, onChange, required, options }: FormSelectElementProps) {
+  return (
+    <select
+      id={id}
+      value={value}
+      required={required}
+      className="ce-glass-select"
+      onChange={(e) => onChange(e.target.value)}
+    >
+      <option value="">Pick one...</option>
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  );
+}
+
+function ToggleCheckbox({ id, checked, onChange, label }: FormCheckboxElementProps) {
+  return (
+    <label className="ce-toggle" htmlFor={id}>
+      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+      <span className="ce-toggle-track" />
+      <span className="ce-toggle-label">{checked ? 'On' : 'Off'}</span>
+    </label>
+  );
+}
+
+function GlassTextarea({ id, value, onChange, required }: FormTextareaElementProps) {
+  return (
+    <textarea
+      id={id}
+      value={value}
+      required={required}
+      className="ce-glass-textarea"
+      onChange={(e) => onChange(e.target.value)}
+    />
+  );
+}
+
+function GradientSubmitButton({ onClick, label }: FormSubmitElementProps) {
+  return (
+    <button type="button" className="ce-gradient-submit" onClick={onClick}>
+      {label}
+    </button>
+  );
+}
 
 // ─── Custom Button (override) ────────────────────────────────────────────────
 
@@ -308,27 +299,32 @@ export const CustomCalloutRenderer = memo(function CustomCalloutRenderer({
   );
 });
 
-// ─── Registry helpers ────────────────────────────────────────────────────────
+// ─── All customizations in a single object ──────────────────────────────────
 
-/** Schemas for the brand-new component types (not built into MDMA). */
-export const customSchemas = new Map<string, z.ZodType>([
-  ['progress', ProgressSchema],
-  ['rating', RatingSchema],
-  ['metric', MetricSchema],
-]);
-
-/**
- * Custom renderers — includes overrides for built-in types (form, button,
- * table, callout) plus renderers for the new custom types.
- */
-export const customRenderers: Record<string, React.ComponentType<MdmaBlockRendererProps>> = {
-  // New types
-  progress: ProgressRenderer,
-  rating: RatingRenderer,
-  metric: MetricRenderer,
-  // Built-in overrides
-  form: CustomFormRenderer,
-  button: CustomButtonRenderer,
-  table: CustomTableRenderer,
-  callout: CustomCalloutRenderer,
+export const customizations: MdmaCustomizations = {
+  schemas: new Map<string, z.ZodType>([
+    ['progress', ProgressSchema],
+    ['rating', RatingSchema],
+    ['metric', MetricSchema],
+  ]),
+  components: {
+    // New types
+    progress: ProgressRenderer,
+    rating: RatingRenderer,
+    metric: MetricRenderer,
+    // Built-in overrides
+    button: CustomButtonRenderer,
+    table: CustomTableRenderer,
+    callout: CustomCalloutRenderer,
+    // Form: sub-element overrides instead of full renderer
+    form: {
+      elements: {
+        input: GlassInput,
+        select: GlassSelect,
+        checkbox: ToggleCheckbox,
+        textarea: GlassTextarea,
+        submitButton: GradientSubmitButton,
+      },
+    },
+  },
 };

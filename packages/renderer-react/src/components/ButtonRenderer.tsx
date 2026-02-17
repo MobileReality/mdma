@@ -11,13 +11,15 @@ export const ButtonRenderer = memo(function ButtonRenderer({ component, dispatch
       type="button"
       className={`mdma-button ${variantClass}`}
       data-component-id={component.id}
-      onClick={() =>
-        dispatch({
-          type: 'ACTION_TRIGGERED',
-          componentId: component.id,
-          actionId: component.onAction,
-        })
-      }
+      onClick={() => {
+        if (component.onAction) {
+          dispatch({
+            type: 'ACTION_TRIGGERED',
+            componentId: component.id,
+            actionId: component.onAction,
+          });
+        }
+      }}
     >
       {component.text}
     </button>

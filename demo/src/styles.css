@@ -1434,136 +1434,156 @@ body {
   color: #b2bec3;
 }
 
-/* ─── Custom Form Override ─────────────────────────────────────────────────── */
+/* ─── Custom Element Overrides (form-scoped) ───────────────────────────────── */
 
-.custom-form {
-  background: linear-gradient(135deg, rgba(108, 92, 231, 0.08), rgba(0, 184, 148, 0.06));
-  border: 1px solid rgba(108, 92, 231, 0.2);
-  border-radius: 14px;
-  padding: 20px 24px;
-}
-
-.custom-form-label {
-  margin: 0 0 16px;
-  font-size: 16px;
-  font-weight: 700;
-  color: #a29bfe;
-  letter-spacing: 0.3px;
-}
-
-.custom-form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 16px;
-}
-
-.custom-form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.custom-form-field > label {
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.6px;
-  color: #b2bec3;
-}
-
-.custom-form-field input[type="text"],
-.custom-form-field input[type="email"],
-.custom-form-field input[type="number"],
-.custom-form-field input[type="date"],
-.custom-form-field input[type="datetime-local"],
-.custom-form-field select,
-.custom-form-field textarea {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 8px;
-  padding: 10px 12px;
+/* Glass input */
+.ce-glass-input {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(162, 155, 254, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
   color: #dfe6e9;
   font-size: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.custom-form-field input:focus,
-.custom-form-field select:focus,
-.custom-form-field textarea:focus {
+.ce-glass-input:focus {
+  outline: none;
+  border-color: #a29bfe;
+  box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.15), inset 0 0 12px rgba(108, 92, 231, 0.06);
+}
+
+.ce-glass-input::placeholder {
+  color: rgba(178, 190, 195, 0.5);
+}
+
+/* Glass select */
+.ce-glass-select {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(162, 155, 254, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #dfe6e9;
+  font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23a29bfe' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+}
+
+.ce-glass-select:focus {
   outline: none;
   border-color: #a29bfe;
   box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.15);
 }
 
-.custom-form-field textarea {
-  min-height: 70px;
-  resize: vertical;
-}
-
-/* Toggle switch for checkboxes */
-.custom-form-toggle {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 22px;
+/* Toggle checkbox */
+.ce-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   cursor: pointer;
 }
 
-.custom-form-toggle input {
+.ce-toggle input {
+  position: absolute;
   opacity: 0;
   width: 0;
   height: 0;
-  position: absolute;
 }
 
-.custom-form-toggle-track {
-  position: absolute;
-  inset: 0;
+.ce-toggle-track {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 24px;
   background: rgba(255, 255, 255, 0.1);
-  border-radius: 11px;
+  border-radius: 12px;
   transition: background 0.2s;
+  flex-shrink: 0;
 }
 
-.custom-form-toggle-track::after {
+.ce-toggle-track::after {
   content: '';
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 16px;
-  height: 16px;
-  background: #b2bec3;
+  width: 18px;
+  height: 18px;
+  background: #636e72;
   border-radius: 50%;
   transition: transform 0.2s, background 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.custom-form-toggle input:checked + .custom-form-toggle-track {
-  background: rgba(108, 92, 231, 0.4);
+.ce-toggle input:checked + .ce-toggle-track {
+  background: linear-gradient(135deg, rgba(108, 92, 231, 0.5), rgba(162, 155, 254, 0.4));
 }
 
-.custom-form-toggle input:checked + .custom-form-toggle-track::after {
+.ce-toggle input:checked + .ce-toggle-track::after {
   transform: translateX(18px);
   background: #a29bfe;
 }
 
-.custom-form-submit {
-  margin-top: 16px;
-  padding: 10px 24px;
+.ce-toggle-label {
+  font-size: 12px;
+  color: #b2bec3;
+  user-select: none;
+}
+
+/* Glass textarea */
+.ce-glass-textarea {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(162, 155, 254, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #dfe6e9;
+  font-size: 14px;
+  min-height: 70px;
+  resize: vertical;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.ce-glass-textarea:focus {
+  outline: none;
+  border-color: #a29bfe;
+  box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.15), inset 0 0 12px rgba(108, 92, 231, 0.06);
+}
+
+/* Gradient submit button */
+.ce-gradient-submit {
+  margin-top: 8px;
+  padding: 11px 28px;
   font-size: 14px;
   font-weight: 700;
   border: none;
-  border-radius: 8px;
+  border-radius: 24px;
   background: linear-gradient(135deg, #6c5ce7, #a29bfe);
   color: #fff;
   cursor: pointer;
-  transition: opacity 0.15s, transform 0.1s;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+  transition: box-shadow 0.15s, transform 0.1s;
   width: fit-content;
 }
 
-.custom-form-submit:hover {
-  opacity: 0.9;
+.ce-gradient-submit:hover {
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
 }
 
-.custom-form-submit:active {
+.ce-gradient-submit:active {
   transform: scale(0.97);
 }
 

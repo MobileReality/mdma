@@ -11,7 +11,7 @@ id: safety-notice
 type: callout
 variant: danger
 title: Patient Safety - Critical Review Required
-body: >
+content: >
   This procedure directly impacts patient care. All reviewers must verify
   clinical accuracy, contraindication documentation, and alignment with
   current evidence-based guidelines before approving. Changes to published

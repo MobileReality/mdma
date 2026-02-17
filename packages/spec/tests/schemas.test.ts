@@ -21,13 +21,16 @@ describe('BindingExpressionSchema', () => {
     expect(BindingExpressionSchema.parse('{{name}}')).toBe('{{name}}');
     expect(BindingExpressionSchema.parse('{{user.name}}')).toBe('{{user.name}}');
     expect(BindingExpressionSchema.parse('{{a_b}}')).toBe('{{a_b}}');
+    // Expressions with operators, negation, and spaces
+    expect(BindingExpressionSchema.parse('{{!foo.bar}}')).toBe('{{!foo.bar}}');
+    expect(BindingExpressionSchema.parse('{{foo || bar}}')).toBe('{{foo || bar}}');
+    expect(BindingExpressionSchema.parse('{{ name }}')).toBe('{{ name }}');
   });
 
   it('rejects invalid bindings', () => {
     expect(() => BindingExpressionSchema.parse('name')).toThrow();
     expect(() => BindingExpressionSchema.parse('{name}')).toThrow();
-    expect(() => BindingExpressionSchema.parse('{{1abc}}')).toThrow();
-    expect(() => BindingExpressionSchema.parse('{{ name }}')).toThrow();
+    expect(() => BindingExpressionSchema.parse('{{}}')).toThrow();
     expect(() => BindingExpressionSchema.parse('')).toThrow();
   });
 });

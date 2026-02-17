@@ -1,5 +1,5 @@
 import { ChatView } from './ChatView.js';
-import { customSchemas, customRenderers } from './custom-components.js';
+import { customizations } from './custom-components.js';
 
 export function CustomChatView() {
   return (
@@ -8,13 +8,11 @@ export function CustomChatView() {
         <strong>Custom Components Mode</strong>
         <span>
           New types: <code>progress</code>, <code>rating</code>, <code>metric</code>.
-          Restyled built-ins: <code>form</code>, <code>button</code>, <code>table</code>, <code>callout</code>.
+          Restyled built-ins: <code>button</code>, <code>table</code>, <code>callout</code>.
+          Form elements: glass inputs, toggle switches, gradient submit.
         </span>
       </div>
-      <ChatView
-        renderers={customRenderers}
-        parserOptions={{ customSchemas }}
-      />
+      <ChatView customizations={customizations} />
     </div>
   );
 }

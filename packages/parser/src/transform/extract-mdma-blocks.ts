@@ -25,6 +25,7 @@ export function extractMdmaBlocks(
     // 1. Parse YAML
     const parseResult = parseYaml(node.value, node.position);
     if (!parseResult.ok) {
+      console.warn('[mdma] YAML parse error:', parseResult.error.message);
       file.message(parseResult.error.message, node.position);
       if (options.failFast) throw parseResult.error;
       return;
@@ -37,6 +38,10 @@ export function extractMdmaBlocks(
       node.position,
     );
     if (!validation.ok) {
+      console.warn(
+        `[mdma] Validation failed for component type="${parseResult.data.type}" id="${parseResult.data.id ?? '?'}":`,
+        validation.errors.map((e) => e.message).join('; '),
+      );
       for (const err of validation.errors) {
         file.message(err.message, node.position);
       }

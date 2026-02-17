@@ -3,8 +3,8 @@ import { z } from 'zod';
 export const BindingExpressionSchema = z
   .string()
   .regex(
-    /^\{\{[a-zA-Z_][a-zA-Z0-9_.]*\}\}$/,
-    'Binding must be in {{variable.path}} format',
+    /^\{\{.+\}\}$/s,
+    'Binding must be wrapped in {{ }}',
   );
 
 export type BindingExpression = z.infer<typeof BindingExpressionSchema>;

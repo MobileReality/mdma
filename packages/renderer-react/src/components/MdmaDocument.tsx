@@ -1,18 +1,72 @@
 import type { MdmaRoot, MdmaBlock as MdmaBlockType } from '@mdma/spec';
 import { MDMA_LANG_TAG } from '@mdma/spec';
 import type { DocumentStore } from '@mdma/runtime';
-import { useRef, type ComponentType } from 'react';
+import { useRef, useMemo, type ComponentType } from 'react';
 import { MdmaProvider } from '../context/MdmaProvider.js';
+import { ElementOverridesProvider, type ElementOverrides } from '../context/ElementOverridesContext.js';
 import { MdmaBlock } from './MdmaBlock.js';
 import { MdmaBlockLoading } from './MdmaBlockLoading.js';
 import { MdastRenderer } from './MdastRenderer.js';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
+/**
+ * A component entry can be either:
+ * - A `ComponentType` — shorthand for a full renderer override.
+ * - A config object — with an optional `renderer` and/or `elements`
+ *   for sub-element overrides (e.g. form inputs, checkboxes).
+ */
+export type ComponentEntry =
+  | ComponentType<MdmaBlockRendererProps>
+  | {
+      renderer?: ComponentType<MdmaBlockRendererProps>;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      elements?: Record<string, ComponentType<any>>;
+    };
+
+/** Rendering customizations — a single map keyed by component type. */
+export interface MdmaRenderCustomizations {
+  /**
+   * Component-level overrides keyed by MDMA component type name.
+   *
+   * @example
+   * ```ts
+   * components: {
+   *   button: CustomButtonRenderer,          // full renderer
+   *   form: { elements: { input: GlassInput } }, // sub-element overrides
+   * }
+   * ```
+   */
+  components?: Record<string, ComponentEntry>;
+}
+
 export interface MdmaDocumentProps {
   ast: MdmaRoot;
   store: DocumentStore;
-  renderers?: Record<string, ComponentType<MdmaBlockRendererProps>>;
+  /** Rendering customizations (component renderers + element overrides). */
+  customizations?: MdmaRenderCustomizations;
   className?: string;
+}
+
+/** Split a unified `components` map into the internal renderer + elementOverrides formats. */
+function splitComponents(components?: Record<string, ComponentEntry>) {
+  if (!components) return { renderers: undefined, elementOverrides: undefined };
+
+  const renderers: Record<string, ComponentType<MdmaBlockRendererProps>> = {};
+  const elementOverrides: ElementOverrides = {};
+
+  for (const [key, entry] of Object.entries(components)) {
+    if (typeof entry === 'function') {
+      renderers[key] = entry;
+    } else {
+      if (entry.renderer) renderers[key] = entry.renderer;
+      if (entry.elements) elementOverrides[key] = entry.elements;
+    }
+  }
+
+  return {
+    renderers: Object.keys(renderers).length > 0 ? renderers : undefined,
+    elementOverrides: Object.keys(elementOverrides).length > 0 ? elementOverrides : undefined,
+  };
 }
 
 /** Extract the `id` field from partial YAML content. */
@@ -22,7 +76,12 @@ function extractIdFromYaml(yaml?: string): string | null {
   return match ? match[1] : null;
 }
 
-export function MdmaDocument({ ast, store, renderers, className }: MdmaDocumentProps) {
+export function MdmaDocument({ ast, store, customizations, className }: MdmaDocumentProps) {
+  const { renderers, elementOverrides } = useMemo(
+    () => splitComponents(customizations?.components),
+    [customizations?.components],
+  );
+
   // Cache of successfully parsed blocks by component ID. Prevents flickering
   // during streaming when a block alternates between parsed and pending states
   // as incomplete YAML temporarily fails to validate.
@@ -30,6 +89,7 @@ export function MdmaDocument({ ast, store, renderers, className }: MdmaDocumentP
 
   return (
     <MdmaProvider store={store}>
+    <ElementOverridesProvider value={elementOverrides}>
       <div className={`mdma-document ${className ?? ''}`}>
         {ast.children.map((child, index) => {
           if (isMdmaBlock(child)) {
@@ -52,6 +112,7 @@ export function MdmaDocument({ ast, store, renderers, className }: MdmaDocumentP
           return <MdastRenderer key={index} node={child as Parameters<typeof MdastRenderer>[0]['node']} />;
         })}
       </div>
+    </ElementOverridesProvider>
     </MdmaProvider>
   );
 }

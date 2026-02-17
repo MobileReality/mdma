@@ -11,7 +11,7 @@ id: sla-warning
 type: callout
 variant: warning
 title: SLA Compliance Required
-body: >
+content: >
   All escalations must be acknowledged within 1 hour and resolved within
   the SLA window for their priority tier. P1: 4 hours, P2: 8 hours,
   P3: 24 hours, P4: 72 hours. SLA breaches trigger automatic manager
@@ -84,7 +84,7 @@ fields:
       - { label: Angry - At risk of churn, value: angry }
       - { label: Threatening - Legal/social media threat, value: threatening }
   - name: escalated_at
-    type: datetime
+    type: date
     label: Escalation Timestamp
     required: true
 onSubmit: submit-escalation

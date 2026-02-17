@@ -1,20 +1,25 @@
-import { useRef, useEffect, type ComponentType } from 'react';
+import { useRef, useEffect } from 'react';
 import { useChat, type UseChatOptions } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
-import type { MdmaBlockRendererProps } from '@mdma/renderer-react';
-import type { RemarkMdmaOptions } from '@mdma/parser';
+import type { MdmaRenderCustomizations } from '@mdma/renderer-react';
+import type { ZodType } from 'zod';
 
-export interface ChatViewProps {
-  /** Custom renderers to override or extend the built-in MDMA component renderers. */
-  renderers?: Record<string, ComponentType<MdmaBlockRendererProps>>;
-  /** Custom parser options (e.g. custom component schemas for new types). */
-  parserOptions?: RemarkMdmaOptions;
+export interface MdmaCustomizations extends MdmaRenderCustomizations {
+  /** Zod schemas for custom (non-built-in) component types. */
+  schemas?: Map<string, ZodType>;
 }
 
-export function ChatView({ renderers, parserOptions }: ChatViewProps = {}) {
-  const chatOptions: UseChatOptions | undefined = parserOptions ? { parserOptions } : undefined;
+export interface ChatViewProps {
+  /** All MDMA customizations bundled in a single prop. */
+  customizations?: MdmaCustomizations;
+}
+
+export function ChatView({ customizations }: ChatViewProps = {}) {
+  const chatOptions: UseChatOptions | undefined = customizations?.schemas
+    ? { parserOptions: { customSchemas: customizations.schemas } }
+    : undefined;
   const {
     config,
     messages,
@@ -62,7 +67,7 @@ export function ChatView({ renderers, parserOptions }: ChatViewProps = {}) {
             key={msg.id}
             message={msg}
             isStreaming={isGenerating && msg.id === lastMsgId}
-            renderers={renderers}
+            customizations={customizations}
           />
         ))}
 

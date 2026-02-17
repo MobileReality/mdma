@@ -11,7 +11,7 @@ id: risk-assessment-callout
 type: callout
 variant: warning
 title: Risk Assessment Required
-body: >
+content: >
   All production changes must include a documented risk assessment.
   High-risk and emergency changes require additional scrutiny and
   may need CAB (Change Advisory Board) review. SOX Section 404
@@ -61,7 +61,7 @@ fields:
       - { label: Staging, value: staging }
       - { label: Pre-production, value: pre-prod }
   - name: scheduled_date
-    type: datetime
+    type: date
     label: Scheduled Deployment Date
     required: true
   - name: change_description

@@ -11,7 +11,7 @@ id: severity-alert
 type: callout
 variant: warning
 title: Incident Classification Required
-body: >
+content: >
   All production incidents must be classified within 15 minutes of detection.
   P1/P2 incidents trigger automatic stakeholder notification.
 ```
@@ -53,7 +53,7 @@ fields:
     label: Incident Description
     required: true
   - name: start_time
-    type: datetime
+    type: date
     label: Incident Start Time
     required: true
   - name: customer_impact
