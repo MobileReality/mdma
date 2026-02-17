@@ -1,0 +1,46 @@
+{
+  "case_id": "KYC-2026-00142",
+  "customer_type": "individual",
+  "full_name": "Elena Rodriguez Martinez",
+  "date_of_birth": "1988-04-12",
+  "nationality": "Spanish",
+  "ssn_or_tax_id": "X-1234567-A",
+  "email": "elena.rm@example.com",
+  "phone": "+34-612-345-678",
+  "residential_address": "Calle de Alcala 45, 3B\n28014 Madrid, Spain",
+  "source_of_funds": "employment",
+  "risk_rating": "low",
+  "verification_documents": [
+    {
+      "document_type": "Passport",
+      "document_id": "ESP-AA1234567",
+      "issued_by": "Kingdom of Spain",
+      "expiry_date": "2029-08-15",
+      "verification_status": "verified"
+    },
+    {
+      "document_type": "Utility Bill",
+      "document_id": "INV-2026-0102",
+      "issued_by": "Iberdrola S.A.",
+      "expiry_date": "N/A",
+      "verification_status": "verified"
+    }
+  ],
+  "checklist_state": {
+    "id-document-check": true,
+    "proof-of-address": true,
+    "sanctions-screening": true,
+    "pep-screening": true,
+    "adverse-media": true,
+    "source-of-funds": true,
+    "beneficial-ownership": false,
+    "risk-assessment": true,
+    "enhanced-due-diligence": false
+  },
+  "approval_state": {
+    "compliance-approval": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

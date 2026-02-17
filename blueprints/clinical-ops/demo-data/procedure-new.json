@@ -1,0 +1,36 @@
+{
+  "procedure_id": "PROC-2026-0087",
+  "procedure_title": "Ultrasound-Guided Central Venous Catheter Insertion",
+  "change_type": "new",
+  "department": "emergency",
+  "author_name": "Dr. Amara Okafor",
+  "author_credentials": "MD, FACEP",
+  "effective_date": "2026-04-01",
+  "supersedes": "",
+  "clinical_summary": "Standardized protocol for ultrasound-guided central venous catheter (CVC) insertion in the emergency department. Covers internal jugular, subclavian, and femoral approaches with real-time ultrasound guidance as the mandatory standard of care.",
+  "contraindications": "Absolute: active infection at insertion site, known complete thrombosis of target vein. Relative: coagulopathy (INR > 3.0), platelet count < 50,000, patient unable to be positioned appropriately.",
+  "evidence_references": "1. NICE Guidelines CG139 (2022 update)\n2. Saugel B, et al. Ultrasound-guided CVC. Crit Care. 2024;28:112.\n3. American College of Emergency Physicians Policy Statement on CVC (2023)",
+  "risk_category": "high",
+  "checklist_state": {
+    "clinical-accuracy": true,
+    "evidence-based": true,
+    "contraindications-complete": true,
+    "drug-interactions": false,
+    "equipment-verified": true,
+    "competency-requirements": true,
+    "patient-consent": true,
+    "regulatory-alignment": false,
+    "formatting-standards": false,
+    "cross-references": false
+  },
+  "approval_state": {
+    "clinical-review": {
+      "status": "pending",
+      "approvers": []
+    },
+    "qa-review": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

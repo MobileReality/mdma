@@ -1,0 +1,51 @@
+{
+  "case_id": "ESC-2026-04835",
+  "customer_name": "TechForward Inc.",
+  "customer_email": "ops@techforward.example.com",
+  "customer_phone": "+1-555-0199",
+  "account_id": "ACCT-ENT-10042",
+  "priority": "P1",
+  "category": "outage",
+  "escalation_reason": "Enterprise customer reporting complete API outage for their production integration. Their e-commerce platform is down, estimating $50K/hour in lost revenue. Account is on Premium SLA tier with 99.99% uptime guarantee.",
+  "previous_attempts": "Customer called support hotline twice. First call dropped after 12 minutes on hold. Second call agent confirmed outage but could not provide ETA.",
+  "customer_sentiment": "threatening",
+  "escalated_at": "2026-02-16T15:45:00Z",
+  "escalation_history": [
+    {
+      "timestamp": "2026-02-16T15:45:00Z",
+      "action": "Escalation created",
+      "agent": "Lisa Torres",
+      "notes": "P1 enterprise customer - API outage affecting production"
+    },
+    {
+      "timestamp": "2026-02-16T15:48:00Z",
+      "action": "Manager escalation triggered",
+      "agent": "Lisa Torres",
+      "notes": "Escalated to VP of Customer Success per enterprise SLA protocol"
+    },
+    {
+      "timestamp": "2026-02-16T15:52:00Z",
+      "action": "Engineering engaged",
+      "agent": "David Park (VP CS)",
+      "notes": "Linked to incident INC-2026-0312. Engineering team engaged, ETA 30 minutes"
+    },
+    {
+      "timestamp": "2026-02-16T16:05:00Z",
+      "action": "Customer updated",
+      "agent": "David Park (VP CS)",
+      "notes": "Called customer CTO directly. Provided ETA and committed to post-incident review"
+    }
+  ],
+  "checklist_state": {
+    "acknowledge-customer": true,
+    "review-history": true,
+    "reproduce-issue": true,
+    "identify-root-cause": false,
+    "propose-resolution": false,
+    "implement-fix": false,
+    "apply-credit": false,
+    "customer-confirmation": false,
+    "update-knowledge-base": false,
+    "close-case": false
+  }
+}

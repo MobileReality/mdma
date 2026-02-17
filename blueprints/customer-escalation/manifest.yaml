@@ -1,0 +1,43 @@
+name: customer-escalation
+version: "0.1.0"
+maturity: experimental
+description: >
+  Customer escalation workflow with SLA timers and escalation paths.
+  Tracks escalation details, resolution steps, manager escalation,
+  SLA compliance, and maintains a full history log.
+outcome: >
+  Every customer escalation is tracked with SLA awareness, structured
+  resolution steps, clear escalation paths, and a complete audit trail
+  ensuring no escalation is dropped or breaches its SLA.
+domain: customer-ops
+components_used:
+  - form
+  - tasklist
+  - button
+  - callout
+  - table
+integrations:
+  - name: crm-system
+    type: rest
+    description: CRM system for customer record lookup and case linking
+    mock: true
+  - name: pagerduty
+    type: webhook
+    description: PagerDuty integration for manager escalation alerts
+    mock: true
+checklists:
+  security:
+    - Customer PII fields (email, phone, account_id) marked sensitive
+    - Escalation history access restricted to support team roles
+  logging:
+    - All form submissions logged with timestamp
+    - Escalation actions audit-logged
+    - SLA breach events captured
+  schema:
+    - Form fields validated against spec ComponentBaseSchema
+    - Manifest validates against BlueprintManifestSchema
+  mocks:
+    - demo-data/escalation-billing.json provides a billing dispute scenario
+    - demo-data/escalation-outage.json provides a service outage escalation
+  docs:
+    - README.md covers usage, SLA tiers, and escalation paths

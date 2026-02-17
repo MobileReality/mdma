@@ -1,0 +1,43 @@
+name: clinical-ops
+version: "0.1.0"
+maturity: experimental
+description: >
+  Clinical procedure publish and change approval workflow. Manages
+  procedure metadata, clinical review, QA review, and safety-critical
+  approval gates before a procedure document can be published or updated.
+outcome: >
+  Every clinical procedure change undergoes structured review with both
+  clinical and QA sign-off, ensuring patient safety standards are met
+  and regulatory compliance is maintained before publication.
+domain: healthcare
+components_used:
+  - form
+  - approval-gate
+  - tasklist
+  - callout
+integrations:
+  - name: ehr-system
+    type: rest
+    description: Electronic Health Record system for procedure cross-referencing
+    mock: true
+  - name: regulatory-database
+    type: rest
+    description: FDA/EMA regulatory guidance database lookup
+    mock: true
+checklists:
+  security:
+    - Patient-adjacent data fields handled with HIPAA compliance
+    - Approval roles restricted to licensed clinical staff
+    - Dual approval gate (clinical + QA) enforced
+  logging:
+    - All procedure changes audit-logged with version history
+    - Approval decisions recorded with reviewer credentials
+    - Safety notice acknowledgments logged
+  schema:
+    - Form fields validated against spec ComponentBaseSchema
+    - Manifest validates against BlueprintManifestSchema
+  mocks:
+    - demo-data/procedure-new.json provides a new procedure submission
+    - demo-data/procedure-update.json provides a procedure revision
+  docs:
+    - README.md covers usage, review process, and regulatory context

@@ -1,0 +1,42 @@
+{
+  "procedure_id": "PROC-2026-0034-R2",
+  "procedure_title": "Insulin Sliding Scale Protocol - Adult Inpatient",
+  "change_type": "major-revision",
+  "department": "internal-medicine",
+  "author_name": "Dr. James Whitfield",
+  "author_credentials": "MD, FACP, Endocrinology",
+  "effective_date": "2026-03-15",
+  "supersedes": "PROC-2024-0034-R1",
+  "clinical_summary": "Updated insulin sliding scale protocol incorporating 2025 ADA guidelines. Key changes: adjusted correction factor ranges for patients with eGFR < 30, added continuous glucose monitoring integration, and updated hypoglycemia management thresholds from 70 mg/dL to 54 mg/dL per IHSG consensus.",
+  "contraindications": "Do not use in: DKA (use DKA protocol PROC-2025-0012), hyperglycemic hyperosmolar state, type 1 diabetes without basal insulin coverage, patients on insulin pump therapy.",
+  "evidence_references": "1. ADA Standards of Care in Diabetes (2025)\n2. International Hypoglycaemia Study Group. Diabetologia. 2025;68:45-52.\n3. Umpierrez GE, et al. J Clin Endocrinol Metab. 2024;109:e1124-e1135.",
+  "risk_category": "medium",
+  "checklist_state": {
+    "clinical-accuracy": true,
+    "evidence-based": true,
+    "contraindications-complete": true,
+    "drug-interactions": true,
+    "equipment-verified": true,
+    "competency-requirements": true,
+    "patient-consent": true,
+    "regulatory-alignment": true,
+    "formatting-standards": true,
+    "cross-references": true
+  },
+  "approval_state": {
+    "clinical-review": {
+      "status": "approved",
+      "approvers": [
+        {
+          "name": "Dr. Patricia Huang",
+          "role": "department-chief",
+          "timestamp": "2026-02-10T11:30:00Z"
+        }
+      ]
+    },
+    "qa-review": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

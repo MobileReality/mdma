@@ -1,0 +1,28 @@
+{
+  "incident_title": "Staging environment deploy pipeline stuck",
+  "reporter_name": "Marcus Lee",
+  "reporter_email": "m.lee@example.com",
+  "severity": "P3",
+  "affected_systems": "ci-pipeline, staging-cluster",
+  "description": "The staging environment deploy pipeline has been stuck for 2 hours. No customer-facing impact. Dev team unable to deploy to staging for QA testing.",
+  "start_time": "2026-02-16T09:15:00Z",
+  "customer_impact": "No direct customer impact. Internal QA velocity reduced.",
+  "checklist_state": {
+    "verify-alert": true,
+    "check-dashboards": true,
+    "identify-scope": true,
+    "assign-commander": false,
+    "open-bridge": false,
+    "engage-oncall": false,
+    "customer-comms": false,
+    "apply-mitigation": false,
+    "verify-resolution": false,
+    "write-postmortem": false
+  },
+  "approval_state": {
+    "manager-signoff": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

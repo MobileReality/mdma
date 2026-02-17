@@ -1,0 +1,55 @@
+{
+  "change_id": "CHG-2026-00318-E",
+  "jira_ticket": "ENG-4530",
+  "change_title": "Emergency patch: Authentication bypass in OAuth flow",
+  "change_type": "emergency",
+  "requestor_name": "Fatima Al-Rashid",
+  "requestor_team": "Security Engineering",
+  "environment": "production",
+  "scheduled_date": "2026-02-16T18:00:00Z",
+  "change_description": "Emergency patch to fix an authentication bypass vulnerability discovered in the OAuth2 authorization code flow. An attacker can craft a malicious redirect_uri that bypasses validation, allowing token theft. CVSS score: 9.1 (Critical). Patch replaces regex-based URI validation with strict allowlist matching.",
+  "business_justification": "Critical security vulnerability actively being probed in the wild. WAF rules deployed as temporary mitigation but patch is required for full remediation. Regulatory obligation under SOC 2 Type II to patch critical vulnerabilities within 24 hours.",
+  "affected_services": "auth-service, oauth-gateway, api-gateway",
+  "risk_level": "high",
+  "rollback_plan": "1. Revert auth-service to previous container image (sha:a3f8b21)\n2. Re-enable WAF regex rules as interim protection\n3. Verify OAuth flow with integration test suite\n4. Estimated rollback: 5 minutes via container swap",
+  "rollback_time_estimate": "5 minutes",
+  "test_evidence": "CI: https://ci.example.com/builds/auth-hotfix-9918\nSecurity team pen-test: Vulnerability confirmed patched\nOAuth integration tests: All 142 tests passing\nNote: Staging soak test waived per emergency change policy",
+  "checklist_state": {
+    "ci-pipeline-green": true,
+    "unit-tests-pass": true,
+    "integration-tests-pass": true,
+    "security-scan": true,
+    "database-migration": false,
+    "feature-flags": false,
+    "monitoring-alerts": true,
+    "runbook-updated": true,
+    "communication-sent": true,
+    "backup-verified": true,
+    "load-test": false,
+    "rollback-tested": true
+  },
+  "approval_state": {
+    "tech-lead-approval": {
+      "status": "approved",
+      "approvers": [
+        {
+          "name": "Raj Patel",
+          "role": "principal-engineer",
+          "timestamp": "2026-02-16T17:22:00Z",
+          "rationale": "Reviewed patch. Strict allowlist approach is correct. Emergency deploy approved."
+        }
+      ]
+    },
+    "manager-approval": {
+      "status": "approved",
+      "approvers": [
+        {
+          "name": "Jennifer Walsh",
+          "role": "director-engineering",
+          "timestamp": "2026-02-16T17:35:00Z",
+          "rationale": "Critical security fix. Emergency change policy invoked. CAB notified retroactively."
+        }
+      ]
+    }
+  }
+}

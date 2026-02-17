@@ -1,0 +1,48 @@
+{
+  "change_id": "CHG-2026-00312",
+  "jira_ticket": "ENG-4521",
+  "change_title": "Upgrade Redis cluster from 7.0 to 7.2 for session store",
+  "change_type": "normal",
+  "requestor_name": "Alex Chen",
+  "requestor_team": "Platform Engineering",
+  "environment": "production",
+  "scheduled_date": "2026-02-20T02:00:00Z",
+  "change_description": "Upgrade the production Redis cluster (3 nodes) from Redis 7.0.15 to 7.2.4. This upgrade includes improved memory efficiency, new WAITAOF command support, and security patches for CVE-2024-31449. Rolling upgrade with zero-downtime approach.",
+  "business_justification": "Security patches address a critical CVE. Memory optimization expected to reduce Redis costs by 15%. Required for upcoming real-time features in Q2 roadmap.",
+  "affected_services": "session-service, cache-layer, rate-limiter, websocket-gateway",
+  "risk_level": "medium",
+  "rollback_plan": "1. Stop rolling upgrade at current node\n2. Revert completed nodes to 7.0.15 using blue-green swap\n3. Verify cluster health with redis-cli cluster info\n4. Estimated rollback: 15 minutes per node",
+  "rollback_time_estimate": "45 minutes (full cluster)",
+  "test_evidence": "CI: https://ci.example.com/builds/redis-upgrade-7821\nStaging validation: 72-hour soak test passed (Feb 12-15)\nLoad test: 150% peak traffic sustained for 2 hours on staging",
+  "checklist_state": {
+    "ci-pipeline-green": true,
+    "unit-tests-pass": true,
+    "integration-tests-pass": true,
+    "security-scan": true,
+    "database-migration": false,
+    "feature-flags": false,
+    "monitoring-alerts": true,
+    "runbook-updated": true,
+    "communication-sent": false,
+    "backup-verified": true,
+    "load-test": true,
+    "rollback-tested": true
+  },
+  "approval_state": {
+    "tech-lead-approval": {
+      "status": "approved",
+      "approvers": [
+        {
+          "name": "Maria Santos",
+          "role": "staff-engineer",
+          "timestamp": "2026-02-17T09:15:00Z",
+          "rationale": "Staging soak test results are solid. Rolling upgrade approach minimizes risk."
+        }
+      ]
+    },
+    "manager-approval": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

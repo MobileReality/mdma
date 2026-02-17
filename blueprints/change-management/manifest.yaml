@@ -1,0 +1,48 @@
+name: change-management
+version: "0.1.0"
+maturity: experimental
+description: >
+  Release and change approval workflow for SOX/ISO compliance. Captures
+  change request details, enforces dual approval from tech lead and
+  manager, tracks pre-deployment checklist completion, and documents
+  risk assessment.
+outcome: >
+  Every production change is documented with risk assessment, reviewed
+  by both technical and managerial approvers, verified against a
+  pre-deployment checklist, and audit-trailed for SOX/ISO compliance.
+domain: engineering
+components_used:
+  - form
+  - approval-gate
+  - tasklist
+  - callout
+integrations:
+  - name: jira
+    type: rest
+    description: JIRA integration for change ticket linking and status sync
+    mock: true
+  - name: ci-cd-pipeline
+    type: webhook
+    description: CI/CD pipeline trigger for approved deployments
+    mock: true
+  - name: audit-log-service
+    type: rest
+    description: Centralized audit log for SOX compliance evidence
+    mock: true
+checklists:
+  security:
+    - Dual approval gate enforces separation of duties (SOX requirement)
+    - Change request linked to authorized JIRA ticket
+    - Rollback plan required before approval
+  logging:
+    - All change requests audit-logged with full metadata
+    - Approval decisions recorded with timestamp and rationale
+    - Deployment outcomes logged for compliance evidence
+  schema:
+    - Form fields validated against spec ComponentBaseSchema
+    - Manifest validates against BlueprintManifestSchema
+  mocks:
+    - demo-data/change-standard.json provides a standard change request
+    - demo-data/change-emergency.json provides an emergency change scenario
+  docs:
+    - README.md covers usage, approval workflow, and compliance mapping

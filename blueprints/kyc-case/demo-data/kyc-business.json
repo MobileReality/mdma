@@ -1,0 +1,53 @@
+{
+  "case_id": "KYC-2026-00198",
+  "customer_type": "business",
+  "full_name": "Nordic Trade Holdings ApS",
+  "date_of_birth": "2019-06-01",
+  "nationality": "Danish",
+  "ssn_or_tax_id": "DK-38471625",
+  "email": "compliance@nordictrade.example.com",
+  "phone": "+45-3312-9087",
+  "residential_address": "Bredgade 25, 4th Floor\n1260 Copenhagen K, Denmark",
+  "source_of_funds": "business",
+  "risk_rating": "medium",
+  "verification_documents": [
+    {
+      "document_type": "Certificate of Incorporation",
+      "document_id": "CVR-38471625",
+      "issued_by": "Danish Business Authority",
+      "expiry_date": "N/A",
+      "verification_status": "verified"
+    },
+    {
+      "document_type": "Director Passport",
+      "document_id": "DNK-L9182736",
+      "issued_by": "Kingdom of Denmark",
+      "expiry_date": "2028-11-30",
+      "verification_status": "verified"
+    },
+    {
+      "document_type": "Ownership Structure",
+      "document_id": "UBO-2026-0198",
+      "issued_by": "Internal Compliance",
+      "expiry_date": "N/A",
+      "verification_status": "pending"
+    }
+  ],
+  "checklist_state": {
+    "id-document-check": true,
+    "proof-of-address": true,
+    "sanctions-screening": true,
+    "pep-screening": true,
+    "adverse-media": false,
+    "source-of-funds": false,
+    "beneficial-ownership": false,
+    "risk-assessment": false,
+    "enhanced-due-diligence": false
+  },
+  "approval_state": {
+    "compliance-approval": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

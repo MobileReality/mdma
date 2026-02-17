@@ -1,0 +1,43 @@
+name: kyc-case
+version: "0.1.0"
+maturity: experimental
+description: >
+  Know Your Customer (KYC) and Anti-Money Laundering (AML) verification
+  workflow. Captures customer identity data, tracks document verification,
+  and requires compliance officer approval before case closure.
+outcome: >
+  Every customer undergoes structured identity verification with PII
+  protection, document checklist completion, and compliance officer
+  sign-off ensuring regulatory obligations are met.
+domain: finance
+components_used:
+  - form
+  - tasklist
+  - approval-gate
+  - table
+integrations:
+  - name: identity-verification-api
+    type: rest
+    description: Third-party identity verification service for document validation
+    mock: true
+  - name: sanctions-screening
+    type: rest
+    description: OFAC/EU sanctions list screening
+    mock: true
+checklists:
+  security:
+    - All PII fields (ssn, dob, email, phone, address) marked sensitive
+    - Data encrypted at rest and in transit
+    - Access restricted to compliance team roles
+  logging:
+    - All form submissions audit-logged with user and timestamp
+    - Approval decisions recorded with rationale
+    - Document verification outcomes logged
+  schema:
+    - Form fields validated against spec ComponentBaseSchema
+    - Manifest validates against BlueprintManifestSchema
+  mocks:
+    - demo-data/kyc-individual.json provides a standard individual verification
+    - demo-data/kyc-business.json provides a business entity verification
+  docs:
+    - README.md covers usage, PII handling, and compliance requirements

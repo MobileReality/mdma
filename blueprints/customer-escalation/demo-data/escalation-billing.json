@@ -1,0 +1,45 @@
+{
+  "case_id": "ESC-2026-04821",
+  "customer_name": "Priya Sharma",
+  "customer_email": "p.sharma@example.com",
+  "customer_phone": "+1-555-0142",
+  "account_id": "ACCT-88291",
+  "priority": "P2",
+  "category": "billing",
+  "escalation_reason": "Customer was charged $2,400 for an annual plan they cancelled 3 months ago. Two previous support tickets (#41822, #41956) were closed without resolution. Customer has been waiting 18 days for a refund.",
+  "previous_attempts": "Ticket #41822 (Jan 20): Agent promised refund within 5 business days - no action taken.\nTicket #41956 (Feb 03): Agent escalated internally but case stalled in billing queue.",
+  "customer_sentiment": "angry",
+  "escalated_at": "2026-02-16T10:22:00Z",
+  "escalation_history": [
+    {
+      "timestamp": "2026-02-16T10:22:00Z",
+      "action": "Escalation created",
+      "agent": "Support Bot",
+      "notes": "Auto-escalated after 2 unresolved tickets"
+    },
+    {
+      "timestamp": "2026-02-16T10:35:00Z",
+      "action": "Acknowledged",
+      "agent": "Jordan Kim",
+      "notes": "Reviewing billing history and previous tickets"
+    },
+    {
+      "timestamp": "2026-02-16T11:10:00Z",
+      "action": "Root cause identified",
+      "agent": "Jordan Kim",
+      "notes": "Cancellation processed but refund workflow failed due to expired payment method on file"
+    }
+  ],
+  "checklist_state": {
+    "acknowledge-customer": true,
+    "review-history": true,
+    "reproduce-issue": true,
+    "identify-root-cause": true,
+    "propose-resolution": false,
+    "implement-fix": false,
+    "apply-credit": false,
+    "customer-confirmation": false,
+    "update-knowledge-base": false,
+    "close-case": false
+  }
+}

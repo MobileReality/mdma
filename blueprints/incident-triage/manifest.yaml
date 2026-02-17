@@ -1,0 +1,38 @@
+name: incident-triage
+version: "0.1.0"
+maturity: experimental
+description: >
+  Severity assessment, stakeholder notification, and resolution tracking
+  for production incidents. Guides responders through structured triage
+  with manager sign-off before closure.
+outcome: >
+  Every incident is classified by severity, stakeholders are notified within
+  SLA, and resolution is tracked through a verified checklist with manager
+  approval before the incident can be marked resolved.
+domain: critical-ops
+components_used:
+  - form
+  - tasklist
+  - approval-gate
+  - callout
+  - button
+integrations:
+  - name: slack
+    type: webhook
+    description: Post incident alerts to the on-call Slack channel
+    mock: true
+checklists:
+  security:
+    - PII fields (reporter_email) marked sensitive
+    - Approval gate enforces manager/director role
+  logging:
+    - All form submissions are logged with timestamp
+    - Approval decisions are audit-logged
+  schema:
+    - Form fields validated against spec ComponentBaseSchema
+    - Manifest validates against BlueprintManifestSchema
+  mocks:
+    - demo-data/incident-p1.json provides a critical incident scenario
+    - demo-data/incident-p3.json provides a low-severity scenario
+  docs:
+    - README.md covers usage, components, and integration points

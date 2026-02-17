@@ -1,0 +1,28 @@
+{
+  "incident_title": "Payment gateway timeout - all transactions failing",
+  "reporter_name": "Sarah Chen",
+  "reporter_email": "s.chen@example.com",
+  "severity": "P1",
+  "affected_systems": "payment-gateway, checkout-service, order-service",
+  "description": "All payment transactions are timing out since 14:32 UTC. Customers are unable to complete purchases. Error rate spiked from 0.1% to 98%. Likely related to the database migration deployed at 14:15 UTC.",
+  "start_time": "2026-02-16T14:32:00Z",
+  "customer_impact": "100% of customers attempting checkout are affected. Estimated revenue loss: $12,000/minute.",
+  "checklist_state": {
+    "verify-alert": true,
+    "check-dashboards": true,
+    "identify-scope": true,
+    "assign-commander": true,
+    "open-bridge": true,
+    "engage-oncall": true,
+    "customer-comms": false,
+    "apply-mitigation": false,
+    "verify-resolution": false,
+    "write-postmortem": false
+  },
+  "approval_state": {
+    "manager-signoff": {
+      "status": "pending",
+      "approvers": []
+    }
+  }
+}

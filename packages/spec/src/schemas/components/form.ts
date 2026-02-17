@@ -1,0 +1,33 @@
+import { z } from 'zod';
+import { ComponentBaseSchema } from '../component-base.js';
+import { BindingExpressionSchema } from '../binding.js';
+
+export const FormFieldSchema = z.object({
+  name: z.string().min(1),
+  type: z.enum(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea']),
+  label: z.string(),
+  required: z.boolean().default(false),
+  sensitive: z.boolean().default(false),
+  defaultValue: z.unknown().optional(),
+  options: z
+    .array(z.object({ label: z.string(), value: z.string() }))
+    .optional(),
+  validation: z
+    .object({
+      pattern: z.string().optional(),
+      min: z.number().optional(),
+      max: z.number().optional(),
+      message: z.string().optional(),
+    })
+    .optional(),
+  bind: BindingExpressionSchema.optional(),
+});
+
+export const FormComponentSchema = ComponentBaseSchema.extend({
+  type: z.literal('form'),
+  fields: z.array(FormFieldSchema).min(1),
+  onSubmit: z.string().optional().describe('Action ID to trigger on submit'),
+});
+
+export type FormField = z.infer<typeof FormFieldSchema>;
+export type FormComponent = z.infer<typeof FormComponentSchema>;
