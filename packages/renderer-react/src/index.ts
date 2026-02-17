@@ -11,6 +11,8 @@ export {
 } from './hooks/use-document-store.js';
 export {
   RendererRegistry,
+  createRendererRegistry,
+  defaultRenderers,
   type MdmaBlockRendererProps,
 } from './renderers/renderer-registry.js';
 export { FormRenderer } from './components/FormRenderer.js';

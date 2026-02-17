@@ -1,15 +1,17 @@
-import { memo, useState, useCallback } from 'react';
-import { MdmaDocument } from '@mdma/renderer-react';
+import { memo, useState, useCallback, type ComponentType } from 'react';
+import { MdmaDocument, type MdmaBlockRendererProps } from '@mdma/renderer-react';
 import type { ChatMsg } from './types.js';
 
 export interface ChatMessageProps {
   message: ChatMsg;
   isStreaming: boolean;
+  renderers?: Record<string, ComponentType<MdmaBlockRendererProps>>;
 }
 
 export const ChatMessage = memo(function ChatMessage({
   message,
   isStreaming,
+  renderers,
 }: ChatMessageProps) {
   const [showSource, setShowSource] = useState(false);
   const toggleSource = useCallback(() => setShowSource((s) => !s), []);
@@ -37,7 +39,7 @@ export const ChatMessage = memo(function ChatMessage({
           <pre className="chat-msg-source">{message.content}</pre>
         ) : message.ast && message.store ? (
           <>
-            <MdmaDocument ast={message.ast} store={message.store} />
+            <MdmaDocument ast={message.ast} store={message.store} renderers={renderers} />
             {isStreaming && (
               <span className="chat-msg-streaming">Streaming...</span>
             )}

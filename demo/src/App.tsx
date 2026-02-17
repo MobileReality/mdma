@@ -8,8 +8,9 @@ import type { MdmaRoot } from '@mdma/spec';
 import type { StoreAction } from '@mdma/spec';
 import { documents } from './documents.js';
 import { ChatView } from './ChatView.js';
+import { CustomChatView } from './CustomChatView.js';
 
-type Mode = 'examples' | 'chat';
+type Mode = 'examples' | 'chat' | 'custom';
 
 interface EventEntry {
   id: number;
@@ -99,6 +100,13 @@ export function App() {
             >
               AI Chat
             </button>
+            <button
+              type="button"
+              className={`demo-mode-tab ${mode === 'custom' ? 'demo-mode-tab--active' : ''}`}
+              onClick={() => setMode('custom')}
+            >
+              Custom Components
+            </button>
           </div>
           {mode === 'examples' && (
             <select
@@ -116,7 +124,9 @@ export function App() {
         </div>
       </header>
 
-      {mode === 'examples' ? (
+      {mode === 'custom' ? (
+        <CustomChatView />
+      ) : mode === 'examples' ? (
         <div className="demo-main">
           <div className="demo-document-panel">
             {error && (

@@ -8,8 +8,14 @@ import {
   type LlmConfig,
   type ChatMessage as LlmMessage,
 } from '../llm-client.js';
-import { parseMarkdown } from './parse-markdown.js';
+import { parseMarkdown as defaultParseMarkdown, createParser } from './parse-markdown.js';
+import type { RemarkMdmaOptions } from '@mdma/parser';
 import type { ChatMsg } from './types.js';
+
+export interface UseChatOptions {
+  /** Custom parser options (e.g. custom component schemas). */
+  parserOptions?: RemarkMdmaOptions;
+}
 
 // ---- Config persistence ----
 
@@ -60,12 +66,17 @@ const PARSE_INTERVAL = 150; // ms — parse at most every 150ms during streaming
 
 // ---- Hook ----
 
-export function useChat() {
+export function useChat(options?: UseChatOptions) {
   const [config, setConfig] = useState<LlmConfig>(loadSavedConfig);
   const [messages, setMessages] = useState<ChatMsg[]>([]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Build parser — use custom parser if parserOptions are provided, otherwise default
+  const parseMarkdown = useRef(
+    options?.parserOptions ? createParser(options.parserOptions) : defaultParseMarkdown,
+  ).current;
 
   const abortRef = useRef<AbortController | null>(null);
   const msgIdRef = useRef(0);
