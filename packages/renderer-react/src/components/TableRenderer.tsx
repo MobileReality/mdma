@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export function TableRenderer({ component, resolveBinding }: MdmaBlockRendererProps) {
+export const TableRenderer = memo(function TableRenderer({ component, resolveBinding }: MdmaBlockRendererProps) {
   if (component.type !== 'table') return null;
 
   const rawData = typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
@@ -38,4 +39,4 @@ export function TableRenderer({ component, resolveBinding }: MdmaBlockRendererPr
       </table>
     </div>
   );
-}
+});

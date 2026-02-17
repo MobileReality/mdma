@@ -29,6 +29,9 @@ export interface DocumentStore {
   getEventLog(): AppendOnlyEventLog;
   getEventBus(): TypedEventBus;
   getPolicyEngine(): PolicyEngine;
+  /** Incrementally update the store from a new AST — adds new components,
+   *  removes deleted ones, and preserves existing component state (values, touched, etc.). */
+  updateAst(ast: MdmaRoot): void;
 }
 
 export function createDocumentStore(
@@ -224,6 +227,73 @@ export function createDocumentStore(
     getPolicyEngine() {
       return policy;
     },
+
+    updateAst(newAst: MdmaRoot) {
+      // Collect new component IDs from the updated AST
+      const newIds = new Set<string>();
+      for (const child of newAst.children) {
+        if (isMdmaBlock(child)) {
+          newIds.add(child.component.id);
+        } else if (isPendingMdmaBlock(child)) {
+          // During streaming, a previously-parsed block may temporarily revert
+          // to a code node (incomplete YAML). Extract its ID from partial YAML
+          // so we preserve its state instead of deleting it.
+          const pendingId = extractIdFromYaml((child as { value?: string }).value);
+          if (pendingId) newIds.add(pendingId);
+        }
+      }
+
+      // Remove components that no longer exist in the new AST
+      for (const id of state.components.keys()) {
+        if (!newIds.has(id)) {
+          state.components.delete(id);
+          redactionCtx.sensitiveComponents.delete(id);
+        }
+      }
+
+      // Add new components, preserve existing ones
+      for (const child of newAst.children) {
+        if (!isMdmaBlock(child)) continue;
+        const comp = child.component;
+
+        // If this component already exists, keep its state
+        if (state.components.has(comp.id)) continue;
+
+        // New component — initialize with defaults
+        const compState: ComponentState = {
+          id: comp.id,
+          type: comp.type,
+          values: {},
+          errors: [],
+          touched: false,
+          visible: resolveValue(comp.visible, state.bindings) !== false,
+          disabled: resolveValue(comp.disabled, state.bindings) === true,
+        };
+
+        if (comp.sensitive) {
+          redactionCtx.sensitiveComponents.add(comp.id);
+        }
+
+        if (comp.type === 'form') {
+          for (const field of comp.fields) {
+            if (field.sensitive) {
+              redactionCtx.sensitiveFields.add(field.name);
+            }
+            if (field.defaultValue !== undefined) {
+              compState.values[field.name] = field.defaultValue;
+              // Only set binding if not already set by user interaction
+              if (!(field.name in state.bindings)) {
+                state.bindings[field.name] = field.defaultValue;
+              }
+            }
+          }
+        }
+
+        state.components.set(comp.id, compState);
+      }
+
+      notify();
+    },
   };
 
   return store;
@@ -236,4 +306,24 @@ function isMdmaBlock(node: unknown): node is MdmaBlock {
     'type' in node &&
     (node as { type: string }).type === 'mdmaBlock'
   );
+}
+
+/** Detect code blocks with lang="mdma" that weren't converted to MdmaBlock
+ *  (incomplete YAML during streaming or validation failure). */
+function isPendingMdmaBlock(node: unknown): boolean {
+  return (
+    typeof node === 'object' &&
+    node !== null &&
+    'type' in node &&
+    (node as { type: string }).type === 'code' &&
+    'lang' in node &&
+    (node as { lang: string }).lang === 'mdma'
+  );
+}
+
+/** Extract the `id` field from partial YAML content. */
+function extractIdFromYaml(yaml?: string): string | null {
+  if (!yaml) return null;
+  const match = yaml.match(/^\s*id:\s*(\S+)/m);
+  return match ? match[1] : null;
 }

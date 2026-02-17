@@ -42,6 +42,9 @@ importers:
       '@mdma/parser':
         specifier: workspace:*
         version: link:../packages/parser
+      '@mdma/prompt-pack':
+        specifier: workspace:*
+        version: link:../packages/prompt-pack
       '@mdma/renderer-react':
         specifier: workspace:*
         version: link:../packages/renderer-react

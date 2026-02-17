@@ -12,6 +12,7 @@
     "@mdma/parser": "workspace:*",
     "@mdma/runtime": "workspace:*",
     "@mdma/renderer-react": "workspace:*",
+    "@mdma/prompt-pack": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "unified": "^11.0.0",

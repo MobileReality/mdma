@@ -1,4 +1,4 @@
-import { createContext, useContext, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { DocumentStore } from '@mdma/runtime';
 
 export interface MdmaContextValue {
@@ -21,5 +21,6 @@ export interface MdmaProviderProps {
 }
 
 export function MdmaProvider({ store, children }: MdmaProviderProps) {
-  return <MdmaContext.Provider value={{ store }}>{children}</MdmaContext.Provider>;
+  const value = useMemo(() => ({ store }), [store]);
+  return <MdmaContext.Provider value={value}>{children}</MdmaContext.Provider>;
 }

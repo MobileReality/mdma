@@ -1,5 +1,7 @@
 export { MdmaDocument, type MdmaDocumentProps } from './components/MdmaDocument.js';
 export { MdmaBlock, type MdmaBlockProps } from './components/MdmaBlock.js';
+export { MdastRenderer, type MdastRendererProps } from './components/MdastRenderer.js';
+export { MdmaBlockLoading, type MdmaBlockLoadingProps } from './components/MdmaBlockLoading.js';
 export { MdmaProvider, useMdmaContext, type MdmaProviderProps } from './context/MdmaProvider.js';
 export {
   useDocumentStore,

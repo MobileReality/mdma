@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export function FormRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const FormRenderer = memo(function FormRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
   if (component.type !== 'form') return null;
 
   return (
@@ -93,4 +94,4 @@ export function FormRenderer({ component, componentState, dispatch }: MdmaBlockR
       )}
     </div>
   );
-}
+});
