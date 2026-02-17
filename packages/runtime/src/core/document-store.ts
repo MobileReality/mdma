@@ -171,7 +171,7 @@ export function createDocumentStore(
         case 'FIELD_CHANGED': {
           const comp = state.components.get(action.componentId);
           if (comp) {
-            comp.values[action.field] = action.value;
+            comp.values = { ...comp.values, [action.field]: action.value };
             comp.touched = true;
             state.bindings[action.field] = action.value;
           }
@@ -184,8 +184,7 @@ export function createDocumentStore(
         case 'APPROVAL_GRANTED': {
           const comp = state.components.get(action.componentId);
           if (comp) {
-            comp.values['status'] = 'approved';
-            comp.values['approvedBy'] = action.actor;
+            comp.values = { ...comp.values, status: 'approved', approvedBy: action.actor };
             state.bindings[`${action.componentId}.status`] = 'approved';
           }
           break;
@@ -193,9 +192,7 @@ export function createDocumentStore(
         case 'APPROVAL_DENIED': {
           const comp = state.components.get(action.componentId);
           if (comp) {
-            comp.values['status'] = 'denied';
-            comp.values['deniedBy'] = action.actor;
-            comp.values['deniedReason'] = action.reason;
+            comp.values = { ...comp.values, status: 'denied', deniedBy: action.actor, deniedReason: action.reason };
             state.bindings[`${action.componentId}.status`] = 'denied';
           }
           break;

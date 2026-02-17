@@ -9,8 +9,9 @@ import type { StoreAction } from '@mdma/spec';
 import { documents } from './documents.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
+import { PlaygroundView } from './PlaygroundView.js';
 
-type Mode = 'examples' | 'chat' | 'custom';
+type Mode = 'examples' | 'chat' | 'custom' | 'playground';
 
 interface EventEntry {
   id: number;
@@ -107,6 +108,13 @@ export function App() {
             >
               Custom Components
             </button>
+            <button
+              type="button"
+              className={`demo-mode-tab ${mode === 'playground' ? 'demo-mode-tab--active' : ''}`}
+              onClick={() => setMode('playground')}
+            >
+              Playground
+            </button>
           </div>
           {mode === 'examples' && (
             <select
@@ -124,7 +132,9 @@ export function App() {
         </div>
       </header>
 
-      {mode === 'custom' ? (
+      {mode === 'playground' ? (
+        <PlaygroundView />
+      ) : mode === 'custom' ? (
         <CustomChatView />
       ) : mode === 'examples' ? (
         <div className="demo-main">

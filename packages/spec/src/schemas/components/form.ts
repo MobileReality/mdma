@@ -9,9 +9,13 @@ export const FormFieldSchema = z.object({
   required: z.boolean().default(false),
   sensitive: z.boolean().default(false),
   defaultValue: z.unknown().optional(),
-  options: z
-    .array(z.object({ label: z.string(), value: z.string() }))
-    .optional(),
+  options: z.preprocess(
+    (val) => {
+      if (!Array.isArray(val)) return val;
+      return val.map((item) => typeof item === 'string' ? { label: item, value: item } : item);
+    },
+    z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+  ),
   validation: z
     .object({
       pattern: z.string().optional(),

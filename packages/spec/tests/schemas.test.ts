@@ -61,6 +61,27 @@ describe('FormComponentSchema', () => {
     expect(result.sensitive).toBe(false);
   });
 
+  it('normalizes string options to label/value objects', () => {
+    const form = {
+      id: 'country-form',
+      type: 'form',
+      fields: [
+        {
+          name: 'country',
+          type: 'select',
+          label: 'Country',
+          options: ['United States', 'Canada', 'Germany'],
+        },
+      ],
+    };
+    const result = FormComponentSchema.parse(form);
+    expect(result.fields[0].options).toEqual([
+      { label: 'United States', value: 'United States' },
+      { label: 'Canada', value: 'Canada' },
+      { label: 'Germany', value: 'Germany' },
+    ]);
+  });
+
   it('rejects form with no fields', () => {
     expect(() =>
       FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] }),

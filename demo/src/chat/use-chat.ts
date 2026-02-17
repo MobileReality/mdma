@@ -15,12 +15,17 @@ import type { ChatMsg } from './types.js';
 export interface UseChatOptions {
   /** Custom parser options (e.g. custom component schemas). */
   parserOptions?: RemarkMdmaOptions;
+  /** System prompt sent as the first message. Defaults to MDMA_AUTHOR_PROMPT. */
+  systemPrompt?: string;
+  /** Suffix appended to the user message each turn. `null` = no suffix. */
+  userSuffix?: string | null;
+  /** localStorage key suffix for chat history. Defaults to 'chat'. */
+  storageKey?: string;
 }
 
 // ---- Config persistence ----
 
 const CONFIG_KEY = 'mdma-demo-llm-config';
-const HISTORY_KEY = 'mdma-demo-chat-history';
 
 function loadSavedConfig(): LlmConfig {
   try {
@@ -41,24 +46,30 @@ interface StoredMsg {
   content: string;
 }
 
-function loadSavedHistory(): StoredMsg[] {
+function historyKey(storageKey: string) {
+  return `mdma-demo-${storageKey}-history`;
+}
+
+function loadSavedHistory(storageKey: string): StoredMsg[] {
   try {
-    const saved = localStorage.getItem(HISTORY_KEY);
+    const saved = localStorage.getItem(historyKey(storageKey));
     if (saved) return JSON.parse(saved);
   } catch { /* ignore */ }
   return [];
 }
 
-function saveHistory(messages: ChatMsg[]) {
+function saveHistory(storageKey: string, messages: ChatMsg[]) {
   const serializable: StoredMsg[] = messages
     .filter((m) => m.content)
     .map(({ id, role, content }) => ({ id, role, content }));
-  localStorage.setItem(HISTORY_KEY, JSON.stringify(serializable));
+  localStorage.setItem(historyKey(storageKey), JSON.stringify(serializable));
 }
 
-function clearHistory() {
-  localStorage.removeItem(HISTORY_KEY);
+function clearSavedHistory(storageKey: string) {
+  localStorage.removeItem(historyKey(storageKey));
 }
+
+const DEFAULT_USER_SUFFIX = '\n\nRespond with an MDMA Markdown document. Do not wrap it in code fences.';
 
 // ---- Parse throttle interval ----
 
@@ -72,6 +83,13 @@ export function useChat(options?: UseChatOptions) {
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Stable refs for options that shouldn't trigger re-renders
+  const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
+  const stableSystemPrompt = useRef(options?.systemPrompt ?? MDMA_AUTHOR_PROMPT).current;
+  const stableUserSuffix = useRef(
+    options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,
+  ).current;
 
   // Build parser — use custom parser if parserOptions are provided, otherwise default
   const parseMarkdown = useRef(
@@ -97,7 +115,7 @@ export function useChat(options?: UseChatOptions) {
     if (restoredRef.current) return;
     restoredRef.current = true;
 
-    const stored = loadSavedHistory();
+    const stored = loadSavedHistory(stableStorageKey);
     if (stored.length === 0) return;
 
     // Restore the highest ID so new messages don't collide
@@ -126,7 +144,7 @@ export function useChat(options?: UseChatOptions) {
   // Persist messages to localStorage whenever they change (skip empty initial state)
   useEffect(() => {
     if (!restoredRef.current) return;
-    saveHistory(messages);
+    saveHistory(stableStorageKey, messages);
   }, [messages]);
 
   // Parse assistant message content into MDMA AST + store.
@@ -205,18 +223,20 @@ export function useChat(options?: UseChatOptions) {
 
     // Build conversation history for the LLM
     const history: LlmMessage[] = [
-      { role: 'system', content: MDMA_AUTHOR_PROMPT },
+      { role: 'system', content: stableSystemPrompt },
     ];
 
     for (const m of [...messages, userMsg]) {
       history.push({ role: m.role, content: m.content });
     }
 
-    // Append instruction for this turn
-    history[history.length - 1] = {
-      role: 'user',
-      content: `${text}\n\nRespond with an MDMA Markdown document. Do not wrap it in code fences.`,
-    };
+    // Append instruction suffix for this turn (if configured)
+    if (stableUserSuffix) {
+      history[history.length - 1] = {
+        role: 'user',
+        content: `${text}${stableUserSuffix}`,
+      };
+    }
 
     abortRef.current = new AbortController();
     const asstId = assistantMsg.id;
@@ -267,7 +287,7 @@ export function useChat(options?: UseChatOptions) {
     setMessages([]);
     setError(null);
     setInput('');
-    clearHistory();
+    clearSavedHistory(stableStorageKey);
     msgIdRef.current = 0;
     inputRef.current?.focus();
   }, []);
