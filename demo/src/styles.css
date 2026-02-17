@@ -1160,6 +1160,25 @@ body {
   width: 100%;
 }
 
+.chat-clear-btn {
+  padding: 10px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #fff;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.chat-clear-btn:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+  background: #fdf2f2;
+}
+
 .chat-input {
   flex: 1;
   padding: 10px 14px;
