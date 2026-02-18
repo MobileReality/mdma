@@ -292,6 +292,17 @@ export function useChat(options?: UseChatOptions) {
     inputRef.current?.focus();
   }, []);
 
+  /** Update an assistant message's content and re-parse it. */
+  const updateMessage = useCallback(
+    async (msgId: number, content: string) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === msgId ? { ...m, content } : m)),
+      );
+      await reparseLastAssistant(content, msgId);
+    },
+    [reparseLastAssistant],
+  );
+
   return {
     config,
     messages,
@@ -305,5 +316,6 @@ export function useChat(options?: UseChatOptions) {
     send,
     stop,
     clear,
+    updateMessage,
   };
 }

@@ -10,6 +10,7 @@ import type {
   FormSubmitElementProps,
 } from '@mdma/renderer-react';
 import type { MdmaCustomizations } from './ChatView.js';
+import { useEditableField, extractComponentId } from './chat/EditableMessageContext.js';
 
 // ─── Progress ────────────────────────────────────────────────────────────────
 
@@ -125,58 +126,158 @@ export const MetricRenderer = memo(function MetricRenderer({
   );
 });
 
-// ─── Custom Form Element Overrides (scoped) ─────────────────────────────────
+// ─── Field type selector (shared by all editable form elements) ──────────────
 
-function GlassInput({ id, type, value, onChange, required }: FormInputElementProps) {
-  return (
-    <input
-      id={id}
-      type={type}
-      value={value}
-      required={required}
-      className="ce-glass-input"
-      placeholder={`Enter ${type}...`}
-      onChange={(e) => onChange(e.target.value)}
-    />
-  );
-}
+const FIELD_TYPES = ['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea'] as const;
 
-function GlassSelect({ id, value, onChange, required, options }: FormSelectElementProps) {
+function FieldTypeSelector({
+  currentType,
+  componentId,
+  fieldName,
+}: {
+  currentType: string;
+  componentId: string;
+  fieldName: string;
+}) {
+  const edit = useEditableField();
+  if (!edit) return null;
+
+  const handleChange = (newType: string) => {
+    const changes: Record<string, string> = { type: newType };
+    // When switching to select, auto-assign a data source if available
+    if (newType === 'select' && edit.dataSourceNames.length > 0) {
+      changes.options = edit.dataSourceNames[0];
+    }
+    edit.editField(componentId, fieldName, changes);
+  };
+
   return (
     <select
-      id={id}
-      value={value}
-      required={required}
-      className="ce-glass-select"
-      onChange={(e) => onChange(e.target.value)}
+      className="ce-field-type-selector"
+      value={currentType}
+      onChange={(e) => handleChange(e.target.value)}
+      title="Change field type"
     >
-      <option value="">Pick one...</option>
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      {FIELD_TYPES.map((t) => (
+        <option key={t} value={t}>{t}</option>
       ))}
     </select>
   );
 }
 
-function ToggleCheckbox({ id, checked, onChange, label }: FormCheckboxElementProps) {
+// ─── Data source selector (for selects) ──────────────────────────────────────
+
+function DataSourceSelector({
+  componentId,
+  fieldName,
+}: {
+  componentId: string;
+  fieldName: string;
+}) {
+  const edit = useEditableField();
+  if (!edit || edit.dataSourceNames.length === 0) return null;
+
   return (
-    <label className="ce-toggle" htmlFor={id}>
-      <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
-      <span className="ce-toggle-track" />
-      <span className="ce-toggle-label">{checked ? 'On' : 'Off'}</span>
-    </label>
+    <select
+      className="ce-field-ds-selector"
+      defaultValue=""
+      onChange={(e) => {
+        if (e.target.value) {
+          edit.editField(componentId, fieldName, { options: e.target.value });
+          e.target.value = '';
+        }
+      }}
+      title="Switch data source"
+    >
+      <option value="" disabled>DS</option>
+      {edit.dataSourceNames.map((ds) => (
+        <option key={ds} value={ds}>{ds}</option>
+      ))}
+    </select>
   );
 }
 
-function GlassTextarea({ id, value, onChange, required }: FormTextareaElementProps) {
+// ─── Custom Form Element Overrides (scoped) ─────────────────────────────────
+
+function GlassInput({ id, type, value, onChange, required, name }: FormInputElementProps) {
+  const edit = useEditableField();
+  const componentId = extractComponentId(id, name);
+
   return (
-    <textarea
-      id={id}
-      value={value}
-      required={required}
-      className="ce-glass-textarea"
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <div className="ce-editable-field">
+      <input
+        id={id}
+        type={type}
+        value={value}
+        required={required}
+        className="ce-glass-input"
+        placeholder={`Enter ${type}...`}
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {edit && <FieldTypeSelector currentType={type} componentId={componentId} fieldName={name} />}
+    </div>
+  );
+}
+
+function GlassSelect({ id, value, onChange, required, options, name, type }: FormSelectElementProps) {
+  const edit = useEditableField();
+  const componentId = extractComponentId(id, name);
+
+  return (
+    <div className="ce-editable-field">
+      <select
+        id={id}
+        value={value}
+        required={required}
+        className="ce-glass-select"
+        onChange={(e) => onChange(e.target.value)}
+      >
+        <option value="">Pick one...</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>{opt.label}</option>
+        ))}
+      </select>
+      {edit && (
+        <>
+          <DataSourceSelector componentId={componentId} fieldName={name} />
+          <FieldTypeSelector currentType={type} componentId={componentId} fieldName={name} />
+        </>
+      )}
+    </div>
+  );
+}
+
+function ToggleCheckbox({ id, checked, onChange, label, name }: FormCheckboxElementProps) {
+  const edit = useEditableField();
+  const componentId = extractComponentId(id, name);
+
+  return (
+    <div className="ce-editable-field">
+      <label className="ce-toggle" htmlFor={id}>
+        <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
+        <span className="ce-toggle-track" />
+        <span className="ce-toggle-label">{checked ? 'On' : 'Off'}</span>
+      </label>
+      {edit && <FieldTypeSelector currentType="checkbox" componentId={componentId} fieldName={name} />}
+    </div>
+  );
+}
+
+function GlassTextarea({ id, value, onChange, required, name }: FormTextareaElementProps) {
+  const edit = useEditableField();
+  const componentId = extractComponentId(id, name);
+
+  return (
+    <div className="ce-editable-field">
+      <textarea
+        id={id}
+        value={value}
+        required={required}
+        className="ce-glass-textarea"
+        onChange={(e) => onChange(e.target.value)}
+      />
+      {edit && <FieldTypeSelector currentType="textarea" componentId={componentId} fieldName={name} />}
+    </div>
   );
 }
 

@@ -12,7 +12,7 @@ export function CustomChatView() {
           Form elements: glass inputs, toggle switches, gradient submit.
         </span>
       </div>
-      <ChatView customizations={customizations} />
+      <ChatView customizations={customizations} editable />
     </div>
   );
 }

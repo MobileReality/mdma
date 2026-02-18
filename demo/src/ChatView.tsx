@@ -22,9 +22,11 @@ export interface ChatViewProps {
   userSuffix?: string | null;
   /** localStorage key suffix for separate chat histories. */
   storageKey?: string;
+  /** When true, assistant messages can be edited via the Source view. */
+  editable?: boolean;
 }
 
-export function ChatView({ customizations, systemPrompt, userSuffix, storageKey }: ChatViewProps = {}) {
+export function ChatView({ customizations, systemPrompt, userSuffix, storageKey, editable }: ChatViewProps = {}) {
   const chatOptions: UseChatOptions = {
     ...(customizations?.schemas && { parserOptions: { customSchemas: customizations.schemas } }),
     ...(systemPrompt !== undefined && { systemPrompt }),
@@ -44,15 +46,20 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey 
     send,
     stop,
     clear,
+    updateMessage,
   } = useChat(chatOptions);
 
   const { events, isOpen, setIsOpen, clearEvents } = useChatActionLog(messages);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const prevMsgCountRef = useRef(messages.length);
 
-  // Auto-scroll to bottom on new messages
+  // Auto-scroll only when new messages are added (not on content edits to existing ones)
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (messages.length > prevMsgCountRef.current) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevMsgCountRef.current = messages.length;
   }, [messages]);
 
   const handleClear = useCallback(() => {
@@ -87,6 +94,7 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey 
               message={msg}
               isStreaming={isGenerating && msg.id === lastMsgId}
               customizations={customizations}
+              onEditContent={editable ? updateMessage : undefined}
             />
           ))}
 

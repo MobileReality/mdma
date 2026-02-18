@@ -1210,6 +1210,75 @@ body {
   overflow-y: auto;
 }
 
+/* ===== Chat Message Editor (editable source) ===== */
+.chat-msg-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-msg-editor-textarea {
+  font-size: 12.5px;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  white-space: pre;
+  color: #e0e0e0;
+  background: #1e1e2e;
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  line-height: 1.6;
+  overflow-x: auto;
+  min-height: 120px;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.15s;
+  tab-size: 2;
+}
+
+.chat-msg-editor-textarea:focus {
+  border-color: #6c5ce7;
+}
+
+.chat-msg-editor-actions {
+  display: flex;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.chat-msg-editor-apply {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  background: #6c5ce7;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.chat-msg-editor-apply:hover {
+  background: #5a4bd1;
+}
+
+.chat-msg-editor-reset {
+  padding: 5px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: transparent;
+  color: #888;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.chat-msg-editor-reset:hover {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
 .chat-msg-typing {
   color: #999;
   font-style: italic;
@@ -1718,6 +1787,115 @@ body {
 
 .ce-gradient-submit:active {
   transform: scale(0.97);
+}
+
+/* ─── Editable Field Controls ─────────────────────────────────────────────── */
+
+.ce-editable-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ce-editable-field .ce-glass-input,
+.ce-editable-field .ce-glass-select,
+.ce-editable-field .ce-glass-textarea {
+  flex: 1;
+  min-width: 0;
+}
+
+.ce-field-type-selector,
+.ce-field-ds-selector {
+  flex: 0 0 auto;
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border: 1px solid rgba(162, 155, 254, 0.25);
+  border-radius: 6px;
+  background: rgba(108, 92, 231, 0.1);
+  color: #a29bfe;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.ce-field-type-selector:hover,
+.ce-field-ds-selector:hover {
+  border-color: #a29bfe;
+  background: rgba(108, 92, 231, 0.2);
+}
+
+.ce-field-type-selector:focus,
+.ce-field-ds-selector:focus {
+  outline: none;
+  border-color: #a29bfe;
+  box-shadow: 0 0 0 2px rgba(162, 155, 254, 0.15);
+}
+
+.ce-field-ds-selector {
+  background: rgba(0, 184, 148, 0.1);
+  border-color: rgba(0, 184, 148, 0.25);
+  color: #00b894;
+}
+
+.ce-field-ds-selector:hover {
+  border-color: #00b894;
+  background: rgba(0, 184, 148, 0.2);
+}
+
+.ce-field-ds-selector:focus {
+  border-color: #00b894;
+  box-shadow: 0 0 0 2px rgba(0, 184, 148, 0.15);
+}
+
+/* ─── Specificity fixes: prevent base .mdma-form-field rules from
+       overriding custom element styles ────────────────────────────────────── */
+
+.mdma-form-field .ce-editable-field .ce-glass-input,
+.mdma-form-field .ce-editable-field .ce-glass-select,
+.mdma-form-field .ce-editable-field .ce-glass-textarea {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(162, 155, 254, 0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #dfe6e9;
+  font-size: 14px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.mdma-form-field .ce-editable-field .ce-glass-input:focus,
+.mdma-form-field .ce-editable-field .ce-glass-select:focus,
+.mdma-form-field .ce-editable-field .ce-glass-textarea:focus {
+  border-color: #a29bfe;
+  box-shadow: 0 0 0 3px rgba(162, 155, 254, 0.15), inset 0 0 12px rgba(108, 92, 231, 0.06);
+}
+
+.mdma-form-field .ce-editable-field .ce-field-type-selector,
+.mdma-form-field .ce-editable-field .ce-field-ds-selector {
+  flex: 0 0 auto;
+  width: auto;
+  height: 28px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  border: 1px solid rgba(162, 155, 254, 0.25);
+  border-radius: 6px;
+  background: rgba(108, 92, 231, 0.1);
+  color: #a29bfe;
+}
+
+.mdma-form-field .ce-editable-field .ce-field-ds-selector {
+  background: rgba(0, 184, 148, 0.1);
+  border-color: rgba(0, 184, 148, 0.25);
+  color: #00b894;
 }
 
 /* ─── Custom Button Override ───────────────────────────────────────────────── */
