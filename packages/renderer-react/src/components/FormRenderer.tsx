@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
+import { useMdmaContext } from '../context/MdmaProvider.js';
 import {
   useElementOverride,
   type FormInputElementProps,
@@ -70,6 +71,7 @@ function DefaultSubmitButton({ onClick, label }: FormSubmitElementProps) {
 
 export const FormRenderer = memo(function FormRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
   // Hooks must be called unconditionally (Rules of Hooks)
+  const { dataSources } = useMdmaContext();
   const Input = useElementOverride<FormInputElementProps>('form', 'input') ?? DefaultInput;
   const Select = useElementOverride<FormSelectElementProps>('form', 'select') ?? DefaultSelect;
   const Checkbox = useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
@@ -101,7 +103,11 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
                 value={fieldValue}
                 onChange={handleChange}
                 required={field.required}
-                options={field.options ?? []}
+                options={
+                  typeof field.options === 'string'
+                    ? (dataSources?.[field.options] ?? [])
+                    : (field.options ?? [])
+                }
               />
             ) : field.type === 'checkbox' ? (
               <Checkbox

@@ -37,6 +37,8 @@ export interface MdmaRenderCustomizations {
    * ```
    */
   components?: Record<string, ComponentEntry>;
+  /** Named option lists that form select fields can reference by string (e.g. `options: countries`). */
+  dataSources?: Record<string, Array<{ label: string; value: string }>>;
 }
 
 export interface MdmaDocumentProps {
@@ -88,7 +90,7 @@ export function MdmaDocument({ ast, store, customizations, className }: MdmaDocu
   const renderedBlocksRef = useRef<Map<string, MdmaBlockType>>(new Map());
 
   return (
-    <MdmaProvider store={store}>
+    <MdmaProvider store={store} dataSources={customizations?.dataSources}>
     <ElementOverridesProvider value={elementOverrides}>
       <div className={`mdma-document ${className ?? ''}`}>
         {ast.children.map((child, index) => {

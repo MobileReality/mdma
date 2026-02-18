@@ -14,7 +14,10 @@ export const FormFieldSchema = z.object({
       if (!Array.isArray(val)) return val;
       return val.map((item) => typeof item === 'string' ? { label: item, value: item } : item);
     },
-    z.array(z.object({ label: z.string(), value: z.string() })).optional(),
+    z.union([
+      z.array(z.object({ label: z.string(), value: z.string() })),
+      z.string().min(1),
+    ]).optional(),
   ),
   validation: z
     .object({

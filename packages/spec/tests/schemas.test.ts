@@ -82,6 +82,18 @@ describe('FormComponentSchema', () => {
     ]);
   });
 
+  it('accepts a string data source reference for options', () => {
+    const form = {
+      id: 'ds-form',
+      type: 'form',
+      fields: [
+        { name: 'country', type: 'select', label: 'Country', options: 'countries' },
+      ],
+    };
+    const result = FormComponentSchema.parse(form);
+    expect(result.fields[0].options).toBe('countries');
+  });
+
   it('rejects form with no fields', () => {
     expect(() =>
       FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] }),
@@ -144,6 +156,21 @@ describe('TableComponentSchema', () => {
     };
     const result = TableComponentSchema.parse(table);
     expect(result.sortable).toBe(false);
+  });
+
+  it('normalizes field/label to key/header in columns', () => {
+    const table = {
+      id: 'tbl',
+      type: 'table',
+      columns: [
+        { field: 'department', label: 'Department' },
+        { field: 'count', label: 'Employee Count' },
+      ],
+      data: [{ department: 'Engineering', count: 42 }],
+    };
+    const result = TableComponentSchema.parse(table);
+    expect(result.columns[0]).toMatchObject({ key: 'department', header: 'Department' });
+    expect(result.columns[1]).toMatchObject({ key: 'count', header: 'Employee Count' });
   });
 
   it('validates a table with binding data', () => {
