@@ -103,9 +103,9 @@ function RechartLine({ data, xKey, yKeys, colors, chart }: {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <LineChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
+        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
+        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -132,9 +132,9 @@ function RechartBar({ data, xKey, yKeys, colors, chart }: {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <BarChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
+        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
+        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -159,9 +159,9 @@ function RechartArea({ data, xKey, yKeys, colors, chart }: {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <AreaChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.08)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(255,255,255,0.15)' }} tickLine={false} />
+        {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
+        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -203,7 +203,7 @@ function RechartPie({ data, xKey, yKeys, colors, chart }: {
           cy="50%"
           outerRadius="75%"
           label={renderPieLabel}
-          labelLine={{ stroke: 'rgba(255,255,255,0.2)' }}
+          labelLine={{ stroke: 'rgba(0,0,0,0.2)' }}
           strokeWidth={1}
           stroke="rgba(0,0,0,0.2)"
         >
