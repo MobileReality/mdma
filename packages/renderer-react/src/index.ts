@@ -34,3 +34,4 @@ export { CalloutRenderer } from './components/CalloutRenderer.js';
 export { ApprovalGateRenderer } from './components/ApprovalGateRenderer.js';
 export { WebhookRenderer } from './components/WebhookRenderer.js';
 export { ChartRenderer } from './components/ChartRenderer.js';
+export { ThinkingRenderer } from './components/ThinkingRenderer.js';

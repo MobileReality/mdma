@@ -9,6 +9,7 @@ import { CalloutRenderer } from '../components/CalloutRenderer.js';
 import { ApprovalGateRenderer } from '../components/ApprovalGateRenderer.js';
 import { WebhookRenderer } from '../components/WebhookRenderer.js';
 import { ChartRenderer } from '../components/ChartRenderer.js';
+import { ThinkingRenderer } from '../components/ThinkingRenderer.js';
 
 export interface MdmaBlockRendererProps {
   component: MdmaComponent;
@@ -48,6 +49,7 @@ export const defaultRenderers: Record<string, ComponentType<MdmaBlockRendererPro
   'approval-gate': ApprovalGateRenderer,
   webhook: WebhookRenderer,
   chart: ChartRenderer,
+  thinking: ThinkingRenderer,
 };
 
 /**

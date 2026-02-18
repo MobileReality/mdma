@@ -312,7 +312,8 @@ body {
 .mdma-callout,
 .mdma-approval-gate,
 .mdma-webhook,
-.mdma-button {
+.mdma-button,
+.mdma-thinking {
   animation: mdma-component-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -1695,7 +1696,7 @@ body {
   border: 1px solid rgba(162, 155, 254, 0.2);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #dfe6e9;
+  color: #2d3436;
   font-size: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
@@ -1709,7 +1710,7 @@ body {
 }
 
 .ce-glass-input::placeholder {
-  color: rgba(178, 190, 195, 0.5);
+  color: rgba(99, 110, 114, 0.5);
 }
 
 /* Glass select */
@@ -1719,7 +1720,7 @@ body {
   border: 1px solid rgba(162, 155, 254, 0.2);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #dfe6e9;
+  color: #2d3436;
   font-size: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
   width: 100%;
@@ -1798,7 +1799,7 @@ body {
   border: 1px solid rgba(162, 155, 254, 0.2);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #dfe6e9;
+  color: #2d3436;
   font-size: 14px;
   min-height: 70px;
   resize: vertical;
@@ -1914,7 +1915,7 @@ body {
   border: 1px solid rgba(162, 155, 254, 0.2);
   border-radius: 10px;
   padding: 10px 14px;
-  color: #dfe6e9;
+  color: #2d3436;
   font-size: 14px;
   transition: border-color 0.15s, box-shadow 0.15s;
   outline: none;
@@ -2138,4 +2139,136 @@ body {
 
 .custom-callout-dismiss:hover {
   color: #dfe6e9;
+}
+
+/* ─── Thinking Component (basic) ─────────────────────────────────────────── */
+
+.mdma-thinking {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.mdma-thinking-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #555;
+  user-select: none;
+  list-style: none;
+}
+
+.mdma-thinking-summary::-webkit-details-marker {
+  display: none;
+}
+
+.mdma-thinking-summary::after {
+  content: '\25B6';
+  font-size: 10px;
+  margin-left: auto;
+  transition: transform 0.2s;
+  color: #999;
+}
+
+.mdma-thinking[open] .mdma-thinking-summary::after {
+  transform: rotate(90deg);
+}
+
+.mdma-thinking-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #6c5ce7;
+  animation: mdma-thinking-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes mdma-thinking-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.mdma-thinking-label {
+  flex: 1;
+}
+
+.mdma-thinking-content {
+  padding: 0 16px 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #555;
+  white-space: pre-wrap;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 12px;
+}
+
+/* ─── Custom Thinking Override ────────────────────────────────────────────── */
+
+.custom-thinking {
+  background: rgba(108, 92, 231, 0.04);
+  border: 1px solid rgba(108, 92, 231, 0.15);
+  border-radius: 12px;
+  margin: 16px 0;
+  overflow: hidden;
+}
+
+.custom-thinking-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: #a29bfe;
+  user-select: none;
+  list-style: none;
+}
+
+.custom-thinking-summary::-webkit-details-marker {
+  display: none;
+}
+
+.custom-thinking-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.custom-thinking--thinking .custom-thinking-icon {
+  animation: mdma-spin 2s linear infinite;
+}
+
+.custom-thinking-label {
+  flex: 1;
+}
+
+.custom-thinking-chevron {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 6px solid #a29bfe;
+  transition: transform 0.2s;
+  transform: rotate(-90deg);
+}
+
+.custom-thinking[open] .custom-thinking-chevron {
+  transform: rotate(0deg);
+}
+
+.custom-thinking-content {
+  padding: 0 16px 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #b2bec3;
+  white-space: pre-wrap;
+  border-top: 1px solid rgba(108, 92, 231, 0.1);
+  padding-top: 12px;
 }

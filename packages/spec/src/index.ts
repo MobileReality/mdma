@@ -14,6 +14,7 @@ export {
   ApprovalGateComponentSchema,
   WebhookComponentSchema,
   ChartComponentSchema,
+  ThinkingComponentSchema,
   componentSchemaRegistry,
   COMPONENT_TYPES,
 } from './schemas/components/index.js';
@@ -43,6 +44,7 @@ export type {
   ApprovalGateComponent,
   WebhookComponent,
   ChartComponent,
+  ThinkingComponent,
   EventLogEntry,
   EventType,
   EventActor,

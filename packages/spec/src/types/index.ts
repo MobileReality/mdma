@@ -19,6 +19,7 @@ export type {
   ApprovalGateComponent,
   WebhookComponent,
   ChartComponent,
+  ThinkingComponent,
 } from '../schemas/components/index.js';
 export type { EventLogEntry, EventType, EventActor } from '../schemas/event-log.js';
 export type { Policy, PolicyRule } from '../schemas/policy.js';

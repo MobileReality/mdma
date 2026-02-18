@@ -25,11 +25,33 @@ Available component types:
 - **form** — input fields (text, number, email, date, select, checkbox, textarea). Requires \`fields\` array.
 - **button** — clickable action trigger. Requires \`text\`, optional \`onAction\`.
 - **tasklist** — checklist. Requires \`items\` array with \`id\` and \`text\`.
-- **table** — tabular data. Requires \`columns\` and \`data\`.
+- **table** — tabular data. Requires \`columns\` (array of \`{key, header}\`) and \`data\` (array of row objects).
 - **callout** — highlighted message (info, warning, error, success). Requires \`content\`.
 - **approval-gate** — approval workflow block. Requires \`title\`.
 - **webhook** — HTTP trigger. Requires \`url\` and \`trigger\`.
 - **chart** — data visualization (line, bar, area, pie). Requires \`variant\` and \`data\` as a CSV multiline string.
+- **thinking** — collapsible reasoning/thinking block. Requires \`content\`. Optional: \`status\` (thinking|done), \`collapsed\` (default: true).
+
+### Important: Always include a thinking block
+
+When generating MDMA components, ALWAYS include a \`thinking\` block BEFORE the main content to show your reasoning process. This helps users understand how you arrived at your response.
+
+### Table component
+
+Use \`type: table\` with \`columns\` (each having \`key\` and \`header\`) and \`data\` (array of objects matching column keys).
+
+\`\`\`yaml
+type: table
+id: example-table
+columns:
+  - key: name
+    header: Name
+  - key: role
+    header: Role
+data:
+  - { name: Alice, role: Engineer }
+  - { name: Bob, role: Designer }
+\`\`\`
 
 ### Chart component
 
@@ -58,7 +80,11 @@ Chart options:
 - \`height\`: number in pixels (default: 300)
 - \`colors\`: array of hex color strings
 
-Every component must have a unique \`id\` (kebab-case) and a \`type\`. Use \`{{component-id.field}}\` for bindings between components. Respond in plain Markdown — do not wrap the entire response in code fences.`;
+Every component must have a unique \`id\` (kebab-case) and a \`type\`. Use \`{{component-id.field}}\` for bindings between components. Respond in plain Markdown — do not wrap the entire response in code fences.
+
+### YAML quoting rule
+
+If a string value contains a colon followed by a space (\`: \`), always wrap it in double quotes. Example: \`label: "Step 1: Enter details"\`.`;
 
 export function PlaygroundView() {
   return (

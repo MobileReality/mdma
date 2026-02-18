@@ -90,6 +90,63 @@ function extractIdFromYaml(yaml?: string): string | null {
   return match ? match[1] : null;
 }
 
+/** Extract the `type` field from partial YAML content. */
+function extractTypeFromYaml(yaml?: string): string | null {
+  if (!yaml) return null;
+  const match = yaml.match(/^\s*type:\s*(\S+)/m);
+  return match ? match[1] : null;
+}
+
+/**
+ * Build a synthetic MdmaBlock for a thinking component from partial YAML.
+ * This allows the thinking block to render streamed content instead of
+ * showing a loading skeleton.
+ */
+function buildPartialThinkingBlock(yaml: string): MdmaBlockType | null {
+  const id = extractIdFromYaml(yaml);
+  if (!id) return null;
+
+  // Extract label (single-line value after "label:")
+  const labelMatch = yaml.match(/^\s*label:\s*(.+)$/m);
+  const label = labelMatch ? labelMatch[1].trim() : undefined;
+
+  // Extract content — handles both YAML block scalar (|) and inline string
+  let content = '';
+  const contentBlockMatch = yaml.match(/^\s*content:\s*\|\s*\n([\s\S]*)$/m);
+  if (contentBlockMatch) {
+    // Block scalar: grab everything after "content: |" up to the next
+    // top-level YAML key or end of string. Lines are indented by ≥2 spaces.
+    const rawBlock = contentBlockMatch[1];
+    const lines: string[] = [];
+    for (const line of rawBlock.split('\n')) {
+      // A non-indented non-empty line means a new YAML key — stop.
+      if (line.length > 0 && !line.startsWith(' ') && !line.startsWith('\t')) break;
+      // Strip the common 2-space indent used by YAML block scalars
+      lines.push(line.replace(/^ {1,2}/, ''));
+    }
+    content = lines.join('\n').trimEnd();
+  } else {
+    // Inline string: content: "some text" or content: some text
+    const inlineMatch = yaml.match(/^\s*content:\s*(?:"([^"]*)"|'([^']*)'|(.+))$/m);
+    if (inlineMatch) {
+      content = (inlineMatch[1] ?? inlineMatch[2] ?? inlineMatch[3] ?? '').trim();
+    }
+  }
+
+  return {
+    type: 'mdmaBlock',
+    rawYaml: yaml,
+    component: {
+      type: 'thinking',
+      id,
+      content: content || '...',
+      status: 'thinking',
+      collapsed: false,
+      ...(label ? { label } : {}),
+    },
+  } as MdmaBlockType;
+}
+
 export function MdmaDocument({ ast, store, customizations, className }: MdmaDocumentProps) {
   const { renderers, elementOverrides } = useMemo(
     () => splitComponents(customizations?.components),
@@ -113,13 +170,26 @@ export function MdmaDocument({ ast, store, customizations, className }: MdmaDocu
           }
           // Incomplete MDMA blocks (still streaming or failed validation)
           if (isPendingMdmaBlock(child)) {
+            const pendingYaml = (child as { value?: string }).value;
+            const pendingId = extractIdFromYaml(pendingYaml);
+
             // If this block was previously rendered, keep showing the rendered
             // version instead of flickering back to the loading skeleton.
-            const pendingId = extractIdFromYaml((child as { value?: string }).value);
             const cachedBlock = pendingId ? renderedBlocksRef.current.get(pendingId) : null;
             if (cachedBlock) {
               return <MdmaBlock key={cachedBlock.component.id} block={cachedBlock} renderers={renderers} />;
             }
+
+            // Thinking blocks stream their content live instead of showing
+            // a loading skeleton — build a synthetic block from partial YAML.
+            const pendingType = extractTypeFromYaml(pendingYaml);
+            if (pendingType === 'thinking' && pendingYaml) {
+              const partialBlock = buildPartialThinkingBlock(pendingYaml);
+              if (partialBlock) {
+                return <MdmaBlock key={partialBlock.component.id} block={partialBlock} renderers={renderers} />;
+              }
+            }
+
             return <MdmaBlockLoading key={index} node={child as { value?: string }} />;
           }
           // Render standard Markdown nodes (headings, paragraphs, lists, etc.)

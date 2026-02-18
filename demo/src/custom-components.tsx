@@ -401,6 +401,56 @@ export const CustomCalloutRenderer = memo(function CustomCalloutRenderer({
   );
 });
 
+// ─── Custom Thinking (override) ─────────────────────────────────────────────
+
+interface ThinkingProps {
+  id: string;
+  type: string;
+  content: string;
+  status?: 'thinking' | 'done';
+  collapsed?: boolean;
+  label?: string;
+}
+
+export const CustomThinkingRenderer = memo(function CustomThinkingRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
+  const thinking = component as unknown as ThinkingProps;
+
+  const collapsed = (componentState?.values.collapsed as boolean | undefined) ?? thinking.collapsed ?? true;
+  const status = thinking.status ?? 'done';
+  const label = thinking.label ?? 'Thinking';
+
+  const handleClick = (e: { preventDefault(): void }) => {
+    e.preventDefault();
+    dispatch({
+      type: 'FIELD_CHANGED',
+      componentId: component.id,
+      field: 'collapsed',
+      value: !collapsed,
+    });
+  };
+
+  return (
+    <details
+      className={`custom-thinking custom-thinking--${status}`}
+      data-component-id={component.id}
+      open={!collapsed}
+    >
+      <summary className="custom-thinking-summary" onClick={handleClick}>
+        <span className="custom-thinking-icon">
+          {status === 'thinking' ? '\u2699\uFE0F' : '\u{1F4AD}'}
+        </span>
+        <span className="custom-thinking-label">{label}</span>
+        <span className="custom-thinking-chevron" />
+      </summary>
+      <div className="custom-thinking-content">{thinking.content}</div>
+    </details>
+  );
+});
+
 // ─── All customizations in a single object ──────────────────────────────────
 
 export const customizations: MdmaCustomizations = {
@@ -415,6 +465,7 @@ export const customizations: MdmaCustomizations = {
     rating: RatingRenderer,
     metric: MetricRenderer,
     chart: ChartRenderer,
+    thinking: CustomThinkingRenderer,
     // Built-in overrides
     button: CustomButtonRenderer,
     table: CustomTableRenderer,
