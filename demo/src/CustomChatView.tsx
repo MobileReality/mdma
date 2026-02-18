@@ -1,3 +1,4 @@
+import { MDMA_AUTHOR_PROMPT } from '@mdma/prompt-pack';
 import { ChatView } from './ChatView.js';
 import { customizations } from './custom-components.js';
 
@@ -8,11 +9,12 @@ export function CustomChatView() {
         <strong>Custom Components Mode</strong>
         <span>
           New types: <code>progress</code>, <code>rating</code>, <code>metric</code>.
+          Built-in: <code>chart</code> (recharts override).
           Restyled built-ins: <code>button</code>, <code>table</code>, <code>callout</code>.
           Form elements: glass inputs, toggle switches, gradient submit.
         </span>
       </div>
-      <ChatView customizations={customizations} editable />
+      <ChatView customizations={customizations} systemPrompt={MDMA_AUTHOR_PROMPT} editable />
     </div>
   );
 }

@@ -6,6 +6,7 @@ import { TableComponentSchema } from './table.js';
 import { CalloutComponentSchema } from './callout.js';
 import { ApprovalGateComponentSchema } from './approval-gate.js';
 import { WebhookComponentSchema } from './webhook.js';
+import { ChartComponentSchema } from './chart.js';
 
 export { FormComponentSchema, type FormComponent, type FormField } from './form.js';
 export { ButtonComponentSchema, type ButtonComponent } from './button.js';
@@ -21,6 +22,7 @@ export {
   type ApprovalGateComponent,
 } from './approval-gate.js';
 export { WebhookComponentSchema, type WebhookComponent } from './webhook.js';
+export { ChartComponentSchema, type ChartComponent } from './chart.js';
 
 export const MdmaComponentSchema = z.discriminatedUnion('type', [
   FormComponentSchema,
@@ -30,6 +32,7 @@ export const MdmaComponentSchema = z.discriminatedUnion('type', [
   CalloutComponentSchema,
   ApprovalGateComponentSchema,
   WebhookComponentSchema,
+  ChartComponentSchema,
 ]);
 
 export type MdmaComponent = z.infer<typeof MdmaComponentSchema>;
@@ -42,6 +45,7 @@ export const COMPONENT_TYPES = [
   'callout',
   'approval-gate',
   'webhook',
+  'chart',
 ] as const;
 
 export type ComponentType = (typeof COMPONENT_TYPES)[number];
@@ -55,4 +59,5 @@ export const componentSchemaRegistry = new Map<string, z.ZodType>([
   ['callout', CalloutComponentSchema],
   ['approval-gate', ApprovalGateComponentSchema],
   ['webhook', WebhookComponentSchema],
+  ['chart', ChartComponentSchema],
 ]);

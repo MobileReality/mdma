@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { MDMA_AUTHOR_PROMPT } from '@mdma/prompt-pack';
 import {
   streamChatCompletion,
@@ -91,10 +91,14 @@ export function useChat(options?: UseChatOptions) {
     options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,
   ).current;
 
-  // Build parser — use custom parser if parserOptions are provided, otherwise default
-  const parseMarkdown = useRef(
-    options?.parserOptions ? createParser(options.parserOptions) : defaultParseMarkdown,
-  ).current;
+  // Build parser — recreate when the customSchemas reference changes (e.g. after HMR or tab switch)
+  const customSchemas = options?.parserOptions?.customSchemas;
+  const parseMarkdownFn = useMemo(
+    () => customSchemas ? createParser({ customSchemas }) : defaultParseMarkdown,
+    [customSchemas],
+  );
+  const parseMarkdownRef = useRef(parseMarkdownFn);
+  parseMarkdownRef.current = parseMarkdownFn;
 
   const abortRef = useRef<AbortController | null>(null);
   const msgIdRef = useRef(0);
@@ -132,7 +136,7 @@ export function useChat(options?: UseChatOptions) {
     // Re-parse all assistant messages to rebuild AST + store
     for (const m of hydrated) {
       if (m.role === 'assistant' && m.content) {
-        parseMarkdown(m.content).then(({ ast, store }) => {
+        parseMarkdownRef.current(m.content).then(({ ast, store }) => {
           setMessages((prev) =>
             prev.map((msg) => (msg.id === m.id ? { ...msg, ast, store } : msg)),
           );
@@ -160,7 +164,7 @@ export function useChat(options?: UseChatOptions) {
 
     try {
       const existingStore = messagesRef.current.find((m) => m.id === msgId)?.store ?? undefined;
-      const { ast, store } = await parseMarkdown(content, existingStore);
+      const { ast, store } = await parseMarkdownRef.current(content, existingStore);
       if (gen >= parseGenRef.current) {
         setMessages((prev) =>
           prev.map((m) => (m.id === msgId ? { ...m, ast, store } : m)),

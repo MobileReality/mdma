@@ -10,14 +10,15 @@
   },
   "dependencies": {
     "@mdma/parser": "workspace:*",
-    "@mdma/runtime": "workspace:*",
-    "@mdma/renderer-react": "workspace:*",
     "@mdma/prompt-pack": "workspace:*",
+    "@mdma/renderer-react": "workspace:*",
+    "@mdma/runtime": "workspace:*",
     "@mdma/spec": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "unified": "^11.0.0",
+    "recharts": "^3.7.0",
     "remark-parse": "^11.0.0",
+    "unified": "^11.0.0",
     "zod": "^3.23.0"
   },
   "devDependencies": {

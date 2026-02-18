@@ -1,7 +1,7 @@
 /**
  * System prompt for AI-assisted MDMA document authoring.
  *
- * Provides the model with the full MDMA format specification, all 7 component
+ * Provides the model with the full MDMA format specification, all 8 component
  * types, binding syntax, authoring rules, and a self-check checklist.
  */
 export const MDMA_AUTHOR_PROMPT = `You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the \`mdma\` language tag.
@@ -30,7 +30,7 @@ More Markdown content can follow.
 
 ## Component Types
 
-MDMA supports 7 component types. Every component shares these base fields:
+MDMA supports 8 component types. Every component shares these base fields:
 
 - **id** (string, required) — Unique identifier within the document
 - **type** (string, required) — Component type name
@@ -166,6 +166,65 @@ body:                            # optional, object or binding
 trigger: <action-id>            # required — action ID that triggers this webhook
 retries: <0-5>                  # default: 0
 timeout: <milliseconds>         # default: 30000
+\`\`\`
+
+### 8. chart
+
+Displays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.
+
+\`\`\`yaml
+type: chart
+id: <unique-id>
+variant: line | bar | area | pie            # default: line
+label: <chart-title>                         # optional
+data: |                                      # required — CSV multiline string or binding
+  <col1>, <col2>, <col3>
+  <val1>, <val2>, <val3>
+  <val1>, <val2>, <val3>
+xAxis: <column-name>                         # optional — column for x-axis (default: first column)
+yAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)
+colors:                                      # optional — custom color palette
+  - "<hex-color>"
+showLegend: true | false                     # default: true
+showGrid: true | false                       # default: true
+height: <number>                             # default: 300 (pixels)
+stacked: true | false                        # default: false (for bar/area)
+\`\`\`
+
+**Data format rules:**
+- First line of \`data\` = column headers (comma-separated, trimmed)
+- Subsequent lines = data rows (comma-separated, trimmed)
+- Numeric values are auto-detected and coerced
+- Use YAML \`|\` block scalar for multi-line data
+
+**Example — line chart:**
+\`\`\`yaml
+type: chart
+id: revenue-chart
+variant: line
+label: Revenue Trend
+data: |
+  month, revenue, costs
+  Jan, 45000, 32000
+  Feb, 52000, 35000
+  Mar, 48000, 31000
+  Apr, 61000, 38000
+xAxis: month
+\`\`\`
+
+**Example — pie chart:**
+\`\`\`yaml
+type: chart
+id: market-share
+variant: pie
+label: Market Share
+data: |
+  company, share
+  Ours, 35
+  Competitor A, 25
+  Competitor B, 20
+  Others, 20
+xAxis: company
 \`\`\`
 
 ## Binding Syntax

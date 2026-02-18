@@ -1636,6 +1636,56 @@ body {
   color: #b2bec3;
 }
 
+/* ─── Chart Component ─────────────────────────────────────────────────────── */
+
+.mdma-chart {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(108, 92, 231, 0.15);
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 20px;
+  animation: mdma-component-enter 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.mdma-chart-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #a29bfe;
+  margin-bottom: 12px;
+}
+
+.mdma-chart--empty {
+  min-height: 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+.mdma-chart-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #636e72;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* recharts overrides for MDMA theme */
+.mdma-chart .recharts-text {
+  fill: #636e72;
+}
+
+.mdma-chart .recharts-legend-item-text {
+  color: #b2bec3 !important;
+  font-size: 12px;
+}
+
+.mdma-chart .recharts-default-tooltip {
+  background: #1a1a2e !important;
+  border: 1px solid rgba(162, 155, 254, 0.3) !important;
+  border-radius: 8px !important;
+}
+
 /* ─── Custom Element Overrides (form-scoped) ───────────────────────────────── */
 
 /* Glass input */

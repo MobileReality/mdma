@@ -13,6 +13,7 @@ export {
   CalloutComponentSchema,
   ApprovalGateComponentSchema,
   WebhookComponentSchema,
+  ChartComponentSchema,
   componentSchemaRegistry,
   COMPONENT_TYPES,
 } from './schemas/components/index.js';
@@ -41,6 +42,7 @@ export type {
   CalloutComponent,
   ApprovalGateComponent,
   WebhookComponent,
+  ChartComponent,
   EventLogEntry,
   EventType,
   EventActor,

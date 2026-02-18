@@ -49,6 +49,17 @@ export interface MdmaDocumentProps {
   className?: string;
 }
 
+/** Check if an entry is a config object (has `renderer` or `elements`) rather than a component. */
+function isComponentConfig(
+  entry: ComponentEntry,
+): entry is { renderer?: ComponentType<MdmaBlockRendererProps>; elements?: Record<string, ComponentType<unknown>> } {
+  return (
+    typeof entry === 'object' &&
+    entry !== null &&
+    ('renderer' in entry || 'elements' in entry)
+  );
+}
+
 /** Split a unified `components` map into the internal renderer + elementOverrides formats. */
 function splitComponents(components?: Record<string, ComponentEntry>) {
   if (!components) return { renderers: undefined, elementOverrides: undefined };
@@ -57,11 +68,12 @@ function splitComponents(components?: Record<string, ComponentEntry>) {
   const elementOverrides: ElementOverrides = {};
 
   for (const [key, entry] of Object.entries(components)) {
-    if (typeof entry === 'function') {
-      renderers[key] = entry;
-    } else {
+    if (isComponentConfig(entry)) {
       if (entry.renderer) renderers[key] = entry.renderer;
       if (entry.elements) elementOverrides[key] = entry.elements;
+    } else {
+      // Function components, React.memo, forwardRef, etc.
+      renderers[key] = entry as ComponentType<MdmaBlockRendererProps>;
     }
   }
 

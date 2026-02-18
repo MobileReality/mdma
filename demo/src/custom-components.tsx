@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { memo } from 'react';
 import { ComponentBaseSchema } from '@mdma/spec';
+import { ChartRenderer } from './chart-components.js';
 import type {
   MdmaBlockRendererProps,
   FormInputElementProps,
@@ -413,6 +414,7 @@ export const customizations: MdmaCustomizations = {
     progress: ProgressRenderer,
     rating: RatingRenderer,
     metric: MetricRenderer,
+    chart: ChartRenderer,
     // Built-in overrides
     button: CustomButtonRenderer,
     table: CustomTableRenderer,
