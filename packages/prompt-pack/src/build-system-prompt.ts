@@ -33,5 +33,6 @@ Reminder — when generating MDMA components you MUST:
 - Include a \`thinking\` block BEFORE the main content (status: done, collapsed: true).
 - Use unique kebab-case IDs for every component.
 - Mark PII fields with \`sensitive: true\`.
+- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.
 - Respond in plain Markdown — do NOT wrap the entire response in code fences.`;
 }
