@@ -252,6 +252,28 @@ importers:
         specifier: ^3.2.0
         version: 3.2.4(@types/debug@4.1.12)(yaml@2.8.2)
 
+  packages/validator:
+    dependencies:
+      '@mdma/parser':
+        specifier: workspace:*
+        version: link:../parser
+      '@mdma/spec':
+        specifier: workspace:*
+        version: link:../spec
+      yaml:
+        specifier: ^2.6.0
+        version: 2.8.2
+    devDependencies:
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.4(@types/debug@4.1.12)(yaml@2.8.2)
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+
 packages:
 
   '@babel/code-frame@7.29.0':

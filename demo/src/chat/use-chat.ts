@@ -86,7 +86,11 @@ export function useChat(options?: UseChatOptions) {
 
   // Stable refs for options that shouldn't trigger re-renders
   const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
-  const stableSystemPrompt = useRef(options?.systemPrompt ?? MDMA_AUTHOR_PROMPT).current;
+  const stableSystemPrompt = useRef(
+    options?.systemPrompt
+      ? `${MDMA_AUTHOR_PROMPT}\n\n${options.systemPrompt}`
+      : MDMA_AUTHOR_PROMPT,
+  ).current;
   const stableUserSuffix = useRef(
     options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,
   ).current;
