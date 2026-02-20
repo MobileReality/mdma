@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { MDMA_AUTHOR_PROMPT } from '@mdma/prompt-pack';
+import { buildSystemPrompt } from '@mdma/prompt-pack';
 import {
   streamChatCompletion,
   chatCompletion,
@@ -87,9 +87,7 @@ export function useChat(options?: UseChatOptions) {
   // Stable refs for options that shouldn't trigger re-renders
   const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
   const stableSystemPrompt = useRef(
-    options?.systemPrompt
-      ? `${MDMA_AUTHOR_PROMPT}\n\n${options.systemPrompt}`
-      : MDMA_AUTHOR_PROMPT,
+    buildSystemPrompt({ customPrompt: options?.systemPrompt }),
   ).current;
   const stableUserSuffix = useRef(
     options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,

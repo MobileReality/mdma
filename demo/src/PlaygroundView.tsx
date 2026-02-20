@@ -3,7 +3,9 @@ import { customizations } from './custom-components.js';
 
 const PLAYGROUND_PROMPT = `You are a helpful AI assistant. You can discuss any topic freely.
 
-When the user asks you to create interactive content (forms, surveys, dashboards, checklists, charts, etc.), use the MDMA format as described above. Respond in plain Markdown — do not wrap the entire response in code fences.`;
+When the user asks you to create interactive content (forms, surveys, dashboards, checklists, charts, etc.), use the MDMA format as described above. Respond in plain Markdown — do not wrap the entire response in code fences.
+
+Important: When generating MDMA components, ALWAYS include a \`thinking\` block BEFORE the main content to show your reasoning process. Use \`status: done\` and \`collapsed: true\`.`;
 
 export function PlaygroundView() {
   return (
