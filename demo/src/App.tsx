@@ -10,8 +10,10 @@ import { documents } from './documents.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
 import { PlaygroundView } from './PlaygroundView.js';
+import { ValidatorView } from './ValidatorView.js';
+import { StepperView } from './StepperView.js';
 
-type Mode = 'examples' | 'chat' | 'custom' | 'playground';
+type Mode = 'examples' | 'chat' | 'custom' | 'playground' | 'validator' | 'stepper';
 
 interface EventEntry {
   id: number;
@@ -115,6 +117,20 @@ export function App() {
             >
               Playground
             </button>
+            <button
+              type="button"
+              className={`demo-mode-tab ${mode === 'validator' ? 'demo-mode-tab--active' : ''}`}
+              onClick={() => setMode('validator')}
+            >
+              Validator
+            </button>
+            <button
+              type="button"
+              className={`demo-mode-tab ${mode === 'stepper' ? 'demo-mode-tab--active' : ''}`}
+              onClick={() => setMode('stepper')}
+            >
+              Stepper
+            </button>
           </div>
           {mode === 'examples' && (
             <select
@@ -132,7 +148,11 @@ export function App() {
         </div>
       </header>
 
-      {mode === 'playground' ? (
+      {mode === 'stepper' ? (
+        <StepperView />
+      ) : mode === 'validator' ? (
+        <ValidatorView />
+      ) : mode === 'playground' ? (
         <PlaygroundView />
       ) : mode === 'custom' ? (
         <CustomChatView />

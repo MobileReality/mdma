@@ -54,6 +54,9 @@ importers:
       '@mdma/spec':
         specifier: workspace:*
         version: link:../packages/spec
+      '@mdma/validator':
+        specifier: workspace:*
+        version: link:../packages/validator
       react:
         specifier: ^19.0.0
         version: 19.2.4

@@ -46,6 +46,10 @@ export interface ParsedBlock {
   yamlEndOffset: number;
   /** YAML parse error, if any */
   parseError?: string;
+  /** Whether YAML document separators (---) were stripped to fix parsing */
+  yamlSanitized?: boolean;
+  /** Set when this block was split from a multi-component fenced block */
+  splitFrom?: number;
 }
 
 export interface ValidationRuleContext {

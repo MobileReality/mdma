@@ -129,9 +129,193 @@ describe('validate()', () => {
     expect(remainingErrors).toHaveLength(0);
   });
 
+  it('auto-fixes table columns missing header by deriving from key', () => {
+    const md = `# Table test
+
+\`\`\`mdma
+type: table
+id: users-table
+columns:
+  - key: first_name
+  - key: email
+  - key: phone-number
+data:
+  - first_name: Alice
+    email: alice@example.com
+    phone-number: "555-1234"
+\`\`\`
+`;
+    const result = validate(md);
+
+    // Schema errors for missing header should be auto-fixed
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'users-table',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // Fixed output should have derived headers
+    expect(result.output).toContain('First Name');
+    expect(result.output).toContain('Email');
+    expect(result.output).toContain('Phone Number');
+  });
+
+  it('auto-fixes form fields missing label by deriving from name', () => {
+    const md = `\`\`\`mdma
+type: form
+id: contact-form
+fields:
+  - name: full_name
+    type: text
+  - name: email
+    type: email
+    label: null
+  - name: phone_number
+    type: text
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'contact-form',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    expect(result.output).toContain('Full Name');
+    expect(result.output).toContain('Email');
+    expect(result.output).toContain('Phone Number');
+  });
+
   it('returns empty issues for markdown with no mdma blocks', () => {
     const result = validate('# Just a heading\n\nSome text.\n');
     expect(result.ok).toBe(true);
     expect(result.issues).toHaveLength(0);
+  });
+
+  it('auto-fixes YAML with --- document separators', () => {
+    const md = `\`\`\`mdma
+type: callout
+id: my-callout
+variant: info
+title: Hello
+content: This is a test
+---
+\`\`\`
+`;
+    const result = validate(md);
+
+    // Should have parsed successfully after stripping ---
+    const yamlIssues = result.issues.filter(
+      (i) => i.ruleId === 'yaml-correctness',
+    );
+    expect(yamlIssues.length).toBe(1);
+    expect(yamlIssues[0].fixed).toBe(true);
+    expect(yamlIssues[0].message).toContain('separator');
+
+    // Output should contain valid callout without ---
+    expect(result.output).toContain('my-callout');
+    expect(result.output).not.toMatch(/^---\s*$/m);
+  });
+
+  it('auto-fixes callout with empty content by deriving from title', () => {
+    const md = `\`\`\`mdma
+type: callout
+id: step-complete
+variant: success
+title: Step 1 Complete
+content: ""
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'step-complete',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // Content should be derived from title
+    expect(result.output).toContain('Step 1 Complete');
+  });
+
+  it('auto-fixes callout with missing content by deriving from id', () => {
+    const md = `\`\`\`mdma
+type: callout
+id: order-confirmed
+variant: info
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'order-confirmed',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // Content should be derived from id
+    expect(result.output).toContain('Order Confirmed');
+  });
+
+  it('auto-fixes table data as bare binding path by wrapping in {{ }}', () => {
+    const md = `\`\`\`mdma
+type: table
+id: order-summary
+columns:
+  - key: field
+    header: Field
+  - key: value
+    header: Value
+data: personal-info.rows
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'order-summary',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // Data should be wrapped in {{ }}
+    expect(result.output).toContain('{{personal-info.rows}}');
+  });
+
+  it('auto-splits multi-component mdma blocks into separate blocks', () => {
+    const md = `# Test
+
+\`\`\`mdma
+type: callout
+id: step-info
+variant: info
+content: "Please fill in your details."
+
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+onSubmit: step-info
+\`\`\`
+`;
+    const result = validate(md);
+
+    // Should have split into two components
+    const yamlIssues = result.issues.filter(
+      (i) => i.ruleId === 'yaml-correctness',
+    );
+    const splitIssues = yamlIssues.filter((i) => i.message.includes('split'));
+    expect(splitIssues.length).toBe(2);
+    expect(splitIssues.every((i) => i.fixed)).toBe(true);
+
+    // Output should have two separate fenced blocks
+    const blockCount = (result.output.match(/```mdma/g) ?? []).length;
+    expect(blockCount).toBe(2);
+
+    // Both components should be present
+    expect(result.output).toContain('step-info');
+    expect(result.output).toContain('my-form');
   });
 });
