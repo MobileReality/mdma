@@ -15,6 +15,49 @@ import { StepperView } from './StepperView.js';
 
 type Mode = 'examples' | 'chat' | 'custom' | 'playground' | 'validator' | 'stepper';
 
+interface NavItem {
+  mode: Mode;
+  label: string;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: 'Documents',
+    items: [
+      { mode: 'examples', label: 'Examples' },
+    ],
+  },
+  {
+    label: 'AI',
+    items: [
+      { mode: 'chat', label: 'AI Chat' },
+      { mode: 'custom', label: 'Custom Components' },
+      { mode: 'playground', label: 'Playground' },
+    ],
+  },
+  {
+    label: 'Tools',
+    items: [
+      { mode: 'validator', label: 'Validator' },
+      { mode: 'stepper', label: 'Stepper' },
+    ],
+  },
+];
+
+function getModeLabel(mode: Mode): string {
+  for (const group of NAV_GROUPS) {
+    for (const item of group.items) {
+      if (item.mode === mode) return item.label;
+    }
+  }
+  return mode;
+}
+
 interface EventEntry {
   id: number;
   timestamp: string;
@@ -40,6 +83,20 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const eventIdRef = useRef(0);
   const eventLogRef = useRef<HTMLDivElement>(null);
+
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
 
   const loadFromMarkdown = useCallback(async (markdown: string) => {
     setError(null);
@@ -88,49 +145,36 @@ export function App() {
           <span className="demo-subtitle">Interactive Document Demo</span>
         </div>
         <div className="demo-header-right">
-          <div className="demo-mode-tabs">
+          <div className="demo-nav" ref={dropdownRef}>
             <button
               type="button"
-              className={`demo-mode-tab ${mode === 'examples' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('examples')}
+              className="demo-nav-trigger"
+              onClick={() => setDropdownOpen((v) => !v)}
             >
-              Examples
+              {getModeLabel(mode)}
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
             </button>
-            <button
-              type="button"
-              className={`demo-mode-tab ${mode === 'chat' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('chat')}
-            >
-              AI Chat
-            </button>
-            <button
-              type="button"
-              className={`demo-mode-tab ${mode === 'custom' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('custom')}
-            >
-              Custom Components
-            </button>
-            <button
-              type="button"
-              className={`demo-mode-tab ${mode === 'playground' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('playground')}
-            >
-              Playground
-            </button>
-            <button
-              type="button"
-              className={`demo-mode-tab ${mode === 'validator' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('validator')}
-            >
-              Validator
-            </button>
-            <button
-              type="button"
-              className={`demo-mode-tab ${mode === 'stepper' ? 'demo-mode-tab--active' : ''}`}
-              onClick={() => setMode('stepper')}
-            >
-              Stepper
-            </button>
+            {dropdownOpen && (
+              <div className="demo-nav-dropdown">
+                {NAV_GROUPS.map((group) => (
+                  <div key={group.label} className="demo-nav-group">
+                    <div className="demo-nav-group-label">{group.label}</div>
+                    {group.items.map((item) => (
+                      <button
+                        key={item.mode}
+                        type="button"
+                        className={`demo-nav-item ${mode === item.mode ? 'demo-nav-item--active' : ''}`}
+                        onClick={() => { setMode(item.mode); setDropdownOpen(false); }}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           {mode === 'examples' && (
             <select
