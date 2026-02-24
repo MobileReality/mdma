@@ -5,15 +5,18 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./schemas/*": {
       "import": "./dist/schemas/*.js",
-      "types": "./dist/schemas/*.d.ts"
+      "types": "./dist/schemas/*.d.ts",
+      "default": "./dist/schemas/*.js"
     },
     "./types": {
       "import": "./dist/types/index.js",
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types/index.d.ts",
+      "default": "./dist/types/index.js"
     }
   },
   "scripts": {

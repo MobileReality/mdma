@@ -1,0 +1,973 @@
+{
+  "evalId": "eval-Chf-2026-02-24T11:53:11",
+  "results": {
+    "version": 3,
+    "timestamp": "2026-02-24T11:53:11.331Z",
+    "prompts": [
+      {
+        "raw": "function prompt_default({vars}){const systemPrompt=(0,import_prompt_pack.buildSystemPrompt)();const escaped=systemPrompt.replaceAll(\"{{\",\"{% raw %}{{\").replaceAll(\"}}\",\"}}{% endraw %}\");return[{role:\"system\",content:escaped},{role:\"user\",content:vars.request}]}",
+        "label": "prompt.mjs",
+        "config": {},
+        "id": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "provider": "openai:gpt-4.1-mini",
+        "metrics": {
+          "score": 10,
+          "testPassCount": 10,
+          "testFailCount": 0,
+          "testErrorCount": 0,
+          "assertPassCount": 28,
+          "assertFailCount": 0,
+          "totalLatencyMs": 544,
+          "tokenUsage": {
+            "total": 30087,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 30087,
+            "numRequests": 10,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            },
+            "assertions": {
+              "total": 0,
+              "prompt": 0,
+              "completion": 0,
+              "cached": 0
+            }
+          },
+          "namedScores": {},
+          "namedScoresCount": {},
+          "cost": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Found 3 sensitive flags"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "b9c0fd82-3cdd-4b86-acb3-c72870dee9a1",
+        "latencyMs": 6,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a form to collect an employee's full name, email address, phone number, and Social Security Number.\\n\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: employee-form-reasoning\nlabel: \"Design Reasoning\"\nstatus: done\ncollapsed: true\ncontent: |\n  The form collects essential employee details including full name, email, phone number, and Social Security Number (SSN).\n  The email, phone number, and SSN fields are marked as sensitive due to personally identifiable information (PII).\n  All fields are required to ensure completeness of employee data.\n```\n\n# Employee Information Form\n\nPlease fill out the form below with the employee's information.\n\n```mdma\ntype: form\nid: employee-info-form\nfields:\n  - name: fullName\n    type: text\n    label: \"Full Name\"\n    required: true\n  - name: email\n    type: email\n    label: \"Email Address\"\n    required: true\n    sensitive: true\n  - name: phoneNumber\n    type: text\n    label: \"Phone Number\"\n    required: true\n    sensitive: true\n  - name: ssn\n    type: text\n    label: \"Social Security Number\"\n    required: true\n    sensitive: true\n```",
+          "tokenUsage": {
+            "cached": 2969,
+            "total": 2969
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Marks PII fields as sensitive",
+          "vars": {
+            "request": "Create a form to collect an employee's full name, email address, phone number, and Social Security Number."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/pii-sensitive.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 1,
+        "vars": {
+          "request": "Create a form to collect an employee's full name, email address, phone number, and Social Security Number."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "```mdma"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: form"
+              }
+            }
+          ],
+          "assertion": null
+        },
+        "id": "f89d20bc-849b-48b1-84ae-5f2d95b4dde0",
+        "latencyMs": 135,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a contact form with name, email, and message fields.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "# Contact Us\n\nPlease fill out the form below to get in touch with us.\n\n```mdma\ntype: thinking\nid: contact-form-reasoning\ncontent: |\n  To create a contact form that collects essential information, I will include three fields: name, email, and message.\n  - The 'name' field will be a simple text input and required.\n  - The 'email' field requires validation for email format and will be marked as sensitive because it contains personal data.\n  - The 'message' field will be a textarea to allow multiline input and also marked as required.\n  The form will have an onSubmit action placeholder for submission handling.\nstatus: done\ncollapsed: true\n```\n\n```mdma\ntype: form\nid: contact-form\nfields:\n  - name: name\n    type: text\n    label: \"Name\"\n    required: true\n  - name: email\n    type: email\n    label: \"Email\"\n    required: true\n    sensitive: true\n  - name: message\n    type: textarea\n    label: \"Message\"\n    required: true\nonSubmit: submit-contact-form\n```",
+          "tokenUsage": {
+            "cached": 2958,
+            "total": 2958
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Generates a valid contact form",
+          "vars": {
+            "request": "Create a contact form with name, email, and message fields."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "contains",
+              "value": "```mdma"
+            },
+            {
+              "type": "contains",
+              "value": "type: form"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "request": "Create a contact form with name, email, and message fields."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "not-contains",
+                "value": "```markdown"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: button"
+              }
+            }
+          ],
+          "assertion": null
+        },
+        "id": "3a16b7f5-576f-4fa5-813d-d38be9d81d2d",
+        "latencyMs": 139,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a button to submit a report.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: submit-report-thinking\nlabel: \"Reasoning for button creation\"\nstatus: done\ncollapsed: true\ncontent: |\n  The user requested a button to submit a report.\n  To fulfill this, I will create a button component with:\n  - A unique id\n  - Label text indicating the submit action\n  - Default styling variant \"primary\"\n  - An onAction field referencing a hypothetical action to submit the report (\"submit-report-action\")\n```\n\n```mdma\ntype: button\nid: submit-report-button\ntext: \"Submit Report\"\nvariant: primary\nonAction: submit-report-action\n```",
+          "tokenUsage": {
+            "cached": 2848,
+            "total": 2848
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Does not wrap output in markdown fences",
+          "vars": {
+            "request": "Create a button to submit a report."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "not-contains",
+              "value": "```markdown"
+            },
+            {
+              "type": "contains",
+              "value": "type: button"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 3,
+        "vars": {
+          "request": "Create a button to submit a report."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Thinking block is first"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "4c1b9765-4e0a-4891-9937-cb09254fb8e7",
+        "latencyMs": 145,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a warning callout about scheduled system maintenance this weekend.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: maintenance-warning-thoughts\nlabel: \"Reasoning for maintenance callout\"\nstatus: done\ncollapsed: true\ncontent: |\n  The user requested a warning callout to inform about scheduled system maintenance this weekend. \n  A callout component with \"warning\" variant is appropriate for drawing attention to this important notice.\n  The content should be clear and concise, stating the timing and impact.\n```\n\n## Scheduled System Maintenance Notice\n\n```mdma\ntype: callout\nid: scheduled-maintenance-warning\nvariant: warning\ntitle: \"Scheduled System Maintenance\"\ncontent: \"Please be aware that there will be scheduled system maintenance this weekend. During this time, some services may be temporarily unavailable. We apologize for any inconvenience and appreciate your understanding.\"\ndismissible: true\n```",
+          "tokenUsage": {
+            "cached": 2886,
+            "total": 2886
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Includes a thinking block before main content",
+          "vars": {
+            "request": "Create a warning callout about scheduled system maintenance this weekend."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/thinking-first.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 2,
+        "vars": {
+          "request": "Create a warning callout about scheduled system maintenance this weekend."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Select field has options"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "5e95d51b-78df-475c-bc9d-80dcc0820ba5",
+        "latencyMs": 19,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a form with a country selector dropdown field.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: country-selector-thinking\nlabel: Creating country selector form\nstatus: done\ncollapsed: true\ncontent: |\n  I will create a form component with a single dropdown field labeled \"Country\". \n  This field will be of type \"select\" with a list of countries as options.\n  The form will have a unique ID and the country field will be required for valid selection.\n```\n\n```mdma\ntype: form\nid: country-selector-form\nfields:\n  - name: country\n    type: select\n    label: \"Country\"\n    required: true\n    options:\n      - label: \"United States\"\n        value: \"US\"\n      - label: \"Canada\"\n        value: \"CA\"\n      - label: \"United Kingdom\"\n        value: \"UK\"\n      - label: \"Australia\"\n        value: \"AU\"\n      - label: \"Germany\"\n        value: \"DE\"\n      - label: \"France\"\n        value: \"FR\"\n      - label: \"India\"\n        value: \"IN\"\n      - label: \"China\"\n        value: \"CN\"\n      - label: \"Japan\"\n        value: \"JP\"\n      - label: \"Brazil\"\n        value: \"BR\"\n```",
+          "tokenUsage": {
+            "cached": 2978,
+            "total": 2978
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Select field has options",
+          "vars": {
+            "request": "Create a form with a country selector dropdown field."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/select-has-options.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 4,
+        "vars": {
+          "request": "Create a form with a country selector dropdown field."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: chart"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Bar chart variant found"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "293ecf57-ebfc-428b-a42e-484cfe0cf35d",
+        "latencyMs": 18,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a bar chart showing quarterly sales data for Q1 through Q4.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: sales-data-reasoning\nlabel: Preparing Quarterly Sales Bar Chart\ncontent: |\n  The request is to create a bar chart presenting sales data for four quarters: Q1, Q2, Q3, and Q4.\n  A bar chart is appropriate to compare discrete categories (quarters) against their sales values.\n  I will define the data with quarters as the x-axis and sales figures as the y-axis.\n  The data will contain four rows to represent each quarter.\n  The chart will be labeled clearly as \"Quarterly Sales Data\".\nstatus: done\ncollapsed: true\n```\n\n# Quarterly Sales Data\n\n```mdma\ntype: chart\nid: quarterly-sales-bar-chart\nvariant: bar\nlabel: \"Quarterly Sales Data\"\ndata: |\n  quarter, sales\n  Q1, 150000\n  Q2, 200000\n  Q3, 180000\n  Q4, 220000\nxAxis: quarter\nyAxis: sales\nshowLegend: false\nheight: 300\n```",
+          "tokenUsage": {
+            "cached": 2944,
+            "total": 2944
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Generates a chart component",
+          "vars": {
+            "request": "Create a bar chart showing quarterly sales data for Q1 through Q4."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "contains",
+              "value": "type: chart"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/bar-chart.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 6,
+        "vars": {
+          "request": "Create a bar chart showing quarterly sales data for Q1 through Q4."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: table"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "columns:"
+              }
+            }
+          ],
+          "assertion": null
+        },
+        "id": "3068603e-b131-4be4-b6bd-73d44b97c820",
+        "latencyMs": 29,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Show a table of the top 5 programming languages by popularity with columns for rank, language name, and market share percentage.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: reasoning-popularity-table\nlabel: \"Reasoning\"\ncontent: |\n  To present the top 5 programming languages by popularity, I will create a table component with columns for rank, language name, and market share percentage.\n  This table is straightforward as it displays fixed data.\n  I'll ensure the columns are appropriately labeled and the data is consistent with typical popularity rankings.\nstatus: done\ncollapsed: true\n```\n\n# Top 5 Programming Languages by Popularity\n\nHere is a table displaying the current top 5 programming languages ranked by their market share percentage.\n\n```mdma\ntype: table\nid: top-5-languages\ncolumns:\n  - key: rank\n    header: \"Rank\"\n    sortable: true\n    width: \"80px\"\n  - key: language\n    header: \"Language\"\n    sortable: true\n    width: \"160px\"\n  - key: marketShare\n    header: \"Market Share (%)\"\n    sortable: true\n    width: \"140px\"\ndata:\n  - { rank: 1, language: \"Python\", marketShare: 29.9 }\n  - { rank: 2, language: \"JavaScript\", marketShare: 19.6 }\n  - { rank: 3, language: \"Java\", marketShare: 16.5 }\n  - { rank: 4, language: \"C#\", marketShare: 8.2 }\n  - { rank: 5, language: \"C++\", marketShare: 6.1 }\nsortable: true\nfilterable: false\npageSize: 5\n```\n",
+          "tokenUsage": {
+            "cached": 3073,
+            "total": 3073
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Generates a table component",
+          "vars": {
+            "request": "Show a table of the top 5 programming languages by popularity with columns for rank, language name, and market share percentage."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "contains",
+              "value": "type: table"
+            },
+            {
+              "type": "contains",
+              "value": "columns:"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 5,
+        "vars": {
+          "request": "Show a table of the top 5 programming languages by popularity with columns for rank, language name, and market share percentage."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: approval-gate"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "requiredApprovers: 2"
+              }
+            }
+          ],
+          "assertion": null
+        },
+        "id": "25148f6f-2fbc-4a78-b242-27978f3b71f3",
+        "latencyMs": 21,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a document approval gate that requires sign-off from 2 managers before a release can proceed.\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "```mdma\ntype: thinking\nid: approval-gate-reasoning\nlabel: \"Approval Gate Setup Reasoning\"\nstatus: done\ncollapsed: true\ncontent: |\n  To control the release process, an approval gate is configured that requires\n  sign-offs from 2 managers before proceeding. This ensures managerial oversight \n  and accountability. Only users with the \"manager\" role are allowed to approve,\n  meeting the requirement of having 2 approvals before release continuation.\n```\n\n```mdma\ntype: approval-gate\nid: release-approval-gate\ntitle: \"Release Approval Required\"\ndescription: \"This release requires approval from 2 managers before proceeding.\"\nrequiredApprovers: 2\nallowedRoles:\n  - manager\n```",
+          "tokenUsage": {
+            "cached": 2878,
+            "total": 2878
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Generates an approval gate",
+          "vars": {
+            "request": "Create a document approval gate that requires sign-off from 2 managers before a release can proceed."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "contains",
+              "value": "type: approval-gate"
+            },
+            {
+              "type": "contains",
+              "value": "requiredApprovers: 2"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 7,
+        "vars": {
+          "request": "Create a document approval gate that requires sign-off from 2 managers before a release can proceed."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: form"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: tasklist"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "contains",
+                "value": "type: button"
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Found sensitive: true flag"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "157e7c2c-a43c-4f23-8f3d-306574f5fc57",
+        "latencyMs": 16,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create an incident triage workflow with: 1. A severity assessment form (title, reporter email, severity dropdown) 2. A response checklist with at least 5 items 3. A \\\"Notify Team\\\" button Mark PII fields appropriately.\\n\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "# Incident Triage Workflow\n\nThis workflow helps to assess and triage an incident by collecting key information, completing an initial response checklist, and notifying the team.\n\n```mdma\ntype: thinking\nid: incident-triage-reasoning\nlabel: Incident triage workflow reasoning\nstatus: done\ncollapsed: true\ncontent: |\n  The workflow includes a form to assess severity with fields for incident title, reporter email marked as sensitive due to PII, and severity dropdown options.\n  Next, a response checklist has 5 critical items for the initial triage process.\n  The final component is a \"Notify Team\" button which triggers notification actions.\n  All component IDs are unique and event handlers are referenced consistently.\n```\n\n## Severity Assessment Form\n\n```mdma\ntype: form\nid: severity-assessment-form\nlabel: Severity Assessment\nfields:\n  - name: title\n    type: text\n    label: \"Incident Title\"\n    required: true\n  - name: reporterEmail\n    type: email\n    label: \"Reporter Email\"\n    required: true\n    sensitive: true\n  - name: severity\n    type: select\n    label: \"Severity Level\"\n    required: true\n    options:\n      - label: \"Low\"\n        value: low\n      - label: \"Medium\"\n        value: medium\n      - label: \"High\"\n        value: high\n      - label: \"Critical\"\n        value: critical\n```\n\n## Response Checklist\n\n```mdma\ntype: tasklist\nid: response-checklist\nlabel: Initial Response Checklist\nitems:\n  - id: acknowledge-incident\n    text: \"Acknowledge the incident\"\n    required: true\n  - id: assign-incident-owner\n    text: \"Assign an incident owner\"\n    required: true\n  - id: gather-additional-info\n    text: \"Gather additional incident information\"\n  - id: notify-affected-users\n    text: \"Notify affected users if necessary\"\n  - id: document-mitigation-steps\n    text: \"Document mitigation steps taken\"\nonComplete: notify-team-action\n```\n\n## Notify Team Button\n\n```mdma\ntype: button\nid: notify-team-button\ntext: \"Notify Team\"\nvariant: primary\nonAction: notify-team-action\n```\n\n## Notify Team Action (Webhook Simulation)\n\n```mdma\ntype: webhook\nid: notify-team-action\nurl: \"https://example.com/api/notify-team\"\nmethod: POST\nheaders:\n  Content-Type: application/json\nbody:\n  title: \"{{severity-assessment-form.title}}\"\n  reporterEmail: \"{{severity-assessment-form.reporterEmail}}\"\n  severity: \"{{severity-assessment-form.severity}}\"\n  checklistCompleted: \"{{response-checklist.items | map(item => item.checked) | every}}\"\ntrigger: notify-team-action\nretries: 3\ntimeout: 15000\n```",
+          "tokenUsage": {
+            "cached": 3362,
+            "total": 3362
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Generates a valid multi-component incident triage workflow",
+          "vars": {
+            "request": "Create an incident triage workflow with: 1. A severity assessment form (title, reporter email, severity dropdown) 2. A response checklist with at least 5 items 3. A \"Notify Team\" button Mark PII fields appropriately."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "contains",
+              "value": "type: form"
+            },
+            {
+              "type": "contains",
+              "value": "type: tasklist"
+            },
+            {
+              "type": "contains",
+              "value": "type: button"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/has-sensitive.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 8,
+        "vars": {
+          "request": "Create an incident triage workflow with: 1. A severity assessment form (title, reporter email, severity dropdown) 2. A response checklist with at least 5 items 3. A \"Notify Team\" button Mark PII fields appropriately."
+        },
+        "metadata": {},
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Valid MDMA document (0 warnings, 0 info)"
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "4 unique kebab-case IDs"
+            }
+          ],
+          "assertion": null
+        },
+        "id": "869b6afa-d5f7-4bf0-9c9b-81ec603492b3",
+        "latencyMs": 16,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[\n  {\n    \"role\": \"system\",\n    \"content\": \"You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the `mdma` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.\\n\\nCRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.\\n\\n## Document Format\\n\\nAn MDMA document is a standard Markdown file that contains one or more interactive component blocks. Each component block is a YAML snippet inside a fenced code block tagged with `mdma`. Here is an example of what your output should look like — note there are NO outer ```markdown fences:\\n\\n# My Document Title\\n\\nSome regular Markdown content here.\\n\\n```mdma\\ntype: form\\nid: contact-form\\nfields:\\n  - name: email\\n    type: email\\n    label: Email Address\\n    required: true\\n```\\n\\nMore Markdown content can follow.\\n\\n## Component Types\\n\\nMDMA supports 9 component types. Every component shares these base fields:\\n\\n- **id** (string, required) — Unique identifier within the document\\n- **type** (string, required) — Component type name\\n- **label** (string, optional) — Display label\\n- **sensitive** (boolean, default: false) — If true, values are redacted in logs\\n- **disabled** (boolean | binding, default: false)\\n- **visible** (boolean | binding, default: true)\\n- **meta** (object, optional) — Arbitrary metadata\\n\\n### 1. form\\n\\nCollects user input via structured fields.\\n\\n```yaml\\ntype: form\\nid: <unique-id>\\nfields:\\n  - name: <field-name>           # required, string\\n    type: text | number | email | date | select | checkbox | textarea\\n    label: <display-label>       # required, string\\n    required: true | false       # default: false\\n    sensitive: true | false      # default: false — set true for PII\\n    defaultValue: <any>          # optional\\n    options:                     # required when type is \\\"select\\\"\\n      - label: <label>\\n        value: <value>\\n    validation:                  # optional\\n      pattern: <regex>\\n      min: <number>\\n      max: <number>\\n      message: <error-message>\\n    bind: \\\"{{variable.path}}\\\"    # optional binding\\nonSubmit: <action-id>            # optional — action triggered on submit\\n```\\n\\n### 2. button\\n\\nTriggers an action when clicked.\\n\\n```yaml\\ntype: button\\nid: <unique-id>\\ntext: <button-label>             # required, string\\nvariant: primary | secondary | danger | ghost   # default: primary\\nonAction: <action-id>           # required — action triggered on click\\nconfirm:                         # optional confirmation dialog\\n  title: <dialog-title>\\n  message: <dialog-message>\\n  confirmText: <confirm-label>   # default: \\\"Confirm\\\"\\n  cancelText: <cancel-label>     # default: \\\"Cancel\\\"\\n```\\n\\n### 3. tasklist\\n\\nA checklist of items that can be individually checked off.\\n\\n```yaml\\ntype: tasklist\\nid: <unique-id>\\nitems:\\n  - id: <item-id>               # required, unique within tasklist\\n    text: <item-description>    # required, string\\n    checked: true | false       # default: false\\n    required: true | false      # default: false\\n    bind: \\\"{{variable.path}}\\\"   # optional binding\\nonComplete: <action-id>         # optional — triggered when all items checked\\n```\\n\\n### 4. table\\n\\nDisplays tabular data with optional sorting, filtering, and pagination.\\n\\n```yaml\\ntype: table\\nid: <unique-id>\\ncolumns:\\n  - key: <field-key>            # required, string\\n    header: <column-header>     # required, string\\n    sortable: true | false      # default: false\\n    sensitive: true | false     # default: false\\n    width: <css-width>          # optional, e.g. \\\"200px\\\"\\ndata:                           # array of row objects OR a binding\\n  - { key1: value1, key2: value2 }\\n# OR: data: \\\"{{variable.path}}\\\"\\nsortable: true | false          # default: false (table-level)\\nfilterable: true | false        # default: false\\npageSize: <number>              # optional, positive integer\\n```\\n\\n### 5. callout\\n\\nDisplays a highlighted message block.\\n\\n```yaml\\ntype: callout\\nid: <unique-id>\\nvariant: info | warning | error | success   # default: info\\ntitle: <optional-title>\\ncontent: <message-text>          # required, string\\ndismissible: true | false        # default: false\\n```\\n\\n### 6. approval-gate\\n\\nBlocks workflow progression until required approvals are received.\\n\\n```yaml\\ntype: approval-gate\\nid: <unique-id>\\ntitle: <gate-title>              # required, string\\ndescription: <details>           # optional\\nrequiredApprovers: <number>      # default: 1, positive integer\\nallowedRoles:                    # optional — restrict who can approve\\n  - <role-name>\\nonApprove: <action-id>          # optional\\nonDeny: <action-id>             # optional\\nrequireReason: true | false      # default: false — require reason on denial\\n```\\n\\n### 7. webhook\\n\\nMakes an HTTP request when triggered by an action.\\n\\n```yaml\\ntype: webhook\\nid: <unique-id>\\nurl: <endpoint-url>              # required, valid URL or binding\\nmethod: GET | POST | PUT | PATCH | DELETE   # default: POST\\nheaders:                         # optional, key-value pairs\\n  Content-Type: application/json\\nbody:                            # optional, object or binding\\n  key: value\\ntrigger: <action-id>            # required — action ID that triggers this webhook\\nretries: <0-5>                  # default: 0\\ntimeout: <milliseconds>         # default: 30000\\n```\\n\\n### 8. chart\\n\\nDisplays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.\\n\\n```yaml\\ntype: chart\\nid: <unique-id>\\nvariant: line | bar | area | pie            # default: line\\nlabel: <chart-title>                         # optional\\ndata: |                                      # required — CSV multiline string or binding\\n  <col1>, <col2>, <col3>\\n  <val1>, <val2>, <val3>\\n  <val1>, <val2>, <val3>\\nxAxis: <column-name>                         # optional — column for x-axis (default: first column)\\nyAxis: <column-name> | [<col1>, <col2>]      # optional — column(s) for y-axis (default: all numeric non-xAxis columns)\\ncolors:                                      # optional — custom color palette\\n  - \\\"<hex-color>\\\"\\nshowLegend: true | false                     # default: true\\nshowGrid: true | false                       # default: true\\nheight: <number>                             # default: 300 (pixels)\\nstacked: true | false                        # default: false (for bar/area)\\n```\\n\\n**Data format rules:**\\n- First line of `data` = column headers (comma-separated, trimmed)\\n- Subsequent lines = data rows (comma-separated, trimmed)\\n- Numeric values are auto-detected and coerced\\n- Use YAML `|` block scalar for multi-line data\\n\\n**Example — line chart:**\\n```yaml\\ntype: chart\\nid: revenue-chart\\nvariant: line\\nlabel: Revenue Trend\\ndata: |\\n  month, revenue, costs\\n  Jan, 45000, 32000\\n  Feb, 52000, 35000\\n  Mar, 48000, 31000\\n  Apr, 61000, 38000\\nxAxis: month\\n```\\n\\n**Example — pie chart:**\\n```yaml\\ntype: chart\\nid: market-share\\nvariant: pie\\nlabel: Market Share\\ndata: |\\n  company, share\\n  Ours, 35\\n  Competitor A, 25\\n  Competitor B, 20\\n  Others, 20\\nxAxis: company\\n```\\n\\n### 9. thinking\\n\\nDisplays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.\\n\\n```yaml\\ntype: thinking\\nid: <unique-id>\\nlabel: <header-text>              # optional — default: \\\"Thinking\\\"\\ncontent: |                        # required — free-form reasoning text\\n  <reasoning text>\\nstatus: thinking | done           # default: done — \\\"thinking\\\" shows pulsing animation\\ncollapsed: true | false           # default: true — starts collapsed\\n```\\n\\n- `content`: free-form reasoning text — use YAML `|` block scalar for multi-line\\n- `collapsed: true` by default — thinking is supplementary information\\n- `status: thinking` shows a pulsing animation (use during streaming), `done` when complete\\n\\n**Example — analysis reasoning:**\\n```yaml\\ntype: thinking\\nid: analysis-reasoning\\nlabel: Analyzing revenue data...\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  First, I examined the quarterly revenue trends.\\n  Q3 shows a 15% dip which correlates with seasonal patterns.\\n  However, year-over-year growth remains strong at 23%.\\n  Recommendation: maintain current strategy with Q3 adjustments.\\n```\\n\\n## Binding Syntax\\n\\nUse `{{variable.path}}` to create dynamic bindings between components. Bindings must:\\n- Start with `{{` and end with `}}`\\n- Contain a valid dot-notation path starting with a letter or underscore\\n- Reference existing component IDs or context variables\\n\\nExamples:\\n- `{{contact_form.email}}` — bind to the email field of a form\\n- `{{user.name}}` — bind to a context variable\\n\\n## Authoring Rules\\n\\n1. **Unique IDs** — Every component `id` must be unique within the document. Use descriptive kebab-case names (e.g., `employee-onboarding-form`, `submit-btn`).\\n2. **Sensitive data** — Set `sensitive: true` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.\\n3. **Required fields** — Mark form fields as `required: true` when the workflow cannot proceed without them.\\n4. **Action references** — All `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, and `trigger` values should reference valid action IDs within the document.\\n5. **Binding validity** — Every `{{binding}}` must reference a valid source. Do not leave unresolved bindings.\\n6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.\\n7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (`: `), e.g. `label: \\\"Step 1: Enter your info\\\"`.\\n8. **Always include thinking** — When generating MDMA components, ALWAYS include a `thinking` block BEFORE the main content to show your reasoning process. Use `status: done` and `collapsed: true`.\\n9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the `thinking` block, not in the prose. Never write things like \\\"I included a thinking block\\\" or \\\"the email field is marked as sensitive\\\".\\n\\n## Self-Check Checklist\\n\\nBefore finalizing an MDMA document, verify:\\n\\n- [ ] Every component has a unique `id`\\n- [ ] All PII fields have `sensitive: true`\\n- [ ] All `{{bindings}}` reference valid sources\\n- [ ] Required form fields are marked `required: true`\\n- [ ] Action IDs referenced in event handlers exist in the document\\n- [ ] Select fields include an `options` array\\n- [ ] YAML syntax is valid in all mdma blocks\\n- [ ] Table `data` matches the declared `columns` keys\\n- [ ] Approval gates have at least one approver configured\\n- [ ] Webhook URLs are valid or use binding syntax\\n\"\n  },\n  {\n    \"role\": \"user\",\n    \"content\": \"Create a page with 3 separate forms: a login form (email + password), a feedback form (rating + comment), and a profile form (name + bio).\\n\"\n  }\n]",
+          "label": "prompt.mjs",
+          "config": {}
+        },
+        "promptId": "b8eff4d516a73375983ba90da4d8e5b1e005e209ac34ba6e970c67887696fcdf",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4.1-mini",
+          "label": ""
+        },
+        "response": {
+          "output": "# User Interaction Forms\n\nBelow are three distinct forms designed for different purposes: user login, user feedback, and user profile information.\n\n```mdma\ntype: thinking\nid: reasoning-for-forms\nlabel: Reasoning for form design\nstatus: done\ncollapsed: true\ncontent: |\n  A login form requires an email and password with email validated and both fields required.\n  The feedback form includes a rating (select, required) and a comment (textarea, optional).\n  The profile form gathers name (text, required) and bio (textarea, optional).\n  Email and password fields contain PII, so they are marked sensitive.\n  Each form has a unique ID, and fields have appropriate labels and requirements.\n```\n\n### Login Form\n\n```mdma\ntype: form\nid: login-form\nlabel: \"Login Form\"\nfields:\n  - name: email\n    type: email\n    label: \"Email Address\"\n    required: true\n    sensitive: true\n  - name: password\n    type: text\n    label: \"Password\"\n    required: true\n    sensitive: true\n```\n\n### Feedback Form\n\n```mdma\ntype: form\nid: feedback-form\nlabel: \"Feedback Form\"\nfields:\n  - name: rating\n    type: select\n    label: \"Rating\"\n    required: true\n    options:\n      - label: \"1 - Poor\"\n        value: \"1\"\n      - label: \"2 - Fair\"\n        value: \"2\"\n      - label: \"3 - Good\"\n        value: \"3\"\n      - label: \"4 - Very Good\"\n        value: \"4\"\n      - label: \"5 - Excellent\"\n        value: \"5\"\n  - name: comment\n    type: textarea\n    label: \"Comments\"\n    required: false\n```\n\n### Profile Form\n\n```mdma\ntype: form\nid: profile-form\nlabel: \"Profile Form\"\nfields:\n  - name: name\n    type: text\n    label: \"Full Name\"\n    required: true\n  - name: bio\n    type: textarea\n    label: \"Bio\"\n    required: false\n```",
+          "tokenUsage": {
+            "cached": 3191,
+            "total": 3191
+          },
+          "cached": true
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "All component IDs are unique and kebab-case",
+          "vars": {
+            "request": "Create a page with 3 separate forms: a login form (email + password), a feedback form (rating + comment), and a profile form (name + bio)."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/validate-mdma.mjs"
+            },
+            {
+              "type": "javascript",
+              "value": "file://assertions/unique-kebab-ids.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 9,
+        "vars": {
+          "request": "Create a page with 3 separate forms: a login form (email + password), a feedback form (rating + comment), and a profile form (name + bio)."
+        },
+        "metadata": {},
+        "failureReason": 0
+      }
+    ],
+    "stats": {
+      "successes": 10,
+      "failures": 0,
+      "errors": 0,
+      "tokenUsage": {
+        "cached": 30087,
+        "completion": 0,
+        "prompt": 0,
+        "total": 30087,
+        "numRequests": 10,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0
+        },
+        "assertions": {
+          "total": 0,
+          "prompt": 0,
+          "completion": 0,
+          "cached": 0
+        }
+      }
+    }
+  },
+  "config": {
+    "description": "MDMA Author Prompt Eval",
+    "prompts": [
+      "file://prompt.mjs"
+    ],
+    "providers": [
+      "openai:gpt-4.1-mini"
+    ],
+    "tests": "tests.yaml",
+    "sharing": true,
+    "defaultTest": {
+      "assert": [
+        {
+          "type": "javascript",
+          "value": "file://assertions/validate-mdma.mjs"
+        }
+      ]
+    },
+    "outputPath": "results.json",
+    "extensions": []
+  },
+  "shareableUrl": null
+}

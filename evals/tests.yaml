@@ -1,0 +1,129 @@
+# MDMA Author Prompt — Eval Test Cases
+#
+# Each test sends a user request to the LLM with the MDMA author system prompt
+# and asserts properties of the generated document.
+
+# ---------------------------------------------------------------------------
+# 1. Simple contact form
+# ---------------------------------------------------------------------------
+- description: Generates a valid contact form
+  vars:
+    request: Create a contact form with name, email, and message fields.
+  assert:
+    - type: contains
+      value: "```mdma"
+    - type: contains
+      value: "type: form"
+
+# ---------------------------------------------------------------------------
+# 2. PII sensitivity — email, phone, SSN must be marked sensitive
+# ---------------------------------------------------------------------------
+- description: Marks PII fields as sensitive
+  vars:
+    request: >
+      Create a form to collect an employee's full name, email address,
+      phone number, and Social Security Number.
+  assert:
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 3. Thinking block appears before other components
+# ---------------------------------------------------------------------------
+- description: Includes a thinking block before main content
+  vars:
+    request: Create a warning callout about scheduled system maintenance this weekend.
+  assert:
+    - type: javascript
+      value: file://assertions/thinking-first.mjs
+
+# ---------------------------------------------------------------------------
+# 4. No markdown wrapping — output should not be in ```markdown fences
+# ---------------------------------------------------------------------------
+- description: Does not wrap output in markdown fences
+  vars:
+    request: Create a button to submit a report.
+  assert:
+    - type: not-contains
+      value: "```markdown"
+    - type: contains
+      value: "type: button"
+
+# ---------------------------------------------------------------------------
+# 5. Select field includes options array
+# ---------------------------------------------------------------------------
+- description: Select field has options
+  vars:
+    request: Create a form with a country selector dropdown field.
+  assert:
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+
+# ---------------------------------------------------------------------------
+# 6. Table generation
+# ---------------------------------------------------------------------------
+- description: Generates a table component
+  vars:
+    request: Show a table of the top 5 programming languages by popularity with columns for rank, language name, and market share percentage.
+  assert:
+    - type: contains
+      value: "type: table"
+    - type: contains
+      value: "columns:"
+
+# ---------------------------------------------------------------------------
+# 7. Chart generation
+# ---------------------------------------------------------------------------
+- description: Generates a chart component
+  vars:
+    request: Create a bar chart showing quarterly sales data for Q1 through Q4.
+  assert:
+    - type: contains
+      value: "type: chart"
+    - type: javascript
+      value: file://assertions/bar-chart.mjs
+
+# ---------------------------------------------------------------------------
+# 8. Approval workflow
+# ---------------------------------------------------------------------------
+- description: Generates an approval gate
+  vars:
+    request: Create a document approval gate that requires sign-off from 2 managers before a release can proceed.
+  assert:
+    - type: contains
+      value: "type: approval-gate"
+    - type: contains
+      value: "requiredApprovers: 2"
+
+# ---------------------------------------------------------------------------
+# 9. Complex multi-component document
+# ---------------------------------------------------------------------------
+- description: Generates a valid multi-component incident triage workflow
+  vars:
+    request: >
+      Create an incident triage workflow with:
+      1. A severity assessment form (title, reporter email, severity dropdown)
+      2. A response checklist with at least 5 items
+      3. A "Notify Team" button
+      Mark PII fields appropriately.
+  assert:
+    - type: contains
+      value: "type: form"
+    - type: contains
+      value: "type: tasklist"
+    - type: contains
+      value: "type: button"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 10. Unique kebab-case IDs across multiple components
+# ---------------------------------------------------------------------------
+- description: All component IDs are unique and kebab-case
+  vars:
+    request: >
+      Create a page with 3 separate forms: a login form (email + password),
+      a feedback form (rating + comment), and a profile form (name + bio).
+  assert:
+    - type: javascript
+      value: file://assertions/unique-kebab-ids.mjs

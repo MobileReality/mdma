@@ -1,0 +1,14 @@
+{
+  "name": "@mdma/evals",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write",
+    "eval:view": "promptfoo view"
+  },
+  "dependencies": {
+    "@mdma/prompt-pack": "workspace:*",
+    "@mdma/validator": "workspace:*",
+    "promptfoo": "0.109.0"
+  }
+}
