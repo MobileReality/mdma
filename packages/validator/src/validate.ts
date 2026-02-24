@@ -54,6 +54,7 @@ export function validate(
       blocks,
       idMap,
       issues: context.issues,
+      options,
     };
 
     for (const ruleId of FIX_ORDER) {

@@ -37,8 +37,27 @@ function patchTableColumns(data: Record<string, unknown>): void {
   }
 }
 
+/** Valid form field types from the schema */
+const VALID_FIELD_TYPES = new Set(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea']);
+
+/** Common misspellings / aliases of the `type` key */
+const TYPE_KEY_TYPOS = ['typ', 'tyep', 'tpye', 'ype', 'filed_type', 'fieldType', 'field_type'];
+
 /**
- * Pre-fix form fields: fill missing or null `label` from `name`.
+ * Infer field type from the field name when `type` is missing.
+ */
+function inferFieldType(name: string): string {
+  const lower = name.toLowerCase().replace(/[-_]/g, '');
+  if (lower.includes('email')) return 'email';
+  if (lower.includes('date') || lower.includes('birthday') || lower.includes('dob')) return 'date';
+  if (lower.includes('phone') || lower.includes('age') || lower.includes('amount') || lower.includes('salary') || lower.includes('price') || lower.includes('quantity') || lower.includes('count')) return 'number';
+  if (lower.includes('description') || lower.includes('address') || lower.includes('comment') || lower.includes('note') || lower.includes('bio') || lower.includes('message')) return 'textarea';
+  if (lower.includes('agree') || lower.includes('accept') || lower.includes('consent') || lower.includes('subscribe') || lower.includes('optIn')) return 'checkbox';
+  return 'text';
+}
+
+/**
+ * Pre-fix form fields: fix misspelled `type`, infer missing `type`, fill missing `label`.
  */
 function patchFormFields(data: Record<string, unknown>): void {
   if (data.type !== 'form') return;
@@ -48,6 +67,45 @@ function patchFormFields(data: Record<string, unknown>): void {
   for (const field of fields) {
     if (typeof field !== 'object' || field === null) continue;
     const f = field as Record<string, unknown>;
+
+    // Fix misspelled type key (e.g. "typ: date" → "type: date")
+    if (!f.type || !VALID_FIELD_TYPES.has(f.type as string)) {
+      for (const typo of TYPE_KEY_TYPOS) {
+        if (typo in f && typeof f[typo] === 'string') {
+          const val = f[typo] as string;
+          if (VALID_FIELD_TYPES.has(val)) {
+            f.type = val;
+          }
+          delete f[typo];
+          break;
+        }
+      }
+    }
+
+    // If type is still missing, infer from field name
+    if (!f.type && typeof f.name === 'string') {
+      f.type = inferFieldType(f.name);
+    }
+
+    // Last resort: default to text
+    if (!f.type) {
+      f.type = 'text';
+    }
+
+    // If type value is not valid (e.g. misspelled value), try to match
+    if (!VALID_FIELD_TYPES.has(f.type as string)) {
+      const lower = (f.type as string).toLowerCase();
+      for (const valid of VALID_FIELD_TYPES) {
+        if (valid.startsWith(lower) || lower.startsWith(valid)) {
+          f.type = valid;
+          break;
+        }
+      }
+      // Still invalid — fall back to text
+      if (!VALID_FIELD_TYPES.has(f.type as string)) {
+        f.type = 'text';
+      }
+    }
 
     // Derive label from name when missing or null
     if ((!f.label || f.label === null) && typeof f.name === 'string') {
@@ -99,6 +157,70 @@ function patchCalloutContent(data: Record<string, unknown>): void {
   data.content = 'Information';
 }
 
+/**
+ * Component-level properties that are Zod defaults and should be stripped
+ * from the output to keep it concise. Key = property name, value = default value.
+ */
+const COMPONENT_DEFAULTS: Record<string, unknown> = {
+  sensitive: false,
+  disabled: false,
+  visible: true,
+};
+
+/**
+ * Per-type property defaults that are Zod defaults and should be stripped.
+ */
+const TYPE_DEFAULTS: Record<string, Record<string, unknown>> = {
+  callout: { variant: 'info', dismissible: false },
+  chart: { variant: 'line', showLegend: true, showGrid: true, height: 300, stacked: false },
+  button: { variant: 'primary' },
+  table: { sortable: false, filterable: false },
+  thinking: { status: 'done', collapsed: true },
+  webhook: { method: 'POST', retries: 0, timeout: 30000 },
+  'approval-gate': { requiredApprovers: 1, requireReason: false },
+};
+
+/**
+ * Strip properties that equal their Zod defaults to keep output concise.
+ */
+function stripDefaults(data: Record<string, unknown>): void {
+  for (const [key, defaultVal] of Object.entries(COMPONENT_DEFAULTS)) {
+    if (key in data && data[key] === defaultVal) {
+      delete data[key];
+    }
+  }
+
+  const type = data.type;
+  if (typeof type === 'string' && TYPE_DEFAULTS[type]) {
+    for (const [key, defaultVal] of Object.entries(TYPE_DEFAULTS[type])) {
+      if (key in data && data[key] === defaultVal) {
+        delete data[key];
+      }
+    }
+  }
+
+  // Strip default values from nested arrays (form fields, table columns)
+  const fields = data.fields;
+  if (Array.isArray(fields)) {
+    for (const field of fields) {
+      if (typeof field !== 'object' || field === null) continue;
+      const f = field as Record<string, unknown>;
+      if (f.required === false) delete f.required;
+      if (f.sensitive === false) delete f.sensitive;
+    }
+  }
+
+  const columns = data.columns;
+  if (Array.isArray(columns)) {
+    for (const col of columns) {
+      if (typeof col !== 'object' || col === null) continue;
+      const c = col as Record<string, unknown>;
+      if (c.sortable === false) delete c.sortable;
+      if (c.sensitive === false) delete c.sensitive;
+    }
+  }
+}
+
 export function fixSchemaDefaults(context: FixContext): void {
   for (const block of context.blocks) {
     if (block.data === null) continue;
@@ -119,6 +241,9 @@ export function fixSchemaDefaults(context: FixContext): void {
     if (result.success) {
       // Replace data with the Zod-normalized version (includes defaults)
       block.data = result.data as Record<string, unknown>;
+
+      // Strip noisy default values that Zod added
+      stripDefaults(block.data);
 
       // Mark relevant schema-conformance issues as fixed
       for (const issue of context.issues) {

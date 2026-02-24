@@ -83,6 +83,8 @@ export interface FixContext {
   idMap: Map<string, number>;
   /** Issues found (fixes mark issues as fixed) */
   issues: ValidationIssue[];
+  /** Options passed to validate() */
+  options: ValidatorOptions;
 }
 
 export type FixFunction = (context: FixContext) => void;
