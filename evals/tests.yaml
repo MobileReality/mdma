@@ -1,29 +1,87 @@
 # MDMA Author Prompt — Eval Test Cases
 #
-# Each test sends a user request to the LLM with the MDMA author system prompt
-# and asserts properties of the generated document.
+# Each test sends a user request containing an exact MDMA blueprint to the
+# LLM with the MDMA author system prompt, and asserts that the generated
+# output matches the prescribed structure.
 
 # ---------------------------------------------------------------------------
 # 1. Simple contact form
 # ---------------------------------------------------------------------------
-- description: Generates a valid contact form
+- description: Generates a contact form matching blueprint
   vars:
-    request: Create a contact form with name, email, and message fields.
+    request: |
+      Create a contact form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: contact-form
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email Address"
+          required: true
+          sensitive: true
+        - name: message
+          type: textarea
+          label: "Message"
+          required: true
+      ```
   assert:
-    - type: contains
-      value: "```mdma"
-    - type: contains
-      value: "type: form"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 3
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
 
 # ---------------------------------------------------------------------------
 # 2. PII sensitivity — email, phone, SSN must be marked sensitive
 # ---------------------------------------------------------------------------
 - description: Marks PII fields as sensitive
   vars:
-    request: >
-      Create a form to collect an employee's full name, email address,
-      phone number, and Social Security Number.
+    request: |
+      Create a form to collect employee info matching this exact structure:
+
+      ```mdma
+      type: form
+      id: employee-pii-form
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email Address"
+          required: true
+          sensitive: true
+        - name: phone
+          type: text
+          label: "Phone Number"
+          sensitive: true
+        - name: ssn
+          type: text
+          label: "Social Security Number"
+          required: true
+          sensitive: true
+      ```
   assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
     - type: javascript
       value: file://assertions/pii-sensitive.mjs
 
@@ -32,87 +90,245 @@
 # ---------------------------------------------------------------------------
 - description: Includes a thinking block before main content
   vars:
-    request: Create a warning callout about scheduled system maintenance this weekend.
+    request: |
+      Create a callout matching this exact structure:
+
+      ```mdma
+      type: callout
+      id: maintenance-warning
+      variant: warning
+      title: "Scheduled Maintenance"
+      content: "Our systems will be undergoing maintenance this weekend from Saturday 10 PM to Sunday 6 AM EST."
+      dismissible: true
+      ```
   assert:
     - type: javascript
       value: file://assertions/thinking-first.mjs
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
 
 # ---------------------------------------------------------------------------
 # 4. No markdown wrapping — output should not be in ```markdown fences
 # ---------------------------------------------------------------------------
 - description: Does not wrap output in markdown fences
   vars:
-    request: Create a button to submit a report.
+    request: |
+      Create a button matching this exact structure:
+
+      ```mdma
+      type: button
+      id: submit-report-btn
+      text: "Submit Report"
+      variant: primary
+      onAction: submit-report
+      ```
   assert:
     - type: not-contains
       value: "```markdown"
-    - type: contains
-      value: "type: button"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [button]
 
 # ---------------------------------------------------------------------------
 # 5. Select field includes options array
 # ---------------------------------------------------------------------------
 - description: Select field has options
   vars:
-    request: Create a form with a country selector dropdown field.
+    request: |
+      Create a form with a country selector matching this exact structure:
+
+      ```mdma
+      type: form
+      id: country-selector-form
+      fields:
+        - name: country
+          type: select
+          label: "Country"
+          required: true
+          options:
+            - label: "United States"
+              value: us
+            - label: "United Kingdom"
+              value: uk
+            - label: "Canada"
+              value: ca
+            - label: "Australia"
+              value: au
+            - label: "Germany"
+              value: de
+      ```
   assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
     - type: javascript
       value: file://assertions/select-has-options.mjs
 
 # ---------------------------------------------------------------------------
 # 6. Table generation
 # ---------------------------------------------------------------------------
-- description: Generates a table component
+- description: Generates a table component matching blueprint
   vars:
-    request: Show a table of the top 5 programming languages by popularity with columns for rank, language name, and market share percentage.
+    request: |
+      Create a table matching this exact structure:
+
+      ```mdma
+      type: table
+      id: languages-table
+      sortable: true
+      columns:
+        - key: rank
+          header: "Rank"
+          sortable: true
+        - key: language
+          header: "Language"
+          sortable: true
+        - key: market-share
+          header: "Market Share (%)"
+          sortable: true
+      data:
+        - { rank: 1, language: "Python", market-share: 28.1 }
+        - { rank: 2, language: "JavaScript", market-share: 21.5 }
+        - { rank: 3, language: "Java", market-share: 15.3 }
+        - { rank: 4, language: "C++", market-share: 10.2 }
+        - { rank: 5, language: "TypeScript", market-share: 8.7 }
+      ```
   assert:
-    - type: contains
-      value: "type: table"
-    - type: contains
-      value: "columns:"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table]
+    - type: javascript
+      value: file://assertions/table-features.mjs
 
 # ---------------------------------------------------------------------------
-# 7. Chart generation
+# 7. Bar chart generation
 # ---------------------------------------------------------------------------
-- description: Generates a chart component
+- description: Generates a bar chart matching blueprint
   vars:
-    request: Create a bar chart showing quarterly sales data for Q1 through Q4.
+    request: |
+      Create a bar chart matching this exact structure:
+
+      ```mdma
+      type: chart
+      id: quarterly-sales
+      variant: bar
+      label: "Quarterly Sales"
+      data: |
+        Quarter, Sales
+        Q1, 120000
+        Q2, 145000
+        Q3, 98000
+        Q4, 167000
+      xAxis: Quarter
+      ```
   assert:
-    - type: contains
-      value: "type: chart"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart]
     - type: javascript
       value: file://assertions/bar-chart.mjs
 
 # ---------------------------------------------------------------------------
-# 8. Approval workflow
+# 8. Approval gate with 2 approvers
 # ---------------------------------------------------------------------------
-- description: Generates an approval gate
+- description: Generates an approval gate matching blueprint
   vars:
-    request: Create a document approval gate that requires sign-off from 2 managers before a release can proceed.
+    request: |
+      Create an approval gate matching this exact structure:
+
+      ```mdma
+      type: approval-gate
+      id: document-approval
+      title: "Document Approval"
+      description: "This document requires sign-off from 2 managers before the release can proceed."
+      requiredApprovers: 2
+      onApprove: proceed-release
+      onDeny: reject-release
+      requireReason: true
+      ```
   assert:
-    - type: contains
-      value: "type: approval-gate"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [approval-gate]
     - type: contains
       value: "requiredApprovers: 2"
 
 # ---------------------------------------------------------------------------
-# 9. Complex multi-component document
+# 9. Multi-component incident triage workflow
 # ---------------------------------------------------------------------------
-- description: Generates a valid multi-component incident triage workflow
+- description: Generates a multi-component incident triage workflow
   vars:
-    request: >
-      Create an incident triage workflow with:
-      1. A severity assessment form (title, reporter email, severity dropdown)
-      2. A response checklist with at least 5 items
-      3. A "Notify Team" button
-      Mark PII fields appropriately.
+    request: |
+      Create an incident triage workflow with these exact components:
+
+      ```mdma
+      type: form
+      id: severity-form
+      fields:
+        - name: title
+          type: text
+          label: "Incident Title"
+          required: true
+        - name: reporter-email
+          type: email
+          label: "Reporter Email"
+          required: true
+          sensitive: true
+        - name: severity
+          type: select
+          label: "Severity"
+          required: true
+          options:
+            - label: Critical
+              value: critical
+            - label: High
+              value: high
+            - label: Medium
+              value: medium
+            - label: Low
+              value: low
+      ```
+
+      ```mdma
+      type: tasklist
+      id: response-checklist
+      items:
+        - id: identify
+          text: "Identify affected systems"
+        - id: assess
+          text: "Assess blast radius"
+        - id: communicate
+          text: "Notify stakeholders"
+        - id: mitigate
+          text: "Apply mitigation steps"
+        - id: document
+          text: "Document root cause"
+      onComplete: checklist-done
+      ```
+
+      ```mdma
+      type: button
+      id: notify-team-btn
+      text: "Notify Team"
+      variant: primary
+      onAction: notify-team
+      ```
   assert:
-    - type: contains
-      value: "type: form"
-    - type: contains
-      value: "type: tasklist"
-    - type: contains
-      value: "type: button"
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, tasklist, button]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 3
     - type: javascript
       value: file://assertions/has-sensitive.mjs
 
@@ -121,9 +337,710 @@
 # ---------------------------------------------------------------------------
 - description: All component IDs are unique and kebab-case
   vars:
-    request: >
-      Create a page with 3 separate forms: a login form (email + password),
-      a feedback form (rating + comment), and a profile form (name + bio).
+    request: |
+      Create three separate forms matching these exact structures:
+
+      ```mdma
+      type: form
+      id: login-form
+      fields:
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+        - name: password
+          type: text
+          label: "Password"
+          required: true
+          sensitive: true
+      ```
+
+      ```mdma
+      type: form
+      id: feedback-form
+      fields:
+        - name: rating
+          type: select
+          label: "Rating"
+          options:
+            - label: "1"
+              value: "1"
+            - label: "2"
+              value: "2"
+            - label: "3"
+              value: "3"
+            - label: "4"
+              value: "4"
+            - label: "5"
+              value: "5"
+        - name: comment
+          type: textarea
+          label: "Comment"
+      ```
+
+      ```mdma
+      type: form
+      id: profile-form
+      fields:
+        - name: display-name
+          type: text
+          label: "Display Name"
+          required: true
+        - name: bio
+          type: textarea
+          label: "Bio"
+      ```
   assert:
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/component-count.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 11. Callout — warning variant
+# ---------------------------------------------------------------------------
+- description: Generates a warning callout matching blueprint
+  vars:
+    request: |
+      Create a callout matching this exact structure:
+
+      ```mdma
+      type: callout
+      id: password-expiry
+      variant: warning
+      title: "Password Expiring Soon"
+      content: "Your password will expire in 3 days. Please update it to avoid losing access."
+      dismissible: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: warning
+
+# ---------------------------------------------------------------------------
+# 12. Callout — error variant
+# ---------------------------------------------------------------------------
+- description: Generates an error callout matching blueprint
+  vars:
+    request: |
+      Create a callout matching this exact structure:
+
+      ```mdma
+      type: callout
+      id: payment-error
+      variant: error
+      title: "Payment Processing Unavailable"
+      content: "Payment processing is currently unavailable. Please try again later or contact support."
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: error
+
+# ---------------------------------------------------------------------------
+# 13. Callout — success variant
+# ---------------------------------------------------------------------------
+- description: Generates a success callout matching blueprint
+  vars:
+    request: |
+      Create a callout matching this exact structure:
+
+      ```mdma
+      type: callout
+      id: account-verified
+      variant: success
+      title: "Account Verified"
+      content: "Your account has been successfully verified. You now have full access to all features."
+      dismissible: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: success
+
+# ---------------------------------------------------------------------------
+# 14. Pie chart
+# ---------------------------------------------------------------------------
+- description: Generates a pie chart matching blueprint
+  vars:
+    request: |
+      Create a pie chart matching this exact structure:
+
+      ```mdma
+      type: chart
+      id: browser-share
+      variant: pie
+      label: "Browser Market Share"
+      data: |
+        Browser, Share
+        Chrome, 65
+        Safari, 18
+        Firefox, 8
+        Edge, 5
+        Other, 4
+      xAxis: Browser
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart]
+    - type: javascript
+      value: file://assertions/pie-chart.mjs
+
+# ---------------------------------------------------------------------------
+# 15. Button with confirmation dialog
+# ---------------------------------------------------------------------------
+- description: Button has a confirmation dialog matching blueprint
+  vars:
+    request: |
+      Create a button matching this exact structure:
+
+      ```mdma
+      type: button
+      id: delete-account-btn
+      text: "Delete Account"
+      variant: danger
+      onAction: delete-account
+      confirm:
+        title: "Delete Account?"
+        message: "This action is permanent and cannot be undone. All your data will be deleted."
+        confirmText: "Yes, Delete"
+        cancelText: "Cancel"
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [button]
+    - type: javascript
+      value: file://assertions/has-confirm.mjs
+    - type: contains
+      value: "variant: danger"
+
+# ---------------------------------------------------------------------------
+# 16. Webhook component
+# ---------------------------------------------------------------------------
+- description: Generates a form with webhook matching blueprint
+  vars:
+    request: |
+      Create a support ticket form with a webhook matching these exact structures:
+
+      ```mdma
+      type: form
+      id: ticket-form
+      fields:
+        - name: subject
+          type: text
+          label: "Subject"
+          required: true
+        - name: description
+          type: textarea
+          label: "Description"
+          required: true
+      onSubmit: submit-ticket
+      ```
+
+      ```mdma
+      type: webhook
+      id: ticket-webhook
+      url: "https://api.example.com/tickets"
+      method: POST
+      headers:
+        Content-Type: application/json
+      body:
+        subject: "{{ticket-form.subject}}"
+        description: "{{ticket-form.description}}"
+      trigger: submit-ticket
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, webhook]
+    - type: javascript
+      value: file://assertions/has-webhook.mjs
+
+# ---------------------------------------------------------------------------
+# 17. Table with sortable and filterable features
+# ---------------------------------------------------------------------------
+- description: Generates a sortable and filterable table matching blueprint
+  vars:
+    request: |
+      Create a table matching this exact structure:
+
+      ```mdma
+      type: table
+      id: employee-directory
+      sortable: true
+      filterable: true
+      columns:
+        - key: name
+          header: "Name"
+          sortable: true
+        - key: department
+          header: "Department"
+          sortable: true
+        - key: role
+          header: "Role"
+          sortable: true
+        - key: start-date
+          header: "Start Date"
+          sortable: true
+      data:
+        - { name: "Alice Johnson", department: "Engineering", role: "Senior Developer", start-date: "2021-03-15" }
+        - { name: "Bob Smith", department: "Marketing", role: "Campaign Manager", start-date: "2022-07-01" }
+        - { name: "Carol Davis", department: "Engineering", role: "Tech Lead", start-date: "2020-01-10" }
+        - { name: "Dan Wilson", department: "Sales", role: "Account Executive", start-date: "2023-02-20" }
+        - { name: "Eve Martinez", department: "HR", role: "Recruiter", start-date: "2022-11-05" }
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table]
+    - type: javascript
+      value: file://assertions/table-features.mjs
+
+# ---------------------------------------------------------------------------
+# 18. Financial PII — credit card and bank details marked sensitive
+# ---------------------------------------------------------------------------
+- description: Marks financial fields as sensitive
+  vars:
+    request: |
+      Create a payment form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: payment-form
+      fields:
+        - name: cardholder-name
+          type: text
+          label: "Cardholder Name"
+          required: true
+        - name: card-number
+          type: text
+          label: "Credit Card Number"
+          required: true
+          sensitive: true
+        - name: expiry
+          type: text
+          label: "Expiration Date"
+          required: true
+          sensitive: true
+        - name: cvv
+          type: text
+          label: "CVV"
+          required: true
+          sensitive: true
+        - name: billing-address
+          type: textarea
+          label: "Billing Address"
+          required: true
+          sensitive: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 19. Required fields on a registration form
+# ---------------------------------------------------------------------------
+- description: Marks mandatory fields as required
+  vars:
+    request: |
+      Create a registration form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: user-registration
+      fields:
+        - name: username
+          type: text
+          label: "Username"
+          required: true
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+        - name: password
+          type: text
+          label: "Password"
+          required: true
+          sensitive: true
+        - name: bio
+          type: textarea
+          label: "Bio"
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 20. Tasklist with button integration
+# ---------------------------------------------------------------------------
+- description: Generates a tasklist that gates a button
+  vars:
+    request: |
+      Create a tasklist with a button matching these exact structures:
+
+      ```mdma
+      type: tasklist
+      id: onboarding-checklist
+      items:
+        - id: setup-profile
+          text: "Set up your profile"
+        - id: connect-calendar
+          text: "Connect your calendar"
+        - id: invite-team
+          text: "Invite your team"
+        - id: complete-tutorial
+          text: "Complete the tutorial"
+      onComplete: onboarding-done
+      ```
+
+      ```mdma
+      type: button
+      id: get-started-btn
+      text: "Get Started"
+      variant: primary
+      onAction: onboarding-done
+      disabled: "{{onboarding-checklist.completed}}"
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [tasklist, button]
+
+# ---------------------------------------------------------------------------
+# 21. Cross-component bindings
+# ---------------------------------------------------------------------------
+- description: Uses binding expressions across components
+  vars:
+    request: |
+      Create a form with a conditional callout matching these exact structures:
+
+      ```mdma
+      type: form
+      id: settings-form
+      fields:
+        - name: notifications-enabled
+          type: checkbox
+          label: "Enable Notifications"
+      ```
+
+      ```mdma
+      type: callout
+      id: notification-info
+      variant: info
+      title: "Notification Preferences"
+      content: "You will receive email notifications for account activity, security alerts, and weekly digests."
+      visible: "{{settings-form.notifications-enabled}}"
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/has-bindings.mjs
+
+# ---------------------------------------------------------------------------
+# 22. Complex multi-component — HR onboarding workflow
+# ---------------------------------------------------------------------------
+- description: Generates a large multi-component HR onboarding document
+  vars:
+    request: |
+      Create an HR onboarding workflow with these exact components:
+
+      ```mdma
+      type: callout
+      id: welcome-banner
+      variant: success
+      title: "Welcome to Acme Corp!"
+      content: "We're excited to have you on board. Please complete the steps below to get started."
+      ```
+
+      ```mdma
+      type: form
+      id: personal-info-form
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+        - name: phone
+          type: text
+          label: "Phone Number"
+          sensitive: true
+        - name: dob
+          type: date
+          label: "Date of Birth"
+          sensitive: true
+        - name: ssn
+          type: text
+          label: "Social Security Number"
+          required: true
+          sensitive: true
+      ```
+
+      ```mdma
+      type: form
+      id: equipment-form
+      fields:
+        - name: laptop
+          type: select
+          label: "Laptop Model"
+          required: true
+          options:
+            - label: "MacBook Pro"
+              value: macbook-pro
+            - label: "ThinkPad X1"
+              value: thinkpad
+            - label: "Dell XPS 15"
+              value: dell-xps
+      ```
+
+      ```mdma
+      type: tasklist
+      id: onboarding-tasks
+      items:
+        - id: badge-photo
+          text: "Upload badge photo"
+        - id: parking-pass
+          text: "Request parking pass"
+        - id: nda-signed
+          text: "Sign NDA"
+          required: true
+        - id: orientation
+          text: "Attend orientation session"
+          required: true
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: manager-approval
+      title: "Manager Approval"
+      requiredApprovers: 1
+      ```
+
+      ```mdma
+      type: button
+      id: complete-onboarding-btn
+      text: "Complete Onboarding"
+      variant: primary
+      onAction: finish-onboarding
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/component-count.mjs
+      config:
+        min: 7
+    - type: javascript
+      value: file://assertions/unique-kebab-ids.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: contains
+      value: "type: approval-gate"
+
+# ---------------------------------------------------------------------------
+# 23. Approval gate with role restrictions
+# ---------------------------------------------------------------------------
+- description: Generates an approval gate with allowed roles matching blueprint
+  vars:
+    request: |
+      Create an approval gate matching this exact structure:
+
+      ```mdma
+      type: approval-gate
+      id: budget-approval
+      title: "Budget Approval"
+      description: "All budget requests over $10,000 require approval from authorized personnel."
+      requiredApprovers: 3
+      allowedRoles:
+        - finance-manager
+        - director
+      onApprove: budget-approved
+      onDeny: budget-denied
+      requireReason: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [approval-gate]
+    - type: contains
+      value: "requiredApprovers: 3"
+    - type: contains
+      value: "allowedRoles:"
+
+# ---------------------------------------------------------------------------
+# 24. Medical PII sensitivity
+# ---------------------------------------------------------------------------
+- description: Marks medical and personal health fields as sensitive
+  vars:
+    request: |
+      Create a patient intake form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: patient-intake
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: dob
+          type: date
+          label: "Date of Birth"
+          required: true
+          sensitive: true
+        - name: email
+          type: email
+          label: "Email"
+          sensitive: true
+        - name: phone
+          type: text
+          label: "Phone Number"
+          sensitive: true
+        - name: medical-record
+          type: text
+          label: "Medical Record Number"
+          required: true
+          sensitive: true
+        - name: medications
+          type: textarea
+          label: "Current Medications"
+          sensitive: true
+        - name: allergies
+          type: textarea
+          label: "Known Allergies"
+          sensitive: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 7
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 25. Multi-chart dashboard
+# ---------------------------------------------------------------------------
+- description: Generates multiple chart types in a dashboard
+  vars:
+    request: |
+      Create a sales dashboard with these exact components:
+
+      ```mdma
+      type: chart
+      id: monthly-revenue
+      variant: bar
+      label: "Monthly Revenue"
+      data: |
+        Month, Revenue
+        January, 85000
+        February, 92000
+        March, 78000
+        April, 105000
+        May, 99000
+        June, 115000
+      xAxis: Month
+      ```
+
+      ```mdma
+      type: chart
+      id: category-breakdown
+      variant: pie
+      label: "Revenue by Category"
+      data: |
+        Category, Revenue
+        Electronics, 180000
+        Clothing, 120000
+        Food, 95000
+        Services, 79000
+      xAxis: Category
+      ```
+
+      ```mdma
+      type: table
+      id: region-summary
+      sortable: true
+      columns:
+        - key: region
+          header: "Region"
+          sortable: true
+        - key: revenue
+          header: "Revenue ($)"
+          sortable: true
+        - key: growth
+          header: "Growth (%)"
+          sortable: true
+      data:
+        - { region: "North America", revenue: 250000, growth: 12.5 }
+        - { region: "Europe", revenue: 180000, growth: 8.3 }
+        - { region: "Asia Pacific", revenue: 145000, growth: 22.1 }
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart, table]
+    - type: javascript
+      value: file://assertions/bar-chart.mjs
+    - type: javascript
+      value: file://assertions/pie-chart.mjs
+    - type: contains
+      value: "type: table"

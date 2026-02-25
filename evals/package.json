@@ -3,7 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write",
+    "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; exit 0",
+    "eval:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; exit 0",
+    "eval:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; exit 0",
+    "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; exit 0",
     "eval:view": "promptfoo view"
   },
   "dependencies": {

@@ -1,0 +1,20 @@
+# MDMA Conversation Tests — promptfoo evaluation config
+#
+# Multi-turn tests that verify MDMA documents survive follow-up user
+# interactions without re-generation, YAML leaks, or field loss.
+#
+# Run:  pnpm --filter @mdma/evals eval:conversation
+# View: pnpm --filter @mdma/evals eval:view
+
+description: MDMA Conversation (Multi-Turn) Eval
+
+envPath: .env
+outputPath: results-conversation.json
+
+prompts:
+  - file://prompt-conversation.mjs
+
+providers:
+  - openai:gpt-4.1-mini
+
+tests: tests-conversation.yaml

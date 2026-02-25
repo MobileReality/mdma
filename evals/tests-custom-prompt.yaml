@@ -1,0 +1,675 @@
+# MDMA Author + Custom System Prompt — Eval Test Cases
+#
+# Each test simulates a real user who has configured a custom system prompt
+# that prescribes the exact MDMA components to generate using the same YAML
+# schema defined in the MDMA author prompt. The LLM must produce the exact
+# structure — nothing more, nothing less.
+
+# ---------------------------------------------------------------------------
+# 1. Bug report form — exact 5-field MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates exact bug report form from MDMA blueprint"
+  vars:
+    customPrompt: |
+      You are a bug tracking assistant. When a user reports a bug, always
+      generate a single form component matching this exact structure:
+
+      ```mdma
+      type: form
+      id: bug-report
+      fields:
+        - name: title
+          type: text
+          label: "Bug Title"
+          required: true
+        - name: severity
+          type: select
+          label: "Severity"
+          options:
+            - label: Critical
+              value: critical
+            - label: High
+              value: high
+            - label: Medium
+              value: medium
+            - label: Low
+              value: low
+        - name: steps
+          type: textarea
+          label: "Steps to Reproduce"
+          required: true
+        - name: expected
+          type: textarea
+          label: "Expected Behavior"
+        - name: actual
+          type: textarea
+          label: "Actual Behavior"
+      ```
+
+      Generate only this form. No buttons, callouts, or other components.
+    request: I found a bug where the login page crashes after entering my password.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 2
+    - type: contains
+      value: "type: textarea"
+
+# ---------------------------------------------------------------------------
+# 2. Employee onboarding — form + tasklist MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates prescribed onboarding form and checklist"
+  vars:
+    customPrompt: |
+      You are an HR onboarding assistant. For every new hire, generate
+      exactly these two components:
+
+      ```mdma
+      type: form
+      id: new-hire-info
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Work Email"
+          required: true
+          sensitive: true
+        - name: department
+          type: select
+          label: "Department"
+          options:
+            - label: Engineering
+              value: engineering
+            - label: Design
+              value: design
+            - label: Marketing
+              value: marketing
+            - label: Sales
+              value: sales
+            - label: Operations
+              value: operations
+        - name: start-date
+          type: date
+          label: "Start Date"
+          required: true
+      ```
+
+      ```mdma
+      type: tasklist
+      id: onboarding-checklist
+      items:
+        - id: sign-contract
+          text: "Sign employment contract"
+        - id: tax-forms
+          text: "Complete tax forms"
+        - id: setup-laptop
+          text: "Set up laptop"
+        - id: orientation
+          text: "Attend orientation session"
+        - id: meet-lead
+          text: "Meet your team lead"
+      ```
+
+      Generate only these two components. No buttons, callouts, or others.
+    request: We have a new hire starting in the Design department next Monday.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, tasklist]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+    - type: contains
+      value: "type: tasklist"
+
+# ---------------------------------------------------------------------------
+# 3. Customer feedback — form + pie chart MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates feedback form and satisfaction pie chart"
+  vars:
+    customPrompt: |
+      You are a customer success assistant. When asked about feedback,
+      always generate exactly these two components:
+
+      ```mdma
+      type: form
+      id: feedback-form
+      fields:
+        - name: customer-name
+          type: text
+          label: "Customer Name"
+        - name: email
+          type: email
+          label: "Email"
+          sensitive: true
+        - name: rating
+          type: select
+          label: "Satisfaction Rating"
+          options:
+            - label: "1 - Very Unsatisfied"
+              value: "1"
+            - label: "2 - Unsatisfied"
+              value: "2"
+            - label: "3 - Neutral"
+              value: "3"
+            - label: "4 - Satisfied"
+              value: "4"
+            - label: "5 - Very Satisfied"
+              value: "5"
+        - name: feedback
+          type: textarea
+          label: "Comments"
+      ```
+
+      ```mdma
+      type: chart
+      id: satisfaction-chart
+      variant: pie
+      label: "Current Satisfaction Distribution"
+      data: |
+        Rating, Count
+        Very Satisfied, 42
+        Satisfied, 28
+        Neutral, 15
+        Unsatisfied, 10
+        Very Unsatisfied, 5
+      ```
+
+      Generate only these two components. No buttons, tables, or callouts.
+    request: I need to collect customer feedback for this quarter.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, chart]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/pie-chart.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 4. Expense report — form + approval-gate + button MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates exact expense workflow from MDMA blueprint"
+  vars:
+    customPrompt: |
+      You are a finance assistant. When a user submits an expense, always
+      generate exactly these three components in this order:
+
+      ```mdma
+      type: form
+      id: expense-form
+      fields:
+        - name: amount
+          type: number
+          label: "Amount ($)"
+          required: true
+        - name: category
+          type: select
+          label: "Category"
+          options:
+            - label: Travel
+              value: travel
+            - label: Equipment
+              value: equipment
+            - label: Software
+              value: software
+            - label: Meals
+              value: meals
+            - label: Other
+              value: other
+        - name: date
+          type: date
+          label: "Expense Date"
+          required: true
+        - name: receipt-desc
+          type: textarea
+          label: "Receipt Description"
+        - name: receipt-number
+          type: text
+          label: "Receipt Number"
+      onSubmit: approve-expense
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: expense-approval
+      title: "Manager Approval"
+      description: "Expenses over $100 require manager sign-off."
+      requiredApprovers: 1
+      ```
+
+      ```mdma
+      type: button
+      id: submit-expense
+      text: "Submit Expense"
+      variant: primary
+      onAction: approve-expense
+      ```
+
+      Generate only these three components. No callouts, tables, charts, or webhooks.
+    request: I need to expense a $250 flight for the NYC conference.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, approval-gate, button]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: contains
+      value: "type: approval-gate"
+    - type: contains
+      value: "requiredApprovers: 1"
+    - type: contains
+      value: "type: button"
+
+# ---------------------------------------------------------------------------
+# 5. IT ticket — form + webhook MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates IT ticket form with webhook integration"
+  vars:
+    customPrompt: |
+      You are an IT helpdesk assistant. When a user reports an issue,
+      always generate exactly these two components:
+
+      ```mdma
+      type: form
+      id: it-ticket
+      fields:
+        - name: requester-email
+          type: email
+          label: "Your Email"
+          required: true
+          sensitive: true
+        - name: issue-type
+          type: select
+          label: "Issue Type"
+          options:
+            - label: Hardware
+              value: hardware
+            - label: Software
+              value: software
+            - label: Network
+              value: network
+            - label: "Access / Permissions"
+              value: access
+            - label: Other
+              value: other
+        - name: priority
+          type: select
+          label: "Priority"
+          options:
+            - label: Low
+              value: low
+            - label: Medium
+              value: medium
+            - label: High
+              value: high
+            - label: Urgent
+              value: urgent
+        - name: description
+          type: textarea
+          label: "Describe the Issue"
+          required: true
+      onSubmit: submit-ticket
+      ```
+
+      ```mdma
+      type: webhook
+      id: ticket-webhook
+      url: "https://it-api.internal.company.com/tickets"
+      method: POST
+      trigger: submit-ticket
+      ```
+
+      Generate only these two components. No buttons, callouts, or tables.
+    request: My monitor stopped working this morning and I can't do any visual design work.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, webhook]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/has-webhook.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 2
+
+# ---------------------------------------------------------------------------
+# 6. Sales dashboard — table + bar chart MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates prescribed sales table and bar chart"
+  vars:
+    customPrompt: |
+      You are a sales analytics assistant. When asked for a sales report,
+      always generate exactly these two components:
+
+      ```mdma
+      type: table
+      id: sales-table
+      sortable: true
+      filterable: true
+      columns:
+        - key: region
+          header: "Region"
+          sortable: true
+        - key: revenue
+          header: "Revenue ($)"
+          sortable: true
+        - key: deals
+          header: "Deals Closed"
+          sortable: true
+        - key: target
+          header: "Target ($)"
+      data:
+        - { region: "North America", revenue: 1250000, deals: 48, target: 1200000 }
+        - { region: "Europe", revenue: 890000, deals: 35, target: 900000 }
+        - { region: "Asia Pacific", revenue: 620000, deals: 22, target: 700000 }
+        - { region: "Latin America", revenue: 340000, deals: 15, target: 400000 }
+      ```
+
+      ```mdma
+      type: chart
+      id: sales-chart
+      variant: bar
+      label: "Revenue by Region"
+      data: |
+        Region, Revenue
+        North America, 1250000
+        Europe, 890000
+        Asia Pacific, 620000
+        Latin America, 340000
+      xAxis: Region
+      ```
+
+      Generate only these two components. No forms, buttons, or callouts.
+    request: Show me the Q4 sales performance breakdown.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table, chart]
+    - type: javascript
+      value: file://assertions/table-features.mjs
+    - type: javascript
+      value: file://assertions/bar-chart.mjs
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: button"
+
+# ---------------------------------------------------------------------------
+# 7. Patient intake — form with exact PII marking MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates patient form with precise PII marking"
+  vars:
+    customPrompt: |
+      You are a medical intake assistant. When registering a patient,
+      generate a single form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: patient-intake
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+          sensitive: true
+        - name: dob
+          type: date
+          label: "Date of Birth"
+          required: true
+          sensitive: true
+        - name: email
+          type: email
+          label: "Contact Email"
+          sensitive: true
+        - name: phone
+          type: text
+          label: "Phone Number"
+          sensitive: true
+        - name: insurance-id
+          type: text
+          label: "Insurance ID"
+          required: true
+          sensitive: true
+        - name: chief-complaint
+          type: textarea
+          label: "Chief Complaint"
+          required: true
+      ```
+
+      Generate only this form. No other components.
+    request: New patient walk-in needs to be registered.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 6
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+
+# ---------------------------------------------------------------------------
+# 8. Maintenance notice — single callout MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates exact callout from MDMA blueprint"
+  vars:
+    customPrompt: |
+      You are a system status communicator. When there is a maintenance
+      event, generate a single callout matching this structure:
+
+      ```mdma
+      type: callout
+      id: maintenance-notice
+      variant: warning
+      title: "Scheduled Maintenance"
+      dismissible: true
+      content: <fill in details from the user's message>
+      ```
+
+      Fill in the `content` field with the maintenance details from the
+      user's message (date, time, duration, affected systems).
+      Generate only this callout. No forms, buttons, or tables.
+    request: We need to take the payment system offline on Saturday March 8th from 2 AM to 6 AM EST for database migration.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: warning
+    - type: contains
+      value: "dismissible: true"
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: button"
+
+# ---------------------------------------------------------------------------
+# 9. Contract review — form + tasklist + approval-gate MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates exact contract review workflow"
+  vars:
+    customPrompt: |
+      You are a legal operations assistant. For contract reviews, always
+      generate exactly these three components:
+
+      ```mdma
+      type: form
+      id: contract-summary
+      fields:
+        - name: contract-title
+          type: text
+          label: "Contract Title"
+          required: true
+        - name: counterparty
+          type: text
+          label: "Counterparty Name"
+          required: true
+        - name: contract-value
+          type: number
+          label: "Contract Value ($)"
+          required: true
+        - name: effective-date
+          type: date
+          label: "Effective Date"
+          required: true
+        - name: contract-type
+          type: select
+          label: "Contract Type"
+          options:
+            - label: NDA
+              value: nda
+            - label: MSA
+              value: msa
+            - label: SoW
+              value: sow
+            - label: Amendment
+              value: amendment
+            - label: Renewal
+              value: renewal
+      ```
+
+      ```mdma
+      type: tasklist
+      id: review-checklist
+      items:
+        - id: verify-entity
+          text: "Verify counterparty legal entity name"
+        - id: payment-terms
+          text: "Review payment terms"
+        - id: liability
+          text: "Check liability and indemnification clauses"
+        - id: termination
+          text: "Confirm termination provisions"
+        - id: compliance
+          text: "Validate compliance with company policy"
+        - id: signed-copy
+          text: "Attach signed copy"
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: legal-sign-off
+      title: "Legal Sign-Off"
+      requiredApprovers: 2
+      allowedRoles:
+        - legal-counsel
+        - vp-legal
+      requireReason: true
+      ```
+
+      Generate only these three components. No buttons, callouts, or charts.
+    request: We need to review the new SoW from Acme Corp worth $500k.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, tasklist, approval-gate]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+    - type: contains
+      value: "requiredApprovers: 2"
+    - type: contains
+      value: "allowedRoles:"
+
+# ---------------------------------------------------------------------------
+# 10. Account deletion — button with confirmation dialog MDMA blueprint
+# ---------------------------------------------------------------------------
+- description: "Generates exact danger button with confirmation"
+  vars:
+    customPrompt: |
+      You are an account management assistant. When a user wants to
+      delete their account, generate a single button matching this structure:
+
+      ```mdma
+      type: button
+      id: delete-account
+      text: "Delete My Account"
+      variant: danger
+      onAction: delete-account-action
+      confirm:
+        title: "Are you sure?"
+        message: "This action is permanent. All your data will be deleted and cannot be recovered."
+        confirmText: "Yes, delete my account"
+        cancelText: "Cancel"
+      ```
+
+      Generate only this button. No forms, callouts, or tables.
+      The surrounding prose should explain what will happen.
+    request: I want to close my account and delete all my data.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [button]
+    - type: contains
+      value: "variant: danger"
+    - type: javascript
+      value: file://assertions/has-confirm.mjs
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: table"
+    - type: not-contains
+      value: "type: callout"
