@@ -1,168 +1,114 @@
-# MDMA - Markdown Document Markup Architecture
+# MDMA - Markdown Document with Micro-Applications
 
-Interactive, enterprise-grade documents from Markdown. Built for high-stakes environments: healthcare, finance, critical ops.
+Interactive documents from Markdown. Built for high-stakes environments: healthcare, finance, critical ops.
 
 ## What is MDMA?
 
-MDMA extends Markdown with interactive components embedded as fenced code blocks. A standard Markdown document becomes an interactive application:
+MDMA extends Markdown with interactive components defined in fenced `mdma` code blocks. A regular Markdown file becomes an interactive application:
 
 ````markdown
-# Patient Intake Form
-
-Please complete all required fields.
+# Patient Intake
 
 ```mdma
-id: intake-form
 type: form
+id: intake-form
 fields:
-  - name: patient_name
+  - name: patient-name
     type: text
-    label: Full Name
+    label: "Full Name"
     required: true
     sensitive: true
   - name: email
     type: email
-    label: Email
+    label: "Email"
     required: true
     sensitive: true
   - name: reason
     type: textarea
-    label: Reason for Visit
+    label: "Reason for Visit"
     required: true
 ```
 
 ```mdma
-id: submit-btn
 type: button
-text: Submit Intake Form
+id: submit-btn
+text: "Submit Intake Form"
 variant: primary
 onAction: submit
 ```
 ````
 
-## Key Features
+## Components
 
-- **7 interactive components** - form, button, tasklist, table, callout, approval-gate, webhook
-- **Deterministic parsing** - Markdown + YAML, no runtime JS in documents
-- **Enterprise audit trail** - Append-only event log with tamper-evident hash chaining
-- **PII protection** - Automatic PII detection + configurable redaction strategies (hash, mask, omit)
-- **Policy engine** - Allow/deny rules per action and environment
-- **Compliance reporting** - Automated compliance checks for enterprise readiness
-- **AI authoring** - Prompt pack for AI-assisted document creation and review
-- **Extensible** - Plugin architecture via attachable handlers
-
-## Architecture
-
-```
-@mdma/spec                 Format specification + Zod schemas
-  |
-  ├── @mdma/parser         Markdown → MDMA AST (remark plugin)
-  ├── @mdma/prompt-pack    AI authoring prompts
-  └── @mdma/runtime        State / events / policy engine
-        |
-        └── @mdma/attachables-core   7 core component handlers
-              |
-              └── @mdma/renderer-react   React component library
-                    |
-                    └── @mdma/cli   lint / scaffold / preview / build
-```
+9 component types: **form**, **button**, **tasklist**, **table**, **chart**, **callout**, **approval-gate**, **webhook**, **thinking**
 
 ## Packages
 
 | Package | Description |
 |---------|-------------|
-| `@mdma/spec` | MDMA format specification, Zod schemas, TypeScript types |
-| `@mdma/parser` | remark plugin: Markdown → MDMA-extended AST |
-| `@mdma/runtime` | Headless runtime: document store, event bus, audit log, policy engine, redaction, compliance |
-| `@mdma/attachables-core` | Core interactive components: form, button, tasklist, table, callout, approval-gate, webhook |
-| `@mdma/renderer-react` | React renderer with hooks (`useDocumentStore`, `useComponentState`, `useBinding`) |
-| `@mdma/cli` | Developer CLI: lint, scaffold (attachable/blueprint templates) |
-| `@mdma/prompt-pack` | AI system prompts for MDMA authoring and document review |
+| `@mdma/spec` | Format specification, Zod schemas, TypeScript types |
+| `@mdma/parser` | remark plugin: Markdown → MDMA AST |
+| `@mdma/runtime` | Document store, event bus, audit log, policy engine, PII redaction |
+| `@mdma/attachables-core` | Core component handlers |
+| `@mdma/renderer-react` | React renderer with hooks |
+| `@mdma/cli` | Developer CLI: lint, scaffold |
+| `@mdma/prompt-pack` | AI system prompts for MDMA authoring |
+| `@mdma/validator` | MDMA document validation |
+| `@mdma/evals` | LLM evaluation suite (promptfoo) |
 
-## Blueprints
+## Architecture
 
-Ready-to-use interactive documents for high-stakes domains:
-
-| Blueprint | Domain | Description |
-|-----------|--------|-------------|
-| `incident-triage` | Critical Ops | Severity assessment, stakeholder notification, resolution tracking |
-| `kyc-case` | Finance/Compliance | Customer verification workflow |
-| `clinical-ops` | Healthcare | Procedure publish/change approval gate |
-| `customer-escalation` | Customer Ops | SLA timers, escalation paths |
-| `change-management` | Engineering | Release approval (SOX/ISO compliance) |
+```
+@mdma/spec                  Format specification + Zod schemas
+  ├── @mdma/parser          Markdown → MDMA AST (remark plugin)
+  ├── @mdma/prompt-pack     AI authoring prompts
+  ├── @mdma/validator       Document validation
+  └── @mdma/runtime         State / events / policy engine
+        └── @mdma/attachables-core   Component handlers
+              └── @mdma/renderer-react   React components
+```
 
 ## Getting Started
 
 ```bash
-# Install dependencies
 pnpm install
-
-# Build all packages
 pnpm build
-
-# Run all tests
 pnpm test
-
-# Lint MDMA documents
-pnpm --filter @mdma/cli exec mdma lint "blueprints/*/document.md"
-
-# Scaffold a new attachable
-pnpm --filter @mdma/cli exec mdma scaffold attachable my-component
-
-# Scaffold a new blueprint
-pnpm --filter @mdma/cli exec mdma scaffold blueprint my-workflow
 ```
 
-## Enterprise Features
+## Evals
 
-### Tamper-Evident Event Log
+LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/) to verify MDMA generation quality.
 
-```typescript
-import { ChainedEventLog } from '@mdma/runtime';
+```bash
+# Run base eval suite (25 tests)
+pnpm eval
 
-const log = new ChainedEventLog('session-1', 'doc-1');
-log.append({ eventType: 'FIELD_CHANGED', componentId: 'form1', payload: { field: 'email' } });
+# Run custom system prompt tests (10 tests)
+pnpm eval:custom
 
-const result = log.verifyIntegrity(); // { valid: true }
+# Run multi-turn conversation tests (25 turns across 11 conversations)
+pnpm eval:conversation
+
+# Run all eval suites
+pnpm eval:all
+
+# View results in browser
+pnpm eval:view
 ```
 
-### PII Detection
+## Key Features
 
-```typescript
-import { detectPii, auditSensitiveFields } from '@mdma/runtime';
-
-const result = detectPii('email', 'user@example.com');
-// { field: 'email', detectedTypes: ['email'], confidence: 1, suggestion: '...' }
-```
-
-### Redaction Strategies
-
-```typescript
-import { hashStrategy, maskStrategy, omitStrategy } from '@mdma/runtime';
-
-hashStrategy.redact('secret@email.com');  // 'redacted:a1b2c3d4'
-maskStrategy.redact('secret@email.com');  // 'sec***'
-omitStrategy.redact('secret@email.com');  // '[REDACTED]'
-```
-
-### Compliance Reports
-
-```typescript
-import { generateComplianceReport } from '@mdma/runtime';
-
-const report = generateComplianceReport(ast, 'doc-1');
-// { checks: [...], summary: { total: 4, passed: 3, failed: 0, warnings: 1 } }
-```
+- **Deterministic parsing** — Markdown + YAML, no runtime JS in documents
+- **PII protection** — Automatic detection + redaction (hash, mask, omit)
+- **Audit trail** — Append-only event log with tamper-evident hash chaining
+- **Policy engine** — Allow/deny rules per action and environment
+- **AI authoring** — System prompts for AI-assisted document creation
 
 ## Tech Stack
 
-- **TypeScript** monorepo with **pnpm workspaces** + **Turborepo**
-- **Unified/remark** for Markdown parsing
-- **Zod** for schema validation (single source of truth)
-- **React** for rendering
-- **Vitest** for testing
-- **Changesets** for versioning
+TypeScript monorepo — pnpm workspaces, Turborepo, Zod, React, Vitest, remark
 
 ## License
 
-Apache-2.0
+MIT
