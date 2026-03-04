@@ -9,8 +9,8 @@
 ## Quick Start
 
 ```bash
-git clone https://github.com/<your-user>/mr-mdma.git
-cd mr-mdma
+git clone https://github.com/<your-user>/mdma.git
+cd mdma
 pnpm install
 pnpm build
 pnpm test
@@ -105,23 +105,6 @@ Add a component in `packages/renderer-react/` if the component has UI.
 
 Add tests alongside your handler and schema. Run `pnpm test` to verify.
 
-## Adding a Lint Rule
-
-Lint rules live in `packages/cli/src/lint/rules/`:
-
-```typescript
-import type { MdmaRoot } from '@mobile-reality/mdma-spec';
-import type { LintDiagnostic } from '../lint-engine.js';
-
-export function myRule(root: MdmaRoot): LintDiagnostic[] {
-  const diagnostics: LintDiagnostic[] = [];
-  // Walk root.children, inspect nodes, push diagnostics
-  return diagnostics;
-}
-```
-
-Wire it into `packages/cli/src/lint/lint-engine.ts`.
-
 ## Creating a Blueprint
 
 Blueprints live in `blueprints/<name>/` and contain:
@@ -145,7 +128,7 @@ Use an existing blueprint as reference.
 
 **Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
 
-**Scopes:** package names without `@mobile-reality/mdma-` prefix — `spec`, `parser`, `runtime`, `attachables-core`, `renderer-react`, `cli`, `prompt-pack`, `validator`, `evals`
+**Scopes:** package names without `@mobile-reality/mdma-` prefix — `spec`, `parser`, `runtime`, `attachables-core`, `renderer-react`, `prompt-pack`, `validator`, `evals`
 
 ## Changesets
 
@@ -166,4 +149,4 @@ pnpm changeset
 
 ## Questions?
 
-Open a [Discussion](https://github.com/mr-mdma/mr-mdma/discussions) or file an issue.
+Open a [Discussion](https://github.com/MobileReality/mdma/discussions) or file an issue.
