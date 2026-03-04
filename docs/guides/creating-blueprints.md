@@ -15,16 +15,6 @@ blueprints/<name>/
   package.json        Package metadata (private: true)
 ```
 
-## Scaffold a Blueprint
-
-Use the CLI to generate the directory structure:
-
-```bash
-npx mdma scaffold blueprint my-workflow
-```
-
-This creates `blueprints/my-workflow/` with starter files.
-
 ## The Manifest File
 
 The `manifest.yaml` file declares the blueprint's metadata and validates against `BlueprintManifestSchema` from `@mdma/spec`. Here is a complete example:
@@ -261,12 +251,6 @@ checklists:
 
 ## Validating a Blueprint
 
-Lint the document:
-
-```bash
-npx mdma lint blueprints/my-workflow/document.md
-```
-
 Validate the manifest programmatically:
 
 ```typescript
@@ -287,5 +271,5 @@ Study the existing blueprints for patterns:
 | `incident-triage` | Critical Ops | Form + tasklist + approval gate for incident lifecycle |
 | `kyc-case` | Finance | PII-heavy form + document verification checklist + compliance approval |
 | `clinical-ops` | Healthcare | Procedure form + safety checklist + clinical approval gate |
-| `customer-escalation` | Support | Escalation form + SLA tracking + notification button |
+| `customer-escalation` | Support | Escalation form + SLA tracking + notification button + history table |
 | `change-management` | Engineering | Change request form + dual approval + pre-deployment checklist |

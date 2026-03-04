@@ -1,6 +1,6 @@
 # Creating Custom Attachable Handlers
 
-Attachable handlers define how MDMA component types initialize, process actions, and respond to state changes. MDMA ships with 7 built-in handlers, but you can create custom ones for domain-specific needs.
+Attachable handlers define how MDMA component types initialize, process actions, and respond to state changes. MDMA ships with 7 built-in interactive handlers (plus display-only renderers for chart and thinking), but you can create custom ones for domain-specific needs.
 
 ## Overview
 
@@ -26,15 +26,9 @@ interface AttachableDefinition<TProps = unknown> {
 }
 ```
 
-## Scaffold a Handler
+## Handler Directory Structure
 
-Use the CLI to generate a starter handler:
-
-```bash
-npx mdma scaffold attachable my-component
-```
-
-This creates a directory with the handler template and a `package.json`:
+A custom handler lives in its own directory with a `package.json`:
 
 ```
 my-component/

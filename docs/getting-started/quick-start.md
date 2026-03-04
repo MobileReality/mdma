@@ -78,24 +78,15 @@ onComplete: onboarding-done
 ```
 ```
 
-## Lint Your Document
+## Validate Your Document
 
-Run the linter to validate all MDMA blocks:
+Use `@mdma/validator` to validate all MDMA blocks programmatically:
 
-```bash
-npx mdma lint my-first-doc.md
-```
+```typescript
+import { validateDocument } from '@mdma/validator';
 
-The linter checks for:
-
-- Valid YAML and component schemas (`schema-valid`)
-- Unique component IDs (`unique-ids`)
-- Resolvable binding expressions (`bindings-resolved`)
-
-A passing result looks like:
-
-```
-1 file(s) linted: 0 errors, 0 warnings
+const diagnostics = validateDocument(source, 'my-first-doc.md');
+// Returns errors and warnings for schema, IDs, bindings, PII, etc.
 ```
 
 ## Parse Programmatically
@@ -174,19 +165,9 @@ function App() {
 }
 ```
 
-## Scaffold a New Blueprint
-
-Use the CLI to scaffold a blueprint directory structure:
-
-```bash
-npx mdma scaffold blueprint my-workflow
-```
-
-This creates `blueprints/my-workflow/` with a `manifest.yaml`, `document.md`, `README.md`, and `demo-data/` directory.
-
 ## Next Steps
 
 - [Key Concepts](./concepts.md) -- understand MDMA blocks, bindings, events, and policies
 - [Architecture Overview](./architecture.md) -- how the packages fit together
 - [Creating Documents](../guides/creating-documents.md) -- in-depth authoring guide
-- [Component Catalog](../reference/component-catalog.md) -- full reference for all 7 component types
+- [Component Catalog](../reference/component-catalog.md) -- full reference for all 9 component types

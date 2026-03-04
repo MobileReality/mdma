@@ -32,7 +32,7 @@ Customer escalation workflow with SLA timers and escalation paths. This blueprin
 | `escalation_reason` | textarea | yes | no |
 | `previous_attempts` | textarea | no | no |
 | `customer_sentiment` | select | yes | no |
-| `escalated_at` | datetime | yes | no |
+| `escalated_at` | date | yes | no |
 
 ## SLA Tiers
 

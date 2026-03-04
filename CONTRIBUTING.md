@@ -26,7 +26,6 @@ mr-mdma/
     runtime/              # State management, event bus, policy engine
     attachables-core/     # Component handlers (form, button, tasklist, …)
     renderer-react/       # React renderer
-    cli/                  # Developer CLI (lint, scaffold)
     prompt-pack/          # AI authoring prompts
     validator/            # MDMA document validation
   evals/                  # LLM evaluation suite (promptfoo)

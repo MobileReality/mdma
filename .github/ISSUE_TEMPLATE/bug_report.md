@@ -1,6 +1,6 @@
 ---
 name: Bug Report
-about: Report a bug in MDMA (parser, runtime, CLI, renderer, or a blueprint)
+about: Report a bug in MDMA (parser, runtime, renderer, or a blueprint)
 labels: bug, triage
 ---
 
@@ -16,7 +16,7 @@ A clear, concise description of what went wrong.
 # paste your mdma block here
 ```
 
-2. Run `mdma lint document.md` (or describe the action you took).
+2. Describe the action you took (e.g., parsing, rendering, validation).
 3. See the error.
 
 ## Expected Behavior
@@ -33,7 +33,6 @@ What actually happened. Include error messages, stack traces, or screenshots if 
 - **Node.js version:** (e.g., 20.11.0)
 - **pnpm version:** (e.g., 10.6.0)
 - **MDMA package(s) and version(s):**
-  - `@mdma/cli`: x.x.x
   - `@mdma/parser`: x.x.x
   - (add others as relevant)
 
@@ -44,7 +43,6 @@ What actually happened. Include error messages, stack traces, or screenshots if 
 - [ ] `@mdma/runtime`
 - [ ] `@mdma/attachables-core`
 - [ ] `@mdma/renderer-react`
-- [ ] `@mdma/cli`
 - [ ] `@mdma/prompt-pack`
 - [ ] Blueprint: ___________
 

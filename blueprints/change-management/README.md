@@ -29,7 +29,7 @@ Release and change approval workflow designed for SOX Section 404 and ISO 27001 
 | `requestor_name` | text | yes | no |
 | `requestor_team` | text | yes | no |
 | `environment` | select | yes | no |
-| `scheduled_date` | datetime | yes | no |
+| `scheduled_date` | date | yes | no |
 | `change_description` | textarea | yes | no |
 | `business_justification` | textarea | yes | no |
 | `affected_services` | text | yes | no |

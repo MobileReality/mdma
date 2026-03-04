@@ -9,7 +9,7 @@ Procedure publish and change approval workflow. All clinical procedures must und
 ```mdma
 id: safety-notice
 type: callout
-variant: danger
+variant: error
 title: Patient Safety - Critical Review Required
 content: >
   This procedure directly impacts patient care. All reviewers must verify

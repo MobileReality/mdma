@@ -31,7 +31,7 @@ The result is an `MdmaRoot` tree where standard Markdown nodes and `MdmaBlock` n
 
 ## Components
 
-MDMA ships with 7 built-in component types:
+MDMA ships with 9 built-in component types:
 
 | Type | Purpose |
 |------|---------|
@@ -42,12 +42,14 @@ MDMA ships with 7 built-in component types:
 | `callout` | Highlighted message block (info, warning, error, success) |
 | `approval-gate` | Blocks workflow until required approvals are received |
 | `webhook` | HTTP request triggered by an action, with policy enforcement |
+| `chart` | Data visualization (line, bar, area, pie) |
+| `thinking` | Collapsed AI reasoning block (for LLM-generated documents) |
 
 Every component shares a common base:
 
 ```yaml
 id: unique-identifier        # required, unique within the document
-type: component-type          # required, one of the 7 types
+type: component-type          # required, one of the 9 types
 label: Display Label          # optional
 sensitive: false              # if true, values are redacted in event logs
 disabled: false               # boolean or binding expression

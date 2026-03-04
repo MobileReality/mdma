@@ -28,7 +28,7 @@ Structured incident response workflow for production systems. This blueprint gui
 | `severity` | select (P1-P4) | yes | no |
 | `affected_systems` | text | yes | no |
 | `description` | textarea | yes | no |
-| `start_time` | datetime | yes | no |
+| `start_time` | date | yes | no |
 | `customer_impact` | textarea | no | no |
 
 ## Demo Data

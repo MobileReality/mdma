@@ -1,5 +1,5 @@
 {
-  "name": "@mr-mdma/blueprint-customer-escalation",
+  "name": "@mdma/blueprint-customer-escalation",
   "version": "0.1.0",
   "private": true,
   "description": "MDMA blueprint for customer escalation workflow with SLA timers and escalation paths",

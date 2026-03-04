@@ -1,6 +1,6 @@
 # Component Catalog
 
-Complete reference for all 7 MDMA component types. Each section shows the full schema, all properties, defaults, and a working example.
+Complete reference for all 9 MDMA component types. Each section shows the full schema, all properties, defaults, and a working example.
 
 ## Base Properties (all components)
 
@@ -429,4 +429,82 @@ const store = createDocumentStore(ast, {
     defaultEffect: 'allow',
   },
 });
+```
+
+---
+
+## chart
+
+Renders data visualizations. Supports line, bar, area, and pie chart types.
+
+### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `type` | `"chart"` | *required* | Must be `"chart"`. |
+| `variant` | `enum` | `"line"` | One of: `line`, `bar`, `area`, `pie`. |
+| `data` | `string \| binding` | -- | Data source for the chart. |
+| `xAxis` | `string` | -- | X-axis field name. |
+| `yAxis` | `string \| string[]` | -- | Y-axis field name(s). |
+| `colors` | `string[]` | -- | Custom colors for data series. |
+| `showLegend` | `boolean` | `true` | Display legend. |
+| `showGrid` | `boolean` | `true` | Display grid lines. |
+| `height` | `number` | `300` | Chart height in pixels. |
+| `stacked` | `boolean` | `false` | Stack data series. |
+
+### Example
+
+```mdma
+id: revenue-chart
+type: chart
+variant: bar
+data: "{{monthly_revenue}}"
+xAxis: month
+yAxis: revenue
+colors:
+  - "#4f46e5"
+  - "#10b981"
+showLegend: true
+height: 400
+```
+
+```mdma
+id: status-pie
+type: chart
+variant: pie
+data: "{{ticket_breakdown}}"
+xAxis: status
+yAxis: count
+height: 300
+```
+
+---
+
+## thinking
+
+A collapsed reasoning block used in LLM-generated documents. Contains the AI's internal reasoning process, hidden by default.
+
+### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `type` | `"thinking"` | *required* | Must be `"thinking"`. |
+| `content` | `string` | *required* | Thinking text content. Min length 1. |
+| `status` | `enum` | `"done"` | One of: `thinking`, `done`. |
+| `collapsed` | `boolean` | `true` | Whether the block is initially collapsed. |
+
+### Example
+
+```mdma
+id: form-reasoning
+type: thinking
+status: done
+collapsed: true
+content: |
+  The user needs a KYC form. I should include:
+  - Full legal name (sensitive)
+  - Date of birth (sensitive)
+  - SSN/Tax ID (sensitive)
+  - Source of funds
+  All PII fields must be marked sensitive: true.
 ```

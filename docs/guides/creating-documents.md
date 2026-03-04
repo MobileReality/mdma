@@ -282,11 +282,7 @@ Before finalizing a document, verify:
 - [ ] YAML syntax is valid in all `mdma` blocks
 - [ ] Table `data` column keys match the declared `columns[].key` values
 
-Run `mdma lint` to automate these checks:
-
-```bash
-npx mdma lint path/to/document.md
-```
+Use `@mdma/validator` to automate these checks programmatically.
 
 ## Common Pitfalls
 

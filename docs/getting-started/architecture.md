@@ -1,6 +1,6 @@
 # Architecture Overview
 
-MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is organized into 7 packages and 5 blueprints.
+MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is organized into 8 packages and 5 blueprints.
 
 ## Package Dependency Graph
 
@@ -11,18 +11,18 @@ MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is 
   |     |
   |     +-- (unified, remark-parse, vfile)
   |
-  +-- @mdma/prompt-pack       AI system prompts for authoring & review
+  +-- @mdma/prompt-pack       AI system prompts for authoring
+  |
+  +-- @mdma/validator         Document validation (10 lint rules)
   |
   +-- @mdma/runtime           Headless runtime: store, event bus, event log, policy engine,
         |                     redaction, PII detection, compliance reporter
         |
-        +-- @mdma/attachables-core    7 built-in component handlers
-        |     |
-        |     +-- @mdma/renderer-react    React components + hooks
-        |
-        +-- @mdma/cli                CLI: lint, scaffold
+        +-- @mdma/attachables-core    7 interactive component handlers
               |
-              +-- (commander, chalk, globby)
+              +-- @mdma/renderer-react    React components + hooks
+
+@mdma/evals                   LLM evaluation suite (promptfoo)
 ```
 
 All arrows point downward: each package depends only on packages above it. `@mdma/spec` is the foundation with no internal dependencies.
@@ -33,7 +33,7 @@ All arrows point downward: each package depends only on packages above it. `@mdm
 
 The specification package. Contains:
 
-- **Zod schemas** for all 7 component types, event log entries, policies, bindings, document metadata, and blueprint manifests
+- **Zod schemas** for all 9 component types, event log entries, policies, bindings, document metadata, and blueprint manifests
 - **TypeScript types** inferred from the schemas (`MdmaComponent`, `EventLogEntry`, `Policy`, etc.)
 - **AST type definitions** (`MdmaBlock`, `MdmaRoot`)
 - **Constants** (`MDMA_LANG_TAG = 'mdma'`, `MDMA_SPEC_VERSION = '0.1.0'`)
@@ -73,7 +73,7 @@ Dependencies: `@mdma/spec`
 
 ### @mdma/attachables-core
 
-Handlers for the 7 built-in component types. Each handler implements the `AttachableHandler` interface with `definition`, `initialize`, and `onAction` methods. The `registerAllCoreAttachables()` function registers all 7 handlers at once.
+Handlers for the 7 interactive component types (form, button, tasklist, table, callout, approval-gate, webhook). Each handler implements the `AttachableHandler` interface with `definition`, `initialize`, and `onAction` methods. The `registerAllCoreAttachables()` function registers all 7 handlers at once. Chart and thinking are display-only components that don't require state handlers.
 
 Dependencies: `@mdma/spec`, `@mdma/runtime`
 
@@ -85,31 +85,45 @@ React rendering layer. Provides:
 - **MdmaDocument** / **MdmaBlock** -- top-level rendering components
 - **Hooks**: `useDocumentStore()`, `useDocumentState()`, `useComponentState(id)`, `useBinding(expr)`
 - **RendererRegistry** -- maps component types to React renderer components
-- **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`
+- **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`, `ChartRenderer`, `ThinkingRenderer`
 
 Dependencies: `@mdma/spec`, `@mdma/runtime`, `react`
-
-### @mdma/cli
-
-Developer CLI built with Commander. Provides:
-
-- `mdma lint <patterns...>` -- validate MDMA documents against all lint rules
-- `mdma scaffold <type> [name]` -- generate attachable or blueprint from templates
-
-The lint engine parses documents with `remarkMdma`, then runs three rule passes: `schema-valid`, `unique-ids`, and `bindings-resolved`.
-
-Dependencies: `@mdma/spec`, `@mdma/parser`, `@mdma/runtime`, `@mdma/attachables-core`, `commander`, `chalk`, `globby`
 
 ### @mdma/prompt-pack
 
 AI system prompts for LLM-assisted MDMA authoring and review:
 
-- `mdma-author` -- full format specification, all 7 component types, binding syntax, authoring rules, and self-check checklist
-- `mdma-reviewer` -- systematic review instructions for 6 categories: sensitive flags, duplicate IDs, unresolved bindings, missing required fields, action reference integrity, YAML syntax
-
-Prompts are exported as string constants and accessed via `loadPrompt(name)` or `listPrompts()`.
+- `MDMA_AUTHOR_PROMPT` -- full format specification, all 9 component types, binding syntax, authoring rules, and self-check checklist
+- `buildSystemPrompt({ customPrompt? })` -- combines the author prompt with an optional custom system prompt and a reinforcement reminder
 
 Dependencies: none (pure string constants)
+
+### @mdma/validator
+
+Static analysis engine for MDMA documents. Runs 10 validation rules:
+
+- `yaml-correctness` -- valid YAML in all blocks
+- `schema-conformance` -- Zod schema validation per component type
+- `duplicate-ids` -- unique component IDs
+- `id-format` -- kebab-case ID format
+- `binding-syntax` -- correct `{{binding}}` syntax
+- `binding-resolution` -- bindings reference existing component IDs
+- `action-references` -- webhook triggers reference existing components
+- `sensitive-flags` -- PII fields marked `sensitive: true`
+- `required-markers` -- heuristic suggestions for `required: true`
+- `thinking-block` -- thinking component placement
+
+Dependencies: `@mdma/spec`, `@mdma/parser`
+
+### @mdma/evals
+
+LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/). Three test suites:
+
+- **Base** (25 tests) -- single-turn MDMA generation quality
+- **Custom prompt** (10 tests) -- exact blueprint generation from custom system prompts
+- **Conversation** (11 conversations, 25 turns) -- multi-turn end-user interactions
+
+Dependencies: `@mdma/prompt-pack`, `@mdma/validator`, `promptfoo`
 
 ## Blueprints
 
@@ -133,7 +147,7 @@ The manifest validates against `BlueprintManifestSchema` from `@mdma/spec`.
 | `incident-triage` | Critical Ops | form, tasklist, approval-gate, callout, button |
 | `kyc-case` | Finance | form, tasklist, approval-gate, table |
 | `clinical-ops` | Healthcare | form, approval-gate, tasklist, callout |
-| `customer-escalation` | Support | form, tasklist, button, callout |
+| `customer-escalation` | Support | form, tasklist, button, callout, table |
 | `change-management` | Engineering | form, approval-gate, tasklist, callout |
 
 ## Build System

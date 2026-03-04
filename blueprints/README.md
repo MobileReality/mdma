@@ -8,11 +8,11 @@ Each blueprint is a complete "outcome-in-a-box": interactive document + demo dat
 
 | Blueprint | Domain | Status |
 |-----------|--------|--------|
-| `incident-triage` | Critical Ops | Planned |
-| `kyc-case` | Finance/Compliance | Planned |
-| `clinical-ops` | Healthcare | Planned |
-| `customer-escalation` | Customer Ops | Planned |
-| `change-management` | Engineering/Compliance | Planned |
+| `incident-triage` | Critical Ops | Experimental |
+| `kyc-case` | Finance/Compliance | Experimental |
+| `clinical-ops` | Healthcare | Experimental |
+| `customer-escalation` | Customer Ops | Experimental |
+| `change-management` | Engineering/Compliance | Experimental |
 
 ## Maturity Model
 

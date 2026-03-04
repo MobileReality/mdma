@@ -31,7 +31,6 @@ Which package(s) would this feature belong to?
 - [ ] `@mdma/runtime` (state, events, policy)
 - [ ] `@mdma/attachables-core` (new or modified component handler)
 - [ ] `@mdma/renderer-react` (rendering)
-- [ ] `@mdma/cli` (new command or flag)
 - [ ] `@mdma/prompt-pack` (AI authoring)
 - [ ] Blueprints
 - [ ] Other: ___________

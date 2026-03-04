@@ -20,7 +20,6 @@ Closes #<!-- issue number -->
 - [ ] `@mdma/runtime`
 - [ ] `@mdma/attachables-core`
 - [ ] `@mdma/renderer-react`
-- [ ] `@mdma/cli`
 - [ ] `@mdma/prompt-pack`
 - [ ] Blueprint: ___________
 
