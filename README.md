@@ -234,3 +234,7 @@ TypeScript monorepo — pnpm workspaces, Turborepo, Zod, React, Vitest, remark
 ## License
 
 MIT
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://themobilereality.com/">Mobile Reality</a></p>
