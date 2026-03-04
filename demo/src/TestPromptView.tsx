@@ -3,7 +3,7 @@ import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
-import { validate, type ValidationResult, type ValidationIssue, type ValidatorOptions } from '@mdma/validator';
+import { validate, type ValidationResult, type ValidationIssue, type ValidatorOptions } from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
 import { TEST_PROMPT_KEY } from './creator/PromptGeneratorPanel.js';
 import { parse as parseYaml } from 'yaml';

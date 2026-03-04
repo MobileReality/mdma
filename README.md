@@ -51,9 +51,9 @@ onAction: submit
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma } from '@mdma/parser';
-import { createDocumentStore } from '@mdma/runtime';
-import type { MdmaRoot } from '@mdma/spec';
+import { remarkMdma } from '@mobile-reality/mdma-parser';
+import { createDocumentStore } from '@mobile-reality/mdma-runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 // 1. Parse markdown into AST
 const processor = unified().use(remarkParse).use(remarkMdma);
@@ -83,7 +83,7 @@ store.dispatch({
 ### In a Chat
 
 ```typescript
-import { buildSystemPrompt } from '@mdma/prompt-pack';
+import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 
 // Custom prompt prescribes exactly what the LLM should generate
 const systemPrompt = buildSystemPrompt({
@@ -139,7 +139,7 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 ### React
 
 ```tsx
-import { MdmaDocument } from '@mdma/renderer-react';
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 
 function App({ ast, store }) {
   return <MdmaDocument ast={ast} store={store} />;
@@ -150,26 +150,26 @@ function App({ ast, store }) {
 
 | Package | Description |
 |---------|-------------|
-| `@mdma/spec` | The foundation of the MDMA ecosystem — Zod schemas, TypeScript types, and AST definitions for all 9 component types. Every other package depends on spec for validation and type safety. |
-| `@mdma/parser` | A remark plugin that transforms standard Markdown into an MDMA-extended AST. Extracts `mdma` code blocks, validates YAML against component schemas, and builds a binding dependency graph. |
-| `@mdma/runtime` | Headless state management engine for MDMA documents — like a mini state specialized for interactive documents. Manages reactive bindings, dispatches actions, enforces environment policies, and writes every event to a tamper-evident audit log with automatic PII redaction. |
-| `@mdma/attachables-core` | Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
-| `@mdma/renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
-| `@mdma/prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
-| `@mdma/validator` | Static analysis engine with 10 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding resolution, and PII sensitivity. Powers programmatic validation in CI pipelines and custom tooling. |
-| `@mdma/evals` | LLM evaluation suite built on promptfoo with 3 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), and multi-turn conversation handling (11 conversations, 25 turns). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
+| `@mobile-reality/mdma-spec` | The foundation of the MDMA ecosystem — Zod schemas, TypeScript types, and AST definitions for all 9 component types. Every other package depends on spec for validation and type safety. |
+| `@mobile-reality/mdma-parser` | A remark plugin that transforms standard Markdown into an MDMA-extended AST. Extracts `mdma` code blocks, validates YAML against component schemas, and builds a binding dependency graph. |
+| `@mobile-reality/mdma-runtime` | Headless state management engine for MDMA documents — like a mini state specialized for interactive documents. Manages reactive bindings, dispatches actions, enforces environment policies, and writes every event to a tamper-evident audit log with automatic PII redaction. |
+| `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
+| `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
+| `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
+| `@mobile-reality/mdma-validator` | Static analysis engine with 10 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding resolution, and PII sensitivity. Powers programmatic validation in CI pipelines and custom tooling. |
+| `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 3 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), and multi-turn conversation handling (11 conversations, 25 turns). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
 
 ## Architecture
 
 ```
-@mdma/spec                  Format specification + Zod schemas
-  ├── @mdma/parser          Markdown → MDMA AST (remark plugin)
-  ├── @mdma/prompt-pack     AI authoring prompts
-  ├── @mdma/validator       Document validation
-  └── @mdma/runtime         State / events / policy engine
-        └── @mdma/attachables-core   Component handlers
-              └── @mdma/renderer-react   React components
-@mdma/evals                 LLM evaluation suite (promptfoo)
+@mobile-reality/mdma-spec                  Format specification + Zod schemas
+  ├── @mobile-reality/mdma-parser          Markdown → MDMA AST (remark plugin)
+  ├── @mobile-reality/mdma-prompt-pack     AI authoring prompts
+  ├── @mobile-reality/mdma-validator       Document validation
+  └── @mobile-reality/mdma-runtime         State / events / policy engine
+        └── @mobile-reality/mdma-attachables-core   Component handlers
+              └── @mobile-reality/mdma-renderer-react   React components
+@mobile-reality/mdma-evals                 LLM evaluation suite (promptfoo)
 ```
 
 ## Getting Started

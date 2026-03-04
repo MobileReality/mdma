@@ -1,4 +1,4 @@
-import { extractBindings } from '@mdma/parser';
+import { extractBindings } from '@mobile-reality/mdma-parser';
 import type { ValidationRule } from '../types.js';
 
 export const bindingResolutionRule: ValidationRule = {

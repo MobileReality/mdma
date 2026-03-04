@@ -26,12 +26,12 @@ Describe any alternative solutions or workarounds you have considered and why th
 
 Which package(s) would this feature belong to?
 
-- [ ] `@mdma/spec` (new schema / type)
-- [ ] `@mdma/parser` (parsing behavior)
-- [ ] `@mdma/runtime` (state, events, policy)
-- [ ] `@mdma/attachables-core` (new or modified component handler)
-- [ ] `@mdma/renderer-react` (rendering)
-- [ ] `@mdma/prompt-pack` (AI authoring)
+- [ ] `@mobile-reality/mdma-spec` (new schema / type)
+- [ ] `@mobile-reality/mdma-parser` (parsing behavior)
+- [ ] `@mobile-reality/mdma-runtime` (state, events, policy)
+- [ ] `@mobile-reality/mdma-attachables-core` (new or modified component handler)
+- [ ] `@mobile-reality/mdma-renderer-react` (rendering)
+- [ ] `@mobile-reality/mdma-prompt-pack` (AI authoring)
 - [ ] Blueprints
 - [ ] Other: ___________
 

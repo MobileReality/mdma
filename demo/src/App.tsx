@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma } from '@mdma/parser';
-import { createDocumentStore, type DocumentStore } from '@mdma/runtime';
-import { MdmaDocument } from '@mdma/renderer-react';
-import type { MdmaRoot } from '@mdma/spec';
-import type { StoreAction } from '@mdma/spec';
+import { remarkMdma } from '@mobile-reality/mdma-parser';
+import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import type { StoreAction } from '@mobile-reality/mdma-spec';
 import { documents } from './documents.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';

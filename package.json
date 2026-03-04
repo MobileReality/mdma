@@ -13,12 +13,12 @@
     "changeset": "changeset",
     "version-packages": "changeset version",
     "release": "turbo run build && changeset publish",
-    "demo": "pnpm --filter @mdma/demo dev",
-    "eval": "pnpm --filter @mdma/evals eval",
-    "eval:custom": "pnpm --filter @mdma/evals eval:custom",
-    "eval:conversation": "pnpm --filter @mdma/evals eval:conversation",
-    "eval:all": "pnpm --filter @mdma/evals eval:all",
-    "eval:view": "pnpm --filter @mdma/evals eval:view"
+    "demo": "pnpm --filter @mobile-reality/mdma-demo dev",
+    "eval": "pnpm --filter @mobile-reality/mdma-evals eval",
+    "eval:custom": "pnpm --filter @mobile-reality/mdma-evals eval:custom",
+    "eval:conversation": "pnpm --filter @mobile-reality/mdma-evals eval:conversation",
+    "eval:all": "pnpm --filter @mobile-reality/mdma-evals eval:all",
+    "eval:view": "pnpm --filter @mobile-reality/mdma-evals eval:view"
   },
   "devDependencies": {
     "@changesets/cli": "^2.27.0",

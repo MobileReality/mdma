@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { PolicyEngine, PolicyViolationError, createDefaultPolicy } from '../src/policy/policy-engine.js';
-import type { Policy } from '@mdma/spec';
+import type { Policy } from '@mobile-reality/mdma-spec';
 
 describe('PolicyEngine', () => {
   const testPolicy: Policy = {

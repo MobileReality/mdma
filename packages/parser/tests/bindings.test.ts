@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { extractBindings } from '../src/bindings/extract-bindings.js';
 import { buildBindingGraph } from '../src/bindings/binding-graph.js';
-import type { MdmaRoot } from '@mdma/spec';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 describe('extractBindings', () => {
   it('extracts bindings from a string', () => {

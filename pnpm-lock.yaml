@@ -39,22 +39,22 @@ importers:
 
   demo:
     dependencies:
-      '@mdma/parser':
+      '@mobile-reality/mdma-parser':
         specifier: workspace:*
         version: link:../packages/parser
-      '@mdma/prompt-pack':
+      '@mobile-reality/mdma-prompt-pack':
         specifier: workspace:*
         version: link:../packages/prompt-pack
-      '@mdma/renderer-react':
+      '@mobile-reality/mdma-renderer-react':
         specifier: workspace:*
         version: link:../packages/renderer-react
-      '@mdma/runtime':
+      '@mobile-reality/mdma-runtime':
         specifier: workspace:*
         version: link:../packages/runtime
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../packages/spec
-      '@mdma/validator':
+      '@mobile-reality/mdma-validator':
         specifier: workspace:*
         version: link:../packages/validator
       react:
@@ -97,10 +97,10 @@ importers:
 
   evals:
     dependencies:
-      '@mdma/prompt-pack':
+      '@mobile-reality/mdma-prompt-pack':
         specifier: workspace:*
         version: link:../packages/prompt-pack
-      '@mdma/validator':
+      '@mobile-reality/mdma-validator':
         specifier: workspace:*
         version: link:../packages/validator
       promptfoo:
@@ -109,55 +109,12 @@ importers:
 
   packages/attachables-core:
     dependencies:
-      '@mdma/runtime':
+      '@mobile-reality/mdma-runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
-    devDependencies:
-      typescript:
-        specifier: ^5.7.0
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.0
-        version: 3.2.4(@types/debug@4.1.12)(@types/node@22.19.11)(jsdom@28.1.0)(tsx@4.21.0)(yaml@2.8.2)
-
-  packages/cli:
-    dependencies:
-      '@mdma/attachables-core':
-        specifier: workspace:*
-        version: link:../attachables-core
-      '@mdma/parser':
-        specifier: workspace:*
-        version: link:../parser
-      '@mdma/runtime':
-        specifier: workspace:*
-        version: link:../runtime
-      '@mdma/spec':
-        specifier: workspace:*
-        version: link:../spec
-      chalk:
-        specifier: ^5.3.0
-        version: 5.6.2
-      commander:
-        specifier: ^12.0.0
-        version: 12.1.0
-      globby:
-        specifier: ^14.0.0
-        version: 14.1.0
-      remark-parse:
-        specifier: ^11.0.0
-        version: 11.0.0
-      unified:
-        specifier: ^11.0.0
-        version: 11.0.5
-      vfile:
-        specifier: ^6.0.0
-        version: 6.0.3
-      yaml:
-        specifier: ^2.6.0
-        version: 2.8.2
     devDependencies:
       typescript:
         specifier: ^5.7.0
@@ -168,7 +125,7 @@ importers:
 
   packages/parser:
     dependencies:
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
       remark-parse:
@@ -208,7 +165,7 @@ importers:
 
   packages/prompt-pack:
     dependencies:
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
     devDependencies:
@@ -221,10 +178,10 @@ importers:
 
   packages/renderer-react:
     dependencies:
-      '@mdma/runtime':
+      '@mobile-reality/mdma-runtime':
         specifier: workspace:*
         version: link:../runtime
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
     devDependencies:
@@ -243,7 +200,7 @@ importers:
 
   packages/runtime:
     dependencies:
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
     devDependencies:
@@ -272,10 +229,10 @@ importers:
 
   packages/validator:
     dependencies:
-      '@mdma/parser':
+      '@mobile-reality/mdma-parser':
         specifier: workspace:*
         version: link:../parser
-      '@mdma/spec':
+      '@mobile-reality/mdma-spec':
         specifier: workspace:*
         version: link:../spec
       yaml:
@@ -1631,10 +1588,6 @@ packages:
     resolution: {integrity: sha512-mxRFDdHIWRxg3UfIIAwCm6NzvxG0jDX/wBN6KsQFTvKFqqg9vTrWUE68qEjHt19A5wwx5X5aUi2zuZT7YR0jrA==}
     cpu: [x64]
     os: [win32]
-
-  '@sindresorhus/merge-streams@2.3.0':
-    resolution: {integrity: sha512-LtoMMhxAlorcGhmFYI+LhPgbPZCkgP6ra1YL604EeF6U98pLlQ3iWIGMdWSC+vWmPBWBNgmDBAhnAobLROJmwg==}
-    engines: {node: '>=18'}
 
   '@smithy/abort-controller@4.2.9':
     resolution: {integrity: sha512-6YGSygFmck1vMjzSxbjEPKMm1xWUr2+w+F8kWVc8rqKQYd1C5zZftvxGii4ti4Mh5ulIXZtAUoXS88Hhu6fkjQ==}
@@ -3160,10 +3113,6 @@ packages:
     resolution: {integrity: sha512-jhIXaOzy1sb8IyocaruWSn1TjmnBVs8Ayhcy83rmxNJ8q2uWKCAj3CnJY+KpGSXCueAPc0i05kVvVKtP1t9S3g==}
     engines: {node: '>=10'}
 
-  globby@14.1.0:
-    resolution: {integrity: sha512-0Ia46fDOaT7k4og1PDW4YbodWWr3scS2vAr2lTbsplOt2WkKp0vQbkI9wKis/T5LV/dqPjO3bpS/z6GTJB82LA==}
-    engines: {node: '>=18'}
-
   google-auth-library@10.5.0:
     resolution: {integrity: sha512-7ABviyMOlX5hIVD60YOfHw4/CxOfBhyduaYB+wbFWCWoni4N7SLcV46hrVRktuBbZjFC9ONyqamZITN7q3n32w==}
     engines: {node: '>=18'}
@@ -3275,10 +3224,6 @@ packages:
 
   ignore@5.3.2:
     resolution: {integrity: sha512-hsBTNUqQTDwkWtcdYI2i06Y/nUBEsNEDJKjWdigLvegy8kDuJAS8uRlpkkcQpyEXL0Z/pjDy5HBmMjRCJ2gq+g==}
-    engines: {node: '>= 4'}
-
-  ignore@7.0.5:
-    resolution: {integrity: sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==}
     engines: {node: '>= 4'}
 
   immer@10.2.0:
@@ -4025,10 +3970,6 @@ packages:
     resolution: {integrity: sha512-gDKb8aZMDeD/tZWs9P6+q0J9Mwkdl6xMV8TjnGP3qJVJ06bdMgkbBlLU8IdfOsIsFz2BW1rNVT3XuNEl8zPAvw==}
     engines: {node: '>=8'}
 
-  path-type@6.0.0:
-    resolution: {integrity: sha512-Vj7sf++t5pBD637NSfkxpHSMfWaeig5+DKWLhcqIYx6mWQz5hdJTGDVMQiJcw1ZYkhs7AazKDGpRVji1LJCZUQ==}
-    engines: {node: '>=18'}
-
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
@@ -4561,10 +4502,6 @@ packages:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
 
-  slash@5.1.0:
-    resolution: {integrity: sha512-ZA6oR3T/pEyuqwMgAKT0/hAv8oAXckzbkmR0UkUosQ+Mc4RxGoJkRmwHgHufaenlyAgE1Mxgpdcrf75y6XcnDg==}
-    engines: {node: '>=14.16'}
-
   smart-buffer@4.2.0:
     resolution: {integrity: sha512-94hK0Hh8rPqQl2xXc3HsaBoOXKV20MToPkcXvwbISWLEs+64sBq5kFgn2kJDHb1Pry9yrP0dxrCI9RRci7RXKg==}
     engines: {node: '>= 6.0.0', npm: '>= 3.0.0'}
@@ -4847,10 +4784,6 @@ packages:
   undici@7.22.0:
     resolution: {integrity: sha512-RqslV2Us5BrllB+JeiZnK4peryVTndy9Dnqq62S3yYRRTj0tFQCwEniUy2167skdGOy3vqRzEvl1Dm4sV2ReDg==}
     engines: {node: '>=20.18.1'}
-
-  unicorn-magic@0.3.0:
-    resolution: {integrity: sha512-+QBBXBCvifc56fsbuxZQ6Sic3wqqc3WWaqxs58gvJrcOuN83HGTCwz3oS5phzU9LthRNE9VrJCFCLUgHeeFnfA==}
-    engines: {node: '>=18'}
 
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
@@ -6857,8 +6790,6 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.57.1':
     optional: true
 
-  '@sindresorhus/merge-streams@2.3.0': {}
-
   '@smithy/abort-controller@4.2.9':
     dependencies:
       '@smithy/types': 4.12.1
@@ -7658,7 +7589,8 @@ snapshots:
       ansi-styles: 4.3.0
       supports-color: 7.2.0
 
-  chalk@5.6.2: {}
+  chalk@5.6.2:
+    optional: true
 
   character-entities@2.0.2: {}
 
@@ -8518,15 +8450,6 @@ snapshots:
       merge2: 1.4.1
       slash: 3.0.0
 
-  globby@14.1.0:
-    dependencies:
-      '@sindresorhus/merge-streams': 2.3.0
-      fast-glob: 3.3.3
-      ignore: 7.0.5
-      path-type: 6.0.0
-      slash: 5.1.0
-      unicorn-magic: 0.3.0
-
   google-auth-library@10.5.0:
     dependencies:
       base64-js: 1.5.1
@@ -8683,8 +8606,6 @@ snapshots:
   ieee754@1.2.1: {}
 
   ignore@5.3.2: {}
-
-  ignore@7.0.5: {}
 
   immer@10.2.0: {}
 
@@ -9473,8 +9394,6 @@ snapshots:
 
   path-type@4.0.0: {}
 
-  path-type@6.0.0: {}
-
   pathe@2.0.3: {}
 
   pathval@2.0.1: {}
@@ -10175,8 +10094,6 @@ snapshots:
 
   slash@3.0.0: {}
 
-  slash@5.1.0: {}
-
   smart-buffer@4.2.0: {}
 
   socket.io-adapter@2.5.6:
@@ -10462,8 +10379,6 @@ snapshots:
   undici-types@6.21.0: {}
 
   undici@7.22.0: {}
-
-  unicorn-magic@0.3.0: {}
 
   unified@11.0.5:
     dependencies:

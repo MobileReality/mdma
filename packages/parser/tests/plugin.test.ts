@@ -6,7 +6,7 @@ import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { VFile } from 'vfile';
 import { remarkMdma } from '../src/index.js';
-import type { MdmaRoot, MdmaBlock } from '@mdma/spec';
+import type { MdmaRoot, MdmaBlock } from '@mobile-reality/mdma-spec';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

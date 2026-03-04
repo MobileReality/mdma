@@ -2,7 +2,7 @@ import { visit, SKIP } from 'unist-util-visit';
 import type { Code, Root } from 'mdast';
 import type { VFile } from 'vfile';
 import type { ZodType } from 'zod';
-import { MDMA_LANG_TAG, type MdmaRoot } from '@mdma/spec';
+import { MDMA_LANG_TAG, type MdmaRoot } from '@mobile-reality/mdma-spec';
 import { parseYaml } from './parse-yaml.js';
 import { validateComponent } from './validate-component.js';
 import { buildMdmaNode } from './build-mdma-node.js';

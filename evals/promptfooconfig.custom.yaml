@@ -3,8 +3,8 @@
 # Tests that a user's custom system prompt works correctly when layered
 # on top of the MDMA author prompt via buildSystemPrompt({ customPrompt }).
 #
-# Run:  pnpm --filter @mdma/evals eval:custom
-# View: pnpm --filter @mdma/evals eval:view
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:custom
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
 
 description: MDMA Author + Custom System Prompt Eval
 

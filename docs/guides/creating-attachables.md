@@ -4,7 +4,7 @@ Attachable handlers define how MDMA component types initialize, process actions,
 
 ## Overview
 
-An attachable handler implements the `AttachableHandler` interface from `@mdma/runtime`:
+An attachable handler implements the `AttachableHandler` interface from `@mobile-reality/mdma-runtime`:
 
 ```typescript
 interface AttachableHandler<TProps = unknown> {
@@ -47,7 +47,7 @@ Create the Zod schema by extending `ComponentBaseSchema`:
 ```typescript
 // timer/schema.ts
 import { z } from 'zod';
-import { ComponentBaseSchema } from '@mdma/spec';
+import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
 
 export const TimerComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('timer'),
@@ -68,7 +68,7 @@ import type {
   AttachableHandler,
   ComponentState,
   AttachableContext,
-} from '@mdma/runtime';
+} from '@mobile-reality/mdma-runtime';
 
 export const timerHandler: AttachableHandler = {
   definition: {
@@ -129,8 +129,8 @@ export const timerHandler: AttachableHandler = {
 Register your handler alongside the core handlers:
 
 ```typescript
-import { AttachableRegistry } from '@mdma/runtime';
-import { registerAllCoreAttachables } from '@mdma/attachables-core';
+import { AttachableRegistry } from '@mobile-reality/mdma-runtime';
+import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 import { timerHandler } from './timer/timer-handler.js';
 
 const registry = new AttachableRegistry();
@@ -148,7 +148,7 @@ To validate your custom component during parsing, pass the schema to the remark 
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma } from '@mdma/parser';
+import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { TimerComponentSchema } from './timer/schema.js';
 
 const customSchemas = new Map([
@@ -256,10 +256,10 @@ describe('timerHandler', () => {
 
 ## Adding a React Renderer
 
-If using `@mdma/renderer-react`, register a renderer component for your type:
+If using `@mobile-reality/mdma-renderer-react`, register a renderer component for your type:
 
 ```tsx
-import type { MdmaBlockRendererProps } from '@mdma/renderer-react';
+import type { MdmaBlockRendererProps } from '@mobile-reality/mdma-renderer-react';
 
 function TimerRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
   const remaining = componentState?.values.remaining as number;
@@ -280,7 +280,7 @@ function TimerRenderer({ component, componentState, dispatch }: MdmaBlockRendere
 }
 
 // Register with the renderer registry
-import { RendererRegistry } from '@mdma/renderer-react';
+import { RendererRegistry } from '@mobile-reality/mdma-renderer-react';
 const renderers = new RendererRegistry();
 renderers.register('timer', TimerRenderer);
 ```

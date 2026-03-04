@@ -44,7 +44,7 @@ The following are in scope:
 - **Schema bypass** -- crafted MDMA documents that bypass Zod validation or inject unexpected data.
 - **Policy engine bypass** -- actions that execute despite policy rules forbidding them.
 - **PII leakage** -- sensitive fields (marked `sensitive: true`) appearing in logs, event bus payloads, or rendered output.
-- **Redaction failures** -- the redactor (`@mdma/runtime`) failing to mask, hash, or omit PII as configured.
+- **Redaction failures** -- the redactor (`@mobile-reality/mdma-runtime`) failing to mask, hash, or omit PII as configured.
 - **Event log integrity** -- tampering with or forging audit log entries (hash-chain breaks).
 - **Approval gate bypass** -- approval-gate components accepting unauthorized approvers or skipping required approvals.
 - **Injection via bindings** -- binding expressions (`{{variable.path}}`) that resolve to executable code or leak cross-component state.

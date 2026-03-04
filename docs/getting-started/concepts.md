@@ -75,7 +75,7 @@ A binding expression must match the pattern `{{identifier.path}}` where:
 At runtime, the binding resolver walks the dot-separated path against the store's state:
 
 ```typescript
-import { resolveBindingPath, parseBindingExpression } from '@mdma/runtime';
+import { resolveBindingPath, parseBindingExpression } from '@mobile-reality/mdma-runtime';
 
 const path = parseBindingExpression('{{user.profile.name}}');
 // path === 'user.profile.name'
@@ -104,7 +104,7 @@ Every action dispatched through the document store is recorded in an append-only
 For enterprise use, the `ChainedEventLog` extends this with hash-chained integrity verification. Each entry includes a `sequence` number, `previousHash`, and `hash` field. The chain can be verified at any time:
 
 ```typescript
-import { ChainedEventLog } from '@mdma/runtime';
+import { ChainedEventLog } from '@mobile-reality/mdma-runtime';
 
 const log = new ChainedEventLog(sessionId, documentId);
 log.append({ eventType: 'field_changed', componentId: 'form-1', payload: { field: 'email' } });
@@ -154,7 +154,7 @@ const policy = {
 The `PolicyEngine` evaluates actions against these rules:
 
 ```typescript
-import { PolicyEngine } from '@mdma/runtime';
+import { PolicyEngine } from '@mobile-reality/mdma-runtime';
 
 const engine = new PolicyEngine(policy, 'preview');
 

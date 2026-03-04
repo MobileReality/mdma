@@ -1,4 +1,4 @@
-import type { EventLogEntry } from '@mdma/spec';
+import type { EventLogEntry } from '@mobile-reality/mdma-spec';
 
 export interface ChainedEventLogEntry extends EventLogEntry {
   sequence: number;

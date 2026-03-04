@@ -1,7 +1,7 @@
 # MDMA Author Prompt — promptfoo evaluation config
 #
-# Run:  pnpm --filter @mdma/evals eval
-# View: pnpm --filter @mdma/evals eval:view
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
 
 description: MDMA Author Prompt Eval
 

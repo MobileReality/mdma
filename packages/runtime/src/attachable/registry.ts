@@ -1,4 +1,4 @@
-import type { AttachableDefinition } from '@mdma/spec';
+import type { AttachableDefinition } from '@mobile-reality/mdma-spec';
 
 export interface ComponentState {
   id: string;
@@ -12,7 +12,7 @@ export interface ComponentState {
 
 export interface AttachableContext {
   componentId: string;
-  dispatch: (action: import('@mdma/spec').StoreAction) => void;
+  dispatch: (action: import('@mobile-reality/mdma-spec').StoreAction) => void;
   getState: () => Record<string, unknown>;
   resolveBinding: (expr: string) => unknown;
   policy: { enforce: (action: string) => void };

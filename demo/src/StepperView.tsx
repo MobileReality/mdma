@@ -3,7 +3,7 @@ import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
-import { validate, type ValidationResult, type ValidationIssue } from '@mdma/validator';
+import { validate, type ValidationResult, type ValidationIssue } from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
 
 const STEPPER_PROMPT = `You are an AI assistant that generates a multi-step onboarding flow using MDMA components.
@@ -336,7 +336,7 @@ export function StepperView() {
                 <p className="chat-empty-title">Stepper Forms Playground</p>
                 <p className="chat-empty-hint">
                   Generate a 3-step onboarding flow one step at a time.
-                  Each step is a separate AI response, validated by <code>@mdma/validator</code>.
+                  Each step is a separate AI response, validated by <code>@mobile-reality/mdma-validator</code>.
                 </p>
               </div>
             )}

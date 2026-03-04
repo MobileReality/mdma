@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { generateComplianceReport } from '../src/compliance/compliance-reporter.js';
-import type { MdmaRoot } from '@mdma/spec';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 function createAst(components: Array<Record<string, unknown>>): MdmaRoot {
   return {

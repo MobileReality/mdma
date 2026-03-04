@@ -1,5 +1,5 @@
-import { WebhookComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { WebhookComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const webhookHandler: AttachableHandler = {
   definition: {

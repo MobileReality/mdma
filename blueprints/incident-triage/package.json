@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/blueprint-incident-triage",
+  "name": "@mobile-reality/mdma-blueprint-incident-triage",
   "version": "0.1.0",
   "private": true,
   "description": "MDMA blueprint for incident severity assessment, stakeholder notification, and resolution tracking",

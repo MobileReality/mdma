@@ -3,7 +3,7 @@ import {
   MdmaComponentSchema,
   componentSchemaRegistry,
   type MdmaComponent,
-} from '@mdma/spec';
+} from '@mobile-reality/mdma-spec';
 import { MdmaParseError } from '../errors/parse-error.js';
 import { ErrorCodes } from '../errors/error-codes.js';
 import type { Point } from 'unist';

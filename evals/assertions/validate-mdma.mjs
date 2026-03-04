@@ -1,4 +1,4 @@
-import { validate } from '@mdma/validator';
+import { validate } from '@mobile-reality/mdma-validator';
 
 /**
  * Custom promptfoo assertion that runs the MDMA validator on LLM output.

@@ -1,7 +1,7 @@
 import { memo, useState } from 'react';
-import { MdmaDocument, type MdmaRenderCustomizations } from '@mdma/renderer-react';
-import type { MdmaRoot } from '@mdma/spec';
-import type { DocumentStore } from '@mdma/runtime';
+import { MdmaDocument, type MdmaRenderCustomizations } from '@mobile-reality/mdma-renderer-react';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 
 export interface CreatorPanelProps {
   panelAst: MdmaRoot | null;

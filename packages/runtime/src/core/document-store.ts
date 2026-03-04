@@ -1,4 +1,4 @@
-import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mdma/spec';
+import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mobile-reality/mdma-spec';
 import { createEventBus, type TypedEventBus } from './event-bus.js';
 import { createEventLog, type AppendOnlyEventLog } from './event-log.js';
 import { resolveValue, resolveBindingPath } from './binding-resolver.js';
@@ -15,7 +15,7 @@ export interface DocumentStoreOptions {
   sessionId?: string;
   documentId?: string;
   environment?: string;
-  policy?: import('@mdma/spec').Policy;
+  policy?: import('@mobile-reality/mdma-spec').Policy;
   registry?: AttachableRegistry;
 }
 

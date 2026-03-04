@@ -3,7 +3,7 @@ import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
-import { validate, type ValidationResult, type ValidationIssue } from '@mdma/validator';
+import { validate, type ValidationResult, type ValidationIssue } from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
 
 const VALIDATOR_PROMPT = `You are an AI assistant for testing the MDMA validator.
@@ -190,7 +190,7 @@ export function ValidatorView() {
       <div className="validator-info">
         <strong>Validator</strong>
         <span>
-          Chat with the AI — every response is automatically validated by <code>@mdma/validator</code>. Issues and auto-fixes appear on the right.
+          Chat with the AI — every response is automatically validated by <code>@mobile-reality/mdma-validator</code>. Issues and auto-fixes appear on the right.
         </span>
       </div>
 

@@ -5,31 +5,31 @@ MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is 
 ## Package Dependency Graph
 
 ```
-@mdma/spec                    Zod schemas + TypeScript types (zero runtime deps beyond zod)
+@mobile-reality/mdma-spec                    Zod schemas + TypeScript types (zero runtime deps beyond zod)
   |
-  +-- @mdma/parser            remark plugin: Markdown -> MdmaRoot AST
+  +-- @mobile-reality/mdma-parser            remark plugin: Markdown -> MdmaRoot AST
   |     |
   |     +-- (unified, remark-parse, vfile)
   |
-  +-- @mdma/prompt-pack       AI system prompts for authoring
+  +-- @mobile-reality/mdma-prompt-pack       AI system prompts for authoring
   |
-  +-- @mdma/validator         Document validation (10 lint rules)
+  +-- @mobile-reality/mdma-validator         Document validation (10 lint rules)
   |
-  +-- @mdma/runtime           Headless runtime: store, event bus, event log, policy engine,
+  +-- @mobile-reality/mdma-runtime           Headless runtime: store, event bus, event log, policy engine,
         |                     redaction, PII detection, compliance reporter
         |
-        +-- @mdma/attachables-core    7 interactive component handlers
+        +-- @mobile-reality/mdma-attachables-core    7 interactive component handlers
               |
-              +-- @mdma/renderer-react    React components + hooks
+              +-- @mobile-reality/mdma-renderer-react    React components + hooks
 
-@mdma/evals                   LLM evaluation suite (promptfoo)
+@mobile-reality/mdma-evals                   LLM evaluation suite (promptfoo)
 ```
 
-All arrows point downward: each package depends only on packages above it. `@mdma/spec` is the foundation with no internal dependencies.
+All arrows point downward: each package depends only on packages above it. `@mobile-reality/mdma-spec` is the foundation with no internal dependencies.
 
 ## Packages
 
-### @mdma/spec
+### @mobile-reality/mdma-spec
 
 The specification package. Contains:
 
@@ -41,7 +41,7 @@ The specification package. Contains:
 
 Dependencies: `zod`
 
-### @mdma/parser
+### @mobile-reality/mdma-parser
 
 A remark plugin that transforms standard Markdown into an MDMA-extended AST. The pipeline:
 
@@ -51,9 +51,9 @@ A remark plugin that transforms standard Markdown into an MDMA-extended AST. The
 4. `buildMdmaNode` -- replaces the code node with a typed `MdmaBlock`
 5. `extractBindings` / `buildBindingGraph` -- builds a graph of all binding references
 
-Dependencies: `@mdma/spec`, `unified`, `remark-parse`, `vfile`
+Dependencies: `@mobile-reality/mdma-spec`, `unified`, `remark-parse`, `vfile`
 
-### @mdma/runtime
+### @mobile-reality/mdma-runtime
 
 Headless runtime with no UI dependencies. Provides:
 
@@ -69,15 +69,15 @@ Headless runtime with no UI dependencies. Provides:
 - **ComplianceReporter** -- generates compliance reports checking unique IDs, PII marking, approval gates, and interactive components
 - **AttachableRegistry** -- registry for component handlers
 
-Dependencies: `@mdma/spec`
+Dependencies: `@mobile-reality/mdma-spec`
 
-### @mdma/attachables-core
+### @mobile-reality/mdma-attachables-core
 
 Handlers for the 7 interactive component types (form, button, tasklist, table, callout, approval-gate, webhook). Each handler implements the `AttachableHandler` interface with `definition`, `initialize`, and `onAction` methods. The `registerAllCoreAttachables()` function registers all 7 handlers at once. Chart and thinking are display-only components that don't require state handlers.
 
-Dependencies: `@mdma/spec`, `@mdma/runtime`
+Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`
 
-### @mdma/renderer-react
+### @mobile-reality/mdma-renderer-react
 
 React rendering layer. Provides:
 
@@ -87,9 +87,9 @@ React rendering layer. Provides:
 - **RendererRegistry** -- maps component types to React renderer components
 - **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`, `ChartRenderer`, `ThinkingRenderer`
 
-Dependencies: `@mdma/spec`, `@mdma/runtime`, `react`
+Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`, `react`
 
-### @mdma/prompt-pack
+### @mobile-reality/mdma-prompt-pack
 
 AI system prompts for LLM-assisted MDMA authoring and review:
 
@@ -98,7 +98,7 @@ AI system prompts for LLM-assisted MDMA authoring and review:
 
 Dependencies: none (pure string constants)
 
-### @mdma/validator
+### @mobile-reality/mdma-validator
 
 Static analysis engine for MDMA documents. Runs 10 validation rules:
 
@@ -113,9 +113,9 @@ Static analysis engine for MDMA documents. Runs 10 validation rules:
 - `required-markers` -- heuristic suggestions for `required: true`
 - `thinking-block` -- thinking component placement
 
-Dependencies: `@mdma/spec`, `@mdma/parser`
+Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-parser`
 
-### @mdma/evals
+### @mobile-reality/mdma-evals
 
 LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/). Three test suites:
 
@@ -123,7 +123,7 @@ LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/). Three test s
 - **Custom prompt** (10 tests) -- exact blueprint generation from custom system prompts
 - **Conversation** (11 conversations, 25 turns) -- multi-turn end-user interactions
 
-Dependencies: `@mdma/prompt-pack`, `@mdma/validator`, `promptfoo`
+Dependencies: `@mobile-reality/mdma-prompt-pack`, `@mobile-reality/mdma-validator`, `promptfoo`
 
 ## Blueprints
 
@@ -138,7 +138,7 @@ blueprints/<name>/
   package.json        Package metadata (private: true)
 ```
 
-The manifest validates against `BlueprintManifestSchema` from `@mdma/spec`.
+The manifest validates against `BlueprintManifestSchema` from `@mobile-reality/mdma-spec`.
 
 ### Available Blueprints
 

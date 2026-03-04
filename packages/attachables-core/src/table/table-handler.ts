@@ -1,5 +1,5 @@
-import { TableComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { TableComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const tableHandler: AttachableHandler = {
   definition: {

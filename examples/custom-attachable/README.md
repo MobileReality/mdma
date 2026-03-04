@@ -4,7 +4,7 @@ This guide shows how to create and register a custom MDMA component handler.
 
 ## Overview
 
-An **attachable handler** tells the MDMA runtime how to initialize, manage state, and respond to actions for a component type. The built-in handlers live in `@mdma/attachables-core`, but you can add your own.
+An **attachable handler** tells the MDMA runtime how to initialize, manage state, and respond to actions for a component type. The built-in handlers live in `@mobile-reality/mdma-attachables-core`, but you can add your own.
 
 ## Step 1 -- Define a Schema
 
@@ -13,7 +13,7 @@ Create a Zod schema that extends `ComponentBaseSchema`:
 ```typescript
 // schemas/rating.ts
 import { z } from 'zod';
-import { ComponentBaseSchema } from '@mdma/spec';
+import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
 
 export const RatingComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('rating'),
@@ -27,11 +27,11 @@ export type RatingComponent = z.infer<typeof RatingComponentSchema>;
 
 ## Step 2 -- Implement the Handler
 
-Create a handler that satisfies the `AttachableHandler` interface from `@mdma/runtime`:
+Create a handler that satisfies the `AttachableHandler` interface from `@mobile-reality/mdma-runtime`:
 
 ```typescript
 // handlers/rating-handler.ts
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 import { RatingComponentSchema } from '../schemas/rating.js';
 
 export const ratingHandler: AttachableHandler = {
@@ -82,8 +82,8 @@ Use the `AttachableRegistry` to register your handler before the runtime process
 
 ```typescript
 // setup.ts
-import { AttachableRegistry } from '@mdma/runtime';
-import { registerAllCoreAttachables } from '@mdma/attachables-core';
+import { AttachableRegistry } from '@mobile-reality/mdma-runtime';
+import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 import { ratingHandler } from './handlers/rating-handler.js';
 
 const registry = new AttachableRegistry();

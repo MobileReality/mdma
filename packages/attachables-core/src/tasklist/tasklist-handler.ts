@@ -1,5 +1,5 @@
-import { TasklistComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { TasklistComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const tasklistHandler: AttachableHandler = {
   definition: {

@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/spec",
+  "name": "@mobile-reality/mdma-spec",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -32,5 +32,8 @@
     "@types/mdast": "^4.0.0",
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
-  }
+  },
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/MobileReality/mdma.git", "directory": "packages/spec" }
 }

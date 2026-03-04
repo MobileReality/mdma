@@ -1,5 +1,5 @@
 import { memo, useRef, useEffect } from 'react';
-import type { StoreAction } from '@mdma/spec';
+import type { StoreAction } from '@mobile-reality/mdma-spec';
 import type { ChatActionEntry } from './use-chat-action-log.js';
 
 export interface ChatActionLogProps {

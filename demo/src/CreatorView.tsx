@@ -9,8 +9,8 @@ import { PromptGeneratorPanel } from './creator/PromptGeneratorPanel.js';
 import { creatorCustomizations } from './creator/creator-customizations.js';
 import { CREATOR_PROMPT, CREATOR_USER_SUFFIX } from './creator/creator-prompt.js';
 import { splitAst } from './enterprise/split-ast.js';
-import type { MdmaRoot } from '@mdma/spec';
-import type { DocumentStore } from '@mdma/runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 
 type Phase = 'create' | 'generate-prompt';
 

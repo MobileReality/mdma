@@ -1,4 +1,4 @@
-import { parseYaml } from '@mdma/parser';
+import { parseYaml } from '@mobile-reality/mdma-parser';
 import type { ParsedBlock } from './types.js';
 
 const MDMA_BLOCK_REGEX = /```mdma\n([\s\S]*?)```/g;

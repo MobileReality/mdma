@@ -1,4 +1,4 @@
-import { buildSystemPrompt } from '@mdma/prompt-pack';
+import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 
 /**
  * Promptfoo prompt function for custom system prompt tests.

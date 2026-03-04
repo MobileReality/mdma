@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createDocumentStore } from '../src/core/document-store.js';
-import type { MdmaRoot } from '@mdma/spec';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 function makeAst(components: Array<Record<string, unknown>>): MdmaRoot {
   return {

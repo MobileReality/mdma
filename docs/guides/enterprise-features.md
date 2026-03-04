@@ -1,6 +1,6 @@
 # Enterprise Features
 
-MDMA includes features designed for high-stakes, regulated environments: tamper-evident event logs, pluggable redaction strategies, automatic PII detection, and compliance reporting. All enterprise features live in `@mdma/runtime`.
+MDMA includes features designed for high-stakes, regulated environments: tamper-evident event logs, pluggable redaction strategies, automatic PII detection, and compliance reporting. All enterprise features live in `@mobile-reality/mdma-runtime`.
 
 ## Event Log Integrity
 
@@ -21,7 +21,7 @@ This forms a hash chain. If any entry is modified, deleted, or inserted out of o
 ### Usage
 
 ```typescript
-import { ChainedEventLog } from '@mdma/runtime';
+import { ChainedEventLog } from '@mobile-reality/mdma-runtime';
 
 const log = new ChainedEventLog('session-uuid', 'doc-001');
 
@@ -88,7 +88,7 @@ interface RedactionStrategy {
 Replaces the value with an FNV-1a hash. Deterministic: the same input always produces the same hash. Useful for correlating events without exposing raw values.
 
 ```typescript
-import { hashStrategy } from '@mdma/runtime';
+import { hashStrategy } from '@mobile-reality/mdma-runtime';
 
 hashStrategy.redact('john@example.com');
 // 'a3f2b1c4' (consistent hash)
@@ -99,7 +99,7 @@ hashStrategy.redact('john@example.com');
 Shows the first few characters followed by `***`. Useful for support workflows where partial visibility is acceptable.
 
 ```typescript
-import { maskStrategy } from '@mdma/runtime';
+import { maskStrategy } from '@mobile-reality/mdma-runtime';
 
 maskStrategy.redact('john@example.com');
 // 'joh***'
@@ -113,7 +113,7 @@ maskStrategy.redact('AB');
 Replaces the value entirely with the string `[REDACTED]`. Maximum privacy.
 
 ```typescript
-import { omitStrategy } from '@mdma/runtime';
+import { omitStrategy } from '@mobile-reality/mdma-runtime';
 
 omitStrategy.redact('john@example.com');
 // '[REDACTED]'
@@ -168,7 +168,7 @@ The PII detector scans field names and values against known patterns to identify
 ### Scanning Fields
 
 ```typescript
-import { detectPii, auditSensitiveFields } from '@mdma/runtime';
+import { detectPii, auditSensitiveFields } from '@mobile-reality/mdma-runtime';
 
 // Scan a single field
 const result = detectPii('patient_email', 'jane@hospital.org');
@@ -222,7 +222,7 @@ The compliance reporter performs static analysis on an MDMA AST and generates a 
 ### Generating a Report
 
 ```typescript
-import { generateComplianceReport } from '@mdma/runtime';
+import { generateComplianceReport } from '@mobile-reality/mdma-runtime';
 
 const report = generateComplianceReport(ast, 'doc-001');
 
@@ -295,15 +295,15 @@ A typical enterprise integration combines all features:
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma } from '@mdma/parser';
+import { remarkMdma } from '@mobile-reality/mdma-parser';
 import {
   createDocumentStore,
   ChainedEventLog,
   generateComplianceReport,
   auditSensitiveFields,
   AttachableRegistry,
-} from '@mdma/runtime';
-import { registerAllCoreAttachables } from '@mdma/attachables-core';
+} from '@mobile-reality/mdma-runtime';
+import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 
 // 1. Parse the document
 const processor = unified().use(remarkParse).use(remarkMdma);

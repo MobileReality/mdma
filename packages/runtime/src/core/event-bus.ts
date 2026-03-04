@@ -1,4 +1,4 @@
-import type { StoreAction } from '@mdma/spec';
+import type { StoreAction } from '@mobile-reality/mdma-spec';
 
 export type EventHandler<T = unknown> = (event: T) => void;
 

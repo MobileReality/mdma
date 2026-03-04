@@ -42,10 +42,10 @@ Managed with **pnpm workspaces** + **Turborepo**.
 git checkout -b feat/my-feature
 
 # Build a single package
-pnpm --filter @mdma/runtime build
+pnpm --filter @mobile-reality/mdma-runtime build
 
 # Run tests for a single package
-pnpm --filter @mdma/runtime test
+pnpm --filter @mobile-reality/mdma-runtime test
 
 # Lint / typecheck / format
 pnpm lint
@@ -76,7 +76,7 @@ pnpm eval:view
 
 ## Adding a New Component Type
 
-### 1. Define the schema in `@mdma/spec`
+### 1. Define the schema in `@mobile-reality/mdma-spec`
 
 Create `packages/spec/src/schemas/components/<name>.ts`:
 
@@ -93,7 +93,7 @@ export const RatingComponentSchema = ComponentBaseSchema.extend({
 
 Register it in `packages/spec/src/schemas/components/index.ts` (discriminated union, `COMPONENT_TYPES`, `componentSchemaRegistry`).
 
-### 2. Create the handler in `@mdma/attachables-core`
+### 2. Create the handler in `@mobile-reality/mdma-attachables-core`
 
 Create `packages/attachables-core/src/<name>/<name>-handler.ts` and register it in `src/_shared/register-all.ts`.
 
@@ -110,7 +110,7 @@ Add tests alongside your handler and schema. Run `pnpm test` to verify.
 Lint rules live in `packages/cli/src/lint/rules/`:
 
 ```typescript
-import type { MdmaRoot } from '@mdma/spec';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { LintDiagnostic } from '../lint-engine.js';
 
 export function myRule(root: MdmaRoot): LintDiagnostic[] {
@@ -145,7 +145,7 @@ Use an existing blueprint as reference.
 
 **Types:** `feat`, `fix`, `docs`, `refactor`, `test`, `chore`, `ci`
 
-**Scopes:** package names without `@mdma/` prefix — `spec`, `parser`, `runtime`, `attachables-core`, `renderer-react`, `cli`, `prompt-pack`, `validator`, `evals`
+**Scopes:** package names without `@mobile-reality/mdma-` prefix — `spec`, `parser`, `runtime`, `attachables-core`, `renderer-react`, `cli`, `prompt-pack`, `validator`, `evals`
 
 ## Changesets
 

@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/evals",
+  "name": "@mobile-reality/mdma-evals",
   "private": true,
   "type": "module",
   "scripts": {
@@ -10,8 +10,8 @@
     "eval:view": "promptfoo view"
   },
   "dependencies": {
-    "@mdma/prompt-pack": "workspace:*",
-    "@mdma/validator": "workspace:*",
+    "@mobile-reality/mdma-prompt-pack": "workspace:*",
+    "@mobile-reality/mdma-validator": "workspace:*",
     "promptfoo": "0.109.0"
   }
 }

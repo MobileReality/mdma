@@ -1,4 +1,4 @@
-import type { Policy, PolicyRule } from '@mdma/spec';
+import type { Policy, PolicyRule } from '@mobile-reality/mdma-spec';
 
 export interface PolicyEvaluationResult {
   allowed: boolean;

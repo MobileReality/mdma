@@ -15,12 +15,12 @@ Closes #<!-- issue number -->
 
 ## Packages Affected
 
-- [ ] `@mdma/spec`
-- [ ] `@mdma/parser`
-- [ ] `@mdma/runtime`
-- [ ] `@mdma/attachables-core`
-- [ ] `@mdma/renderer-react`
-- [ ] `@mdma/prompt-pack`
+- [ ] `@mobile-reality/mdma-spec`
+- [ ] `@mobile-reality/mdma-parser`
+- [ ] `@mobile-reality/mdma-runtime`
+- [ ] `@mobile-reality/mdma-attachables-core`
+- [ ] `@mobile-reality/mdma-renderer-react`
+- [ ] `@mobile-reality/mdma-prompt-pack`
 - [ ] Blueprint: ___________
 
 ## Checklist

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { AttachableRegistry, type AttachableContext } from '@mdma/runtime';
+import { AttachableRegistry, type AttachableContext } from '@mobile-reality/mdma-runtime';
 import {
   formHandler,
   buttonHandler,

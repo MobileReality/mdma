@@ -1,5 +1,5 @@
-import { ButtonComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { ButtonComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const buttonHandler: AttachableHandler = {
   definition: {

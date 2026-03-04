@@ -80,10 +80,10 @@ onComplete: onboarding-done
 
 ## Validate Your Document
 
-Use `@mdma/validator` to validate all MDMA blocks programmatically:
+Use `@mobile-reality/mdma-validator` to validate all MDMA blocks programmatically:
 
 ```typescript
-import { validateDocument } from '@mdma/validator';
+import { validateDocument } from '@mobile-reality/mdma-validator';
 
 const diagnostics = validateDocument(source, 'my-first-doc.md');
 // Returns errors and warnings for schema, IDs, bindings, PII, etc.
@@ -91,12 +91,12 @@ const diagnostics = validateDocument(source, 'my-first-doc.md');
 
 ## Parse Programmatically
 
-Use the `@mdma/parser` remark plugin to transform Markdown into an MDMA AST:
+Use the `@mobile-reality/mdma-parser` remark plugin to transform Markdown into an MDMA AST:
 
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma } from '@mdma/parser';
+import { remarkMdma } from '@mobile-reality/mdma-parser';
 
 const source = `
 # Hello
@@ -118,12 +118,12 @@ const ast = processor.runSync(tree);
 
 ## Create a Runtime Store
 
-The `@mdma/runtime` package provides a headless document store that manages state, events, and policies:
+The `@mobile-reality/mdma-runtime` package provides a headless document store that manages state, events, and policies:
 
 ```typescript
-import { createDocumentStore } from '@mdma/runtime';
-import { registerAllCoreAttachables } from '@mdma/attachables-core';
-import { AttachableRegistry } from '@mdma/runtime';
+import { createDocumentStore } from '@mobile-reality/mdma-runtime';
+import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
+import { AttachableRegistry } from '@mobile-reality/mdma-runtime';
 
 // Register core component handlers
 const registry = new AttachableRegistry();
@@ -154,7 +154,7 @@ console.log(store.getBindings()); // { full_name: 'Jane Doe' }
 Wrap your app with `MdmaProvider` and render MDMA blocks:
 
 ```tsx
-import { MdmaProvider, MdmaDocument } from '@mdma/renderer-react';
+import { MdmaProvider, MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 
 function App() {
   return (

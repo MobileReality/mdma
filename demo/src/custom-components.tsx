@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { memo } from 'react';
-import { ComponentBaseSchema } from '@mdma/spec';
+import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
 import { ChartRenderer } from './chart-components.js';
 import type {
   MdmaBlockRendererProps,
@@ -9,7 +9,7 @@ import type {
   FormCheckboxElementProps,
   FormTextareaElementProps,
   FormSubmitElementProps,
-} from '@mdma/renderer-react';
+} from '@mobile-reality/mdma-renderer-react';
 import type { MdmaCustomizations } from './ChatView.js';
 import { useEditableField, extractComponentId } from './chat/EditableMessageContext.js';
 

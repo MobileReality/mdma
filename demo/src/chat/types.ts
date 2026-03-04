@@ -1,5 +1,5 @@
-import type { MdmaRoot } from '@mdma/spec';
-import type { DocumentStore } from '@mdma/runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 
 export interface ChatMsg {
   id: number;

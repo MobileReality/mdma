@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
-import type { DocumentStore } from '@mdma/runtime';
-import type { StoreAction } from '@mdma/spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
+import type { StoreAction } from '@mobile-reality/mdma-spec';
 import type { ChatMsg } from './types.js';
 
 export interface ChatActionEntry {

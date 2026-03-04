@@ -1,4 +1,4 @@
-import type { MdmaBlock as MdmaBlockType, StoreAction } from '@mdma/spec';
+import type { MdmaBlock as MdmaBlockType, StoreAction } from '@mobile-reality/mdma-spec';
 import { memo, useCallback, type ComponentType } from 'react';
 import { useDocumentStore, useComponentState } from '../hooks/use-document-store.js';
 import { defaultRenderers, type MdmaBlockRendererProps } from '../renderers/renderer-registry.js';

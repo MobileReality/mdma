@@ -1,4 +1,4 @@
-import type { MdmaRoot, MdmaBlock } from '@mdma/spec';
+import type { MdmaRoot, MdmaBlock } from '@mobile-reality/mdma-spec';
 
 export interface ComplianceCheck {
   category: 'security' | 'logging' | 'schema' | 'policy' | 'redaction';

@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react';
-import type { MdmaComponent, StoreAction } from '@mdma/spec';
-import type { ComponentState } from '@mdma/runtime';
+import type { MdmaComponent, StoreAction } from '@mobile-reality/mdma-spec';
+import type { ComponentState } from '@mobile-reality/mdma-runtime';
 import { FormRenderer } from '../components/FormRenderer.js';
 import { ButtonRenderer } from '../components/ButtonRenderer.js';
 import { TasklistRenderer } from '../components/TasklistRenderer.js';

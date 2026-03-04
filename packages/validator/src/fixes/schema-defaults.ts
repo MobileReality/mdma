@@ -1,4 +1,4 @@
-import { componentSchemaRegistry } from '@mdma/spec';
+import { componentSchemaRegistry } from '@mobile-reality/mdma-spec';
 import type { FixContext } from '../types.js';
 
 /**

@@ -1,5 +1,5 @@
-import { FormComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { FormComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const formHandler: AttachableHandler = {
   definition: {

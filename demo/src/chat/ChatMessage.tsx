@@ -1,5 +1,5 @@
 import { memo, useState, useCallback, useRef, useEffect, useMemo } from 'react';
-import { MdmaDocument, type MdmaRenderCustomizations } from '@mdma/renderer-react';
+import { MdmaDocument, type MdmaRenderCustomizations } from '@mobile-reality/mdma-renderer-react';
 import type { ChatMsg } from './types.js';
 import {
   EditableFieldProvider,

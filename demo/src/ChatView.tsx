@@ -5,7 +5,7 @@ import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { ChatActionLog } from './chat/ChatActionLog.js';
-import type { MdmaRenderCustomizations } from '@mdma/renderer-react';
+import type { MdmaRenderCustomizations } from '@mobile-reality/mdma-renderer-react';
 import type { ZodType } from 'zod';
 
 export interface MdmaCustomizations extends MdmaRenderCustomizations {

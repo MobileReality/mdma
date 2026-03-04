@@ -282,7 +282,7 @@ Before finalizing a document, verify:
 - [ ] YAML syntax is valid in all `mdma` blocks
 - [ ] Table `data` column keys match the declared `columns[].key` values
 
-Use `@mdma/validator` to automate these checks programmatically.
+Use `@mobile-reality/mdma-validator` to automate these checks programmatically.
 
 ## Common Pitfalls
 

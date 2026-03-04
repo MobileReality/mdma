@@ -1,4 +1,4 @@
-import type { AttachableRegistry } from '@mdma/runtime';
+import type { AttachableRegistry } from '@mobile-reality/mdma-runtime';
 import { formHandler } from '../form/form-handler.js';
 import { buttonHandler } from '../button/button-handler.js';
 import { tasklistHandler } from '../tasklist/tasklist-handler.js';

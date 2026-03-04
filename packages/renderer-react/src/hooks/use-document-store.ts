@@ -1,5 +1,5 @@
 import { useSyncExternalStore, useCallback, useRef } from 'react';
-import type { DocumentState, ComponentState } from '@mdma/runtime';
+import type { DocumentState, ComponentState } from '@mobile-reality/mdma-runtime';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 
 export function useDocumentStore() {

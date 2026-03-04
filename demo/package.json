@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/demo",
+  "name": "@mobile-reality/mdma-demo",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,12 +9,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@mdma/parser": "workspace:*",
-    "@mdma/prompt-pack": "workspace:*",
-    "@mdma/renderer-react": "workspace:*",
-    "@mdma/runtime": "workspace:*",
-    "@mdma/spec": "workspace:*",
-    "@mdma/validator": "workspace:*",
+    "@mobile-reality/mdma-parser": "workspace:*",
+    "@mobile-reality/mdma-prompt-pack": "workspace:*",
+    "@mobile-reality/mdma-renderer-react": "workspace:*",
+    "@mobile-reality/mdma-runtime": "workspace:*",
+    "@mobile-reality/mdma-spec": "workspace:*",
+    "@mobile-reality/mdma-validator": "workspace:*",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "recharts": "^3.7.0",

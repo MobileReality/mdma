@@ -1,4 +1,4 @@
-import type { EventLogEntry, EventType, EventActor } from '@mdma/spec';
+import type { EventLogEntry, EventType, EventActor } from '@mobile-reality/mdma-spec';
 
 export interface EventLogOptions {
   sessionId: string;

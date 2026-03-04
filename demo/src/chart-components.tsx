@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
-import type { ChartComponent } from '@mdma/spec';
-import type { MdmaBlockRendererProps } from '@mdma/renderer-react';
+import type { ChartComponent } from '@mobile-reality/mdma-spec';
+import type { MdmaBlockRendererProps } from '@mobile-reality/mdma-renderer-react';
 import {
   ResponsiveContainer,
   LineChart, Line,

@@ -1,5 +1,5 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import type { DocumentStore } from '@mdma/runtime';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 
 /** Named collections of select options that form fields can reference by string. */
 export type DataSources = Record<string, Array<{ label: string; value: string }>>;

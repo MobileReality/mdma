@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/blueprint-clinical-ops",
+  "name": "@mobile-reality/mdma-blueprint-clinical-ops",
   "version": "0.1.0",
   "private": true,
   "description": "MDMA blueprint for clinical procedure publish and change approval workflow",

@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/attachables-core",
+  "name": "@mobile-reality/mdma-attachables-core",
   "version": "0.1.0",
   "type": "module",
   "exports": {
@@ -15,11 +15,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mdma/spec": "workspace:*",
-    "@mdma/runtime": "workspace:*"
+    "@mobile-reality/mdma-spec": "workspace:*",
+    "@mobile-reality/mdma-runtime": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
-  }
+  },
+  "files": ["dist"],
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/MobileReality/mdma.git", "directory": "packages/attachables-core" }
 }

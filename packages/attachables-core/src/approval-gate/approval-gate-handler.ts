@@ -1,5 +1,5 @@
-import { ApprovalGateComponentSchema } from '@mdma/spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mdma/runtime';
+import { ApprovalGateComponentSchema } from '@mobile-reality/mdma-spec';
+import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
 
 export const approvalGateHandler: AttachableHandler = {
   definition: {

@@ -1,6 +1,6 @@
-import type { MdmaRoot, MdmaBlock as MdmaBlockType } from '@mdma/spec';
-import { MDMA_LANG_TAG } from '@mdma/spec';
-import type { DocumentStore } from '@mdma/runtime';
+import type { MdmaRoot, MdmaBlock as MdmaBlockType } from '@mobile-reality/mdma-spec';
+import { MDMA_LANG_TAG } from '@mobile-reality/mdma-spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { useRef, useMemo, type ComponentType } from 'react';
 import { MdmaProvider } from '../context/MdmaProvider.js';
 import { ElementOverridesProvider, type ElementOverrides } from '../context/ElementOverridesContext.js';

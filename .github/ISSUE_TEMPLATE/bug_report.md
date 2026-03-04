@@ -33,17 +33,17 @@ What actually happened. Include error messages, stack traces, or screenshots if 
 - **Node.js version:** (e.g., 20.11.0)
 - **pnpm version:** (e.g., 10.6.0)
 - **MDMA package(s) and version(s):**
-  - `@mdma/parser`: x.x.x
+  - `@mobile-reality/mdma-parser`: x.x.x
   - (add others as relevant)
 
 ## Affected Package(s)
 
-- [ ] `@mdma/spec`
-- [ ] `@mdma/parser`
-- [ ] `@mdma/runtime`
-- [ ] `@mdma/attachables-core`
-- [ ] `@mdma/renderer-react`
-- [ ] `@mdma/prompt-pack`
+- [ ] `@mobile-reality/mdma-spec`
+- [ ] `@mobile-reality/mdma-parser`
+- [ ] `@mobile-reality/mdma-runtime`
+- [ ] `@mobile-reality/mdma-attachables-core`
+- [ ] `@mobile-reality/mdma-renderer-react`
+- [ ] `@mobile-reality/mdma-prompt-pack`
 - [ ] Blueprint: ___________
 
 ## Additional Context

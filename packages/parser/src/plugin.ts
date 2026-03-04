@@ -1,7 +1,7 @@
 import type { Plugin } from 'unified';
 import type { Root } from 'mdast';
 import type { ZodType } from 'zod';
-import type { MdmaRoot } from '@mdma/spec';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import { extractMdmaBlocks } from './transform/extract-mdma-blocks.js';
 
 export interface RemarkMdmaOptions {

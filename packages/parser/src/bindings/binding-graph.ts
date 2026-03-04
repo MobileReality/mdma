@@ -1,4 +1,4 @@
-import type { MdmaRoot, MdmaBlock } from '@mdma/spec';
+import type { MdmaRoot, MdmaBlock } from '@mobile-reality/mdma-spec';
 import { extractBindings, type BindingReference } from './extract-bindings.js';
 
 export interface BindingGraph {

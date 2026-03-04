@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { buildSystemPrompt } from '@mdma/prompt-pack';
+import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import {
   streamChatCompletion,
   chatCompletion,
@@ -9,7 +9,7 @@ import {
   type ChatMessage as LlmMessage,
 } from '../llm-client.js';
 import { parseMarkdown as defaultParseMarkdown, createParser } from './parse-markdown.js';
-import type { RemarkMdmaOptions } from '@mdma/parser';
+import type { RemarkMdmaOptions } from '@mobile-reality/mdma-parser';
 import type { ChatMsg } from './types.js';
 
 export interface UseChatOptions {

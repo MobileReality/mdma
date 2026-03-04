@@ -1,4 +1,4 @@
-import { componentSchemaRegistry } from '@mdma/spec';
+import { componentSchemaRegistry } from '@mobile-reality/mdma-spec';
 import type { ValidationRule } from '../types.js';
 
 export const schemaConformanceRule: ValidationRule = {

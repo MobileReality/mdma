@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/blueprint-change-management",
+  "name": "@mobile-reality/mdma-blueprint-change-management",
   "version": "0.1.0",
   "private": true,
   "description": "MDMA blueprint for release and change approval workflow with SOX/ISO compliance",

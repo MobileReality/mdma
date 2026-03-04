@@ -1,5 +1,5 @@
 {
-  "name": "@mdma/blueprint-kyc-case",
+  "name": "@mobile-reality/mdma-blueprint-kyc-case",
   "version": "0.1.0",
   "private": true,
   "description": "MDMA blueprint for KYC/AML customer identity verification workflow",

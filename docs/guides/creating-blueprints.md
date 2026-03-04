@@ -17,7 +17,7 @@ blueprints/<name>/
 
 ## The Manifest File
 
-The `manifest.yaml` file declares the blueprint's metadata and validates against `BlueprintManifestSchema` from `@mdma/spec`. Here is a complete example:
+The `manifest.yaml` file declares the blueprint's metadata and validates against `BlueprintManifestSchema` from `@mobile-reality/mdma-spec`. Here is a complete example:
 
 ```yaml
 name: incident-triage
@@ -254,7 +254,7 @@ checklists:
 Validate the manifest programmatically:
 
 ```typescript
-import { BlueprintManifestSchema } from '@mdma/spec';
+import { BlueprintManifestSchema } from '@mobile-reality/mdma-spec';
 import { readFileSync } from 'fs';
 import { parse } from 'yaml';
 

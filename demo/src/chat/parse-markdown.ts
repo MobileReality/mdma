@@ -1,8 +1,8 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { remarkMdma, type RemarkMdmaOptions } from '@mdma/parser';
-import { createDocumentStore, type DocumentStore } from '@mdma/runtime';
-import type { MdmaRoot } from '@mdma/spec';
+import { remarkMdma, type RemarkMdmaOptions } from '@mobile-reality/mdma-parser';
+import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 /**
  * Create a markdown-to-MDMA parser, optionally configured with custom
