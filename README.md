@@ -46,6 +46,24 @@ onAction: submit
 
 9 component types: **form**, **button**, **tasklist**, **table**, **chart**, **callout**, **approval-gate**, **webhook**, **thinking**
 
+## Installation
+
+```bash
+# Core — parse and run MDMA documents
+npm install @mobile-reality/mdma-parser @mobile-reality/mdma-runtime
+
+# React rendering
+npm install @mobile-reality/mdma-renderer-react
+
+# AI authoring — system prompts for LLM-based generation
+npm install @mobile-reality/mdma-prompt-pack
+
+# Validation — static analysis for MDMA documents
+npm install @mobile-reality/mdma-validator
+```
+
+All packages are published under the [`@mobile-reality`](https://www.npmjs.com/org/mobile-reality) npm org.
+
 ## Usage
 
 ```typescript
