@@ -12,6 +12,10 @@ AI conversations today are plain text — the user reads a response and manually
 
 No custom UI per use case. No parsing free-form text. The AI generates structured, validated components and your frontend renders them instantly.
 
+<p align="center">
+  <img src="assets/mdma.gif" alt="MDMA Demo" width="800" />
+</p>
+
 ## What is MDMA?
 
 MDMA extends Markdown with interactive components defined in fenced `mdma` code blocks. A regular Markdown file becomes an interactive application:
@@ -232,6 +236,33 @@ pnpm eval:view
 - **Audit trail** — Append-only event log with tamper-evident hash chaining
 - **Policy engine** — Allow/deny rules per action and environment
 - **AI authoring** — System prompts for AI-assisted document creation
+
+## Initial Roadmap
+
+### v0.2 — Developer Experience
+- [ ] More examples (10+ real-world use cases)
+- [ ] CLI tool for validation and scaffolding
+- [ ] Improved error messages in parser and validator
+- [ ] Webhook execution engine (real HTTP calls in production environments)
+- [ ] File upload field type for forms
+
+### v0.3 — AI & Generation
+- [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)
+- [ ] Prompt tuning toolkit — test and compare custom prompts
+- [ ] Agent-friendly SDK — let AI agents fill forms and trigger actions programmatically
+
+### v1.0 — Production Ready
+- [ ] Stable API with semantic versioning guarantees
+- [ ] E2E test suite for full document workflows
+- [ ] Performance benchmarks and optimization
+- [ ] Migration guides between versions
+- [ ] Blueprints promoted from experimental to stable
+
+### Future
+- [ ] Collaborative editing (multiplayer document state)
+- [ ] Custom component marketplace
+- [ ] Audit trail dashboard UI
+- [ ] HIPAA / SOC 2 compliance documentation
 
 ## Tech Stack
 
