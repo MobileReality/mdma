@@ -1,6 +1,6 @@
 # Security Policy
 
-MDMA is designed for high-stakes environments (healthcare, finance, critical ops). We take security seriously.
+MDMA is designed for next-gen apps. We take security seriously.
 
 ## Supported Versions
 
@@ -17,7 +17,7 @@ Once we reach 1.0, we will maintain a formal support window for the latest major
 
 Instead, email us at:
 
-**security@mdma-project.dev**
+**open-source@mobilereality.pl**
 
 Include:
 

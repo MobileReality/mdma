@@ -4,7 +4,7 @@
 
 <h1 align="center">MDMA</h1>
 <p align="center">Markdown Document with Mounted Applications</p>
-<p align="center">Interactive documents from Markdown. Built for high-stakes environments: healthcare, finance, critical ops.</p>
+<p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 
 ## What is MDMA?
 
