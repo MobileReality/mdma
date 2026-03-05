@@ -49,7 +49,7 @@ export function reconstructMarkdown(
     for (const block of rep.blocks) {
       if (block.data === null) continue;
       const yaml = reserializeBlock(block.data);
-      parts.push('```mdma\n' + yaml + '\n```');
+      parts.push(`\`\`\`mdma\n${yaml}\n\`\`\``);
     }
 
     if (parts.length > 0) {

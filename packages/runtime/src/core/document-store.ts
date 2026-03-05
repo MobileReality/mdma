@@ -1,10 +1,10 @@
 import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mobile-reality/mdma-spec';
 import { createEventBus, type TypedEventBus } from './event-bus.js';
 import { createEventLog, type AppendOnlyEventLog } from './event-log.js';
-import { resolveValue, resolveBindingPath } from './binding-resolver.js';
+import { resolveValue } from './binding-resolver.js';
 import { redactPayload, type RedactionContext } from '../redaction/redactor.js';
 import { PolicyEngine, createDefaultPolicy } from '../policy/policy-engine.js';
-import { AttachableRegistry, type ComponentState } from '../attachable/registry.js';
+import type { AttachableRegistry, ComponentState } from '../attachable/registry.js';
 
 export interface DocumentState {
   bindings: Record<string, unknown>;
@@ -39,11 +39,9 @@ export function createDocumentStore(
   options: DocumentStoreOptions = {},
 ): DocumentStore {
   const sessionId = options.sessionId ?? crypto.randomUUID();
-  const documentId = options.documentId ?? 'doc-' + Date.now();
+  const documentId = options.documentId ?? `doc-${Date.now()}`;
   const environment = options.environment ?? 'preview';
   const policy = new PolicyEngine(options.policy ?? createDefaultPolicy(), environment);
-  const registry = options.registry ?? new AttachableRegistry();
-
   const eventBus = createEventBus();
   const eventLog = createEventLog({ sessionId, documentId });
 
@@ -112,8 +110,8 @@ export function createDocumentStore(
     };
 
     const payload = { ...action } as Record<string, unknown>;
-    delete payload.type;
-    delete payload.componentId;
+    payload.type = undefined;
+    payload.componentId = undefined;
 
     // For FIELD_CHANGED, check if the field itself is sensitive
     let effectiveCtx = redactionCtx;

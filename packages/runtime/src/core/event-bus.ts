@@ -24,7 +24,7 @@ export function createEventBus(): TypedEventBus {
       }
       set.add(handler as EventHandler);
       return () => {
-        set!.delete(handler as EventHandler);
+        set?.delete(handler as EventHandler);
       };
     },
 

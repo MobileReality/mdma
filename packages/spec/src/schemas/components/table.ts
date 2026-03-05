@@ -10,11 +10,11 @@ export const TableColumnSchema = z.preprocess(
     // Normalize common LLM-generated field names
     if ('field' in result && !('key' in result)) {
       result.key = result.field;
-      delete result.field;
+      result.field = undefined;
     }
     if ('label' in result && !('header' in result)) {
       result.header = result.label;
-      delete result.label;
+      result.label = undefined;
     }
     return result;
   },

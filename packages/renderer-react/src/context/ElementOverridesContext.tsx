@@ -55,7 +55,6 @@ export interface FormSubmitElementProps {
  * };
  * ```
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ElementOverrides = Record<string, Record<string, ComponentType<any>>>;
 
 // ─── Context ─────────────────────────────────────────────────────────────────

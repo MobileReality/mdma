@@ -82,7 +82,7 @@ key: value
   });
 
   it('captures correct offsets', () => {
-    const md = `# Title\n\n\`\`\`mdma\ntype: callout\nid: test\ncontent: Hello\n\`\`\`\n`;
+    const md = '# Title\n\n\`\`\`mdma\ntype: callout\nid: test\ncontent: Hello\n\`\`\`\n';
     const blocks = extractMdmaBlocksFromMarkdown(md);
     expect(blocks).toHaveLength(1);
 

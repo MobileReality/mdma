@@ -6,6 +6,6 @@ export const maskStrategy: RedactionStrategy = {
     const str = String(value);
     if (str.length <= 3) return '***';
     const visible = Math.min(3, Math.floor(str.length / 3));
-    return str.slice(0, visible) + '***';
+    return `${str.slice(0, visible)}***`;
   },
 };

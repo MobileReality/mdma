@@ -19,7 +19,6 @@ export type ComponentEntry =
   | ComponentType<MdmaBlockRendererProps>
   | {
       renderer?: ComponentType<MdmaBlockRendererProps>;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       elements?: Record<string, ComponentType<any>>;
     };
 

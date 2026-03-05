@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
-import { readFileSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync } from 'node:fs';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { VFile } from 'vfile';
 import { remarkMdma } from '../src/index.js';
 import type { MdmaRoot, MdmaBlock } from '@mobile-reality/mdma-spec';

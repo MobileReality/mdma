@@ -11,7 +11,7 @@ export interface BindingReference {
 export function extractBindings(
   componentId: string,
   obj: unknown,
-  field: string = '',
+  field = '',
 ): BindingReference[] {
   const bindings: BindingReference[] = [];
 

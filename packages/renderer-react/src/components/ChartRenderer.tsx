@@ -17,7 +17,7 @@ function parseCsvData(raw: string): ParsedChartData {
     headers.forEach((header, i) => {
       const val = values[i] ?? '';
       const num = Number(val);
-      row[header] = val !== '' && !isNaN(num) ? num : val;
+      row[header] = val !== '' && !Number.isNaN(num) ? num : val;
     });
     return row;
   });

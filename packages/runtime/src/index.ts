@@ -32,7 +32,7 @@ export {
   type ChainedEventLogEntry,
   type IntegrityVerificationResult,
 } from './core/event-log-integrity.js';
-export { type RedactionStrategy } from './redaction/strategies/types.js';
+export type { RedactionStrategy } from './redaction/strategies/types.js';
 export { hashStrategy } from './redaction/strategies/hash-strategy.js';
 export { maskStrategy } from './redaction/strategies/mask-strategy.js';
 export { omitStrategy } from './redaction/strategies/omit-strategy.js';

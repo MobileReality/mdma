@@ -5,67 +5,67 @@ describe('detectPii', () => {
   it('detects email by field name', () => {
     const result = detectPii('email', '');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('email');
+    expect(result?.detectedTypes).toContain('email');
   });
 
   it('detects email by value pattern', () => {
     const result = detectPii('contact', 'user@example.com');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('email');
+    expect(result?.detectedTypes).toContain('email');
   });
 
   it('detects email by both name and value', () => {
     const result = detectPii('email', 'user@example.com');
     expect(result).not.toBeNull();
-    expect(result!.confidence).toBe(1);
+    expect(result?.confidence).toBe(1);
   });
 
   it('detects phone by field name', () => {
     const result = detectPii('phone_number', '');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('phone');
+    expect(result?.detectedTypes).toContain('phone');
   });
 
   it('detects phone by value pattern', () => {
     const result = detectPii('contact', '+1 555-1234');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('phone');
+    expect(result?.detectedTypes).toContain('phone');
   });
 
   it('detects SSN by field name', () => {
     const result = detectPii('ssn', '');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('ssn');
+    expect(result?.detectedTypes).toContain('ssn');
   });
 
   it('detects SSN by value pattern', () => {
     const result = detectPii('identifier', '123-45-6789');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('ssn');
+    expect(result?.detectedTypes).toContain('ssn');
   });
 
   it('detects credit card by field name', () => {
     const result = detectPii('credit_card', '');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('credit_card');
+    expect(result?.detectedTypes).toContain('credit_card');
   });
 
   it('detects credit card by value pattern', () => {
     const result = detectPii('payment', '4111 1111 1111 1111');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('credit_card');
+    expect(result?.detectedTypes).toContain('credit_card');
   });
 
   it('detects name-like fields', () => {
     const result = detectPii('patient_name', '');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('name_like');
+    expect(result?.detectedTypes).toContain('name_like');
   });
 
   it('detects name-like values', () => {
     const result = detectPii('owner', 'John Smith');
     expect(result).not.toBeNull();
-    expect(result!.detectedTypes).toContain('name_like');
+    expect(result?.detectedTypes).toContain('name_like');
   });
 
   it('returns null for non-PII fields', () => {
@@ -81,7 +81,7 @@ describe('detectPii', () => {
   it('includes a suggestion message', () => {
     const result = detectPii('email', 'test@test.com');
     expect(result).not.toBeNull();
-    expect(result!.suggestion).toContain('sensitive: true');
+    expect(result?.suggestion).toContain('sensitive: true');
   });
 });
 

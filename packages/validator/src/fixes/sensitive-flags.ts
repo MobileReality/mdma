@@ -15,7 +15,7 @@ export function fixSensitiveFlags(context: FixContext): void {
     if (!match) continue;
 
     const [, arrayName, indexStr] = match;
-    const index = parseInt(indexStr, 10);
+    const index = Number.parseInt(indexStr, 10);
     const array = block.data[arrayName];
 
     if (!Array.isArray(array) || index >= array.length) continue;

@@ -27,7 +27,7 @@ function patchTableColumns(data: Record<string, unknown>): void {
     // Normalize field → key (mirror Zod preprocessor)
     if (typeof c.field === 'string' && !c.key) {
       c.key = c.field;
-      delete c.field;
+      c.field = undefined;
     }
 
     // Derive header from key when missing
@@ -205,8 +205,8 @@ function stripDefaults(data: Record<string, unknown>): void {
     for (const field of fields) {
       if (typeof field !== 'object' || field === null) continue;
       const f = field as Record<string, unknown>;
-      if (f.required === false) delete f.required;
-      if (f.sensitive === false) delete f.sensitive;
+      if (f.required === false) f.required = undefined;
+      if (f.sensitive === false) f.sensitive = undefined;
     }
   }
 
@@ -215,8 +215,8 @@ function stripDefaults(data: Record<string, unknown>): void {
     for (const col of columns) {
       if (typeof col !== 'object' || col === null) continue;
       const c = col as Record<string, unknown>;
-      if (c.sortable === false) delete c.sortable;
-      if (c.sensitive === false) delete c.sensitive;
+      if (c.sortable === false) c.sortable = undefined;
+      if (c.sensitive === false) c.sensitive = undefined;
     }
   }
 }

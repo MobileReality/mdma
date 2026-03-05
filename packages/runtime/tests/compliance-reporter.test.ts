@@ -55,7 +55,7 @@ describe('generateComplianceReport', () => {
     const report = generateComplianceReport(ast, 'doc-1');
     const sensitiveCheck = report.checks.find((c) => c.name === 'sensitive-fields-marked');
     expect(sensitiveCheck).toBeDefined();
-    expect(sensitiveCheck!.status).toBe('warn');
+    expect(sensitiveCheck?.status).toBe('warn');
   });
 
   it('warns when no approval gate is present', () => {
@@ -70,7 +70,7 @@ describe('generateComplianceReport', () => {
     const report = generateComplianceReport(ast, 'doc-1');
     const gateCheck = report.checks.find((c) => c.name === 'approval-gate-present');
     expect(gateCheck).toBeDefined();
-    expect(gateCheck!.status).toBe('warn');
+    expect(gateCheck?.status).toBe('warn');
   });
 
   it('detects duplicate IDs', () => {
@@ -82,7 +82,7 @@ describe('generateComplianceReport', () => {
     const report = generateComplianceReport(ast, 'doc-1');
     const idCheck = report.checks.find((c) => c.name === 'unique-component-ids');
     expect(idCheck).toBeDefined();
-    expect(idCheck!.status).toBe('fail');
+    expect(idCheck?.status).toBe('fail');
   });
 
   it('warns when no form components exist', () => {
@@ -93,7 +93,7 @@ describe('generateComplianceReport', () => {
     const report = generateComplianceReport(ast, 'doc-1');
     const formCheck = report.checks.find((c) => c.name === 'has-interactive-components');
     expect(formCheck).toBeDefined();
-    expect(formCheck!.status).toBe('warn');
+    expect(formCheck?.status).toBe('warn');
   });
 
   it('handles empty document', () => {

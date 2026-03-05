@@ -29,7 +29,7 @@ describe('formHandler', () => {
 
   it('initializes with default values', () => {
     const ctx = makeContext();
-    const state = formHandler.initialize!(ctx, {
+    const state = formHandler.initialize?.(ctx, {
       id: 'f1',
       type: 'form',
       fields: [
@@ -44,7 +44,7 @@ describe('formHandler', () => {
   it('dispatches on submit action', async () => {
     const dispatch = vi.fn();
     const ctx = makeContext({ componentId: 'f1', dispatch });
-    await formHandler.onAction!(ctx, 'submit', undefined);
+    await formHandler.onAction?.(ctx, 'submit', undefined);
     expect(dispatch).toHaveBeenCalledWith({
       type: 'ACTION_TRIGGERED',
       componentId: 'f1',
@@ -56,7 +56,7 @@ describe('formHandler', () => {
 describe('buttonHandler', () => {
   it('initializes correctly', () => {
     const ctx = makeContext();
-    const state = buttonHandler.initialize!(ctx, {
+    const state = buttonHandler.initialize?.(ctx, {
       id: 'btn1',
       type: 'button',
       text: 'Go',
@@ -68,7 +68,7 @@ describe('buttonHandler', () => {
   it('dispatches action on click', async () => {
     const dispatch = vi.fn();
     const ctx = makeContext({ componentId: 'btn1', dispatch });
-    await buttonHandler.onAction!(ctx, 'go', undefined);
+    await buttonHandler.onAction?.(ctx, 'go', undefined);
     expect(dispatch).toHaveBeenCalledWith({
       type: 'ACTION_TRIGGERED',
       componentId: 'btn1',
@@ -80,7 +80,7 @@ describe('buttonHandler', () => {
 describe('tasklistHandler', () => {
   it('initializes items as unchecked', () => {
     const ctx = makeContext();
-    const state = tasklistHandler.initialize!(ctx, {
+    const state = tasklistHandler.initialize?.(ctx, {
       id: 'tl1',
       type: 'tasklist',
       items: [
@@ -95,7 +95,7 @@ describe('tasklistHandler', () => {
   it('dispatches toggle action', async () => {
     const dispatch = vi.fn();
     const ctx = makeContext({ componentId: 'tl1', dispatch });
-    await tasklistHandler.onAction!(ctx, 'toggle', { itemId: 'i1', checked: true });
+    await tasklistHandler.onAction?.(ctx, 'toggle', { itemId: 'i1', checked: true });
     expect(dispatch).toHaveBeenCalledWith({
       type: 'FIELD_CHANGED',
       componentId: 'tl1',
@@ -108,7 +108,7 @@ describe('tasklistHandler', () => {
 describe('tableHandler', () => {
   it('initializes with sort state', () => {
     const ctx = makeContext();
-    const state = tableHandler.initialize!(ctx, {
+    const state = tableHandler.initialize?.(ctx, {
       id: 'tbl1',
       type: 'table',
       columns: [{ key: 'name', header: 'Name' }],
@@ -122,7 +122,7 @@ describe('tableHandler', () => {
 describe('calloutHandler', () => {
   it('initializes as not dismissed', () => {
     const ctx = makeContext();
-    const state = calloutHandler.initialize!(ctx, {
+    const state = calloutHandler.initialize?.(ctx, {
       id: 'c1',
       type: 'callout',
       content: 'Warning!',
@@ -134,7 +134,7 @@ describe('calloutHandler', () => {
   it('dispatches dismiss action', async () => {
     const dispatch = vi.fn();
     const ctx = makeContext({ componentId: 'c1', dispatch });
-    await calloutHandler.onAction!(ctx, 'dismiss', undefined);
+    await calloutHandler.onAction?.(ctx, 'dismiss', undefined);
     expect(dispatch).toHaveBeenCalledWith({
       type: 'FIELD_CHANGED',
       componentId: 'c1',
@@ -147,7 +147,7 @@ describe('calloutHandler', () => {
 describe('approvalGateHandler', () => {
   it('initializes as pending', () => {
     const ctx = makeContext();
-    const state = approvalGateHandler.initialize!(ctx, {
+    const state = approvalGateHandler.initialize?.(ctx, {
       id: 'gate1',
       type: 'approval-gate',
       title: 'Manager Approval',
@@ -159,7 +159,7 @@ describe('approvalGateHandler', () => {
     const dispatch = vi.fn();
     const enforce = vi.fn();
     const ctx = makeContext({ componentId: 'gate1', dispatch, policy: { enforce } });
-    await approvalGateHandler.onAction!(ctx, 'approve', { actor: { id: 'u1', role: 'manager' } });
+    await approvalGateHandler.onAction?.(ctx, 'approve', { actor: { id: 'u1', role: 'manager' } });
     expect(enforce).toHaveBeenCalledWith('approval_grant');
     expect(dispatch).toHaveBeenCalledWith({
       type: 'APPROVAL_GRANTED',
@@ -172,7 +172,7 @@ describe('approvalGateHandler', () => {
     const dispatch = vi.fn();
     const enforce = vi.fn();
     const ctx = makeContext({ componentId: 'gate1', dispatch, policy: { enforce } });
-    await approvalGateHandler.onAction!(ctx, 'deny', {
+    await approvalGateHandler.onAction?.(ctx, 'deny', {
       actor: { id: 'u2' },
       reason: 'Not ready',
     });
@@ -188,7 +188,7 @@ describe('approvalGateHandler', () => {
 describe('webhookHandler', () => {
   it('initializes as idle', () => {
     const ctx = makeContext();
-    const state = webhookHandler.initialize!(ctx, {
+    const state = webhookHandler.initialize?.(ctx, {
       id: 'wh1',
       type: 'webhook',
       url: 'https://api.example.com/hook',
@@ -201,7 +201,7 @@ describe('webhookHandler', () => {
     const enforce = vi.fn();
     const dispatch = vi.fn();
     const ctx = makeContext({ componentId: 'wh1', dispatch, policy: { enforce } });
-    await webhookHandler.onAction!(ctx, 'execute', undefined);
+    await webhookHandler.onAction?.(ctx, 'execute', undefined);
     expect(enforce).toHaveBeenCalledWith('webhook_call');
     expect(dispatch).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'INTEGRATION_CALLED' }),
