@@ -6,6 +6,12 @@
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 
+## Why MDMA?
+
+AI conversations today are plain text — the user reads a response and manually acts on it. MDMA changes that. When an LLM knows the MDMA spec, it can respond with interactive components (forms, tables, approval gates) instead of just text. The conversation becomes actionable: the user fills out a form, approves a step, or reviews structured data — all inline, with a predictable schema that your app already knows how to render and process.
+
+No custom UI per use case. No parsing free-form text. The AI generates structured, validated components and your frontend renders them instantly.
+
 ## What is MDMA?
 
 MDMA extends Markdown with interactive components defined in fenced `mdma` code blocks. A regular Markdown file becomes an interactive application:
