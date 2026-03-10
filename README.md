@@ -241,7 +241,7 @@ pnpm eval:view
 
 ### v0.2 — Developer Experience
 - [ ] More examples (10+ real-world use cases)
-- [ ] CLI tool for validation and scaffolding
+- [ ] CLI tool for prompt creation (MDMA flows)
 - [ ] Improved error messages in parser and validator
 - [ ] Webhook execution engine (real HTTP calls in production environments)
 - [ ] File upload field type for forms
