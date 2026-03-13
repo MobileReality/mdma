@@ -28,7 +28,7 @@ export async function startDevServer(port: number): Promise<void> {
     const filePath = path.join(appRoot, urlPath);
 
     // Prevent path traversal
-    if (!filePath.startsWith(appRoot)) {
+    if (!filePath.startsWith(appRoot + path.sep)) {
       res.writeHead(403);
       res.end('Forbidden');
       return;
@@ -52,10 +52,10 @@ export async function startDevServer(port: number): Promise<void> {
     }
   });
 
-  server.listen(port, () => {
-    open(`http://localhost:${port}`);
+  await new Promise<void>((resolve) => {
+    server.listen(port, () => {
+      open(`http://localhost:${port}`);
+      resolve();
+    });
   });
-
-  // Keep the process alive
-  await new Promise(() => {});
 }
