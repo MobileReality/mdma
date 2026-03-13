@@ -70,6 +70,9 @@ npm install @mobile-reality/mdma-prompt-pack
 
 # Validation — static analysis for MDMA documents
 npm install @mobile-reality/mdma-validator
+
+# CLI — interactive prompt builder + document validation
+npx @mobile-reality/mdma-cli
 ```
 
 All packages are published under the [`@mobile-reality`](https://www.npmjs.com/org/mobile-reality) npm org.
@@ -185,7 +188,8 @@ function App({ ast, store }) {
 | `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 10 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding resolution, and PII sensitivity. Powers programmatic validation in CI pipelines and custom tooling. |
-| `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 3 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), and multi-turn conversation handling (11 conversations, 25 turns). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
+| `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
+| `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 4 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), multi-turn conversation handling (11 conversations, 25 turns), and prompt builder verification (25 tests). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
 
 ## Architecture
 
@@ -197,6 +201,7 @@ function App({ ast, store }) {
   └── @mobile-reality/mdma-runtime         State / events / policy engine
         └── @mobile-reality/mdma-attachables-core   Component handlers
               └── @mobile-reality/mdma-renderer-react   React components
+@mobile-reality/mdma-cli                   CLI prompt builder + validation
 @mobile-reality/mdma-evals                 LLM evaluation suite (promptfoo)
 ```
 
@@ -206,6 +211,35 @@ function App({ ast, store }) {
 pnpm install
 pnpm build
 pnpm test
+```
+
+## CLI
+
+Interactive prompt builder for creating custom MDMA prompts.
+
+```bash
+# Run the prompt builder — opens a web app in your browser
+npx @mobile-reality/mdma-cli
+
+# Validate MDMA documents
+npx @mobile-reality/mdma-cli validate "docs/**/*.md"
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --fix  # auto-fix issues
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json # JSON output
+```
+
+The prompt builder walks you through:
+1. **Pick components** — select from the 9 MDMA types (form, table, approval-gate, etc.)
+2. **Configure** — define fields, options, roles, sensitive flags, and business rules
+3. **Set triggers** — specify when the AI should generate MDMA components (keywords, contextual conditions)
+4. **Generate** — an LLM creates a tailored `customPrompt` based on your configuration
+5. **Export** — copy the result and use it in your app:
+
+```typescript
+import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
+
+const systemPrompt = buildSystemPrompt({
+  customPrompt: '<paste generated prompt here>',
+});
 ```
 
 ## Evals
@@ -221,6 +255,9 @@ pnpm eval:custom
 
 # Run multi-turn conversation tests (25 turns across 11 conversations)
 pnpm eval:conversation
+
+# Run prompt builder tests (25 tests)
+pnpm eval:prompt-builder
 
 # Run all eval suites
 pnpm eval:all
@@ -241,15 +278,15 @@ pnpm eval:view
 
 ### v0.2 — Developer Experience
 - [ ] More examples (10+ real-world use cases)
-- [ ] CLI tool for prompt creation (MDMA flows)
+- [x] CLI tool for prompt creation (MDMA flows)
 - [ ] Improved error messages in parser and validator
-- [ ] Webhook execution engine (real HTTP calls in production environments)
 - [ ] File upload field type for forms
 
 ### v0.3 — AI & Generation
 - [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)
 - [ ] Prompt tuning toolkit — test and compare custom prompts
 - [ ] Agent-friendly SDK — let AI agents fill forms and trigger actions programmatically
+- [ ] Webhook execution engine (real HTTP calls in production environments)
 
 ### v1.0 — Production Ready
 - [ ] Stable API with semantic versioning guarantees

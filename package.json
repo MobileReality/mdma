@@ -17,6 +17,7 @@
     "eval": "pnpm --filter @mobile-reality/mdma-evals eval",
     "eval:custom": "pnpm --filter @mobile-reality/mdma-evals eval:custom",
     "eval:conversation": "pnpm --filter @mobile-reality/mdma-evals eval:conversation",
+    "eval:prompt-builder": "pnpm --filter @mobile-reality/mdma-evals eval:prompt-builder",
     "eval:all": "pnpm --filter @mobile-reality/mdma-evals eval:all",
     "eval:view": "pnpm --filter @mobile-reality/mdma-evals eval:view"
   },

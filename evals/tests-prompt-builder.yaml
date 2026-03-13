@@ -1,0 +1,1435 @@
+# CLI Prompt Builder — Eval Test Cases
+#
+# Each test sends a serialized user configuration to the Master Prompt.
+# The LLM generates a `customPrompt` that should:
+# - Use YAML (not JSON) in any mdma code block examples
+# - Include domain-specific instructions
+# - Reference the configured fields, trigger rules, and sensitive flags
+# - NOT repeat the MDMA spec
+
+# ---------------------------------------------------------------------------
+# 1. KYC Verification — keyword trigger, finance domain
+# ---------------------------------------------------------------------------
+- description: "KYC verification flow with keyword triggers"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** kyc-verification
+      **Domain:** finance
+      **Description:** KYC case review flow that collects applicant identity data, runs compliance checks, and requires dual approval before account activation.
+      **Business Rules:** Government ID and date of birth must be marked sensitive. Require 2 approvers with roles: compliance-officer, senior-analyst. PEP screening and sanctions list checks are mandatory before approval.
+      **When to Display Components:** When the user says one of these keywords or phrases: start KYC review, new customer verification, verify identity. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - full_name (text, label: "Full Legal Name", required: true, sensitive: false)
+      - date_of_birth (date, label: "Date of Birth", required: true, sensitive: true)
+      - nationality (text, label: "Nationality", required: true, sensitive: false)
+      - id_number (text, label: "Government ID Number", required: true, sensitive: true)
+      - email (email, label: "Email Address", required: true, sensitive: true)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/prompt-has-sections.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["KYC", "verify identity", "customer verification"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["full_name", "date_of_birth", "id_number", "email", "nationality"]
+        minRatio: 0.6
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "financ"
+
+# ---------------------------------------------------------------------------
+# 2. Patient Intake — immediate trigger, healthcare domain
+# ---------------------------------------------------------------------------
+- description: "Patient intake with immediate trigger and HIPAA rules"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** patient-intake
+      **Domain:** healthcare
+      **Description:** Patient intake and clinical assessment form that gathers demographics, insurance info, medical history, and current symptoms before routing to the appropriate care team.
+      **Business Rules:** All patient data fields (SSN, DOB, insurance ID) must be sensitive. HIPAA compliance required. Physician approval gate needed before treatment plan activation. Allergies and medications are required fields.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - patient_name (text, label: "Patient Full Name", required: true, sensitive: true)
+      - date_of_birth (date, label: "Date of Birth", required: true, sensitive: true)
+      - ssn (text, label: "Social Security Number", required: true, sensitive: true)
+      - insurance_id (text, label: "Insurance ID", required: true, sensitive: true)
+      - allergies (textarea, label: "Known Allergies", required: true, sensitive: false)
+      - medications (textarea, label: "Current Medications", required: true, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/prompt-has-sections.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["patient_name", "date_of_birth", "ssn", "insurance_id", "allergies", "medications"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "healthcare"
+
+# ---------------------------------------------------------------------------
+# 3. Customer Escalation — contextual trigger
+# ---------------------------------------------------------------------------
+- description: "Customer escalation with contextual trigger conditions"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** customer-escalation
+      **Domain:** customer-ops
+      **Description:** Customer escalation workflow for high-priority support tickets. Captures customer details, issue history, and sentiment, then triggers internal review and resolution tracking.
+      **Business Rules:** Customer email and phone are PII. Escalations open > 24 hours require manager approval. Resolution must include a customer satisfaction follow-up task. CRM webhook fires on status change.
+      **When to Display Components:** After 3 failed resolution attempts in the conversation, or when the customer expresses frustration and asks for a supervisor.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - customer_name (text, label: "Customer Name", required: true, sensitive: false)
+      - customer_email (email, label: "Customer Email", required: true, sensitive: true)
+      - customer_phone (text, label: "Customer Phone", required: false, sensitive: true)
+      - ticket_id (text, label: "Original Ticket ID", required: true, sensitive: false)
+      - priority (select, label: "Escalation Priority", required: true, sensitive: false)
+      - issue_summary (textarea, label: "Issue Summary", required: true, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/prompt-has-sections.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: contextual
+        contextHints: ["frustrat", "supervisor", "failed", "attempt", "escalat"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["customer_name", "customer_email", "ticket_id", "priority", "issue_summary"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+
+# ---------------------------------------------------------------------------
+# 4. Incident Triage — keyword trigger, engineering domain
+# ---------------------------------------------------------------------------
+- description: "Incident triage with severity-based approval rules"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** incident-triage
+      **Domain:** engineering
+      **Description:** Production incident triage workflow that captures severity, affected services, and timeline, then routes through an on-call approval gate before executing remediation steps.
+      **Business Rules:** Severity P1/P2 incidents require VP-level approval. All incidents must have a root cause analysis tasklist completed within 48 hours. Slack and PagerDuty webhooks must fire on escalation.
+      **When to Display Components:** When the user says one of these keywords or phrases: incident, outage, service down, production issue. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - incident_title (text, label: "Incident Title", required: true, sensitive: false)
+      - severity (select, label: "Severity Level", required: true, sensitive: false)
+      - affected_services (textarea, label: "Affected Services", required: true, sensitive: false)
+      - start_time (date, label: "Incident Start Time", required: true, sensitive: false)
+      - reporter_email (email, label: "Reporter Email", required: true, sensitive: true)
+      - customer_impact (textarea, label: "Customer Impact Description", required: true, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/prompt-has-sections.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["incident", "outage", "service down", "production issue"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["incident_title", "severity", "affected_services", "reporter_email", "customer_impact"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+
+# ---------------------------------------------------------------------------
+# 5. Vendor Onboarding — keyword trigger, procurement domain
+# ---------------------------------------------------------------------------
+- description: "Vendor onboarding with financial PII and multi-gate approval"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** vendor-onboarding
+      **Domain:** procurement
+      **Description:** New vendor onboarding flow that collects company info, tax documents, banking details, and compliance certifications before activating the vendor in the payment system.
+      **Business Rules:** Bank account number and tax ID are sensitive. Require legal review approval and finance approval (2 gates). W-9 or W-8BEN verification must be completed. Contracts over $50k need VP sign-off.
+      **When to Display Components:** When the user says one of these keywords or phrases: add new vendor, onboard supplier, register vendor. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - company_name (text, label: "Company Legal Name", required: true, sensitive: false)
+      - tax_id (text, label: "Tax ID / EIN", required: true, sensitive: true)
+      - contact_email (email, label: "Primary Contact Email", required: true, sensitive: true)
+      - contact_name (text, label: "Primary Contact Name", required: true, sensitive: false)
+      - bank_account (text, label: "Bank Account Number", required: true, sensitive: true)
+      - routing_number (text, label: "Bank Routing Number", required: true, sensitive: true)
+      - contract_value (number, label: "Annual Contract Value ($)", required: true, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/prompt-has-sections.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["vendor", "onboard", "supplier"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["company_name", "tax_id", "bank_account", "routing_number", "contact_email", "contract_value"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "procurement"
+
+# ---------------------------------------------------------------------------
+# 6. Loan Application — immediate trigger, form + approval-gate + tasklist
+# ---------------------------------------------------------------------------
+- description: "Loan application with multi-component workflow"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** loan-application
+      **Domain:** banking
+      **Description:** Consumer loan application workflow. Collects applicant financial data, runs credit checks via tasklist, and routes through underwriter approval before disbursement.
+      **Business Rules:** SSN and income are sensitive. Credit score must be collected. Require 1 underwriter approval. Loans over $100k need senior underwriter. Debt-to-income ratio must be calculated.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - applicant_name (text, label: "Applicant Full Name", required: true, sensitive: false)
+      - ssn (text, label: "Social Security Number", required: true, sensitive: true)
+      - annual_income (number, label: "Annual Income ($)", required: true, sensitive: true)
+      - employment_status (select, label: "Employment Status", required: true, sensitive: false)
+      - loan_amount (number, label: "Requested Loan Amount ($)", required: true, sensitive: false)
+      - loan_purpose (select, label: "Loan Purpose", required: true, sensitive: false)
+
+      ### approval-gate
+      Title: Underwriter Approval
+      Required approvers: 1
+      Allowed roles: underwriter, senior-underwriter
+
+      ### tasklist
+      Items: Verify identity, Pull credit report, Calculate DTI ratio, Check collateral, Review bank statements
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["applicant_name", "ssn", "annual_income", "loan_amount", "loan_purpose"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "approval"
+
+# ---------------------------------------------------------------------------
+# 7. Restaurant Order — keyword trigger, form + table + button
+# ---------------------------------------------------------------------------
+- description: "Restaurant order flow with table and button"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** restaurant-order
+      **Domain:** hospitality
+      **Description:** Digital restaurant ordering assistant that takes customer orders, displays the current menu in a table, and provides an order submission button.
+      **Business Rules:** No PII fields needed. Menu table should be sortable by price. Order form should capture table number, items, and special dietary notes. Confirm button triggers kitchen webhook.
+      **When to Display Components:** When the user says one of these keywords or phrases: order food, see menu, place order, what's on the menu. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - table_number (number, label: "Table Number", required: true, sensitive: false)
+      - items (textarea, label: "Order Items", required: true, sensitive: false)
+      - dietary_notes (textarea, label: "Dietary Restrictions / Allergies", required: false, sensitive: false)
+      - special_requests (text, label: "Special Requests", required: false, sensitive: false)
+
+      ### table
+      Columns: item (Item Name), category (Category), price (Price), available (Available)
+      Sortable: true
+
+      ### button
+      Text: "Submit Order"
+      Variant: primary
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["order", "menu"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["table_number", "items", "dietary_notes"]
+        minRatio: 0.5
+    - type: icontains
+      value: "table"
+    - type: icontains
+      value: "button"
+
+# ---------------------------------------------------------------------------
+# 8. Employee Performance Review — contextual trigger, form + approval-gate
+# ---------------------------------------------------------------------------
+- description: "Performance review with contextual trigger"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** performance-review
+      **Domain:** human-resources
+      **Description:** Quarterly employee performance review process. Manager fills out evaluation form with ratings and feedback, then routes through HR approval before sharing with the employee.
+      **Business Rules:** Employee salary and performance scores are sensitive. Manager must provide written justification for ratings below "Meets Expectations". HR approval required before employee sees results. Review period dates are mandatory.
+      **When to Display Components:** When the conversation context indicates the manager wants to submit or start a performance evaluation — for example, discussing employee progress, quarterly reviews, or mentioning performance feedback.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - employee_name (text, label: "Employee Name", required: true, sensitive: false)
+      - employee_id (text, label: "Employee ID", required: true, sensitive: false)
+      - review_period (text, label: "Review Period", required: true, sensitive: false)
+      - overall_rating (select, label: "Overall Rating", required: true, sensitive: true)
+      - strengths (textarea, label: "Key Strengths", required: true, sensitive: false)
+      - areas_for_improvement (textarea, label: "Areas for Improvement", required: true, sensitive: false)
+      - salary_recommendation (number, label: "Salary Adjustment (%)", required: false, sensitive: true)
+
+      ### approval-gate
+      Title: HR Review Approval
+      Required approvers: 1
+      Allowed roles: hr-manager, hr-director
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: contextual
+        contextHints: ["performance", "review", "evaluat", "feedback", "quarterly"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["employee_name", "overall_rating", "strengths", "areas_for_improvement", "salary_recommendation"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "approval"
+
+# ---------------------------------------------------------------------------
+# 9. Compliance Audit — keyword trigger, form + tasklist + callout
+# ---------------------------------------------------------------------------
+- description: "Compliance audit with checklist and warning callouts"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** compliance-audit
+      **Domain:** legal
+      **Description:** Regulatory compliance audit workflow. Auditor fills out findings form, works through a compliance checklist, and the system displays warning callouts for any non-compliant items.
+      **Business Rules:** Audit findings with severity "critical" must trigger an error callout. All audit evidence references are required. Auditor email is sensitive. Checklist items must all be completed before the audit can be finalized.
+      **When to Display Components:** When the user says one of these keywords or phrases: start audit, compliance check, begin assessment, regulatory review. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - audit_title (text, label: "Audit Title", required: true, sensitive: false)
+      - auditor_email (email, label: "Auditor Email", required: true, sensitive: true)
+      - department (select, label: "Department Under Audit", required: true, sensitive: false)
+      - finding_severity (select, label: "Finding Severity", required: true, sensitive: false)
+      - finding_description (textarea, label: "Finding Description", required: true, sensitive: false)
+      - evidence_reference (text, label: "Evidence Reference", required: true, sensitive: false)
+
+      ### tasklist
+      Items: Review policies, Check access controls, Verify data retention, Audit trail review, Interview stakeholders, Document findings
+
+      ### callout
+      Variant: warning
+      Used for: flagging non-compliant findings
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["audit", "compliance", "assessment"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["audit_title", "auditor_email", "department", "finding_severity", "finding_description"]
+        minRatio: 0.5
+    - type: icontains
+      value: "callout"
+    - type: icontains
+      value: "tasklist"
+
+# ---------------------------------------------------------------------------
+# 10. Real Estate Listing — immediate trigger, form + chart + table
+# ---------------------------------------------------------------------------
+- description: "Real estate listing with analytics chart and comparisons table"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** property-listing
+      **Domain:** real-estate
+      **Description:** Property listing assistant that collects property details, displays market comparison data in a table, and shows price trend charts for the neighborhood.
+      **Business Rules:** Owner SSN and bank details are sensitive. Property address is required. Price comparisons table must be sortable. Chart should show 12-month price trends. Square footage and bedrooms are mandatory fields.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - property_address (text, label: "Property Address", required: true, sensitive: false)
+      - owner_name (text, label: "Owner Name", required: true, sensitive: false)
+      - owner_ssn (text, label: "Owner SSN", required: false, sensitive: true)
+      - listing_price (number, label: "Listing Price ($)", required: true, sensitive: false)
+      - bedrooms (number, label: "Bedrooms", required: true, sensitive: false)
+      - square_footage (number, label: "Square Footage", required: true, sensitive: false)
+      - property_type (select, label: "Property Type", required: true, sensitive: false)
+
+      ### table
+      Columns: address (Address), price (Price), sqft (Sq Ft), beds (Beds), sold_date (Sold Date)
+      Sortable: true
+
+      ### chart
+      Variant: bar
+      Label: "12-Month Price Trend"
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["property_address", "listing_price", "bedrooms", "square_footage", "owner_ssn"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "chart"
+
+# ---------------------------------------------------------------------------
+# 11. IT Asset Management — keyword trigger, form + webhook
+# ---------------------------------------------------------------------------
+- description: "IT asset tracking with webhook integration"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** asset-management
+      **Domain:** IT operations
+      **Description:** IT asset lifecycle tracking. When new hardware arrives or is decommissioned, capture asset details and fire a webhook to update the CMDB (Configuration Management Database).
+      **Business Rules:** Serial numbers and MAC addresses are sensitive. Asset tag is always required and must be unique. Webhook fires to CMDB API on form submission. Purchase cost should be tracked.
+      **When to Display Components:** When the user says one of these keywords or phrases: new asset, register device, decommission, asset check-in, hardware received. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - asset_tag (text, label: "Asset Tag", required: true, sensitive: false)
+      - device_type (select, label: "Device Type", required: true, sensitive: false)
+      - manufacturer (text, label: "Manufacturer", required: true, sensitive: false)
+      - serial_number (text, label: "Serial Number", required: true, sensitive: true)
+      - mac_address (text, label: "MAC Address", required: false, sensitive: true)
+      - assigned_to (email, label: "Assigned To (Email)", required: false, sensitive: false)
+      - purchase_cost (number, label: "Purchase Cost ($)", required: true, sensitive: false)
+
+      ### webhook
+      URL: https://cmdb.internal.company.com/api/assets
+      Method: POST
+      Trigger: on form submission
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["asset", "register", "decommission", "hardware"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["asset_tag", "serial_number", "mac_address", "device_type", "purchase_cost"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "webhook"
+
+# ---------------------------------------------------------------------------
+# 12. Event Registration — keyword trigger, form + button + callout
+# ---------------------------------------------------------------------------
+- description: "Event registration with confirmation callout"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** event-registration
+      **Domain:** events
+      **Description:** Conference and event registration workflow. Collects attendee info, dietary preferences, and session choices. Shows a success callout on registration and a register button.
+      **Business Rules:** Attendee email and phone are sensitive. Early-bird pricing ends March 15. T-shirt size is optional. Show a success callout confirming registration details. Limit 500 attendees.
+      **When to Display Components:** When the user says one of these keywords or phrases: register for event, sign up, attend conference, book tickets. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - attendee_name (text, label: "Full Name", required: true, sensitive: false)
+      - email (email, label: "Email Address", required: true, sensitive: true)
+      - phone (text, label: "Phone Number", required: false, sensitive: true)
+      - company (text, label: "Company / Organization", required: false, sensitive: false)
+      - ticket_type (select, label: "Ticket Type", required: true, sensitive: false)
+      - dietary_preference (select, label: "Dietary Preference", required: false, sensitive: false)
+      - tshirt_size (select, label: "T-Shirt Size", required: false, sensitive: false)
+
+      ### button
+      Text: "Complete Registration"
+      Variant: primary
+
+      ### callout
+      Variant: success
+      Used for: confirming successful registration
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["register", "sign up", "conference", "event"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["attendee_name", "email", "ticket_type", "dietary_preference"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "callout"
+
+# ---------------------------------------------------------------------------
+# 13. Insurance Claim — contextual trigger, form + approval-gate + webhook
+# ---------------------------------------------------------------------------
+- description: "Insurance claim with contextual trigger and multi-step approval"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** insurance-claim
+      **Domain:** insurance
+      **Description:** Auto insurance claim filing and adjudication. Collects accident details, vehicle info, and injury data. Routes through claims adjuster approval. Webhook notifies the claims management system.
+      **Business Rules:** Driver license number, policy number, and injury details are sensitive. Claims over $25k require senior adjuster approval. Photos of damage are referenced but not uploaded. Police report number is required for accidents involving injuries.
+      **When to Display Components:** When the user describes an accident, mentions filing a claim, or discusses vehicle damage — generate the claims form contextually based on the conversation.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - policy_number (text, label: "Policy Number", required: true, sensitive: true)
+      - claimant_name (text, label: "Claimant Name", required: true, sensitive: false)
+      - driver_license (text, label: "Driver License Number", required: true, sensitive: true)
+      - accident_date (date, label: "Date of Accident", required: true, sensitive: false)
+      - accident_description (textarea, label: "Accident Description", required: true, sensitive: false)
+      - injury_details (textarea, label: "Injury Details", required: false, sensitive: true)
+      - estimated_damage (number, label: "Estimated Damage ($)", required: true, sensitive: false)
+      - police_report_number (text, label: "Police Report Number", required: false, sensitive: false)
+
+      ### approval-gate
+      Title: Claims Adjuster Review
+      Required approvers: 1
+      Allowed roles: claims-adjuster, senior-adjuster
+
+      ### webhook
+      URL: https://claims-api.insurance.com/claims
+      Method: POST
+      Trigger: on approval
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: contextual
+        contextHints: ["accident", "claim", "damage", "vehicle"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["policy_number", "driver_license", "accident_date", "accident_description", "estimated_damage"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "approval"
+
+# ---------------------------------------------------------------------------
+# 14. Student Enrollment — immediate trigger, form + tasklist
+# ---------------------------------------------------------------------------
+- description: "Student enrollment with checklist and immediate trigger"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** student-enrollment
+      **Domain:** education
+      **Description:** University student enrollment workflow. Collects student personal data, program selection, and prior education history. Tracks enrollment steps via a checklist.
+      **Business Rules:** Student SSN, date of birth, and transcript records are sensitive. GPA must be provided. Program selection uses a dropdown with available programs. All enrollment steps must be completed before term start.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - student_name (text, label: "Student Full Name", required: true, sensitive: false)
+      - date_of_birth (date, label: "Date of Birth", required: true, sensitive: true)
+      - student_ssn (text, label: "Social Security Number", required: true, sensitive: true)
+      - email (email, label: "Student Email", required: true, sensitive: false)
+      - program (select, label: "Program of Study", required: true, sensitive: false)
+      - gpa (number, label: "Current GPA", required: true, sensitive: false)
+      - previous_institution (text, label: "Previous Institution", required: false, sensitive: false)
+
+      ### tasklist
+      Items: Submit transcripts, Pay enrollment deposit, Complete orientation, Submit immunization records, Register for courses, Set up student ID
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["student_name", "date_of_birth", "student_ssn", "program", "gpa"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "tasklist"
+
+# ---------------------------------------------------------------------------
+# 15. Travel Request — keyword trigger, form + approval-gate + button
+# ---------------------------------------------------------------------------
+- description: "Travel request with budget approval gate"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** travel-request
+      **Domain:** corporate
+      **Description:** Business travel request and approval workflow. Employee submits travel details and estimated costs, manager reviews and approves, then a booking confirmation button is enabled.
+      **Business Rules:** Passport number is sensitive. Travel over $5k requires VP approval in addition to manager. Per diem rates apply based on destination country. Return date must be after departure date. Conference/event name required if travel is for an event.
+      **When to Display Components:** When the user says one of these keywords or phrases: travel request, book trip, business travel, travel approval. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - employee_name (text, label: "Employee Name", required: true, sensitive: false)
+      - destination (text, label: "Destination City/Country", required: true, sensitive: false)
+      - departure_date (date, label: "Departure Date", required: true, sensitive: false)
+      - return_date (date, label: "Return Date", required: true, sensitive: false)
+      - purpose (select, label: "Travel Purpose", required: true, sensitive: false)
+      - estimated_cost (number, label: "Estimated Total Cost ($)", required: true, sensitive: false)
+      - passport_number (text, label: "Passport Number", required: false, sensitive: true)
+      - event_name (text, label: "Conference / Event Name", required: false, sensitive: false)
+
+      ### approval-gate
+      Title: Manager Travel Approval
+      Required approvers: 1
+      Allowed roles: manager, vp
+
+      ### button
+      Text: "Confirm Booking"
+      Variant: primary
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["travel", "book trip", "business travel"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["employee_name", "destination", "departure_date", "estimated_cost", "passport_number"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "approval"
+
+# ---------------------------------------------------------------------------
+# 16. Bug Report — keyword trigger, form only (minimal)
+# ---------------------------------------------------------------------------
+- description: "Simple bug report form — minimal single-component flow"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** bug-report
+      **Domain:** software-development
+      **Description:** Simple bug reporting form for an internal engineering team. Captures bug title, severity, steps to reproduce, and expected vs actual behavior.
+      **Business Rules:** No sensitive fields. All fields except "additional notes" are required. Severity uses a select dropdown. Steps to reproduce must be detailed.
+      **When to Display Components:** When the user says one of these keywords or phrases: report bug, found a bug, file issue, submit defect. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - bug_title (text, label: "Bug Title", required: true, sensitive: false)
+      - severity (select, label: "Severity", required: true, sensitive: false)
+      - steps_to_reproduce (textarea, label: "Steps to Reproduce", required: true, sensitive: false)
+      - expected_behavior (textarea, label: "Expected Behavior", required: true, sensitive: false)
+      - actual_behavior (textarea, label: "Actual Behavior", required: true, sensitive: false)
+      - additional_notes (textarea, label: "Additional Notes", required: false, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["bug", "issue", "defect"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["bug_title", "severity", "steps_to_reproduce", "expected_behavior", "actual_behavior"]
+        minRatio: 0.5
+
+# ---------------------------------------------------------------------------
+# 17. Expense Report — contextual trigger, form + chart + approval-gate
+# ---------------------------------------------------------------------------
+- description: "Expense report with spending chart and contextual trigger"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** expense-report
+      **Domain:** finance
+      **Description:** Monthly expense reporting workflow. Employee logs expenses with receipts, a pie chart summarizes spending by category, and a finance manager approves the report.
+      **Business Rules:** Credit card last 4 digits are sensitive. Each expense line must have a date, amount, and category. Categories: Travel, Meals, Equipment, Software, Office Supplies, Other. Reports over $2k need director approval.
+      **When to Display Components:** When the user mentions submitting expenses, asks about reimbursement, or discusses business spending — generate the expense form contextually.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - employee_name (text, label: "Employee Name", required: true, sensitive: false)
+      - report_period (text, label: "Report Period", required: true, sensitive: false)
+      - expense_date (date, label: "Expense Date", required: true, sensitive: false)
+      - category (select, label: "Category", required: true, sensitive: false)
+      - amount (number, label: "Amount ($)", required: true, sensitive: false)
+      - description (text, label: "Description", required: true, sensitive: false)
+      - card_last_four (text, label: "Card Last 4 Digits", required: false, sensitive: true)
+
+      ### chart
+      Variant: pie
+      Label: "Spending by Category"
+
+      ### approval-gate
+      Title: Finance Manager Approval
+      Required approvers: 1
+      Allowed roles: finance-manager, director
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: contextual
+        contextHints: ["expense", "reimburs", "spending", "receipt"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["employee_name", "category", "amount", "description", "card_last_four"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "chart"
+
+# ---------------------------------------------------------------------------
+# 18. Warehouse Receiving — keyword trigger, form + tasklist + webhook
+# ---------------------------------------------------------------------------
+- description: "Warehouse receiving with inspection checklist and webhook"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** warehouse-receiving
+      **Domain:** logistics
+      **Description:** Inbound shipment receiving workflow. Warehouse staff log incoming shipments, complete an inspection checklist, and fire a webhook to update the inventory management system.
+      **Business Rules:** No sensitive fields. PO number and supplier name are required. Inspection checklist must include damage check, quantity verification, and labeling. Webhook fires to WMS API on checklist completion.
+      **When to Display Components:** When the user says one of these keywords or phrases: shipment arrived, receive goods, incoming delivery, check in shipment. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - po_number (text, label: "Purchase Order Number", required: true, sensitive: false)
+      - supplier_name (text, label: "Supplier Name", required: true, sensitive: false)
+      - delivery_date (date, label: "Delivery Date", required: true, sensitive: false)
+      - carrier (text, label: "Carrier Name", required: false, sensitive: false)
+      - num_pallets (number, label: "Number of Pallets", required: true, sensitive: false)
+      - notes (textarea, label: "Receiving Notes", required: false, sensitive: false)
+
+      ### tasklist
+      Items: Verify PO matches packing slip, Check for visible damage, Count units received, Apply warehouse labels, Move to staging area, Update WMS
+
+      ### webhook
+      URL: https://wms.warehouse.com/api/receive
+      Method: POST
+      Trigger: on checklist completion
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["shipment", "receive", "delivery"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["po_number", "supplier_name", "delivery_date", "num_pallets"]
+        minRatio: 0.5
+    - type: icontains
+      value: "webhook"
+    - type: icontains
+      value: "tasklist"
+
+# ---------------------------------------------------------------------------
+# 19. Tenant Maintenance Request — keyword trigger, form + callout + button
+# ---------------------------------------------------------------------------
+- description: "Property maintenance request with urgency callout"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** maintenance-request
+      **Domain:** property-management
+      **Description:** Tenant maintenance request system. Tenants describe the issue, select urgency, and submit. Emergency requests display an error callout with emergency contact info. Submit button triggers work order creation.
+      **Business Rules:** Tenant phone number is sensitive. Unit number is required. Emergency issues (gas leak, flooding, fire damage) must show an error callout with the emergency maintenance hotline number. Non-emergency requests show an info callout with expected response time (48 hours).
+      **When to Display Components:** When the user says one of these keywords or phrases: maintenance request, something broke, need repair, fix my, submit work order. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - tenant_name (text, label: "Tenant Name", required: true, sensitive: false)
+      - unit_number (text, label: "Unit Number", required: true, sensitive: false)
+      - tenant_phone (text, label: "Phone Number", required: true, sensitive: true)
+      - issue_category (select, label: "Issue Category", required: true, sensitive: false)
+      - urgency (select, label: "Urgency Level", required: true, sensitive: false)
+      - issue_description (textarea, label: "Describe the Issue", required: true, sensitive: false)
+      - preferred_time (text, label: "Preferred Service Time", required: false, sensitive: false)
+
+      ### callout
+      Variant: error (for emergencies) / info (for standard requests)
+      Used for: displaying emergency contacts or expected response times
+
+      ### button
+      Text: "Submit Maintenance Request"
+      Variant: primary
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["maintenance", "repair", "broke", "work order"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["tenant_name", "unit_number", "tenant_phone", "issue_category", "urgency"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "callout"
+
+# ---------------------------------------------------------------------------
+# 20. Clinical Trial Enrollment — contextual trigger, form + approval-gate + tasklist + callout
+# ---------------------------------------------------------------------------
+- description: "Clinical trial enrollment with complex multi-component workflow"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** clinical-trial-enrollment
+      **Domain:** pharmaceuticals
+      **Description:** Clinical trial participant enrollment. Collects patient consent, medical history, and eligibility criteria. IRB (Institutional Review Board) approval required. Displays inclusion/exclusion criteria callout. Tracks enrollment steps via tasklist.
+      **Business Rules:** All patient medical data, SSN, and contact info are sensitive. IRB approval requires 2 reviewers with role: irb-member. Patients must meet all inclusion criteria and none of the exclusion criteria. Informed consent is mandatory. Age must be 18+.
+      **When to Display Components:** When the conversation indicates a potential trial participant — for example, when discussing eligibility, asking about enrollment, or when a clinician mentions screening a patient.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - participant_name (text, label: "Participant Full Name", required: true, sensitive: true)
+      - date_of_birth (date, label: "Date of Birth", required: true, sensitive: true)
+      - participant_ssn (text, label: "SSN", required: true, sensitive: true)
+      - email (email, label: "Contact Email", required: true, sensitive: true)
+      - phone (text, label: "Contact Phone", required: true, sensitive: true)
+      - medical_history (textarea, label: "Relevant Medical History", required: true, sensitive: true)
+      - current_medications (textarea, label: "Current Medications", required: true, sensitive: true)
+      - informed_consent (checkbox, label: "I provide informed consent to participate", required: true, sensitive: false)
+
+      ### approval-gate
+      Title: IRB Approval
+      Required approvers: 2
+      Allowed roles: irb-member
+
+      ### tasklist
+      Items: Verify eligibility criteria, Obtain informed consent, Complete baseline assessments, Assign participant ID, Schedule first visit, File IRB documentation
+
+      ### callout
+      Variant: info
+      Used for: displaying inclusion/exclusion criteria
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: contextual
+        contextHints: ["eligib", "enroll", "screen", "trial", "participant"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["participant_name", "date_of_birth", "medical_history", "current_medications", "informed_consent"]
+        minRatio: 0.5
+    - type: icontains
+      value: "sensitive"
+    - type: icontains
+      value: "approval"
+    - type: icontains
+      value: "tasklist"
+
+# ===========================================================================
+# COMPONENT SCOPE COMPLIANCE TESTS (21-25)
+#
+# These tests verify the LLM only includes components that were explicitly
+# requested. The user reported that requesting only "form + thinking" still
+# generates approval-gates, tasklists, webhooks, etc.
+# Each test uses llm-rubric to catch hallucinated components.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# 21. Form-only — must NOT add approval-gate, tasklist, webhook, button, etc.
+# ---------------------------------------------------------------------------
+- description: "Form-only config must not hallucinate extra components"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** incident-triage
+      **Domain:** engineering
+      **Description:** Production incident triage workflow that captures severity, affected services, and timeline, then routes through an on-call approval gate before executing remediation steps.
+      **Business Rules:** Severity P1/P2 incidents require VP-level approval. All incidents must have a root cause analysis tasklist completed within 48 hours. Slack and PagerDuty webhooks must fire on escalation.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - incident_title (text, label: "Incident Title", required: true, sensitive: false)
+      - severity (select, label: "Severity Level", required: true, sensitive: false)
+      - affected_services (textarea, label: "Affected Services", required: true, sensitive: false)
+      - start_time (date, label: "Incident Start Time", required: true, sensitive: false)
+      - reporter_email (email, label: "Reporter Email", required: true, sensitive: true)
+      - customer_impact (textarea, label: "Customer Impact Description", required: true, sensitive: false)
+      - estimated_users (number, label: "Estimated Users Affected", required: false, sensitive: false)
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["incident_title", "severity", "affected_services", "reporter_email", "customer_impact"]
+        minRatio: 0.5
+    - type: llm-rubric
+      value: |
+        The user's configuration ONLY requested these components: form and thinking.
+        The generated custom prompt MUST NOT include instructions, examples, or sections
+        for any of these unrequested components: approval-gate, tasklist, webhook, button,
+        table, chart, callout.
+
+        Evaluate the output and FAIL if:
+        - It contains a ```mdma block with type: approval-gate, type: tasklist, type: webhook,
+          type: button, type: table, type: chart, or type: callout
+        - It contains sections titled "Approval Gate", "Tasklist", "Webhook", "Button",
+          "Table", or "Chart" that provide instructions to generate those components
+        - It describes workflow logic involving components that were not requested
+
+        PASS if the output only describes form and thinking components.
+        Minor references to other component types in general context (e.g., "MDMA supports
+        approval-gates") are acceptable, but specific instructions to generate them are not.
+
+# ---------------------------------------------------------------------------
+# 22. Form + callout only — must NOT add approval-gate, webhook, tasklist
+# ---------------------------------------------------------------------------
+- description: "Form + callout config must not add approval-gate or webhook"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** order-status
+      **Domain:** e-commerce
+      **Description:** Order status lookup assistant. Customer provides order ID and the system displays order details in a form and shows a callout with shipping status. Business rules say the system should display an info callout with estimated delivery date and a warning callout if the order is delayed.
+      **Business Rules:** Customer email is sensitive. Order ID is required. Show info callout for on-time orders and warning callout for delayed orders. Do not collect payment info.
+      **When to Display Components:** When the user says one of these keywords or phrases: check order, order status, track my order, where is my package. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - order_id (text, label: "Order ID", required: true, sensitive: false)
+      - customer_email (email, label: "Customer Email", required: true, sensitive: true)
+
+      ### callout
+      Variant: info / warning
+      Used for: displaying shipping status and delivery estimates
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["order", "track", "package"]
+    - type: llm-rubric
+      value: |
+        The user's configuration ONLY requested these components: form, callout, and thinking.
+        The generated custom prompt MUST NOT include instructions, examples, or sections
+        for any of these unrequested components: approval-gate, tasklist, webhook, button,
+        table, chart.
+
+        Evaluate the output and FAIL if:
+        - It contains a ```mdma block with type: approval-gate, type: tasklist, type: webhook,
+          type: button, type: table, or type: chart
+        - It contains dedicated sections providing instructions to generate those unrequested components
+        - It describes workflow logic involving approval gates, webhooks, or tasklists
+
+        PASS if the output only describes form, callout, and thinking components.
+
+# ---------------------------------------------------------------------------
+# 23. Form + button only — must NOT add approval-gate, webhook, chart, table
+# ---------------------------------------------------------------------------
+- description: "Form + button config must not add approval or webhook logic"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** newsletter-signup
+      **Domain:** marketing
+      **Description:** Newsletter subscription form. User enters their email and name, then clicks a subscribe button. Simple two-component flow with no approval or backend integration needed.
+      **Business Rules:** Email is sensitive. Name is required. The subscribe button should be primary variant. No approval gates or webhooks are needed — this is a simple front-end form.
+      **When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - full_name (text, label: "Full Name", required: true, sensitive: false)
+      - email (email, label: "Email Address", required: true, sensitive: true)
+      - interests (select, label: "Topics of Interest", required: false, sensitive: false)
+
+      ### button
+      Text: "Subscribe"
+      Variant: primary
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: immediate
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["full_name", "email", "interests"]
+        minRatio: 0.6
+    - type: llm-rubric
+      value: |
+        The user's configuration ONLY requested these components: form, button, and thinking.
+        The generated custom prompt MUST NOT include instructions, examples, or sections
+        for any of these unrequested components: approval-gate, tasklist, webhook, table,
+        chart, callout.
+
+        Evaluate the output and FAIL if:
+        - It contains a ```mdma block with type: approval-gate, type: tasklist, type: webhook,
+          type: table, type: chart, or type: callout
+        - It contains dedicated sections instructing the LLM to generate those unrequested components
+        - It adds workflow logic involving approval, webhooks, or checklists
+
+        PASS if the output only describes form, button, and thinking components.
+        The configuration explicitly states "No approval gates or webhooks are needed."
+
+# ---------------------------------------------------------------------------
+# 24. Table + chart only — must NOT add form, approval-gate, webhook
+# ---------------------------------------------------------------------------
+- description: "Table + chart config must not add forms or approval gates"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** sales-dashboard
+      **Domain:** analytics
+      **Description:** Read-only sales analytics dashboard. Displays a summary table of regional sales data and a bar chart of revenue trends. No data collection or forms needed — this is a display-only view.
+      **Business Rules:** No sensitive data. Table must be sortable. Chart shows quarterly revenue. This is purely informational — no forms, no buttons, no approval gates. Just display the data.
+      **When to Display Components:** When the user says one of these keywords or phrases: show dashboard, sales report, revenue summary, quarterly numbers. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### table
+      Columns: region (Region), revenue (Revenue), growth (Growth %), deals (Deals Closed)
+      Sortable: true
+
+      ### chart
+      Variant: bar
+      Label: "Quarterly Revenue Trend"
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["dashboard", "sales", "revenue"]
+    - type: llm-rubric
+      value: |
+        The user's configuration ONLY requested these components: table, chart, and thinking.
+        The generated custom prompt MUST NOT include instructions, examples, or sections
+        for any of these unrequested components: form, approval-gate, tasklist, webhook,
+        button, callout.
+
+        Evaluate the output and FAIL if:
+        - It contains a ```mdma block with type: form, type: approval-gate, type: tasklist,
+          type: webhook, type: button, or type: callout
+        - It contains dedicated sections instructing the LLM to generate forms, buttons,
+          approval gates, or webhooks
+        - It adds data-collection or approval workflow logic
+
+        PASS if the output only describes table, chart, and thinking components.
+        The configuration explicitly states "No data collection or forms needed" and
+        "no forms, no buttons, no approval gates."
+
+# ---------------------------------------------------------------------------
+# 25. Form + tasklist only — must NOT add approval-gate, webhook, chart, callout
+# ---------------------------------------------------------------------------
+- description: "Form + tasklist config must not add approval-gate or webhook"
+  vars:
+    request: |
+      Generate a custom prompt based on this configuration:
+
+      ## User Configuration
+
+      **Flow Name:** daily-standup
+      **Domain:** project-management
+      **Description:** Daily standup capture form with a task checklist. Team members log what they did yesterday, what they're doing today, and any blockers. A tasklist tracks recurring standup preparation items.
+      **Business Rules:** No sensitive fields. All standup fields are required. Blockers field is optional. Tasklist items are simple preparation steps. No approvals needed — this is a flat team workflow with no hierarchy or gates.
+      **When to Display Components:** When the user says one of these keywords or phrases: standup, daily update, what did you do yesterday, scrum. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.
+
+      **Selected Components:**
+
+      ### form
+      Fields:
+      - team_member (text, label: "Team Member Name", required: true, sensitive: false)
+      - yesterday (textarea, label: "What did you do yesterday?", required: true, sensitive: false)
+      - today (textarea, label: "What are you doing today?", required: true, sensitive: false)
+      - blockers (textarea, label: "Any blockers?", required: false, sensitive: false)
+
+      ### tasklist
+      Items: Review yesterday's action items, Check Jira board updates, Prepare demo if needed, Update sprint burndown
+
+      ### thinking
+  assert:
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    - type: javascript
+      value: file://assertions/no-spec-repetition.mjs
+    - type: javascript
+      value: file://assertions/prompt-length.mjs
+    - type: javascript
+      value: file://assertions/mentions-trigger.mjs
+      config:
+        mode: keyword
+        keywords: ["standup", "daily", "scrum"]
+    - type: javascript
+      value: file://assertions/mentions-fields.mjs
+      config:
+        fields: ["team_member", "yesterday", "today", "blockers"]
+        minRatio: 0.6
+    - type: llm-rubric
+      value: |
+        The user's configuration ONLY requested these components: form, tasklist, and thinking.
+        The generated custom prompt MUST NOT include instructions, examples, or sections
+        for any of these unrequested components: approval-gate, webhook, button, table,
+        chart, callout.
+
+        Evaluate the output and FAIL if:
+        - It contains a ```mdma block with type: approval-gate, type: webhook, type: button,
+          type: table, type: chart, or type: callout
+        - It contains dedicated sections instructing the LLM to generate those unrequested components
+        - It adds approval or escalation workflow logic
+
+        PASS if the output only describes form, tasklist, and thinking components.
+        The configuration explicitly states "No approvals needed — this is a flat team
+        workflow with no hierarchy or gates."
