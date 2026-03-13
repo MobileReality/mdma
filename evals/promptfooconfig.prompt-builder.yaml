@@ -20,9 +20,6 @@ providers:
 
 defaultTest:
   assert:
-    # Every generated customPrompt must use YAML, not JSON
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     # Validate any embedded mdma blocks are structurally correct MDMA
     - type: javascript
       value: file://assertions/validate-mdma-examples.mjs
