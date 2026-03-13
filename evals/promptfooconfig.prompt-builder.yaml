@@ -1,0 +1,30 @@
+# CLI Prompt Builder — promptfoo evaluation config
+#
+# Tests the Master Prompt's ability to generate correct `customPrompt` values.
+# The LLM receives the Master Prompt as system + serialized user config as user message,
+# and must generate a domain-specific prompt with YAML examples (not JSON).
+#
+# Run:  pnpm eval:prompt-builder
+# View: pnpm eval:view
+
+description: CLI Prompt Builder Eval
+
+envPath: .env
+outputPath: results-prompt-builder.json
+
+prompts:
+  - file://prompt-builder.mjs
+
+providers:
+  - openai:gpt-4.1
+
+defaultTest:
+  assert:
+    # Every generated customPrompt must use YAML, not JSON
+    - type: javascript
+      value: file://assertions/yaml-not-json.mjs
+    # Validate any embedded mdma blocks are structurally correct MDMA
+    - type: javascript
+      value: file://assertions/validate-mdma-examples.mjs
+
+tests: tests-prompt-builder.yaml

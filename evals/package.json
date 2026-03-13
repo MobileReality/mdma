@@ -6,10 +6,12 @@
     "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; exit 0",
     "eval:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; exit 0",
     "eval:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; exit 0",
-    "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; exit 0",
+    "eval:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.prompt-builder.yaml; exit 0",
+    "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.prompt-builder.yaml; exit 0",
     "eval:view": "promptfoo view"
   },
   "dependencies": {
+    "@mobile-reality/mdma-cli": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
     "promptfoo": "0.109.0"
