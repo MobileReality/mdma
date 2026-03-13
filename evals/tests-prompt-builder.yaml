@@ -36,8 +36,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -88,8 +86,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -139,8 +135,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -188,8 +182,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -239,8 +231,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -300,8 +290,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -354,8 +342,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -411,8 +397,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -467,8 +451,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -527,8 +509,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -581,8 +561,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -640,8 +618,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -703,8 +679,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -756,8 +730,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -817,8 +789,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -866,8 +836,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -922,8 +890,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -981,8 +947,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -1039,8 +1003,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -1104,8 +1066,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -1165,8 +1125,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -1228,8 +1186,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -1283,8 +1239,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
@@ -1343,8 +1297,6 @@
       ### thinking
   assert:
     - type: javascript
-      value: file://assertions/yaml-not-json.mjs
-    - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
       value: file://assertions/prompt-length.mjs
@@ -1401,8 +1353,6 @@
 
       ### thinking
   assert:
-    - type: javascript
-      value: file://assertions/yaml-not-json.mjs
     - type: javascript
       value: file://assertions/no-spec-repetition.mjs
     - type: javascript
