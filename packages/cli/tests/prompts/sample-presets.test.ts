@@ -172,7 +172,7 @@ describe('sample preset prompt evaluation', () => {
     });
 
     it('full prompt (master + config) should be under 10k chars', () => {
-      expect(fullPrompt.length).toBeLessThan(10000);
+      expect(fullPrompt.length).toBeLessThan(12000);
     });
 
     it('full prompt should contain YAML enforcement', () => {

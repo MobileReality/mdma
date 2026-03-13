@@ -3,8 +3,8 @@ import type { DomainConfig, ComponentConfig } from './types.js';
 export function serializeConfig(domain: DomainConfig, components: ComponentConfig[]): string {
   const enabled = components.filter((c) => c.enabled);
   const lines: string[] = [
-    `## User Configuration`,
-    ``,
+    '## User Configuration',
+    '',
     `**Flow Name:** ${domain.name || '(not set)'}`,
     `**Domain:** ${domain.domain || '(not set)'}`,
     `**Description:** ${domain.description || '(not set)'}`,

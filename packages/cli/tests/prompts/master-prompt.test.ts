@@ -66,7 +66,7 @@ describe('MASTER_PROMPT content', () => {
 
   it('should contain all important rules', () => {
     expect(MASTER_PROMPT).toContain('Be specific');
-    expect(MASTER_PROMPT).toContain('Be practical');
+    expect(MASTER_PROMPT).toContain('Strict component scope');
     expect(MASTER_PROMPT).toContain('Be complete');
     expect(MASTER_PROMPT).toContain('Be concise');
     expect(MASTER_PROMPT).toContain('Respect the architecture');
