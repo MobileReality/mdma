@@ -1,7 +1,56 @@
-import type { DomainConfig, ComponentConfig } from './types.js';
+import type { DomainConfig, FlowStep, ComponentConfig } from './types.js';
 
-export function serializeConfig(domain: DomainConfig, components: ComponentConfig[]): string {
-  const enabled = components.filter((c) => c.enabled);
+function serializeTrigger(step: FlowStep): string {
+  switch (step.triggerMode) {
+    case 'immediate':
+      return 'Immediately when the conversation starts';
+    case 'keyword':
+      return step.trigger
+        ? `When the user says: ${step.trigger}`
+        : 'When the user says a specific keyword or phrase';
+    case 'form-submit':
+      return 'After the user submits the form/component from the previous step';
+    case 'contextual':
+      return step.trigger || 'Based on conversation context';
+  }
+}
+
+function serializeStepComponent(comp: ComponentConfig): string[] {
+  const lines: string[] = [];
+  lines.push(`  - **${comp.type}**`);
+
+  if (comp.type === 'form' && comp.form?.fields.length) {
+    lines.push('    Fields:');
+    for (const f of comp.form.fields) {
+      lines.push(`    - ${f.name} (${f.type}, label: "${f.label}", required: ${f.required}, sensitive: ${f.sensitive})`);
+    }
+  }
+
+  if (comp.type === 'approval-gate' && comp.approvalGate) {
+    const ag = comp.approvalGate;
+    lines.push(`    Roles: ${ag.roles.join(', ') || '(none)'}`);
+    lines.push(`    Required approvers: ${ag.requiredApprovers}`);
+    lines.push(`    Require reason on denial: ${ag.requireReason}`);
+  }
+
+  if (comp.type === 'tasklist' && comp.tasklist?.items.length) {
+    lines.push('    Items:');
+    for (const item of comp.tasklist.items) {
+      lines.push(`    - ${item}`);
+    }
+  }
+
+  if (comp.type === 'table' && comp.table?.columns.length) {
+    lines.push('    Columns:');
+    for (const col of comp.table.columns) {
+      lines.push(`    - ${col.key}: "${col.header}"`);
+    }
+  }
+
+  return lines;
+}
+
+export function serializeConfig(domain: DomainConfig): string {
   const lines: string[] = [
     '## User Configuration',
     '',
@@ -14,48 +63,47 @@ export function serializeConfig(domain: DomainConfig, components: ComponentConfi
     lines.push(`**Business Rules:** ${domain.businessRules}`);
   }
 
-  if (domain.triggerMode === 'immediate') {
-    lines.push('**When to Display Components:** Immediately when the conversation starts — always respond with MDMA components in the first message.');
-  } else if (domain.triggerMode === 'keyword' && domain.trigger) {
-    lines.push(`**When to Display Components:** When the user says one of these keywords or phrases: ${domain.trigger}. Only generate MDMA components when triggered by these phrases, otherwise respond with plain text.`);
-  } else if (domain.triggerMode === 'contextual' && domain.trigger) {
-    lines.push(`**When to Display Components:** ${domain.trigger}`);
-  }
+  // Conversation flow with per-step components
+  if (domain.flowSteps.length > 0) {
+    lines.push('', '**Conversation Flow:**', '');
+    for (let i = 0; i < domain.flowSteps.length; i++) {
+      const step = domain.flowSteps[i];
+      lines.push(`Step ${i + 1} — ${step.label || `Step ${i + 1}`}`);
+      lines.push(`  Trigger: ${serializeTrigger(step)}`);
 
-  lines.push('', '**Selected Components:**', '');
+      const enabled = step.components.filter((c) => c.enabled);
+      if (enabled.length > 0) {
+        lines.push('  Components:');
+        for (const comp of enabled) {
+          lines.push(...serializeStepComponent(comp));
+        }
+      }
 
-  for (const comp of enabled) {
-    lines.push(`### ${comp.type}`);
+      if (step.description) {
+        lines.push(`  ${step.description}`);
+      }
+      lines.push('');
+    }
 
-    if (comp.type === 'form' && comp.form?.fields.length) {
-      lines.push('Fields:');
-      for (const f of comp.form.fields) {
-        lines.push(`- ${f.name} (${f.type}, label: "${f.label}", required: ${f.required}, sensitive: ${f.sensitive})`);
+    // Derive global component type summary
+    const allTypes = new Set<string>();
+    for (const step of domain.flowSteps) {
+      for (const comp of step.components) {
+        if (comp.enabled) allTypes.add(comp.type);
       }
     }
-
-    if (comp.type === 'approval-gate' && comp.approvalGate) {
-      const ag = comp.approvalGate;
-      lines.push(`Roles: ${ag.roles.join(', ') || '(none)'}`);
-      lines.push(`Required approvers: ${ag.requiredApprovers}`);
-      lines.push(`Require reason on denial: ${ag.requireReason}`);
+    if (allTypes.size > 0) {
+      lines.push(`**All Component Types Used:** ${[...allTypes].join(', ')}`, '');
     }
 
-    if (comp.type === 'tasklist' && comp.tasklist?.items.length) {
-      lines.push('Items:');
-      for (const item of comp.tasklist.items) {
-        lines.push(`- ${item}`);
-      }
+    // Count forms across all steps
+    let formCount = 0;
+    for (const step of domain.flowSteps) {
+      formCount += step.components.filter((c) => c.enabled && c.type === 'form').length;
     }
-
-    if (comp.type === 'table' && comp.table?.columns.length) {
-      lines.push('Columns:');
-      for (const col of comp.table.columns) {
-        lines.push(`- ${col.key}: "${col.header}"`);
-      }
+    if (formCount > 0) {
+      lines.push(`**IMPORTANT:** Your output MUST include concrete \`\`\`mdma code block examples for all ${formCount} form(s) defined above. Each form must include onSubmit and all specified fields.`, '');
     }
-
-    lines.push('');
   }
 
   return lines.join('\n');

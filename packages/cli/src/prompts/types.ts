@@ -40,13 +40,20 @@ export interface ComponentConfig {
   table?: TableConfig;
 }
 
-export type TriggerMode = 'keyword' | 'immediate' | 'contextual';
+export type StepTriggerMode = 'immediate' | 'keyword' | 'form-submit' | 'contextual';
+
+export interface FlowStep {
+  label: string;
+  triggerMode: StepTriggerMode;
+  trigger: string;
+  components: ComponentConfig[];
+  description: string;
+}
 
 export interface DomainConfig {
   name: string;
   domain: string;
   description: string;
   businessRules: string;
-  triggerMode: TriggerMode;
-  trigger: string;
+  flowSteps: FlowStep[];
 }

@@ -37,6 +37,7 @@
     "yaml": "^2.6.0"
   },
   "devDependencies": {
+    "@mobile-reality/mdma-attachables-core": "workspace:^",
     "@mobile-reality/mdma-parser": "workspace:*",
     "@mobile-reality/mdma-renderer-react": "workspace:*",
     "@mobile-reality/mdma-runtime": "workspace:*",

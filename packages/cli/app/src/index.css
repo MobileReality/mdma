@@ -61,3 +61,23 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-muted);
 }
+
+/* Override renderer defaults for preview chat */
+@layer base {
+  .mdma-document {
+    max-width: none !important;
+    margin: 0 !important;
+  }
+
+  .mdma-form,
+  .mdma-tasklist,
+  .mdma-table,
+  .mdma-callout,
+  .mdma-approval-gate,
+  .mdma-webhook,
+  .mdma-thinking {
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+}

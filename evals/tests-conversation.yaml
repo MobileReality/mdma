@@ -25,6 +25,7 @@
       ```mdma
       type: form
       id: contact-form
+      onSubmit: submit-contact-form
       fields:
         - name: full-name
           type: text
@@ -67,6 +68,7 @@
       ```mdma
       type: form
       id: contact-form
+      onSubmit: submit-contact-form
       fields:
         - name: full-name
           type: text
@@ -109,6 +111,7 @@
       ```mdma
       type: form
       id: employee-info
+      onSubmit: submit-employee-info
       fields:
         - name: full-name
           type: text
@@ -163,6 +166,7 @@
       ```mdma
       type: form
       id: employee-info
+      onSubmit: submit-employee-info
       fields:
         - name: full-name
           type: text
@@ -217,6 +221,7 @@
       ```mdma
       type: form
       id: registration-form
+      onSubmit: submit-registration-form
       fields:
         - name: username
           type: text
@@ -264,6 +269,7 @@
       ```mdma
       type: form
       id: registration-form
+      onSubmit: submit-registration-form
       fields:
         - name: username
           type: text
@@ -311,6 +317,7 @@
       ```mdma
       type: form
       id: feedback-form
+      onSubmit: submit-feedback-form
       fields:
         - name: your-name
           type: text
@@ -359,6 +366,7 @@
       ```mdma
       type: form
       id: feedback-form
+      onSubmit: submit-feedback-form
       fields:
         - name: your-name
           type: text
@@ -409,6 +417,7 @@
       ```mdma
       type: form
       id: order-form
+      onSubmit: submit-order-form
       fields:
         - name: product-name
           type: text
@@ -449,6 +458,7 @@
       ```mdma
       type: form
       id: order-form
+      onSubmit: submit-order-form
       fields:
         - name: product-name
           type: text
@@ -565,6 +575,7 @@
       ```mdma
       type: form
       id: support-ticket
+      onSubmit: submit-support-ticket
       fields:
         - name: subject
           type: text
@@ -612,6 +623,7 @@
       ```mdma
       type: form
       id: support-ticket
+      onSubmit: submit-support-ticket
       fields:
         - name: subject
           type: text
@@ -659,6 +671,7 @@
       ```mdma
       type: form
       id: incident-report
+      onSubmit: submit-incident-report
       fields:
         - name: title
           type: text
@@ -731,6 +744,7 @@
       ```mdma
       type: form
       id: incident-report
+      onSubmit: submit-incident-report
       fields:
         - name: title
           type: text
@@ -803,6 +817,7 @@
       ```mdma
       type: form
       id: task-form
+      onSubmit: submit-task-form
       fields:
         - name: task-title
           type: text
@@ -854,6 +869,7 @@
       ```mdma
       type: form
       id: task-form
+      onSubmit: submit-task-form
       fields:
         - name: task-title
           type: text
@@ -905,6 +921,7 @@
       ```mdma
       type: form
       id: expense-form
+      onSubmit: submit-expense-form
       fields:
         - name: amount
           type: number
@@ -968,6 +985,7 @@
       ```mdma
       type: form
       id: expense-form
+      onSubmit: submit-expense-form
       fields:
         - name: amount
           type: number
@@ -1031,6 +1049,7 @@
       ```mdma
       type: form
       id: event-registration
+      onSubmit: submit-event-registration
       fields:
         - name: attendee-name
           type: text
@@ -1087,6 +1106,7 @@
       ```mdma
       type: form
       id: event-registration
+      onSubmit: submit-event-registration
       fields:
         - name: attendee-name
           type: text
@@ -1137,6 +1157,7 @@
       ```mdma
       type: form
       id: event-registration
+      onSubmit: submit-event-registration
       fields:
         - name: attendee-name
           type: text
@@ -1187,6 +1208,7 @@
       ```mdma
       type: form
       id: event-registration
+      onSubmit: submit-event-registration
       fields:
         - name: attendee-name
           type: text
@@ -1237,6 +1259,7 @@
       ```mdma
       type: form
       id: event-registration
+      onSubmit: submit-event-registration
       fields:
         - name: attendee-name
           type: text
@@ -1276,3 +1299,360 @@
       value: file://assertions/no-mdma-regeneration.mjs
     - type: javascript
       value: file://assertions/no-yaml-leak.mjs
+
+# ===================================================================
+# Conversation 12 — E2E 2-step: KYC form then compliance review form
+# Tests that the AI generates the RIGHT form at the RIGHT step.
+# ===================================================================
+
+# Turn 1: User triggers step 1 — should get applicant data form only
+- description: "Conv 12/T1: Keyword triggers step 1 KYC form"
+  vars:
+    customPrompt: |
+      You are a KYC verification assistant in the financial services domain.
+
+      ### Conversation Flow
+
+      **Step 1 — Collect Applicant Data**
+      When the user says "start KYC", "verify identity", or "new customer verification",
+      generate a form to collect applicant information. Do NOT show the compliance review
+      form yet — that comes after this form is submitted.
+
+      ```mdma
+      type: form
+      id: kyc-applicant-form
+      onSubmit: submit-kyc-applicant-form
+      fields:
+        - name: full_name
+          type: text
+          label: "Full Legal Name"
+          required: true
+        - name: date_of_birth
+          type: date
+          label: "Date of Birth"
+          required: true
+          sensitive: true
+        - name: id_number
+          type: text
+          label: "Government ID Number"
+          required: true
+          sensitive: true
+        - name: email
+          type: email
+          label: "Email Address"
+          required: true
+          sensitive: true
+      ```
+
+      **Step 2 — Compliance Review**
+      After the user submits the applicant form, generate a second form for the
+      compliance officer's review. Do NOT show this form before step 1 is completed.
+
+      ```mdma
+      type: form
+      id: compliance-review-form
+      onSubmit: submit-compliance-review-form
+      fields:
+        - name: reviewer_name
+          type: text
+          label: "Reviewer Name"
+          required: true
+        - name: risk_rating
+          type: select
+          label: "Risk Rating"
+          options:
+            - label: Low
+              value: low
+            - label: Medium
+              value: medium
+            - label: High
+              value: high
+        - name: review_notes
+          type: textarea
+          label: "Review Notes"
+          required: true
+      ```
+
+      Important: Only show ONE form at a time. Step 1 form on keyword trigger,
+      step 2 form after step 1 submission.
+    message: I need to start KYC for a new customer.
+  metadata:
+    conversationId: conv-12
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: not-icontains
+      value: "reviewer_name"
+    - type: not-icontains
+      value: "risk_rating"
+
+# Turn 2: User submits form → should get compliance review form, NOT step 1 again
+- description: "Conv 12/T2: Form submission triggers step 2 compliance review form"
+  vars:
+    customPrompt: |
+      You are a KYC verification assistant in the financial services domain.
+
+      ### Conversation Flow
+
+      **Step 1 — Collect Applicant Data**
+      When the user says "start KYC", "verify identity", or "new customer verification",
+      generate a form to collect applicant information. Do NOT show the compliance review
+      form yet — that comes after this form is submitted.
+
+      ```mdma
+      type: form
+      id: kyc-applicant-form
+      onSubmit: submit-kyc-applicant-form
+      fields:
+        - name: full_name
+          type: text
+          label: "Full Legal Name"
+          required: true
+        - name: date_of_birth
+          type: date
+          label: "Date of Birth"
+          required: true
+          sensitive: true
+        - name: id_number
+          type: text
+          label: "Government ID Number"
+          required: true
+          sensitive: true
+        - name: email
+          type: email
+          label: "Email Address"
+          required: true
+          sensitive: true
+      ```
+
+      **Step 2 — Compliance Review**
+      After the user submits the applicant form, generate a second form for the
+      compliance officer's review. Do NOT show this form before step 1 is completed.
+
+      ```mdma
+      type: form
+      id: compliance-review-form
+      onSubmit: submit-compliance-review-form
+      fields:
+        - name: reviewer_name
+          type: text
+          label: "Reviewer Name"
+          required: true
+        - name: risk_rating
+          type: select
+          label: "Risk Rating"
+          options:
+            - label: Low
+              value: low
+            - label: Medium
+              value: medium
+            - label: High
+              value: high
+        - name: review_notes
+          type: textarea
+          label: "Review Notes"
+          required: true
+      ```
+
+      Important: Only show ONE form at a time. Step 1 form on keyword trigger,
+      step 2 form after step 1 submission.
+    message: "I've submitted the applicant form. The customer is John Smith, DOB 1985-03-15, ID A12345678, email john@example.com. Please proceed with compliance review."
+  metadata:
+    conversationId: conv-12
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 3
+    - type: icontains
+      value: "reviewer_name"
+    - type: not-icontains
+      value: "id_number"
+
+# ===================================================================
+# Conversation 13 — E2E 2-step: Insurance claim then damage assessment
+# ===================================================================
+
+# Turn 1: User triggers step 1 — should get claim form only
+- description: "Conv 13/T1: Keyword triggers step 1 insurance claim form"
+  vars:
+    customPrompt: |
+      You are an insurance claims assistant.
+
+      ### Conversation Flow
+
+      **Step 1 — File Claim**
+      When the user says "file claim", "new claim", or "report damage",
+      generate a form to collect initial claim information.
+
+      ```mdma
+      type: form
+      id: claim-form
+      onSubmit: submit-claim-form
+      fields:
+        - name: claimant_name
+          type: text
+          label: "Claimant Name"
+          required: true
+        - name: policy_number
+          type: text
+          label: "Policy Number"
+          required: true
+          sensitive: true
+        - name: incident_date
+          type: date
+          label: "Date of Incident"
+          required: true
+        - name: incident_description
+          type: textarea
+          label: "Incident Description"
+          required: true
+      ```
+
+      **Step 2 — Damage Assessment**
+      After the claim form is submitted, generate a second form for damage
+      assessment. Do NOT show this before step 1 is completed.
+
+      ```mdma
+      type: form
+      id: damage-assessment-form
+      onSubmit: submit-damage-assessment-form
+      fields:
+        - name: damage_type
+          type: select
+          label: "Damage Type"
+          required: true
+          options:
+            - label: Water Damage
+              value: water
+            - label: Fire Damage
+              value: fire
+            - label: Theft
+              value: theft
+            - label: Other
+              value: other
+        - name: estimated_cost
+          type: number
+          label: "Estimated Repair Cost ($)"
+          required: true
+        - name: adjuster_notes
+          type: textarea
+          label: "Adjuster Notes"
+      ```
+
+      Only show ONE form at a time.
+    message: I need to file a new insurance claim for water damage to my property.
+  metadata:
+    conversationId: conv-13
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: not-icontains
+      value: "damage_type"
+    - type: not-icontains
+      value: "estimated_cost"
+
+# Turn 2: User submits claim → should get damage assessment form, NOT claim form again
+- description: "Conv 13/T2: Claim submission triggers step 2 damage assessment form"
+  vars:
+    customPrompt: |
+      You are an insurance claims assistant.
+
+      ### Conversation Flow
+
+      **Step 1 — File Claim**
+      When the user says "file claim", "new claim", or "report damage",
+      generate a form to collect initial claim information.
+
+      ```mdma
+      type: form
+      id: claim-form
+      onSubmit: submit-claim-form
+      fields:
+        - name: claimant_name
+          type: text
+          label: "Claimant Name"
+          required: true
+        - name: policy_number
+          type: text
+          label: "Policy Number"
+          required: true
+          sensitive: true
+        - name: incident_date
+          type: date
+          label: "Date of Incident"
+          required: true
+        - name: incident_description
+          type: textarea
+          label: "Incident Description"
+          required: true
+      ```
+
+      **Step 2 — Damage Assessment**
+      After the claim form is submitted, generate a second form for damage
+      assessment. Do NOT show this before step 1 is completed.
+
+      ```mdma
+      type: form
+      id: damage-assessment-form
+      onSubmit: submit-damage-assessment-form
+      fields:
+        - name: damage_type
+          type: select
+          label: "Damage Type"
+          required: true
+          options:
+            - label: Water Damage
+              value: water
+            - label: Fire Damage
+              value: fire
+            - label: Theft
+              value: theft
+            - label: Other
+              value: other
+        - name: estimated_cost
+          type: number
+          label: "Estimated Repair Cost ($)"
+          required: true
+        - name: adjuster_notes
+          type: textarea
+          label: "Adjuster Notes"
+      ```
+
+      Only show ONE form at a time.
+    message: "Claim submitted. Claimant: Jane Doe, Policy: POL-2024-789, Date: 2024-12-20, Description: burst pipe flooded kitchen. Please proceed to damage assessment."
+  metadata:
+    conversationId: conv-13
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 3
+    - type: icontains
+      value: "damage_type"
+    - type: not-icontains
+      value: "policy_number"

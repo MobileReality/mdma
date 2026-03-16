@@ -1,4 +1,4 @@
-import type { DomainConfig, TriggerMode } from '../hooks/use-prompt-builder.js';
+import type { DomainConfig } from '../hooks/use-prompt-builder.js';
 
 interface DomainFormProps {
   domain: DomainConfig;
@@ -6,19 +6,9 @@ interface DomainFormProps {
   onSample: () => void;
 }
 
-const TRIGGER_OPTIONS: { mode: TriggerMode; label: string; description: string }[] = [
-  { mode: 'keyword', label: 'Keyword / Phrase', description: 'User says a specific word or phrase' },
-  { mode: 'immediate', label: 'Immediate', description: 'Right when conversation starts' },
-  { mode: 'contextual', label: 'Contextual', description: 'Based on conversation context' },
-];
-
 export function DomainForm({ domain, onChange, onSample }: DomainFormProps) {
   const update = (key: keyof DomainConfig, value: string) => {
     onChange({ ...domain, [key]: value });
-  };
-
-  const setTriggerMode = (mode: TriggerMode) => {
-    onChange({ ...domain, triggerMode: mode, trigger: mode === 'immediate' ? '' : domain.trigger });
   };
 
   return (
@@ -78,55 +68,6 @@ export function DomainForm({ domain, onChange, onSample }: DomainFormProps) {
           className="px-2.5 py-2 border border-border rounded-md bg-surface-2 text-text-primary text-sm outline-none resize-y focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-[inherit]"
         />
       </label>
-
-      <div className="flex flex-col gap-1.5">
-        <span className="text-xs font-medium text-text-secondary">When to Display</span>
-        <div className="flex gap-1.5">
-          {TRIGGER_OPTIONS.map((opt) => (
-            <button
-              key={opt.mode}
-              type="button"
-              onClick={() => setTriggerMode(opt.mode)}
-              title={opt.description}
-              className={`
-                flex-1 px-2.5 py-1.5 border rounded text-xs font-medium text-center cursor-pointer transition-colors
-                ${domain.triggerMode === opt.mode
-                  ? 'border-primary text-primary-text bg-primary-light'
-                  : 'border-border text-text-secondary bg-surface-2 hover:bg-surface-3'
-                }
-              `}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-
-        {domain.triggerMode === 'keyword' && (
-          <input
-            type="text"
-            value={domain.trigger}
-            onChange={(e) => update('trigger', e.target.value)}
-            placeholder='e.g., "start KYC", "new incident", "onboard vendor"'
-            className="px-2.5 py-2 border border-border rounded-md bg-surface-2 text-text-primary text-sm outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors"
-          />
-        )}
-
-        {domain.triggerMode === 'immediate' && (
-          <span className="text-[11px] text-text-muted italic">
-            Components will be generated in the first response.
-          </span>
-        )}
-
-        {domain.triggerMode === 'contextual' && (
-          <textarea
-            value={domain.trigger}
-            onChange={(e) => update('trigger', e.target.value)}
-            placeholder='Describe the situation, e.g., "After user provides customer name and issue description"'
-            rows={3}
-            className="px-2.5 py-2 border border-border rounded-md bg-surface-2 text-text-primary text-sm outline-none resize-y focus:border-primary focus:ring-1 focus:ring-primary/30 transition-colors font-[inherit]"
-          />
-        )}
-      </div>
     </div>
   );
 }

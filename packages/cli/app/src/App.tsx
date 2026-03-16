@@ -1,7 +1,6 @@
 import { useState, useMemo } from 'react';
 import { DomainForm } from './components/DomainForm.js';
-import { ComponentPicker } from './components/ComponentPicker.js';
-import { ComponentConfigurator } from './components/ComponentConfigurator.js';
+import { FlowStepEditor } from './components/FlowStepEditor.js';
 import { ChatPanel } from './components/ChatPanel.js';
 import { PromptOutput } from './components/PromptOutput.js';
 import { PreviewTab } from './components/PreviewTab.js';
@@ -17,9 +16,8 @@ import type { LlmConfig } from './lib/llm-client.js';
 
 const STEPS = [
   { id: 'domain', label: 'Domain', icon: '1' },
-  { id: 'components', label: 'Components', icon: '2' },
-  { id: 'configure', label: 'Configure', icon: '3' },
-  { id: 'generate', label: 'Generate', icon: '4' },
+  { id: 'flow', label: 'Flow', icon: '2' },
+  { id: 'generate', label: 'Generate', icon: '3' },
 ] as const;
 
 const TABS = ['chat', 'output', 'preview'] as const;
@@ -32,10 +30,22 @@ export function App() {
     return saved ? JSON.parse(saved) : DEFAULT_CONFIG;
   });
 
+  const [previewLlmOverride, setPreviewLlmOverride] = useState<Partial<LlmConfig>>(() => {
+    const saved = localStorage.getItem('mdma-builder-preview-llm-override');
+    return saved ? JSON.parse(saved) : {};
+  });
+
   const handleConfigChange = (config: LlmConfig) => {
     setLlmConfig(config);
     localStorage.setItem('mdma-builder-llm-config', JSON.stringify(config));
   };
+
+  const handlePreviewOverrideChange = (override: Partial<LlmConfig>) => {
+    setPreviewLlmOverride(override);
+    localStorage.setItem('mdma-builder-preview-llm-override', JSON.stringify(override));
+  };
+
+  const previewLlmConfig: LlmConfig = { ...llmConfig, ...Object.fromEntries(Object.entries(previewLlmOverride).filter(([, v]) => v)) };
 
   const pb = usePromptBuilder(llmConfig);
   const [step, setStep] = useState('domain');
@@ -44,10 +54,8 @@ export function App() {
   const handleSample = () => {
     const preset = pickRandomPreset();
     pb.setDomain(preset.domain);
-    pb.setComponents(preset.components);
   };
 
-  const enabledComponents = useMemo(() => pb.components.filter((c) => c.enabled), [pb.components]);
   const currentStepIndex = STEPS.findIndex((s) => s.id === step);
 
   const tabIndicators = useMemo(() => {
@@ -57,9 +65,8 @@ export function App() {
 
   const stepContent: Record<string, React.ReactNode> = {
     domain: <DomainForm domain={pb.domain} onChange={pb.setDomain} onSample={handleSample} />,
-    components: <ComponentPicker components={pb.components} onToggle={pb.toggleComponent} />,
-    configure: <ComponentConfigurator components={pb.components} onUpdate={pb.updateComponent} />,
-    generate: <GenerateSummary domain={pb.domain} enabledComponents={enabledComponents} />,
+    flow: <FlowStepEditor flowSteps={pb.domain.flowSteps} onChange={pb.updateFlowSteps} />,
+    generate: <GenerateSummary domain={pb.domain} />,
   };
 
   return (
@@ -80,7 +87,7 @@ export function App() {
       {/* Main layout */}
       <div className="flex flex-1 overflow-hidden flex-col lg:flex-row">
         {/* Left panel */}
-        <aside className="w-full lg:w-[380px] border-b lg:border-b-0 lg:border-r border-border-light overflow-y-auto flex-shrink-0 flex flex-col">
+        <aside className="w-full lg:w-[400px] border-b lg:border-b-0 lg:border-r border-border-light overflow-y-auto flex-shrink-0 flex flex-col">
           <StepNav steps={STEPS} currentStep={step} onStepChange={setStep} />
           <div className="flex-1 overflow-y-auto p-4">{stepContent[step]}</div>
           <div className="flex gap-2 p-4 border-t border-border-light">
@@ -121,7 +128,13 @@ export function App() {
             ) : activeTab === 'output' ? (
               <PromptOutput prompt={pb.generatedPrompt} isGenerating={pb.isGenerating} />
             ) : (
-              <PreviewTab customPrompt={pb.generatedPrompt} llmConfig={llmConfig} />
+              <PreviewTab
+                customPrompt={pb.generatedPrompt}
+                llmConfig={previewLlmConfig}
+                llmOverride={previewLlmOverride}
+                onOverrideChange={handlePreviewOverrideChange}
+                chatConfig={llmConfig}
+              />
             )}
           </div>
         </main>

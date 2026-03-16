@@ -11,32 +11,12 @@ export type {
   TasklistConfig,
   TableConfig,
   ComponentConfig,
-  TriggerMode,
+  StepTriggerMode,
+  FlowStep,
   DomainConfig,
 } from '../../../src/prompts/types.js';
 
-import type { ComponentType, ComponentConfig, DomainConfig } from '../../../src/prompts/types.js';
-
-export interface BuilderState {
-  domain: DomainConfig;
-  components: ComponentConfig[];
-  messages: ChatMessage[];
-  generatedPrompt: string;
-  isGenerating: boolean;
-  error: string | null;
-}
-
-const DEFAULT_COMPONENTS: ComponentConfig[] = [
-  { type: 'form', enabled: false, form: { fields: [] } },
-  { type: 'button', enabled: false },
-  { type: 'tasklist', enabled: false, tasklist: { items: [] } },
-  { type: 'table', enabled: false, table: { columns: [] } },
-  { type: 'callout', enabled: false },
-  { type: 'approval-gate', enabled: false, approvalGate: { roles: [], requiredApprovers: 1, requireReason: false } },
-  { type: 'webhook', enabled: false },
-  { type: 'chart', enabled: false },
-  { type: 'thinking', enabled: true },
-];
+import type { DomainConfig, FlowStep } from '../../../src/prompts/types.js';
 
 export function usePromptBuilder(llmConfig: LlmConfig) {
   const [domain, setDomain] = useState<DomainConfig>({
@@ -44,13 +24,16 @@ export function usePromptBuilder(llmConfig: LlmConfig) {
     domain: '',
     description: '',
     businessRules: '',
-    triggerMode: 'keyword',
-    trigger: '',
+    flowSteps: [
+      {
+        label: 'Step 1',
+        triggerMode: 'immediate',
+        trigger: '',
+        components: [],
+        description: '',
+      },
+    ],
   });
-
-  const [components, setComponents] = useState<ComponentConfig[]>(
-    DEFAULT_COMPONENTS.map((c) => ({ ...c })),
-  );
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [generatedPrompt, setGeneratedPrompt] = useState('');
@@ -64,7 +47,7 @@ export function usePromptBuilder(llmConfig: LlmConfig) {
       setIsGenerating(true);
       abortRef.current = new AbortController();
 
-      const configContext = serializeConfig(domain, components);
+      const configContext = serializeConfig(domain);
 
       const newMessages: ChatMessage[] = [
         ...messages,
@@ -109,7 +92,7 @@ export function usePromptBuilder(llmConfig: LlmConfig) {
         setIsGenerating(false);
       }
     },
-    [domain, components, messages, llmConfig],
+    [domain, messages, llmConfig],
   );
 
   const stop = useCallback(() => {
@@ -122,25 +105,14 @@ export function usePromptBuilder(llmConfig: LlmConfig) {
     setError(null);
   }, []);
 
-  const toggleComponent = useCallback((type: ComponentType) => {
-    setComponents((prev) =>
-      prev.map((c) => (c.type === type ? { ...c, enabled: !c.enabled } : c)),
-    );
-  }, []);
-
-  const updateComponent = useCallback((type: ComponentType, update: Partial<ComponentConfig>) => {
-    setComponents((prev) =>
-      prev.map((c) => (c.type === type ? { ...c, ...update } : c)),
-    );
+  const updateFlowSteps = useCallback((flowSteps: FlowStep[]) => {
+    setDomain((prev) => ({ ...prev, flowSteps }));
   }, []);
 
   return {
     domain,
     setDomain,
-    components,
-    setComponents,
-    toggleComponent,
-    updateComponent,
+    updateFlowSteps,
     messages,
     generatedPrompt,
     isGenerating,

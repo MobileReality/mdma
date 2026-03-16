@@ -9,6 +9,7 @@ export type {
   TasklistConfig,
   TableConfig,
   ComponentConfig,
-  TriggerMode,
+  StepTriggerMode,
+  FlowStep,
   DomainConfig,
 } from './prompts/types.js';
