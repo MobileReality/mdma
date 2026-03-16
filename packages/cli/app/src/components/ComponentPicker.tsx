@@ -6,51 +6,40 @@ interface ComponentPickerProps {
 }
 
 const COMPONENT_INFO: Record<ComponentType, { label: string; description: string; icon: string }> = {
-  form: { label: 'Form', description: 'Collect structured user input', icon: '📋' },
-  button: { label: 'Button', description: 'Trigger actions on click', icon: '🔘' },
-  tasklist: { label: 'Tasklist', description: 'Checklist with completion tracking', icon: '✅' },
-  table: { label: 'Table', description: 'Display tabular data', icon: '📊' },
-  callout: { label: 'Callout', description: 'Highlighted info/warning blocks', icon: '💡' },
-  'approval-gate': { label: 'Approval Gate', description: 'Require approvals to proceed', icon: '🔒' },
-  webhook: { label: 'Webhook', description: 'HTTP requests on action', icon: '🔗' },
-  chart: { label: 'Chart', description: 'Data visualization', icon: '📈' },
-  thinking: { label: 'Thinking', description: 'AI reasoning display', icon: '🧠' },
+  form: { label: 'Form', description: 'Collect structured user input', icon: '\uD83D\uDCCB' },
+  button: { label: 'Button', description: 'Trigger actions on click', icon: '\uD83D\uDD18' },
+  tasklist: { label: 'Tasklist', description: 'Checklist with completion tracking', icon: '\u2705' },
+  table: { label: 'Table', description: 'Display tabular data', icon: '\uD83D\uDCCA' },
+  callout: { label: 'Callout', description: 'Highlighted info/warning blocks', icon: '\uD83D\uDCA1' },
+  'approval-gate': { label: 'Approval Gate', description: 'Require approvals to proceed', icon: '\uD83D\uDD12' },
+  webhook: { label: 'Webhook', description: 'HTTP requests on action', icon: '\uD83D\uDD17' },
+  chart: { label: 'Chart', description: 'Data visualization', icon: '\uD83D\uDCC8' },
+  thinking: { label: 'Thinking', description: 'AI reasoning display', icon: '\uD83E\uDDE0' },
 };
 
 export function ComponentPicker({ components, onToggle }: ComponentPickerProps) {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-      <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#e0e0e0' }}>
-        Components
-      </h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+    <div className="flex flex-col gap-3">
+      <h3 className="m-0 text-sm font-semibold text-text-primary">Components</h3>
+      <div className="grid grid-cols-3 gap-2">
         {components.map((comp) => {
           const info = COMPONENT_INFO[comp.type];
           return (
             <button
               key={comp.type}
+              type="button"
               onClick={() => onToggle(comp.type)}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '4px',
-                padding: '10px 6px',
-                border: comp.enabled ? '2px solid #6366f1' : '1px solid #333',
-                borderRadius: '8px',
-                background: comp.enabled ? '#1e1b4b' : '#1a1a1a',
-                color: comp.enabled ? '#a5b4fc' : '#888',
-                cursor: 'pointer',
-                transition: 'all 0.15s',
-                fontSize: '11px',
-                textAlign: 'center',
-              }}
+              className={`
+                flex flex-col items-center gap-1 p-2.5 rounded-lg cursor-pointer transition-all text-center
+                ${comp.enabled
+                  ? 'border-2 border-primary bg-primary-light text-primary-text shadow-sm shadow-primary/10'
+                  : 'border border-border bg-surface-2 text-text-secondary hover:bg-surface-3 hover:border-border'
+                }
+              `}
             >
-              <span style={{ fontSize: '20px' }}>{info.icon}</span>
-              <span style={{ fontWeight: 600, fontSize: '12px' }}>{info.label}</span>
-              <span style={{ fontSize: '10px', color: '#666', lineHeight: 1.2 }}>
-                {info.description}
-              </span>
+              <span className="text-xl">{info.icon}</span>
+              <span className="font-semibold text-xs">{info.label}</span>
+              <span className="text-[10px] text-text-muted leading-tight">{info.description}</span>
             </button>
           );
         })}
