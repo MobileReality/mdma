@@ -1,8 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
-import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import { streamChatCompletion, chatCompletion } from '../lib/llm-client.js';
+import { detectProvider } from '../lib/api-keys.js';
+import { PROVIDER_PRESETS } from '../lib/llm-client.js';
 import { parseMarkdown } from '../lib/parse-markdown.js';
+import { PreviewMessage } from './PreviewMessage.js';
+import { ChatInput } from './ui/ChatInput.js';
 import type { LlmConfig, ChatMessage } from '../lib/llm-client.js';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
@@ -10,6 +13,9 @@ import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 interface PreviewTabProps {
   customPrompt: string;
   llmConfig: LlmConfig;
+  llmOverride: Partial<LlmConfig>;
+  onOverrideChange: (override: Partial<LlmConfig>) => void;
+  chatConfig: LlmConfig;
 }
 
 interface PreviewMsg {
@@ -20,22 +26,92 @@ interface PreviewMsg {
   store: DocumentStore | null;
 }
 
-const PARSE_INTERVAL = 200;
+interface SavedMsg {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+}
 
-export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
+const PARSE_INTERVAL = 200;
+const STORAGE_KEY = 'mdma-builder-preview-messages';
+
+function loadSavedMessages(): SavedMsg[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMessages(messages: PreviewMsg[]) {
+  const serializable: SavedMsg[] = messages
+    .filter((m) => m.content)
+    .map(({ id, role, content }) => ({ id, role, content }));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(serializable));
+}
+
+export function PreviewTab({ customPrompt, llmConfig, llmOverride, onOverrideChange, chatConfig }: PreviewTabProps) {
+  const [showSettings, setShowSettings] = useState(false);
+  const activeProvider = detectProvider(llmConfig.baseUrl);
+  const activePreset = activeProvider ? PROVIDER_PRESETS[activeProvider] : null;
+  const hasOverride = !!(llmOverride.model || llmOverride.baseUrl || llmOverride.apiKey);
   const [messages, setMessages] = useState<PreviewMsg[]>([]);
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [restored, setRestored] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const msgIdRef = useRef(0);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const messagesRef = useRef(messages);
   messagesRef.current = messages;
 
+  // Restore saved messages on mount
   useEffect(() => {
+    const saved = loadSavedMessages();
+    if (saved.length === 0) {
+      setRestored(true);
+      return;
+    }
+    const maxId = Math.max(...saved.map((m) => m.id));
+    msgIdRef.current = maxId;
+
+    // Reparse all assistant messages to restore AST/store
+    const restored: PreviewMsg[] = saved.map((m) => ({
+      ...m,
+      ast: null,
+      store: null,
+    }));
+    setMessages(restored);
+
+    (async () => {
+      for (const msg of saved) {
+        if (msg.role === 'assistant' && msg.content) {
+          try {
+            const { ast, store } = await parseMarkdown(msg.content);
+            setMessages((prev) =>
+              prev.map((m) => (m.id === msg.id ? { ...m, ast, store } : m)),
+            );
+          } catch {
+            // parse errors on restore are fine
+          }
+        }
+      }
+      setRestored(true);
+    })();
+  }, []);
+
+  // Save messages whenever they change (skip during restore)
+  useEffect(() => {
+    if (restored && !isGenerating) {
+      saveMessages(messages);
+    }
+  }, [messages, restored, isGenerating]);
+
+  const scrollToBottom = useCallback(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, []);
 
   const reparseMessage = useCallback(async (content: string, msgId: number) => {
     try {
@@ -49,35 +125,23 @@ export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
     }
   }, []);
 
-  const send = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isGenerating) return;
+  const isGeneratingRef = useRef(false);
 
-    setInput('');
+  const sendText = useCallback(async (text: string) => {
+    if (!text || isGeneratingRef.current) return;
+
     setError(null);
     setIsGenerating(true);
+    isGeneratingRef.current = true;
 
-    const userMsg: PreviewMsg = {
-      id: ++msgIdRef.current,
-      role: 'user',
-      content: text,
-      ast: null,
-      store: null,
-    };
-
-    const assistantMsg: PreviewMsg = {
-      id: ++msgIdRef.current,
-      role: 'assistant',
-      content: '',
-      ast: null,
-      store: null,
-    };
+    const userMsg: PreviewMsg = { id: ++msgIdRef.current, role: 'user', content: text, ast: null, store: null };
+    const assistantMsg: PreviewMsg = { id: ++msgIdRef.current, role: 'assistant', content: '', ast: null, store: null };
 
     const prevMessages = messagesRef.current;
     setMessages([...prevMessages, userMsg, assistantMsg]);
+    scrollToBottom();
 
     const systemPrompt = buildSystemPrompt({ customPrompt: customPrompt || undefined });
-
     const history: ChatMessage[] = [
       { role: 'system', content: systemPrompt },
       ...prevMessages.map((m) => ({ role: m.role, content: m.content })),
@@ -94,9 +158,7 @@ export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
         for await (const chunk of streamChatCompletion(llmConfig, history, abortRef.current.signal)) {
           fullOutput += chunk;
           const snapshot = fullOutput;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === asstId ? { ...m, content: snapshot } : m)),
-          );
+          setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, content: snapshot } : m)));
           const now = Date.now();
           if (now - lastParseTime >= PARSE_INTERVAL) {
             lastParseTime = now;
@@ -106,9 +168,7 @@ export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
       } catch (streamErr) {
         if (abortRef.current.signal.aborted) throw streamErr;
         fullOutput = await chatCompletion(llmConfig, history, abortRef.current.signal);
-        setMessages((prev) =>
-          prev.map((m) => (m.id === asstId ? { ...m, content: fullOutput } : m)),
-        );
+        setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, content: fullOutput } : m)));
       }
       await reparseMessage(fullOutput, asstId);
     } catch (err) {
@@ -117,13 +177,60 @@ export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
       }
     } finally {
       setIsGenerating(false);
+      isGeneratingRef.current = false;
       abortRef.current = null;
     }
-  }, [input, isGenerating, customPrompt, llmConfig, reparseMessage]);
+  }, [customPrompt, llmConfig, reparseMessage, scrollToBottom]);
 
-  const stop = useCallback(() => {
-    abortRef.current?.abort();
+  const sendTextRef = useRef(sendText);
+  sendTextRef.current = sendText;
+
+  const send = useCallback(() => {
+    const text = input.trim();
+    if (!text) return;
+    setInput('');
+    sendTextRef.current(text);
+  }, [input]);
+
+  // Subscribe to ACTION_TRIGGERED events from all assistant message stores
+  const subscribedStores = useRef(new Set<DocumentStore>());
+
+  useEffect(() => {
+    const unsubscribes: (() => void)[] = [];
+
+    for (const msg of messages) {
+      if (msg.role === 'assistant' && msg.store && !subscribedStores.current.has(msg.store)) {
+        subscribedStores.current.add(msg.store);
+        const store = msg.store;
+        const unsub = store.getEventBus().on('ACTION_TRIGGERED', (event) => {
+          const compState = store.getComponentState(event.componentId);
+          if (!compState) return;
+
+          const values = compState.values;
+          const entries = Object.entries(values);
+          if (entries.length === 0) return;
+
+          const summary = entries
+            .map(([key, val]) => `${key}: ${val}`)
+            .join('\n');
+
+          sendTextRef.current(`[Form submitted: ${event.componentId}]\n${summary}`);
+        });
+        unsubscribes.push(unsub);
+      }
+    }
+
+    // Don't unsubscribe — stores persist across renders and we track them in the Set
+    // Only clean up on unmount
+    return () => {};
+  }, [messages]);
+
+  // Clean up subscribed stores tracking on unmount
+  useEffect(() => {
+    return () => { subscribedStores.current.clear(); };
   }, []);
+
+  const stop = useCallback(() => { abortRef.current?.abort(); }, []);
 
   const clear = useCallback(() => {
     abortRef.current?.abort();
@@ -131,158 +238,115 @@ export function PreviewTab({ customPrompt, llmConfig }: PreviewTabProps) {
     setError(null);
     setInput('');
     msgIdRef.current = 0;
+    localStorage.removeItem(STORAGE_KEY);
   }, []);
 
   const hasKey = llmConfig.apiKey.length > 0 || llmConfig.baseUrl.includes('localhost');
+  const disabled = !hasKey || !customPrompt;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div className="flex flex-col h-full">
       {/* Header */}
-      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', paddingBottom: '8px', borderBottom: '1px solid #222' }}>
-        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#e0e0e0' }}>
-          Preview Chat
-        </h3>
-        {customPrompt ? (
-          <span style={{ fontSize: '11px', color: '#22c55e' }}>customPrompt loaded</span>
-        ) : (
-          <span style={{ fontSize: '11px', color: '#f59e0b' }}>Generate a prompt first</span>
-        )}
-        <div style={{ flex: 1 }} />
+      <div className="flex gap-2 items-center pb-2 border-b border-border-light">
+        <h3 className="m-0 text-sm font-semibold text-text-primary">Preview Chat</h3>
+        {customPrompt
+          ? <span className="text-[11px] text-success">customPrompt loaded</span>
+          : <span className="text-[11px] text-warning">Generate a prompt first</span>
+        }
+        <button
+          type="button"
+          onClick={() => setShowSettings((s) => !s)}
+          className="border-none bg-transparent text-primary cursor-pointer text-xs p-0 hover:text-primary-hover"
+        >
+          {showSettings ? 'Hide Settings' : 'Settings'}
+        </button>
+        <span className="text-[11px] text-text-muted">
+          {activePreset?.label || 'Custom'} / {llmConfig.model}
+          {hasOverride && ' (override)'}
+        </span>
+        <div className="flex-1" />
         {messages.length > 0 && (
-          <button type="button" onClick={clear} style={linkBtnStyle}>Clear</button>
+          <button type="button" onClick={clear} className="border-none bg-transparent text-primary cursor-pointer text-xs p-0 hover:text-primary-hover">
+            Clear
+          </button>
         )}
       </div>
 
+      {showSettings && (
+        <div className="p-3 border border-border rounded-lg bg-surface-1 mb-2 flex flex-col gap-2.5">
+          <span className="text-xs text-text-secondary font-medium">
+            Preview LLM Override
+            <span className="text-text-muted font-normal ml-1">(leave empty to use Chat settings)</span>
+          </span>
+          <div className="flex gap-2">
+            <div className="flex-1 flex flex-col gap-1">
+              <span className="text-[11px] text-text-secondary">Model</span>
+              <input
+                placeholder={chatConfig.model}
+                value={llmOverride.model ?? ''}
+                onChange={(e) => onOverrideChange({ ...llmOverride, model: e.target.value })}
+                className="px-2 py-1.5 border border-border rounded bg-surface-2 text-text-primary text-xs outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex-1 flex flex-col gap-1">
+              <span className="text-[11px] text-text-secondary">API Key</span>
+              <input
+                placeholder={chatConfig.apiKey ? '••••••••' : 'Same as Chat'}
+                type="password"
+                value={llmOverride.apiKey ?? ''}
+                onChange={(e) => onOverrideChange({ ...llmOverride, apiKey: e.target.value })}
+                className="px-2 py-1.5 border border-border rounded bg-surface-2 text-text-primary text-xs outline-none focus:border-primary"
+              />
+            </div>
+            <div className="flex-[2] flex flex-col gap-1">
+              <span className="text-[11px] text-text-secondary">Base URL</span>
+              <input
+                placeholder={chatConfig.baseUrl}
+                value={llmOverride.baseUrl ?? ''}
+                onChange={(e) => onOverrideChange({ ...llmOverride, baseUrl: e.target.value })}
+                className="px-2 py-1.5 border border-border rounded bg-surface-2 text-text-primary text-xs outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+          {hasOverride && (
+            <button
+              type="button"
+              onClick={() => onOverrideChange({})}
+              className="self-start border-none bg-transparent text-primary cursor-pointer text-xs p-0 hover:text-primary-hover"
+            >
+              Reset to Chat settings
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '8px 0', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+      <div className="flex-1 overflow-y-auto py-2 flex flex-col gap-3">
         {messages.length === 0 && (
-          <div style={{ color: '#555', fontSize: '13px', textAlign: 'center', padding: '40px 20px' }}>
-            {customPrompt ? (
-              <>Test your generated prompt here. Ask the LLM to create an interactive document and see MDMA components render live.</>
-            ) : (
-              <>Switch to the <strong>Chat</strong> tab and generate a prompt first, then come back here to test it.</>
-            )}
+          <div className="text-text-muted text-sm text-center py-10 px-5">
+            {customPrompt
+              ? <>Test your generated prompt here. Ask the LLM to create an interactive document and see MDMA components render live.</>
+              : <>Switch to the <strong>Chat</strong> tab and generate a prompt first, then come back here to test it.</>
+            }
           </div>
         )}
-
         {messages.map((msg) => (
-          <div key={msg.id} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-            <span style={{ fontSize: '11px', fontWeight: 600, color: msg.role === 'user' ? '#6366f1' : '#22c55e' }}>
-              {msg.role === 'user' ? 'You' : 'MDMA AI'}
-            </span>
-            {msg.role === 'user' ? (
-              <div style={userBubbleStyle}>{msg.content}</div>
-            ) : msg.ast && msg.store ? (
-              <div style={assistantBubbleStyle}>
-                <MdmaDocument ast={msg.ast} store={msg.store} />
-              </div>
-            ) : msg.content ? (
-              <div style={assistantBubbleStyle}>
-                <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: '12px', color: '#bbb' }}>
-                  {msg.content}
-                </pre>
-                <span style={{ fontSize: '11px', color: '#6366f1' }}>Parsing...</span>
-              </div>
-            ) : (
-              <div style={assistantBubbleStyle}>
-                <span style={{ fontSize: '12px', color: '#666' }}>Generating...</span>
-              </div>
-            )}
-          </div>
+          <PreviewMessage key={msg.id} role={msg.role} content={msg.content} ast={msg.ast} store={msg.store} />
         ))}
-
-        {error && (
-          <div style={{ fontSize: '12px', color: '#ef4444', padding: '4px 8px' }}>{error}</div>
-        )}
+        {error && <div className="text-xs text-error px-2">{error}</div>}
         <div ref={chatEndRef} />
       </div>
 
-      {/* Input */}
-      <div style={{ display: 'flex', gap: '8px', paddingTop: '8px', borderTop: '1px solid #222' }}>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              if (!isGenerating && hasKey) send();
-            }
-          }}
-          placeholder="Describe the interactive document you need..."
-          rows={2}
-          disabled={!hasKey || !customPrompt}
-          style={{
-            flex: 1,
-            padding: '8px 10px',
-            border: '1px solid #333',
-            borderRadius: '6px',
-            background: '#1a1a1a',
-            color: '#e0e0e0',
-            fontSize: '13px',
-            fontFamily: 'inherit',
-            resize: 'none',
-            outline: 'none',
-            opacity: hasKey && customPrompt ? 1 : 0.5,
-          }}
-        />
-        {isGenerating ? (
-          <button type="button" onClick={stop} style={{ ...actionBtnStyle, background: '#7f1d1d', borderColor: '#ef4444' }}>
-            Stop
-          </button>
-        ) : (
-          <button
-            type="button"
-            onClick={send}
-            disabled={!hasKey || !customPrompt || !input.trim()}
-            style={{ ...actionBtnStyle, opacity: hasKey && customPrompt ? 1 : 0.5 }}
-          >
-            Send
-          </button>
-        )}
-      </div>
+      <ChatInput
+        value={input}
+        onChange={setInput}
+        onSend={send}
+        onStop={stop}
+        isGenerating={isGenerating}
+        disabled={disabled}
+        placeholder="Describe the interactive document you need..."
+        sendLabel="Send"
+      />
     </div>
   );
 }
-
-const linkBtnStyle: React.CSSProperties = {
-  border: 'none',
-  background: 'none',
-  color: '#6366f1',
-  cursor: 'pointer',
-  fontSize: '12px',
-  padding: 0,
-};
-
-const userBubbleStyle: React.CSSProperties = {
-  padding: '8px 12px',
-  borderRadius: '8px',
-  background: '#1e1b4b',
-  color: '#c7d2fe',
-  fontSize: '13px',
-  lineHeight: 1.5,
-  alignSelf: 'flex-end',
-  maxWidth: '80%',
-};
-
-const assistantBubbleStyle: React.CSSProperties = {
-  padding: '12px 16px',
-  borderRadius: '8px',
-  background: '#1a1a1a',
-  border: '1px solid #222',
-  fontSize: '13px',
-  lineHeight: 1.5,
-  maxWidth: '100%',
-  overflow: 'auto',
-};
-
-const actionBtnStyle: React.CSSProperties = {
-  padding: '8px 16px',
-  border: '1px solid #6366f1',
-  borderRadius: '6px',
-  background: '#1e1b4b',
-  color: '#a5b4fc',
-  fontSize: '13px',
-  fontWeight: 600,
-  cursor: 'pointer',
-  alignSelf: 'flex-end',
-};

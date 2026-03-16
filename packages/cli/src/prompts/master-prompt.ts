@@ -22,7 +22,7 @@ MDMA (Markdown Document with Mounted Applications) extends Markdown with interac
 **You MUST:**
 - Define the domain context and purpose
 - Specify which components to use and when
-- Define **trigger rules** — exactly when the AI should generate MDMA components (e.g., specific user phrases, conversation milestones, or contextual conditions)
+- Define **conversation flow** — a multi-step sequence describing when to generate MDMA components at each stage (e.g., Step 1: show form on keyword, Step 2: show approval gate after form submission)
 - Provide domain-specific examples showing realistic content
 - Define business rules, validation constraints, and workflow logic
 - Specify which fields should be marked as sensitive
@@ -36,7 +36,7 @@ The user will provide a configuration describing their needs:
 - **Selected components**: Which of the 9 MDMA types to use
 - **Component configurations**: Field definitions, options, roles, etc.
 - **Business rules**: Free-text constraints and requirements
-- **Trigger rules**: When the AI should generate MDMA components (user phrases, conversation moments)
+- **Conversation flow**: An ordered list of steps, each with a trigger condition (immediate, keyword, form-submit, contextual) and which components to render at that point
 
 ## Required Fields per Component
 
@@ -44,7 +44,7 @@ When writing domain examples with \`mdma\` blocks, every block MUST include all 
 
 | Component       | Required fields (besides \`id\` and \`type\`)                |
 |-----------------|--------------------------------------------------------------|
-| form            | \`fields\` (array, each with \`name\`, \`type\`, \`label\`) |
+| form            | \`fields\` (array, each with \`name\`, \`type\`, \`label\`), \`onSubmit\` (action ID — renders submit button) |
 | callout         | \`content\`                                                  |
 | button          | \`text\`                                                     |
 | approval-gate   | \`title\`                                                    |
@@ -54,6 +54,8 @@ When writing domain examples with \`mdma\` blocks, every block MUST include all 
 | webhook         | \`url\`, \`trigger\`                                         |
 | thinking        | \`content\`                                                  |
 
+**Every form MUST include \`onSubmit\`** with a descriptive action ID (e.g., \`onSubmit: submit-kyc-form\`). Without it, the form renders without a submit button and users cannot submit their data.
+
 Select fields use \`options\` as an array of objects: \`- label: "Display" value: key\`, NOT flat strings.
 Approval gates use \`allowedRoles\` (NOT \`roles\`) for role restrictions.
 
@@ -62,7 +64,11 @@ Approval gates use \`allowedRoles\` (NOT \`roles\`) for role restrictions.
 Generate a clean, well-structured custom prompt in plain text. Structure it as:
 
 1. **Role & Domain** — Set the domain context ("You are assisting with [domain] workflows...")
-2. **When to Generate** — Define the trigger rules: specific keywords/phrases the user might say, or conversation conditions that should activate MDMA component generation. Be explicit — the AI needs clear signals for when to respond with interactive components vs. plain text.
+2. **Conversation Flow** — Define the multi-step conversation flow. For each step, specify:
+   - What triggers it (user keyword, form submission, contextual condition, or immediate)
+   - Which components to render
+   - How the AI should respond at this step
+   The AI must follow these steps in order — after completing one step, wait for the appropriate trigger before moving to the next. Do NOT show all components at once unless the flow has a single step.
 3. **Document Purpose** — What the generated document should achieve
 4. **Component Instructions** — For each selected component, provide:
    - When to include it
@@ -70,12 +76,12 @@ Generate a clean, well-structured custom prompt in plain text. Structure it as:
    - Domain-specific field names and labels
    - Which fields are sensitive (PII)
 5. **Workflow Logic** — How components relate to each other (bindings, action triggers, approval flows)
-6. **Domain Examples** — 1-2 concrete examples showing what a generated MDMA document section should look like. Examples MUST use **YAML syntax** inside fenced \`mdma\` code blocks (never JSON). Every example block MUST include all required fields for its component type — omitting required fields is a validation error.
+6. **MANDATORY: Concrete MDMA Examples** — For EVERY form in the configuration, you MUST include a complete \`\`\`mdma code block example showing the exact form with all its fields. This is NOT optional. The AI that reads your prompt needs these examples to generate correct MDMA output. Examples MUST use **YAML syntax** inside fenced \`mdma\` code blocks (never JSON). Every example block MUST include all required fields for its component type — omitting required fields is a validation error. If the flow has 2 steps with 2 forms, include 2 separate form examples.
 7. **Constraints** — Things the AI must or must not do in this domain
 
 ## Example
 
-Given a configuration for a KYC (Know Your Customer) flow in finance with form, approval-gate, and tasklist components, you would generate:
+Given a configuration for a KYC (Know Your Customer) flow in finance with a 2-step conversation flow (Step 1: form on keyword trigger, Step 2: approval-gate + tasklist after form submission), you would generate:
 
 ---
 
@@ -84,27 +90,29 @@ You are assisting with KYC (Know Your Customer) verification workflows in the fi
 ### Document Purpose
 Generate interactive KYC case review documents that collect applicant information, enforce compliance checks, and require dual approval before account activation.
 
-### Components to Use
+### Conversation Flow
 
-**Form — Applicant Information**
-- Include fields: full name, date of birth, nationality, government ID number, ID type (passport/driver's license/national ID), residential address, email, phone
+**Step 1 — Collect Applicant Data**
+When the user says "start KYC review", "new customer verification", or "verify identity", respond with a form to collect applicant information. Do NOT show the approval gate or tasklist yet.
+
+Form fields: full name, date of birth, nationality, government ID number, ID type (passport/driver's license/national ID), residential address, email, phone.
 - Mark as sensitive: government ID number, date of birth, residential address, email, phone
 - All fields required except phone
 - Use a select field for ID type with standard document options
 
-**Approval Gate — Compliance Review**
+**Step 2 — Compliance Review**
+After the user submits the applicant form, show the compliance approval gate and verification checklist. Include a thinking block analyzing the case before presenting the components.
+
+Approval Gate:
 - Require 2 approvers with roles: compliance-officer, senior-analyst
 - Require a reason on denial
-- Title should reflect the review stage (e.g., "KYC Compliance Approval")
+- Title: "KYC Compliance Approval"
 
-**Tasklist — Verification Checklist**
+Tasklist:
 - Items: identity document verified, address proof verified, PEP screening completed, sanctions list checked, source of funds verified
 - All items required
 
-### Workflow
-- The approval gate should follow the form (approvers review submitted data)
-- The tasklist tracks verification steps that must be completed before approval
-- Include a callout with variant "warning" if the case involves a PEP (Politically Exposed Person)
+Include a callout with variant "warning" if the case involves a PEP (Politically Exposed Person).
 
 ### Domain Example
 
@@ -118,6 +126,7 @@ Please complete the applicant information below:
 \`\`\`mdma
 type: form
 id: kyc-applicant-form
+onSubmit: submit-kyc-form
 fields:
   - name: full_name
     type: text
@@ -192,4 +201,6 @@ This is the most important rule. Violating it produces a broken prompt that gene
 4. **Be concise** — The prompt should be focused and actionable, not a tutorial.
 5. **Respect the architecture** — Your output is a \`customPrompt\`, not a standalone system prompt. Never include MDMA spec details that are already in the base prompt.
 6. **Use YAML, never JSON** — All domain examples with fenced \`mdma\` code blocks MUST use YAML syntax. MDMA components are always defined in YAML. Never use JSON objects like \`{"type": "form", ...}\` in examples.
+7. **Respect flow ordering** — When the configuration defines a multi-step conversation flow, your output MUST instruct the AI to present components in the defined step order, waiting for each trigger before proceeding to the next step. Do NOT show all components at once unless the flow has a single step. Each step's trigger must be clearly communicated so the AI knows when to advance.
+8. **Always include MDMA examples** — Your output MUST contain at least one \`\`\`mdma code block for every form defined in the configuration. A prompt without concrete MDMA examples is incomplete — the AI needs them to generate correct output. If there are 2 forms across 2 steps, include 2 form code blocks.
 `;

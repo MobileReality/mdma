@@ -26,12 +26,12 @@ export function PromptOutput({ prompt, isGenerating }: PromptOutputProps) {
 
   if (!prompt && !isGenerating) {
     return (
-      <div style={containerStyle}>
-        <div style={{ color: '#666', fontSize: '13px', textAlign: 'center', padding: '40px 20px' }}>
-          <p style={{ marginBottom: '8px' }}>Configure your components and click <strong>Generate</strong>.</p>
-          <p style={{ fontSize: '11px' }}>
+      <div className="flex flex-col h-full">
+        <div className="text-text-muted text-sm text-center py-10 px-5">
+          <p className="mb-2">Configure your components and click <strong>Generate</strong>.</p>
+          <p className="text-[11px]">
             The generated prompt will be used with:<br />
-            <code style={{ color: '#a5b4fc' }}>buildSystemPrompt({'{ customPrompt }'})</code>
+            <code className="text-primary-text">buildSystemPrompt({'{ customPrompt }'})</code>
           </p>
         </div>
       </div>
@@ -39,72 +39,49 @@ export function PromptOutput({ prompt, isGenerating }: PromptOutputProps) {
   }
 
   return (
-    <div style={containerStyle}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-        <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 600, color: '#e0e0e0' }}>
-          Generated Prompt
-        </h3>
-        <div style={{ display: 'flex', gap: '6px' }}>
-          <button onClick={copyToClipboard} style={actionBtnStyle} disabled={!prompt}>
+    <div className="flex flex-col h-full">
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="m-0 text-sm font-semibold text-text-primary">Generated Prompt</h3>
+        <div className="flex gap-1.5">
+          <button
+            type="button"
+            onClick={copyToClipboard}
+            disabled={!prompt}
+            className="px-3 py-1 border border-border rounded bg-surface-1 text-text-primary text-[11px] cursor-pointer hover:bg-surface-2 transition-colors disabled:opacity-40"
+          >
             {copied ? 'Copied!' : 'Copy'}
           </button>
-          <button onClick={saveToFile} style={actionBtnStyle} disabled={!prompt}>
+          <button
+            type="button"
+            onClick={saveToFile}
+            disabled={!prompt}
+            className="px-3 py-1 border border-border rounded bg-surface-1 text-text-primary text-[11px] cursor-pointer hover:bg-surface-2 transition-colors disabled:opacity-40"
+          >
             Save
           </button>
         </div>
       </div>
 
-      <pre
-        style={{
-          flex: 1,
-          overflowY: 'auto',
-          padding: '12px',
-          border: '1px solid #333',
-          borderRadius: '6px',
-          background: '#0a0a0a',
-          color: '#d4d4d4',
-          fontSize: '12px',
-          lineHeight: 1.6,
-          whiteSpace: 'pre-wrap',
-          wordBreak: 'break-word',
-          margin: 0,
-        }}
-      >
+      <pre className="flex-1 overflow-y-auto p-3 border border-border rounded-md bg-surface-0 text-text-primary text-xs leading-relaxed whitespace-pre-wrap break-words m-0">
         {prompt}
-        {isGenerating && <span style={{ color: '#6366f1' }}>|</span>}
+        {isGenerating && <span className="text-primary">|</span>}
       </pre>
 
       {prompt && (
-        <div style={{ marginTop: '10px', padding: '10px', border: '1px solid #1e1b4b', borderRadius: '6px', background: '#0f0e26' }}>
-          <p style={{ margin: 0, fontSize: '11px', color: '#888' }}>Usage in your app:</p>
-          <code style={{ fontSize: '12px', color: '#a5b4fc' }}>
-            {`import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';`}
+        <div className="mt-2.5 p-2.5 border border-primary/30 rounded-md bg-primary-light/50">
+          <p className="m-0 text-[11px] text-text-secondary">Usage in your app:</p>
+          <code className="text-xs text-primary-text">
+            {"import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';"}
             <br />
             <br />
-            {`const systemPrompt = buildSystemPrompt({`}
+            {'const systemPrompt = buildSystemPrompt({'}
             <br />
-            {`  customPrompt: \`<paste generated prompt here>\``}
+            {'  customPrompt: `<paste generated prompt here>`'}
             <br />
-            {`});`}
+            {'});'}
           </code>
         </div>
       )}
     </div>
   );
 }
-
-const containerStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
-};
-
-const actionBtnStyle: React.CSSProperties = {
-  padding: '4px 12px',
-  border: '1px solid #333',
-  borderRadius: '4px',
-  background: '#1a1a1a',
-  color: '#e0e0e0',
-  fontSize: '11px',
-  cursor: 'pointer',
-};

@@ -9,11 +9,11 @@ describe('MASTER_PROMPT content', () => {
 
   it('should contain all required output structure sections', () => {
     expect(MASTER_PROMPT).toContain('Role & Domain');
-    expect(MASTER_PROMPT).toContain('When to Generate');
+    expect(MASTER_PROMPT).toContain('Conversation Flow');
     expect(MASTER_PROMPT).toContain('Document Purpose');
     expect(MASTER_PROMPT).toContain('Component Instructions');
     expect(MASTER_PROMPT).toContain('Workflow Logic');
-    expect(MASTER_PROMPT).toContain('Domain Examples');
+    expect(MASTER_PROMPT).toContain('MDMA Examples');
     expect(MASTER_PROMPT).toContain('Constraints');
   });
 
@@ -58,10 +58,10 @@ describe('MASTER_PROMPT content', () => {
     expect(MASTER_PROMPT).toContain('concatenated AFTER the full MDMA spec');
   });
 
-  it('should include trigger rule instructions', () => {
-    expect(MASTER_PROMPT).toContain('trigger rules');
-    expect(MASTER_PROMPT).toContain('keywords/phrases');
-    expect(MASTER_PROMPT).toContain('conversation conditions');
+  it('should include conversation flow instructions', () => {
+    expect(MASTER_PROMPT).toContain('conversation flow');
+    expect(MASTER_PROMPT).toContain('multi-step');
+    expect(MASTER_PROMPT).toContain('form submission');
   });
 
   it('should contain all important rules', () => {
