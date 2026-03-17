@@ -54,7 +54,46 @@ onAction: submit
 
 ## Components
 
-9 component types: **form**, **button**, **tasklist**, **table**, **chart**, **callout**, **approval-gate**, **webhook**, **thinking**
+9 built-in component types, all rendered out of the box by `@mobile-reality/mdma-renderer-react`:
+
+| Component | Type key | Description |
+|-----------|----------|-------------|
+| **Form** | `form` | Multi-field forms with text, email, number, select, textarea, checkbox, and datetime fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
+| **Button** | `button` | Action buttons with `primary`, `secondary`, and `danger` variants. |
+| **Tasklist** | `tasklist` | Interactive checkbox task items with labels. |
+| **Table** | `table` | Data tables with typed columns and row data. |
+| **Chart** | `chart` | **Table fallback by default** — renders chart data as a simple HTML table to avoid forcing a charting dependency (~400KB). Override with your own renderer (e.g. recharts) via `customizations.components.chart` (see [Custom Chart Renderer](#custom-chart-renderer) below). |
+| **Callout** | `callout` | Alert banners with `info`, `warning`, `error`, and `success` variants. Supports optional title and dismiss button. |
+| **Approval Gate** | `approval-gate` | Approve/deny workflow gates with pending, approved, and denied states. |
+| **Webhook** | `webhook` | Webhook triggers with idle, executing, success, and error status indicators. |
+| **Thinking** | `thinking` | Collapsible thinking/reasoning blocks that show the AI's chain of thought. |
+
+Additionally, standard **Markdown** content (headings, paragraphs, lists, code blocks, images, links, tables, etc.) is rendered inline between components.
+
+### Custom Chart Renderer
+
+The built-in chart renderer intentionally renders data as a plain table so the library stays lightweight. To get actual charts, register a custom renderer:
+
+```tsx
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
+import { MyRechartsRenderer } from './MyRechartsRenderer';
+
+function App({ ast, store }) {
+  return (
+    <MdmaDocument
+      ast={ast}
+      store={store}
+      customizations={{
+        components: {
+          chart: MyRechartsRenderer,
+        },
+      }}
+    />
+  );
+}
+```
+
+This pattern works for overriding any built-in component — pass a custom React component under `customizations.components.<type>`.
 
 ## Installation
 
@@ -171,11 +210,14 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 
 ```tsx
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
+import '@mobile-reality/mdma-renderer-react/styles.css'; // default styles
 
 function App({ ast, store }) {
   return <MdmaDocument ast={ast} store={store} />;
 }
 ```
+
+> **Note:** The `styles.css` import provides default styling for all MDMA components (forms, tables, callouts, animations, etc.). It's optional — you can write your own styles targeting the `.mdma-*` CSS classes instead.
 
 ## Packages
 
