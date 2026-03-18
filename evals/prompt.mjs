@@ -7,16 +7,15 @@ import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
  * chat message array with the MDMA author system prompt + the user request.
  *
  * The system prompt contains `{{binding}}` syntax that Nunjucks would try to
- * evaluate, so we wrap it in {% raw %} blocks to prevent template processing.
+ * evaluate. We wrap the entire content in {% raw %}...{% endraw %} so Nunjucks
+ * passes it through verbatim — the model sees clean `{{...}}` without any
+ * template artifacts.
  */
 export default function ({ vars }) {
   const systemPrompt = buildSystemPrompt();
 
-  // Escape {{ }} in the system prompt so Nunjucks doesn't interpret them
-  const escaped = systemPrompt.replaceAll('{{', '{% raw %}{{').replaceAll('}}', '}}{% endraw %}');
-
   return [
-    { role: 'system', content: escaped },
+    { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
     { role: 'user', content: vars.request },
   ];
 }

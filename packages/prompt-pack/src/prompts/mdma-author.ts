@@ -36,15 +36,15 @@ MDMA supports 9 component types. Every component shares these base fields:
 - **type** (string, required) — Component type name
 - **label** (string, optional) — Display label
 - **sensitive** (boolean, default: false) — If true, values are redacted in logs
-- **disabled** (boolean | binding, default: false)
-- **visible** (boolean | binding, default: true)
+- **disabled** (boolean | binding, default: false) — accepts \`true\`, \`false\`, or a quoted binding like \`"{{checklist.completed}}"\`
+- **visible** (boolean | binding, default: true) — accepts \`true\`, \`false\`, or a quoted binding like \`"{{form.field}}"\`
 - **meta** (object, optional) — Arbitrary metadata
 
 ### 1. form
 
 Collects user input via structured fields.
 
-\`\`\`yaml
+\`\`\`mdma
 type: form
 id: <unique-id>
 fields:
@@ -70,7 +70,7 @@ onSubmit: <action-id>            # optional — action triggered on submit
 
 Triggers an action when clicked.
 
-\`\`\`yaml
+\`\`\`mdma
 type: button
 id: <unique-id>
 text: <button-label>             # required, string
@@ -87,7 +87,7 @@ confirm:                         # optional confirmation dialog
 
 A checklist of items that can be individually checked off.
 
-\`\`\`yaml
+\`\`\`mdma
 type: tasklist
 id: <unique-id>
 items:
@@ -103,7 +103,7 @@ onComplete: <action-id>         # optional — triggered when all items checked
 
 Displays tabular data with optional sorting, filtering, and pagination.
 
-\`\`\`yaml
+\`\`\`mdma
 type: table
 id: <unique-id>
 columns:
@@ -124,7 +124,7 @@ pageSize: <number>              # optional, positive integer
 
 Displays a highlighted message block.
 
-\`\`\`yaml
+\`\`\`mdma
 type: callout
 id: <unique-id>
 variant: info | warning | error | success   # default: info
@@ -137,7 +137,7 @@ dismissible: true | false        # default: false
 
 Blocks workflow progression until required approvals are received.
 
-\`\`\`yaml
+\`\`\`mdma
 type: approval-gate
 id: <unique-id>
 title: <gate-title>              # required, string
@@ -154,7 +154,7 @@ requireReason: true | false      # default: false — require reason on denial
 
 Makes an HTTP request when triggered by an action.
 
-\`\`\`yaml
+\`\`\`mdma
 type: webhook
 id: <unique-id>
 url: <endpoint-url>              # required, valid URL or binding
@@ -172,7 +172,7 @@ timeout: <milliseconds>         # default: 30000
 
 Displays data as a visual chart. Data is provided as a compact CSV-like multiline string where the first row contains column headers and subsequent rows contain comma-separated values.
 
-\`\`\`yaml
+\`\`\`mdma
 type: chart
 id: <unique-id>
 variant: line | bar | area | pie            # default: line
@@ -198,7 +198,7 @@ stacked: true | false                        # default: false (for bar/area)
 - Use YAML \`|\` block scalar for multi-line data
 
 **Example — line chart:**
-\`\`\`yaml
+\`\`\`mdma
 type: chart
 id: revenue-chart
 variant: line
@@ -213,7 +213,7 @@ xAxis: month
 \`\`\`
 
 **Example — pie chart:**
-\`\`\`yaml
+\`\`\`mdma
 type: chart
 id: market-share
 variant: pie
@@ -231,7 +231,7 @@ xAxis: company
 
 Displays a collapsible block that shows AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.
 
-\`\`\`yaml
+\`\`\`mdma
 type: thinking
 id: <unique-id>
 label: <header-text>              # optional — default: "Thinking"
@@ -246,7 +246,7 @@ collapsed: true | false           # default: true — starts collapsed
 - \`status: thinking\` shows a pulsing animation (use during streaming), \`done\` when complete
 
 **Example — analysis reasoning:**
-\`\`\`yaml
+\`\`\`mdma
 type: thinking
 id: analysis-reasoning
 label: Analyzing revenue data...
@@ -270,6 +270,32 @@ Examples:
 - \`{{contact_form.email}}\` — bind to the email field of a form
 - \`{{user.name}}\` — bind to a context variable
 
+**IMPORTANT — binding values on \`visible\` and \`disabled\`:**
+
+The base fields \`visible\` and \`disabled\` accept either a boolean OR a binding string. When using a binding, the value MUST be a double-quoted string containing \`{{...}}\`. This is the ONLY correct syntax:
+
+\`\`\`mdma
+type: button
+id: get-started-btn
+text: "Get Started"
+disabled: "{{onboarding-checklist.completed}}"
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: notification-info
+variant: info
+content: "You will receive notifications."
+visible: "{{settings-form.notifications-enabled}}"
+\`\`\`
+
+Common mistakes to AVOID:
+- ❌ \`disabled: {{foo.bar}}\` — missing quotes, YAML will break
+- ❌ \`disabled: true\` when a binding was requested — always reproduce the exact binding
+- ❌ Omitting \`visible\` or \`disabled\` when the blueprint includes it — copy it verbatim
+
+When a user request includes \`visible\` or \`disabled\` with a \`{{}}\` binding, you MUST reproduce it exactly as a quoted string.
+
 ## Authoring Rules
 
 1. **Unique IDs** — Every component \`id\` must be unique within the document. Use descriptive kebab-case names (e.g., \`employee-onboarding-form\`, \`submit-btn\`).
@@ -281,6 +307,7 @@ Examples:
 7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (\`: \`), e.g. \`label: "Step 1: Enter your info"\`.
 8. **Always include thinking** — When generating MDMA components, ALWAYS include a \`thinking\` block BEFORE the main content to show your reasoning process. Use \`status: done\` and \`collapsed: true\`.
 9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the \`thinking\` block, not in the prose. Never write things like "I included a thinking block" or "the email field is marked as sensitive".
+10. **Blueprint fidelity** — When the user provides an exact component structure, reproduce EVERY field verbatim, including \`visible\`, \`disabled\`, \`onComplete\`, \`onAction\`, and binding expressions. Never omit fields, never simplify bindings, never substitute \`true\`/\`false\` for a \`"{{...}}"\` binding. If the blueprint says \`disabled: "{{onboarding-checklist.completed}}"\`, your output must contain that exact line. If the blueprint says \`visible: "{{settings-form.notifications-enabled}}"\`, your output must contain that exact line.
 
 ## Self-Check Checklist
 
@@ -296,4 +323,5 @@ Before finalizing an MDMA document, verify:
 - [ ] Table \`data\` matches the declared \`columns\` keys
 - [ ] Approval gates have at least one approver configured
 - [ ] Webhook URLs are valid or use binding syntax
+- [ ] All \`visible\` and \`disabled\` bindings are double-quoted strings: \`"{{component.field}}"\`
 `;

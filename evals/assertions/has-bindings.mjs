@@ -2,7 +2,7 @@
  * Asserts that the output contains binding expressions ({{ }}).
  */
 export default function (output) {
-  const bindingPattern = /\{\{[a-z][a-zA-Z0-9-]*\.[a-zA-Z0-9_.]+\}\}/g;
+  const bindingPattern = /\{\{[a-z][a-zA-Z0-9_-]*\.[a-zA-Z0-9_.-]+\}\}/g;
   const matches = output.match(bindingPattern) || [];
 
   if (matches.length > 0) {
