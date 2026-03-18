@@ -16,6 +16,6 @@ export default function ({ vars }) {
 
   return [
     { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
-    { role: 'user', content: vars.request },
+    { role: 'user', content: `{% raw %}${vars.request}{% endraw %}` },
   ];
 }
