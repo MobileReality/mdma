@@ -5,6 +5,7 @@ import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { ChatActionLog } from './chat/ChatActionLog.js';
+import { exampleFlows } from './example-flows.js';
 import type { MdmaRenderCustomizations } from '@mobile-reality/mdma-renderer-react';
 import type { ZodType } from 'zod';
 
@@ -47,7 +48,40 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
     stop,
     clear,
     updateMessage,
+    startFlow,
+    advanceFlow,
   } = useChat(chatOptions);
+
+  const advanceFlowRef = useRef(advanceFlow);
+  advanceFlowRef.current = advanceFlow;
+
+  // Subscribe to ACTION_TRIGGERED events on assistant message stores to advance the flow
+  const subscribedStores = useRef(new Set<import('@mobile-reality/mdma-runtime').DocumentStore>());
+
+  useEffect(() => {
+    for (const msg of messages) {
+      if (msg.role === 'assistant' && msg.store && !subscribedStores.current.has(msg.store)) {
+        subscribedStores.current.add(msg.store);
+        msg.store.getEventBus().on('ACTION_TRIGGERED', () => {
+          // Small delay so the user sees the interaction before the next step loads
+          setTimeout(() => advanceFlowRef.current(), 500);
+        });
+      }
+    }
+  }, [messages]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => { subscribedStores.current.clear(); };
+  }, []);
+
+  const handleLoadFlow = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
+    const key = e.target.value;
+    if (!key) return;
+    const flow = exampleFlows[key];
+    if (flow) startFlow(flow.steps, flow.customPrompt);
+    e.target.value = '';
+  }, [startFlow]);
 
   const { events, isOpen, setIsOpen, clearEvents } = useChatActionLog(messages);
 
@@ -65,6 +99,7 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
   const handleClear = useCallback(() => {
     clear();
     clearEvents();
+    subscribedStores.current.clear();
   }, [clear, clearEvents]);
 
   const lastMsgId = messages[messages.length - 1]?.id;
@@ -83,8 +118,28 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
             <div className="chat-empty">
               <p className="chat-empty-title">MDMA Chat</p>
               <p className="chat-empty-hint">
-                Describe an interactive document and the AI will generate it as a live, interactive MDMA form.
+                Describe an interactive document and the AI will generate it, or try an example flow:
               </p>
+              <select
+                defaultValue=""
+                onChange={handleLoadFlow}
+                style={{
+                  padding: '8px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid #d1d5db',
+                  background: '#fff',
+                  color: '#374151',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  marginTop: '8px',
+                  minWidth: '220px',
+                }}
+              >
+                <option value="" disabled>Load an example flow…</option>
+                {Object.entries(exampleFlows).map(([key, flow]) => (
+                  <option key={key} value={key}>{flow.label}</option>
+                ))}
+              </select>
             </div>
           )}
 

@@ -11,10 +11,8 @@ export default function ({ vars }) {
     customPrompt: vars.customPrompt,
   });
 
-  const escaped = systemPrompt.replaceAll('{{', '{% raw %}{{').replaceAll('}}', '}}{% endraw %}');
-
   return [
-    { role: 'system', content: escaped },
-    { role: 'user', content: vars.request },
+    { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
+    { role: 'user', content: `{% raw %}${vars.request}{% endraw %}` },
   ];
 }

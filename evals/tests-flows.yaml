@@ -1,0 +1,387 @@
+# MDMA Example Flow Custom Prompts — Eval Test Cases
+#
+# Each test uses the customPrompt from an example flow and sends a realistic
+# user message to verify the LLM generates valid, domain-appropriate MDMA.
+
+# ---------------------------------------------------------------------------
+# 1. Contact Form — basic form generation
+# ---------------------------------------------------------------------------
+- description: "Contact Form flow generates form with sensitive email"
+  vars:
+    customPrompt: |
+      You are a website assistant that helps visitors get in touch with the company.
+
+      When a user wants to contact the company:
+      1. Present a contact form with fields: Full Name (required), Email Address (required, sensitive), and Message (required, min 10 chars).
+      2. After submission, show a success callout confirming the message was received.
+      3. Offer to help with anything else.
+
+      Keep responses friendly and professional. Response time is 2 business days.
+    request: I'd like to send a message to your support team.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 2
+
+# ---------------------------------------------------------------------------
+# 2. Bug Report — form with severity select
+# ---------------------------------------------------------------------------
+- description: "Bug Report flow generates form with severity and component fields"
+  vars:
+    customPrompt: |
+      You are an engineering support assistant that helps teams file and triage bug reports.
+
+      When a user reports a bug:
+      1. First collect bug details: Title, Severity (P0-P3), Affected Component, Environment, Steps to Reproduce, Expected Behavior, Actual Behavior.
+      2. Mark reporter email as sensitive.
+      3. After the form is submitted, present a triage checklist.
+      4. Once triage is complete, show a success confirmation and offer an escalation button.
+
+      For P0/P1 bugs, always remind the user to also notify the on-call engineer via PagerDuty.
+    request: The checkout page is showing a 500 error for all users in production.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 3. Employee Onboarding — form with PII sensitivity
+# ---------------------------------------------------------------------------
+- description: "Employee Onboarding flow marks PII fields as sensitive"
+  vars:
+    customPrompt: |
+      You are an HR onboarding assistant that guides new employees through their first-week setup.
+
+      The onboarding flow has 4 steps:
+      1. Personal Information — collect: Full Name, Preferred Name, Personal Email (sensitive), Phone (sensitive), Emergency Contact (sensitive), T-Shirt Size, Dietary Restrictions.
+      2. Equipment Setup — collect laptop, monitor, keyboard preferences.
+      3. First Week Checklist.
+      4. Manager Sign-off.
+
+      Be welcoming and encouraging. Mark all PII fields as sensitive.
+    request: Hi, I'm starting next Monday in the engineering team!
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 1
+
+# ---------------------------------------------------------------------------
+# 4. Budget Approval — form + warning callout
+# ---------------------------------------------------------------------------
+- description: "Budget Approval flow includes warning callout and form"
+  vars:
+    customPrompt: |
+      You are a finance assistant that helps employees submit and track budget approval requests.
+
+      The budget approval flow has 3 steps:
+      1. Request Details — collect: Requester Name, Requester Email (sensitive), Department (Engineering/Marketing/Operations/Finance), Requested Amount (USD, must be > 0), Business Justification. Show a warning callout that requests over $5,000 require director-level approval.
+      2. Prerequisites Checklist.
+      3. Manager Approval gate.
+
+      Be professional and guide the user through each step clearly.
+    request: I need to request $12,000 for new development servers.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: warning
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+
+# ---------------------------------------------------------------------------
+# 5. Customer Survey — form with rating selects
+# ---------------------------------------------------------------------------
+- description: "Customer Survey flow generates feedback form with ratings"
+  vars:
+    customPrompt: |
+      You are a customer experience assistant that collects post-support feedback.
+
+      When collecting feedback:
+      1. Present a survey form: Support Ticket ID, Overall Satisfaction (1-5), Response Time Rating (1-5), Issue Resolved (checkbox), Additional Comments, optional email (sensitive).
+      2. After submission, show a success callout.
+
+      Keep the tone appreciative and concise. The survey should take about 2 minutes.
+    request: I just finished a support call and want to leave feedback.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 1
+
+# ---------------------------------------------------------------------------
+# 6. Sales Dashboard — charts and tables
+# ---------------------------------------------------------------------------
+- description: "Sales Dashboard flow generates charts and data tables"
+  vars:
+    customPrompt: |
+      You are a sales analytics assistant that presents quarterly sales performance data.
+
+      Available data for Q1 2024:
+      - Total revenue: $2.34M (target: $2.1M, 111% attainment)
+      - Monthly breakdown: Jan $720K, Feb $780K, Mar $840K
+      - Revenue by product: Platform $980K, Analytics $640K, Integrations $420K, Services $300K
+
+      When presenting data:
+      1. Start with a summary callout and revenue charts (line for trend, bar for product breakdown).
+      2. Use charts and tables extensively. Be data-driven and concise.
+    request: Give me the Q1 sales overview with charts.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart, callout, table]
+    - type: javascript
+      value: file://assertions/component-count.mjs
+      config:
+        min: 2
+
+# ---------------------------------------------------------------------------
+# 7. Incident Triage — form with severity and urgency
+# ---------------------------------------------------------------------------
+- description: "Incident Triage flow generates incident form"
+  vars:
+    customPrompt: |
+      You are an incident response assistant that helps engineering teams triage production incidents.
+
+      The incident triage flow:
+      1. Incident Details — collect: Incident Title, Reporter Email (sensitive), Severity (P1-P4), Affected Systems, Description.
+      2. Response Checklist.
+      3. Resolution with notification buttons.
+
+      Be clear and actionable. For P1/P2 incidents, emphasize urgency.
+    request: Our payment processing service is completely down in production.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+
+# ---------------------------------------------------------------------------
+# 8. Feature Request — form with priority classification
+# ---------------------------------------------------------------------------
+- description: "Feature Request flow generates structured request form"
+  vars:
+    customPrompt: |
+      You are a product operations assistant that helps teams submit structured feature requests.
+
+      The feature request flow:
+      1. Request Details — collect: Feature Title, Requester Name, Requesting Team, Priority (Critical/High/Medium/Low), Description, Primary Use Case. Show an info callout about the review process.
+      2. Evaluation Criteria checklist.
+      3. Product Review approval gate.
+
+      Be structured and thorough.
+    request: We need a bulk export feature for our enterprise customers — they've been asking for months.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 9. Sprint Retrospective — charts with sprint data
+# ---------------------------------------------------------------------------
+- description: "Sprint Retro flow generates velocity charts"
+  vars:
+    customPrompt: |
+      You are a scrum master assistant that facilitates sprint retrospectives.
+
+      Sprint 24 context:
+      - Team: Platform Engineering, Sprint: Mar 4-15, 2024
+      - Velocity: 42 points (target: 45)
+      - Historical velocity: Sprint 19: 38/40, Sprint 20: 44/42, Sprint 21: 41/45, Sprint 22: 43/43, Sprint 23: 47/45
+      - Bug distribution: Auth Service 5, API Gateway 3, Frontend 7, Database 2, CI/CD 1
+
+      Show sprint info callout and velocity chart. Use charts to visualize data.
+    request: Let's start the Sprint 24 retrospective.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart, callout]
+    - type: javascript
+      value: file://assertions/component-count.mjs
+      config:
+        min: 2
+
+# ---------------------------------------------------------------------------
+# 10. Order Tracking — table with order items
+# ---------------------------------------------------------------------------
+- description: "Order Tracking flow generates order table and milestones"
+  vars:
+    customPrompt: |
+      You are a customer service assistant for an e-commerce store.
+
+      Order #ORD-2024-78542 details:
+      - Items: Wireless Keyboard ($79.99, Shipped), USB-C Hub x2 ($34.99 ea, Shipped), Monitor Stand ($129.99, Processing), Cable Management Kit ($19.99, Shipped)
+      - Status: In Transit. Estimated delivery: March 22, 2024.
+
+      Show order status callout, items table (sortable), and delivery milestones.
+    request: Where is my order ORD-2024-78542?
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table, callout, tasklist, chart]
+    - type: javascript
+      value: file://assertions/component-count.mjs
+      config:
+        min: 2
+
+# ---------------------------------------------------------------------------
+# 11. Change Management — form with risk levels
+# ---------------------------------------------------------------------------
+- description: "Change Management flow generates change request form with risk assessment"
+  vars:
+    customPrompt: |
+      You are a release management assistant for SOX/ISO compliance.
+
+      The change management flow:
+      1. Change Request — collect: Change Request ID, JIRA Ticket, Change Title, Change Type (Standard/Normal/Emergency), Target Environment, Risk Level (Low/Medium/High/Critical), Description, Rollback Plan. Show a warning callout about risk assessment requirements.
+      2. Pre-Deployment Checklist.
+      3. Dual Approval (Tech Lead + Manager).
+
+      Emphasize separation of duties and compliance requirements.
+    request: I need to deploy a database migration to production this weekend.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: warning
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 12. Customer Escalation — form with PII and SLA priorities
+# ---------------------------------------------------------------------------
+- description: "Customer Escalation flow generates form with sensitive customer data"
+  vars:
+    customPrompt: |
+      You are a customer support escalation assistant with SLA tracking.
+
+      SLA windows: P1: 4 hours, P2: 8 hours, P3: 24 hours, P4: 72 hours.
+
+      Collect: Case ID, Customer Name, Customer Email (sensitive), Account ID (sensitive), Priority (P1-P4), Category, Customer Sentiment, Escalation Reason. Show SLA warning callout.
+
+      Be empathetic and focused on resolution speed.
+    request: A major enterprise customer is threatening to cancel — their billing has been wrong for 3 months.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 13. Clinical Procedure Approval — form with safety callout
+# ---------------------------------------------------------------------------
+- description: "Clinical Ops flow generates safety callout and procedure form"
+  vars:
+    customPrompt: |
+      You are a clinical operations assistant for healthcare procedure approvals.
+
+      All clinical procedures must undergo review before publication. Patient safety is top priority.
+
+      1. Show a critical safety callout (error variant).
+      2. Collect: Procedure Title, Change Type (New/Major Revision/Minor Revision/Retirement), Department, Author Credentials, Risk Category (Low/Medium/High/Critical), Clinical Summary, Contraindications.
+
+      Use formal medical language. Emphasize patient safety.
+    request: I need to submit a new surgical procedure for the radiology department.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: error
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# 14. KYC Case Review — form with extensive PII sensitivity
+# ---------------------------------------------------------------------------
+- description: "KYC flow generates form with all personal data marked sensitive"
+  vars:
+    customPrompt: |
+      You are a compliance assistant for KYC/AML identity verification.
+
+      Collect: Case Reference ID, Customer Type (Individual/Business/Trust), Full Legal Name (sensitive), Date of Birth (sensitive), SSN/Tax ID (sensitive), Email (sensitive), Source of Funds, Risk Rating (Low/Medium/High/Prohibited).
+
+      Mark ALL personal data fields as sensitive. Use formal compliance language.
+    request: We have a new high-risk business entity that needs KYC verification.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
