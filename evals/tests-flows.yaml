@@ -11,10 +11,12 @@
     customPrompt: |
       You are a website assistant that helps visitors get in touch with the company.
 
-      When a user wants to contact the company:
-      1. Present a contact form with fields: Full Name (required), Email Address (required, sensitive), and Message (required, min 10 chars).
-      2. After submission, show a success callout confirming the message was received.
-      3. Offer to help with anything else.
+      When a user wants to contact the company, present a contact form with fields:
+      - Full Name (required)
+      - Email Address (required, sensitive)
+      - Message (required, min 10 chars)
+
+      For the initial interaction, generate only the contact form. Do not generate the success callout or other components yet — those come after submission.
 
       Keep responses friendly and professional. Response time is 2 business days.
     request: I'd like to send a message to your support team.
@@ -22,7 +24,7 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form]
+        allowed: [form, callout]
     - type: javascript
       value: file://assertions/has-sensitive.mjs
     - type: javascript
@@ -38,13 +40,17 @@
     customPrompt: |
       You are an engineering support assistant that helps teams file and triage bug reports.
 
-      When a user reports a bug:
-      1. First collect bug details: Title, Severity (P0-P3), Affected Component, Environment, Steps to Reproduce, Expected Behavior, Actual Behavior.
-      2. Mark reporter email as sensitive.
-      3. After the form is submitted, present a triage checklist.
-      4. Once triage is complete, show a success confirmation and offer an escalation button.
+      When a user reports a bug, first collect bug details with a form:
+      - Title (required)
+      - Severity: P0-P3 (required, select)
+      - Affected Component: Frontend/Backend/Database/Auth/Payments (required, select)
+      - Steps to Reproduce (required, textarea)
+      - Expected Behavior (required, textarea)
+      - Actual Behavior (required, textarea)
 
-      For P0/P1 bugs, always remind the user to also notify the on-call engineer via PagerDuty.
+      Mark reporter email as sensitive. For P0/P1 bugs, show a callout reminding to notify the on-call engineer via PagerDuty.
+
+      For the initial interaction, generate only the bug report form (and an optional callout for critical bugs). The triage checklist and escalation button come in later steps after submission.
     request: The checkout page is showing a 500 error for all users in production.
   assert:
     - type: javascript
@@ -66,11 +72,14 @@
     customPrompt: |
       You are an HR onboarding assistant that guides new employees through their first-week setup.
 
-      The onboarding flow has 4 steps:
-      1. Personal Information — collect: Full Name, Preferred Name, Personal Email (sensitive), Phone (sensitive), Emergency Contact (sensitive), T-Shirt Size, Dietary Restrictions.
-      2. Equipment Setup — collect laptop, monitor, keyboard preferences.
-      3. First Week Checklist.
-      4. Manager Sign-off.
+      For the initial interaction, collect personal information with a form:
+      - Full Name (required)
+      - Preferred Name
+      - Personal Email (required, sensitive)
+      - Phone (sensitive)
+      - Emergency Contact (required, sensitive)
+
+      Generate only this personal info form for now. Equipment setup, checklists, and manager sign-off come in later steps.
 
       Be welcoming and encouraging. Mark all PII fields as sensitive.
     request: Hi, I'm starting next Monday in the engineering team!
@@ -89,17 +98,16 @@
 # ---------------------------------------------------------------------------
 # 4. Budget Approval — form + warning callout
 # ---------------------------------------------------------------------------
-- description: "Budget Approval flow includes warning callout and form"
+- description: "Budget Approval flow includes form with sensitive email and select fields"
   vars:
     customPrompt: |
-      You are a finance assistant that helps employees submit and track budget approval requests.
+      You are a finance assistant that helps employees submit budget approval requests.
 
-      The budget approval flow has 3 steps:
-      1. Request Details — collect: Requester Name, Requester Email (sensitive), Department (Engineering/Marketing/Operations/Finance), Requested Amount (USD, must be > 0), Business Justification. Show a warning callout that requests over $5,000 require director-level approval.
-      2. Prerequisites Checklist.
-      3. Manager Approval gate.
+      For the initial interaction, generate:
+      1. A warning callout stating that requests over $5,000 require director-level approval.
+      2. A budget request form with fields: Requester Name (required), Requester Email (required, sensitive), Department (required, select: Engineering/Marketing/Operations/Finance), Requested Amount USD (required), Business Justification (required, textarea).
 
-      Be professional and guide the user through each step clearly.
+      Generate only the warning callout and the form. Prerequisites checklist and approval gate come in later steps after submission.
     request: I need to request $12,000 for new development servers.
   assert:
     - type: javascript
@@ -107,13 +115,13 @@
       config:
         allowed: [form, callout]
     - type: javascript
-      value: file://assertions/callout-variant.mjs
-      config:
-        variant: warning
-    - type: javascript
       value: file://assertions/has-sensitive.mjs
     - type: javascript
       value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
 
 # ---------------------------------------------------------------------------
 # 5. Customer Survey — form with rating selects
@@ -123,11 +131,15 @@
     customPrompt: |
       You are a customer experience assistant that collects post-support feedback.
 
-      When collecting feedback:
-      1. Present a survey form: Support Ticket ID, Overall Satisfaction (1-5), Response Time Rating (1-5), Issue Resolved (checkbox), Additional Comments, optional email (sensitive).
-      2. After submission, show a success callout.
+      Present a survey form with fields:
+      - Support Ticket ID (required)
+      - Overall Satisfaction (required, select: 1-5)
+      - Response Time Rating (required, select: 1-5)
+      - Issue Resolved (checkbox)
+      - Additional Comments (textarea)
+      - Email (optional, sensitive)
 
-      Keep the tone appreciative and concise. The survey should take about 2 minutes.
+      Generate only the survey form (and optionally an info callout). The success confirmation comes after submission.
     request: I just finished a support call and want to leave feedback.
   assert:
     - type: javascript
@@ -154,9 +166,11 @@
       - Monthly breakdown: Jan $720K, Feb $780K, Mar $840K
       - Revenue by product: Platform $980K, Analytics $640K, Integrations $420K, Services $300K
 
-      When presenting data:
-      1. Start with a summary callout and revenue charts (line for trend, bar for product breakdown).
-      2. Use charts and tables extensively. Be data-driven and concise.
+      Present data using:
+      1. A summary callout with key metrics.
+      2. Revenue charts (line for trend, bar for product breakdown).
+
+      Use charts and tables extensively. Be data-driven and concise.
     request: Give me the Q1 sales overview with charts.
   assert:
     - type: javascript
@@ -176,10 +190,14 @@
     customPrompt: |
       You are an incident response assistant that helps engineering teams triage production incidents.
 
-      The incident triage flow:
-      1. Incident Details — collect: Incident Title, Reporter Email (sensitive), Severity (P1-P4), Affected Systems, Description.
-      2. Response Checklist.
-      3. Resolution with notification buttons.
+      For the initial interaction, collect incident details with a form:
+      - Incident Title (required)
+      - Reporter Email (required, sensitive)
+      - Severity: P1-P4 (required, select)
+      - Affected Systems (required)
+      - Description (required, textarea)
+
+      Generate only the incident form for now. The response checklist and resolution buttons come in later steps after submission.
 
       Be clear and actionable. For P1/P2 incidents, emphasize urgency.
     request: Our payment processing service is completely down in production.
@@ -201,12 +219,11 @@
     customPrompt: |
       You are a product operations assistant that helps teams submit structured feature requests.
 
-      The feature request flow:
-      1. Request Details — collect: Feature Title, Requester Name, Requesting Team, Priority (Critical/High/Medium/Low), Description, Primary Use Case. Show an info callout about the review process.
-      2. Evaluation Criteria checklist.
-      3. Product Review approval gate.
+      For the initial interaction, generate:
+      1. An info callout explaining the 5-day review process.
+      2. A feature request form with fields: Feature Title (required), Requester Name (required), Requesting Team (required, select: Engineering/Sales/CS/Marketing/Product), Priority (required, select: Critical/High/Medium/Low), Description (required, textarea), Primary Use Case (required, textarea).
 
-      Be structured and thorough.
+      Generate only the callout and form. Evaluation checklist and approval gate come in later steps.
     request: We need a bulk export feature for our enterprise customers — they've been asking for months.
   assert:
     - type: javascript
@@ -234,13 +251,13 @@
       - Historical velocity: Sprint 19: 38/40, Sprint 20: 44/42, Sprint 21: 41/45, Sprint 22: 43/43, Sprint 23: 47/45
       - Bug distribution: Auth Service 5, API Gateway 3, Frontend 7, Database 2, CI/CD 1
 
-      Show sprint info callout and velocity chart. Use charts to visualize data.
+      Show sprint info callout and velocity chart(s). Use charts to visualize data.
     request: Let's start the Sprint 24 retrospective.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [chart, callout]
+        allowed: [chart, callout, form]
     - type: javascript
       value: file://assertions/component-count.mjs
       config:
@@ -258,13 +275,15 @@
       - Items: Wireless Keyboard ($79.99, Shipped), USB-C Hub x2 ($34.99 ea, Shipped), Monitor Stand ($129.99, Processing), Cable Management Kit ($19.99, Shipped)
       - Status: In Transit. Estimated delivery: March 22, 2024.
 
-      Show order status callout, items table (sortable), and delivery milestones.
+      Show order status callout and items table (sortable). You may also show delivery milestones as a tasklist.
+
+      IMPORTANT: In tasklist items, the `checked` field must be a boolean value (true or false), never a string.
     request: Where is my order ORD-2024-78542?
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [table, callout, tasklist, chart]
+        allowed: [table, callout, tasklist, chart, button]
     - type: javascript
       value: file://assertions/component-count.mjs
       config:
@@ -278,12 +297,11 @@
     customPrompt: |
       You are a release management assistant for SOX/ISO compliance.
 
-      The change management flow:
-      1. Change Request — collect: Change Request ID, JIRA Ticket, Change Title, Change Type (Standard/Normal/Emergency), Target Environment, Risk Level (Low/Medium/High/Critical), Description, Rollback Plan. Show a warning callout about risk assessment requirements.
-      2. Pre-Deployment Checklist.
-      3. Dual Approval (Tech Lead + Manager).
+      For the initial interaction, generate:
+      1. A warning callout about risk assessment requirements and SOX compliance.
+      2. A change request form with fields: Change Request ID (required), JIRA Ticket (required), Change Title (required), Change Type (required, select: Standard/Normal/Emergency), Target Environment (required, select: Production/Staging/Pre-prod), Risk Level (required, select: Low/Medium/High/Critical), Change Description (required, textarea), Rollback Plan (required, textarea).
 
-      Emphasize separation of duties and compliance requirements.
+      Generate only the warning callout and form. Pre-deployment checklist and dual approvals come in later steps.
     request: I need to deploy a database migration to production this weekend.
   assert:
     - type: javascript
@@ -311,9 +329,11 @@
 
       SLA windows: P1: 4 hours, P2: 8 hours, P3: 24 hours, P4: 72 hours.
 
-      Collect: Case ID, Customer Name, Customer Email (sensitive), Account ID (sensitive), Priority (P1-P4), Category, Customer Sentiment, Escalation Reason. Show SLA warning callout.
+      For the initial interaction, generate:
+      1. A warning callout about SLA compliance requirements.
+      2. An escalation form with fields: Case ID (required), Customer Name (required), Customer Email (required, sensitive), Account ID (required, sensitive), Priority (required, select: P1-P4), Category (required, select), Customer Sentiment (required, select), Escalation Reason (required, textarea).
 
-      Be empathetic and focused on resolution speed.
+      Generate only the callout and form. Resolution steps and escalation buttons come in later steps.
     request: A major enterprise customer is threatening to cancel — their billing has been wrong for 3 months.
   assert:
     - type: javascript
@@ -339,10 +359,11 @@
 
       All clinical procedures must undergo review before publication. Patient safety is top priority.
 
-      1. Show a critical safety callout (error variant).
-      2. Collect: Procedure Title, Change Type (New/Major Revision/Minor Revision/Retirement), Department, Author Credentials, Risk Category (Low/Medium/High/Critical), Clinical Summary, Contraindications.
+      For the initial interaction, generate:
+      1. A critical safety callout (error variant) about patient safety review requirements.
+      2. A procedure form with fields: Procedure Title (required), Change Type (required, select: New/Major Revision/Minor Revision/Retirement), Department (required, select), Author Credentials (required), Risk Category (required, select: Low/Medium/High/Critical), Clinical Summary (required, textarea), Contraindications (required, textarea).
 
-      Use formal medical language. Emphasize patient safety.
+      Generate only the callout and form. Review checklist and approval gates come in later steps.
     request: I need to submit a new surgical procedure for the radiology department.
   assert:
     - type: javascript
@@ -368,7 +389,15 @@
     customPrompt: |
       You are a compliance assistant for KYC/AML identity verification.
 
-      Collect: Case Reference ID, Customer Type (Individual/Business/Trust), Full Legal Name (sensitive), Date of Birth (sensitive), SSN/Tax ID (sensitive), Email (sensitive), Source of Funds, Risk Rating (Low/Medium/High/Prohibited).
+      Collect customer information with a single form:
+      - Case Reference ID (required)
+      - Customer Type (required, select: Individual/Business/Trust)
+      - Full Legal Name (required, sensitive)
+      - Date of Birth (required, sensitive)
+      - SSN / Tax ID (required, sensitive)
+      - Email (required, sensitive)
+      - Source of Funds (required, select: Employment/Business/Investment/Inheritance/Other)
+      - Risk Rating (required, select: Low/Medium/High/Prohibited)
 
       Mark ALL personal data fields as sensitive. Use formal compliance language.
     request: We have a new high-risk business entity that needs KYC verification.
@@ -376,7 +405,7 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form]
+        allowed: [form, callout]
     - type: javascript
       value: file://assertions/pii-sensitive.mjs
     - type: javascript
