@@ -86,9 +86,11 @@ export function useChat(options?: UseChatOptions) {
 
   // Stable refs for options that shouldn't trigger re-renders
   const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
-  const stableSystemPrompt = useRef(
+  const defaultSystemPrompt = useRef(
     buildSystemPrompt({ customPrompt: options?.systemPrompt }),
   ).current;
+  // Active system prompt — can be overridden by a flow's customPrompt
+  const systemPromptRef = useRef(defaultSystemPrompt);
   const stableUserSuffix = useRef(
     options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,
   ).current;
@@ -229,7 +231,7 @@ export function useChat(options?: UseChatOptions) {
 
     // Build conversation history for the LLM
     const history: LlmMessage[] = [
-      { role: 'system', content: stableSystemPrompt },
+      { role: 'system', content: systemPromptRef.current },
     ];
 
     for (const m of [...messages, userMsg]) {
@@ -295,8 +297,10 @@ export function useChat(options?: UseChatOptions) {
     setInput('');
     clearSavedHistory(stableStorageKey);
     msgIdRef.current = 0;
+    flowRef.current = null;
+    systemPromptRef.current = defaultSystemPrompt;
     inputRef.current?.focus();
-  }, []);
+  }, [defaultSystemPrompt]);
 
   /** Update an assistant message's content and re-parse it. */
   const updateMessage = useCallback(
@@ -307,6 +311,74 @@ export function useChat(options?: UseChatOptions) {
       await reparseLastAssistant(content, msgId);
     },
     [reparseLastAssistant],
+  );
+
+  // Active flow state for multi-step example flows
+  const flowRef = useRef<{ steps: { userMessage: string; markdown: string }[]; currentStep: number } | null>(null);
+
+  /** Inject a single user+assistant message pair and parse the markdown. */
+  const injectStep = useCallback(
+    async (userMessage: string, markdown: string) => {
+      const userMsg: ChatMsg = {
+        id: ++msgIdRef.current,
+        role: 'user',
+        content: userMessage,
+        ast: null,
+        store: null,
+      };
+      const assistantMsg: ChatMsg = {
+        id: ++msgIdRef.current,
+        role: 'assistant',
+        content: markdown,
+        ast: null,
+        store: null,
+      };
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+
+      const asstId = assistantMsg.id;
+      try {
+        const { ast, store } = await parseMarkdownRef.current(markdown);
+        setMessages((prev) =>
+          prev.map((m) => (m.id === asstId ? { ...m, ast, store } : m)),
+        );
+      } catch {
+        // parse error — content is still shown as raw text
+      }
+    },
+    [],
+  );
+
+  /** Start a multi-step example flow. Loads the first step immediately. */
+  const startFlow = useCallback(
+    async (steps: { userMessage: string; markdown: string }[], customPrompt?: string) => {
+      if (steps.length === 0) return;
+      // Override system prompt if a flow-specific custom prompt is provided
+      systemPromptRef.current = customPrompt
+        ? buildSystemPrompt({ customPrompt })
+        : defaultSystemPrompt;
+      flowRef.current = { steps, currentStep: 0 };
+      await injectStep(steps[0].userMessage, steps[0].markdown);
+      flowRef.current!.currentStep = 1;
+    },
+    [injectStep, defaultSystemPrompt],
+  );
+
+  /** Advance the active flow to the next step (if any). */
+  const advanceFlow = useCallback(async () => {
+    const flow = flowRef.current;
+    if (!flow || flow.currentStep >= flow.steps.length) return;
+    const step = flow.steps[flow.currentStep];
+    flow.currentStep++;
+    await injectStep(step.userMessage, step.markdown);
+  }, [injectStep]);
+
+  /** Inject a pre-built markdown document as a user+assistant message pair. */
+  const injectDocument = useCallback(
+    async (label: string, markdown: string) => {
+      flowRef.current = null; // clear any active flow
+      await injectStep(`Show me: ${label}`, markdown);
+    },
+    [injectStep],
   );
 
   return {
@@ -323,5 +395,8 @@ export function useChat(options?: UseChatOptions) {
     stop,
     clear,
     updateMessage,
+    injectDocument,
+    startFlow,
+    advanceFlow,
   };
 }

@@ -319,7 +319,7 @@ pnpm eval:view
 ## Initial Roadmap
 
 ### v0.2 — Developer Experience
-- [ ] More examples (10+ real-world use cases)
+- [x] More examples (14 real-world use cases)
 - [x] CLI tool for prompt creation (MDMA flows)
 - [ ] Improved error messages in parser and validator
 - [ ] File upload field type for forms
