@@ -52,17 +52,17 @@ export function validateComponent(
     };
   }
 
-  // Check if it's a known core type
+  // Unknown core type — pass through as a generic component so the renderer
+  // can display a proper "Unknown component type" fallback instead of a
+  // loading skeleton.
   if (!componentSchemaRegistry.has(type)) {
     return {
-      ok: false,
-      errors: [
-        new MdmaParseError(
-          `Unknown component type: "${type}"`,
-          ErrorCodes.UNKNOWN_COMPONENT_TYPE,
-          position,
-        ),
-      ],
+      ok: true,
+      component: {
+        id: typeof data.id === 'string' ? data.id : `unknown-${type}`,
+        type,
+        ...data,
+      } as MdmaComponent,
     };
   }
 

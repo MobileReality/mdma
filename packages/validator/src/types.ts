@@ -10,7 +10,14 @@ export type ValidationRuleId =
   | 'required-markers'
   | 'id-format'
   | 'thinking-block'
-  | 'yaml-correctness';
+  | 'yaml-correctness'
+  | 'table-data-keys'
+  | 'select-options'
+  | 'chart-validation'
+  | 'placeholder-content'
+  | 'unreferenced-components'
+  | 'flow-ordering'
+  | 'field-name-typos';
 
 export interface ValidationIssue {
   /** Which rule flagged this */
@@ -96,6 +103,8 @@ export interface ValidatorOptions {
   autoFix?: boolean;
   /** Custom PII field name patterns to check (in addition to defaults). */
   customPiiPatterns?: RegExp[];
+  /** Custom component Zod schemas for types not in the built-in registry. */
+  customSchemas?: Record<string, unknown>;
 }
 
 export interface ValidationResult {

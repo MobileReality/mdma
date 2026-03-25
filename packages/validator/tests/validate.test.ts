@@ -282,6 +282,26 @@ data: personal-info.rows
     expect(result.output).toContain('{{personal-info.rows}}');
   });
 
+  it('auto-fixes button with missing text by deriving from id', () => {
+    const md = `\`\`\`mdma
+type: button
+id: submit-order
+variant: primary
+onAction: some-form
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'submit-order',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // text should be derived from id
+    expect(result.output).toContain('Submit Order');
+  });
+
   it('auto-splits multi-component mdma blocks into separate blocks', () => {
     const md = `# Test
 

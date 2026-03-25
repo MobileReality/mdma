@@ -1,23 +1,11 @@
 import type { ValidationRule } from '../types.js';
-
-/**
- * Fields that are cross-references to other component IDs.
- * Only `webhook.trigger` is a true cross-reference — it must point to
- * an existing component's action.
- *
- * Fields like form.onSubmit, button.onAction, tasklist.onComplete are
- * action identifiers (event names), NOT references to other components.
- * They are always valid as-is and should not be flagged.
- */
-const CROSS_REFERENCE_FIELDS: Record<string, string[]> = {
-  webhook: ['trigger'],
-};
+import { ACTION_REFERENCE_FIELDS } from '../constants.js';
 
 export const actionReferencesRule: ValidationRule = {
   id: 'action-references',
   name: 'Action References',
   description:
-    'Checks that cross-reference fields (e.g. webhook trigger) reference valid component IDs',
+    'Checks that action and cross-reference fields (onSubmit, onAction, onComplete, onApprove, onDeny, trigger) reference valid component IDs',
   defaultSeverity: 'warning',
 
   validate(context) {
@@ -30,7 +18,7 @@ export const actionReferencesRule: ValidationRule = {
       const id =
         typeof block.data.id === 'string' ? block.data.id : null;
 
-      const fields = CROSS_REFERENCE_FIELDS[type];
+      const fields = ACTION_REFERENCE_FIELDS[type];
       if (!fields) continue;
 
       for (const field of fields) {

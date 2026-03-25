@@ -1,4 +1,5 @@
 import type { FixContext } from '../types.js';
+import { ACTION_FIELD_NAMES } from '../constants.js';
 
 export function toKebabCase(id: string): string {
   return id
@@ -9,16 +10,6 @@ export function toKebabCase(id: string): string {
     .replace(/^-+|-+$/g, '')
     .replace(/-{2,}/g, '-');
 }
-
-/** Action handler fields that may reference other component IDs */
-const ACTION_FIELDS = [
-  'onSubmit',
-  'onAction',
-  'onComplete',
-  'onApprove',
-  'onDeny',
-  'trigger',
-];
 
 export function fixIdFormat(context: FixContext): void {
   const idRenames = new Map<string, string>(); // old -> new
@@ -47,7 +38,7 @@ export function fixIdFormat(context: FixContext): void {
     if (block.data === null) continue;
 
     // Update action reference fields
-    for (const field of ACTION_FIELDS) {
+    for (const field of ACTION_FIELD_NAMES) {
       if (typeof block.data[field] === 'string') {
         const newId = idRenames.get(block.data[field] as string);
         if (newId) {

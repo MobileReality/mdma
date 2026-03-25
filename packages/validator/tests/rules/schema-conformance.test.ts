@@ -82,6 +82,55 @@ describe('schema-conformance rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
+  it('validates custom component type via customSchemas', () => {
+    const { z } = require('zod');
+    const customSchema = z.object({
+      type: z.literal('progress'),
+      id: z.string().min(1),
+      value: z.number().min(0).max(100),
+      label: z.string().optional(),
+    });
+    const ctx: ValidationRuleContext = {
+      blocks: [createBlock(0, { type: 'progress', id: 'p', value: 50 })],
+      idMap: new Map([['p', 0]]),
+      issues: [],
+      options: { customSchemas: { progress: customSchema } },
+    };
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('flags invalid custom component', () => {
+    const { z } = require('zod');
+    const customSchema = z.object({
+      type: z.literal('progress'),
+      id: z.string().min(1),
+      value: z.number().min(0).max(100),
+    });
+    const ctx: ValidationRuleContext = {
+      blocks: [createBlock(0, { type: 'progress', id: 'p', value: 200 })],
+      idMap: new Map([['p', 0]]),
+      issues: [],
+      options: { customSchemas: { progress: customSchema } },
+    };
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues.length).toBeGreaterThan(0);
+  });
+
+  it('does not use custom schema for built-in types', () => {
+    const { z } = require('zod');
+    const fakeSchema = z.object({ type: z.literal('callout') });
+    const ctx: ValidationRuleContext = {
+      blocks: [createBlock(0, { type: 'callout', id: 'c', content: 'Hello' })],
+      idMap: new Map([['c', 0]]),
+      issues: [],
+      options: { customSchemas: { callout: fakeSchema } },
+    };
+    schemaConformanceRule.validate(ctx);
+    // Should use built-in schema (which passes), not the fake one
+    expect(ctx.issues).toHaveLength(0);
+  });
+
   it('passes for a valid callout', () => {
     const ctx = createContext([
       createBlock(0, {

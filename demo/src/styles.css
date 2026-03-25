@@ -2356,6 +2356,44 @@ body {
   color: #2980b9;
 }
 
+.validator-variant-selector {
+  display: flex;
+  gap: 6px;
+  padding: 8px 16px;
+  overflow-x: auto;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.validator-variant-btn {
+  padding: 5px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.validator-variant-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.validator-variant-btn--active {
+  background: #3498db;
+  color: #fff;
+  border-color: #3498db;
+}
+
+.validator-variant-btn--active:hover {
+  background: #2980b9;
+  border-color: #2980b9;
+}
+
 .validator-content {
   display: flex;
   flex: 1;

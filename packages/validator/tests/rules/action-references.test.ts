@@ -34,7 +34,7 @@ describe('action-references rule', () => {
         type: 'button',
         id: 'submit-btn',
         text: 'Submit',
-        onAction: 'submit-action',
+        onAction: 'submit-btn',
       }),
       createBlock(1, {
         type: 'webhook',
@@ -69,7 +69,7 @@ describe('action-references rule', () => {
         type: 'button',
         id: 'submit-btn',
         text: 'Go',
-        onAction: 'do-it',
+        onAction: 'submit-btn',
       }),
       createBlock(1, {
         type: 'webhook',
@@ -84,23 +84,81 @@ describe('action-references rule', () => {
     expect(ctx.issues[0].message).toContain('submit-btn');
   });
 
-  it('does not flag non-webhook components', () => {
+  it('flags form onSubmit referencing non-existent component', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'f',
+        fields: [],
+        onSubmit: 'nonexistent-action',
+      }),
+    ]);
+    actionReferencesRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('nonexistent-action');
+  });
+
+  it('passes when form onSubmit references valid component', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'f',
+        fields: [],
+        onSubmit: 'wh',
+      }),
+      createBlock(1, {
+        type: 'webhook',
+        id: 'wh',
+        url: 'https://api.example.com',
+        trigger: 'f',
+      }),
+    ]);
+    actionReferencesRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('flags button onAction referencing non-existent component', () => {
     const ctx = createContext([
       createBlock(0, {
         type: 'button',
         id: 'btn',
         text: 'Submit',
-        onAction: 'some-action-that-doesnt-exist-as-id',
-      }),
-      createBlock(1, {
-        type: 'form',
-        id: 'f',
-        fields: [],
-        onSubmit: 'another-nonexistent-action',
+        onAction: 'does-not-exist',
       }),
     ]);
     actionReferencesRule.validate(ctx);
-    expect(ctx.issues).toHaveLength(0);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('does-not-exist');
+  });
+
+  it('flags tasklist onComplete referencing non-existent component', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'tasklist',
+        id: 'tl',
+        items: [],
+        onComplete: 'missing-target',
+      }),
+    ]);
+    actionReferencesRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('missing-target');
+  });
+
+  it('flags approval-gate onApprove and onDeny referencing non-existent components', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'approval-gate',
+        id: 'ag',
+        title: 'Approve',
+        onApprove: 'missing-approve',
+        onDeny: 'missing-deny',
+      }),
+    ]);
+    actionReferencesRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(2);
+    expect(ctx.issues[0].message).toContain('missing-approve');
+    expect(ctx.issues[1].message).toContain('missing-deny');
   });
 
   it('skips blocks with null data', () => {

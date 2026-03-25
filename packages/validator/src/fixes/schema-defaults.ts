@@ -158,6 +158,21 @@ function patchCalloutContent(data: Record<string, unknown>): void {
 }
 
 /**
+ * Pre-fix button: fill missing `text` from `id`.
+ */
+function patchButtonText(data: Record<string, unknown>): void {
+  if (data.type !== 'button') return;
+  if (typeof data.text === 'string' && data.text.trim().length > 0) return;
+
+  if (typeof data.id === 'string') {
+    data.text = keyToHeader(data.id);
+    return;
+  }
+
+  data.text = 'Button';
+}
+
+/**
  * Component-level properties that are Zod defaults and should be stripped
  * from the output to keep it concise. Key = property name, value = default value.
  */
@@ -227,7 +242,13 @@ export function fixSchemaDefaults(context: FixContext): void {
     const type = block.data.type;
     if (typeof type !== 'string') continue;
 
-    const schema = componentSchemaRegistry.get(type);
+    let schema = componentSchemaRegistry.get(type);
+
+    // Fall back to custom schemas for types not in the built-in registry
+    if (!schema && context.options.customSchemas?.[type]) {
+      schema = context.options.customSchemas[type] as import('zod').ZodType;
+    }
+
     if (!schema) continue;
 
     // Patch known gaps before Zod re-parse
@@ -235,6 +256,7 @@ export function fixSchemaDefaults(context: FixContext): void {
     patchTableData(block.data);
     patchFormFields(block.data);
     patchCalloutContent(block.data);
+    patchButtonText(block.data);
 
     // Re-parse with Zod to apply defaults and coercions
     const result = schema.safeParse(block.data);

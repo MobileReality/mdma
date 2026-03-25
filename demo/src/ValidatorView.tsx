@@ -5,24 +5,7 @@ import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { validate, type ValidationResult, type ValidationIssue } from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
-
-const VALIDATOR_PROMPT = `You are an AI assistant for testing the MDMA validator.
-Generate MDMA components with various issues so the validator can demonstrate its capabilities.
-
-IMPORTANT: When the user asks you to generate MDMA content, you MUST intentionally introduce bugs and issues into your output so the validator can catch and fix them. Mix in these problems across your components:
-
-1. **Duplicate IDs** — Use the same id for two different components (e.g. two callouts both with id: notice)
-2. **Bad ID format** — Use camelCase or snake_case IDs instead of kebab-case (e.g. id: myForm, id: user_table)
-3. **Missing sensitive flags** — Include PII fields like email, phone, ssn, address without sensitive: true
-4. **Missing thinking block** — Omit the thinking block entirely
-5. **Bad binding syntax** — Use single braces {var.path} instead of {{var.path}}, or add extra whitespace {{ var.path }}
-6. **Empty callout content** — Create a callout with content: "" or omit the content field
-7. **Missing table headers** — Define table columns with just key: but no header:
-8. **Missing form labels** — Define form fields with just name: but no label:
-9. **YAML document separators** — Add --- at the end of an mdma block
-10. **Bare binding in table data** — Use data: some-component.rows instead of data: "{{some-component.rows}}"
-
-Try to include at least 4-5 different issues in each response. The goal is to stress-test the validator's detection and auto-fix capabilities. Generate real, useful-looking components (forms, tables, callouts, etc.) — just with these intentional mistakes baked in.`;
+import { VALIDATOR_PROMPT_VARIANTS } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -120,7 +103,9 @@ function ValidationPanel({ results }: { results: Map<number, ValidationResult> }
   );
 }
 
-export function ValidatorView() {
+function ValidatorChatInner({ promptKey }: { promptKey: string }) {
+  const variant = VALIDATOR_PROMPT_VARIANTS.find((v) => v.key === promptKey)!;
+
   const {
     config,
     messages,
@@ -136,8 +121,8 @@ export function ValidatorView() {
     clear,
     updateMessage,
   } = useChat({
-    systemPrompt: VALIDATOR_PROMPT,
-    storageKey: 'validator',
+    systemPrompt: variant.prompt,
+    storageKey: `validator-${promptKey}`,
     ...(customizations.schemas && { parserOptions: { customSchemas: customizations.schemas } }),
   });
 
@@ -186,60 +171,83 @@ export function ValidatorView() {
   const lastMsgId = messages[messages.length - 1]?.id;
 
   return (
+    <div className="validator-content">
+      <div className="validator-chat-panel">
+        <ChatSettings
+          config={config}
+          onUpdate={updateConfig}
+          onPreset={applyPreset}
+        />
+
+        <div className="chat-messages">
+          {messages.length === 0 && (
+            <div className="chat-empty">
+              <p className="chat-empty-title">{variant.label}</p>
+              <p className="chat-empty-hint">{variant.description}</p>
+              <p className="chat-empty-hint" style={{ marginTop: '4px', fontSize: '12px', opacity: 0.7 }}>
+                Rules tested: {variant.rules.join(', ')}
+              </p>
+            </div>
+          )}
+
+          {messages.map((msg) => (
+            <ChatMessage
+              key={msg.id}
+              message={msg}
+              isStreaming={isGenerating && msg.id === lastMsgId}
+              customizations={customizations}
+            />
+          ))}
+
+          {error && <div className="chat-error">{error}</div>}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        <ChatInput
+          value={input}
+          onChange={setInput}
+          onSend={send}
+          onStop={stop}
+          onClear={handleClear}
+          isGenerating={isGenerating}
+          hasMessages={messages.length > 0}
+          inputRef={inputRef}
+        />
+      </div>
+
+      <ValidationPanel results={validationResults} />
+    </div>
+  );
+}
+
+export function ValidatorView() {
+  const [activeVariant, setActiveVariant] = useState('all');
+
+  return (
     <div className="validator-wrapper">
       <div className="validator-info">
         <strong>Validator</strong>
         <span>
-          Chat with the AI — every response is automatically validated by <code>@mobile-reality/mdma-validator</code>. Issues and auto-fixes appear on the right.
+          Chat with the AI — every response is automatically validated. Issues and auto-fixes appear on the right.
         </span>
       </div>
 
-      <div className="validator-content">
-        <div className="validator-chat-panel">
-          <ChatSettings
-            config={config}
-            onUpdate={updateConfig}
-            onPreset={applyPreset}
-          />
-
-          <div className="chat-messages">
-            {messages.length === 0 && (
-              <div className="chat-empty">
-                <p className="chat-empty-title">Validator Chat</p>
-                <p className="chat-empty-hint">
-                  Ask the AI to generate MDMA content. Each response will be validated automatically.
-                </p>
-              </div>
-            )}
-
-            {messages.map((msg) => (
-              <ChatMessage
-                key={msg.id}
-                message={msg}
-                isStreaming={isGenerating && msg.id === lastMsgId}
-                customizations={customizations}
-              />
-            ))}
-
-            {error && <div className="chat-error">{error}</div>}
-
-            <div ref={chatEndRef} />
-          </div>
-
-          <ChatInput
-            value={input}
-            onChange={setInput}
-            onSend={send}
-            onStop={stop}
-            onClear={handleClear}
-            isGenerating={isGenerating}
-            hasMessages={messages.length > 0}
-            inputRef={inputRef}
-          />
-        </div>
-
-        <ValidationPanel results={validationResults} />
+      <div className="validator-variant-selector">
+        {VALIDATOR_PROMPT_VARIANTS.map((v) => (
+          <button
+            type="button"
+            key={v.key}
+            className={`validator-variant-btn ${activeVariant === v.key ? 'validator-variant-btn--active' : ''}`}
+            onClick={() => setActiveVariant(v.key)}
+            title={v.description}
+          >
+            {v.label}
+          </button>
+        ))}
       </div>
+
+      <ValidatorChatInner key={activeVariant} promptKey={activeVariant} />
     </div>
   );
 }

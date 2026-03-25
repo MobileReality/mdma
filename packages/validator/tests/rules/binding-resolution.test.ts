@@ -84,6 +84,108 @@ describe('binding-resolution rule', () => {
     expect(ctx.issues[0].message).toContain('contact-form');
   });
 
+  it('passes deep binding when form has matching field', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'my-form',
+        fields: [
+          { name: 'email', type: 'email', label: 'Email' },
+          { name: 'name', type: 'text', label: 'Name' },
+        ],
+      }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'info',
+        content: 'hi',
+        visible: '{{my-form.email}}',
+      }),
+    ]);
+    bindingResolutionRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('flags deep binding referencing non-existent form field at info level', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'myform',
+        fields: [
+          { name: 'email', type: 'email', label: 'Email' },
+        ],
+      }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'info',
+        content: 'hi',
+        visible: '{{myform.nonexistent}}',
+      }),
+    ]);
+    bindingResolutionRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].severity).toBe('info');
+    expect(ctx.issues[0].message).toContain('nonexistent');
+    expect(ctx.issues[0].message).toContain('email');
+  });
+
+  it('passes deep binding when table has matching column', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'table',
+        id: 'mytable',
+        columns: [{ key: 'name', header: 'Name' }],
+        data: [],
+      }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'info',
+        content: 'hi',
+        visible: '{{mytable.name}}',
+      }),
+    ]);
+    bindingResolutionRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('flags deep binding referencing non-existent table column', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'table',
+        id: 'mytable',
+        columns: [{ key: 'name', header: 'Name' }],
+        data: [],
+      }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'info',
+        content: 'hi',
+        visible: '{{mytable.missing}}',
+      }),
+    ]);
+    bindingResolutionRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].severity).toBe('info');
+    expect(ctx.issues[0].message).toContain('missing');
+  });
+
+  it('skips deep validation on unknown component types', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'callout',
+        id: 'mycallout',
+        content: 'hi',
+      }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'info',
+        content: 'hi',
+        visible: '{{mycallout.something}}',
+      }),
+    ]);
+    bindingResolutionRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
   it('skips blocks with null data', () => {
     const blocks: ParsedBlock[] = [
       { index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 },
