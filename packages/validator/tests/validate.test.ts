@@ -282,6 +282,28 @@ data: personal-info.rows
     expect(result.output).toContain('{{personal-info.rows}}');
   });
 
+  it('auto-fixes form field bind as bare path by wrapping in {{ }}', () => {
+    const md = `\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+    bind: other-form.email
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'my-form',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    expect(result.output).toContain('{{other-form.email}}');
+  });
+
   it('auto-fixes button with missing text by deriving from id', () => {
     const md = `\`\`\`mdma
 type: button

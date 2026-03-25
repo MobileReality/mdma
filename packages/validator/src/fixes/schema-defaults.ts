@@ -111,25 +111,55 @@ function patchFormFields(data: Record<string, unknown>): void {
     if ((!f.label || f.label === null) && typeof f.name === 'string') {
       f.label = keyToHeader(f.name);
     }
+
+    // Wrap bare bind values in {{ }}
+    wrapBareBinding(f, 'bind');
+  }
+}
+
+/** Binding path pattern: identifier with dots and hyphens (e.g. "form.email", "my-form.field") */
+const BARE_BINDING_PATH = /^[a-zA-Z_][\w.-]*$/;
+const WRAPPED_BINDING = /^\{\{.+\}\}$/s;
+
+/**
+ * If `obj[field]` is a bare string that looks like a binding path but isn't
+ * wrapped in {{ }}, wrap it. LLMs often omit the double-brace wrapper.
+ */
+function wrapBareBinding(obj: Record<string, unknown>, field: string): void {
+  const val = obj[field];
+  if (typeof val !== 'string') return;
+  if (WRAPPED_BINDING.test(val)) return;
+  if (BARE_BINDING_PATH.test(val)) {
+    obj[field] = `{{${val}}}`;
   }
 }
 
 /**
- * Pre-fix table data: if `data` is a bare string that looks like a binding
- * path but isn't wrapped in {{ }}, wrap it. LLMs often generate
- * `data: personal-info.rows` instead of `data: "{{personal-info.rows}}"`.
+ * Pre-fix any component: wrap bare binding paths for fields that accept
+ * binding expressions (`disabled`, `visible`, table `data`, form field `bind`).
  */
-function patchTableData(data: Record<string, unknown>): void {
-  if (data.type !== 'table') return;
-  const d = data.data;
-  if (typeof d !== 'string') return;
+function patchBareBindings(data: Record<string, unknown>): void {
+  // Component base: disabled, visible
+  wrapBareBinding(data, 'disabled');
+  wrapBareBinding(data, 'visible');
 
-  // Already wrapped — nothing to do
-  if (/^\{\{.+\}\}$/s.test(d)) return;
+  // Table data
+  if (data.type === 'table') {
+    wrapBareBinding(data, 'data');
+  }
 
-  // Looks like a binding path (e.g. "component.field" or "component")
-  if (/^[a-zA-Z_][\w.-]*$/.test(d)) {
-    data.data = `{{${d}}}`;
+  // Tasklist item binds
+  if (data.type === 'tasklist' && Array.isArray(data.items)) {
+    for (const item of data.items) {
+      if (typeof item === 'object' && item !== null) {
+        wrapBareBinding(item as Record<string, unknown>, 'bind');
+      }
+    }
+  }
+
+  // Webhook url and body bindings
+  if (data.type === 'webhook') {
+    wrapBareBinding(data, 'url');
   }
 }
 
@@ -253,7 +283,7 @@ export function fixSchemaDefaults(context: FixContext): void {
 
     // Patch known gaps before Zod re-parse
     patchTableColumns(block.data);
-    patchTableData(block.data);
+    patchBareBindings(block.data);
     patchFormFields(block.data);
     patchCalloutContent(block.data);
     patchButtonText(block.data);

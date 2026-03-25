@@ -52,6 +52,9 @@ function fixBindingsInObject(obj: Record<string, unknown>): boolean {
 function fixBindingString(str: string): string {
   let result = str;
 
+  // Remove empty bindings: {{ }} or {{}} -> empty string
+  result = result.replace(/\{\{\s*\}\}/g, '');
+
   // Fix whitespace in bindings: {{ var.path }} -> {{var.path}}
   result = result.replace(
     /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s*\}\}/g,
