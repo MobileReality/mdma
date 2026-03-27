@@ -347,10 +347,15 @@ pnpm eval:view
 
 TypeScript monorepo — pnpm workspaces, Turborepo, Zod, React, Vitest, remark
 
+## Built by Mobile Reality
+
+MDMA is built and maintained by [Mobile Reality](https://themobilereality.com/services/ai-automation-agency) — an AI automation agency specializing in AI agent development, custom software, and enterprise automation. We use MDMA in production across fintech and proptech projects.
+
+**Read more:**
+- [LLM Interface: The Missing Layer Between Your AI Model and Your Users](https://themobilereality.com/blog/business/llm-interface)
+- [Structured LLM Output Without JSON Schemas](https://themobilereality.com/blog/business/structured-output-llm)
+- [Generative UI: How AI Creates Dynamic User Interfaces](https://themobilereality.com/blog/business/generative-ui-ai)
+
 ## License
 
 MIT
-
----
-
-<p align="center">Made with ❤️ by <a href="https://themobilereality.com/">Mobile Reality</a></p>
