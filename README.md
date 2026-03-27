@@ -359,3 +359,7 @@ MDMA is built and maintained by [Mobile Reality](https://themobilereality.com/se
 ## License
 
 MIT
+
+---
+
+<p align="center">Made with ❤️ by <a href="https://themobilereality.com/">Mobile Reality</a></p>
