@@ -11,3 +11,6 @@ coverage/
 
 # Eval results (generated, may contain LLM output)
 evals/results*.json
+
+# Claude Code
+.claude/
