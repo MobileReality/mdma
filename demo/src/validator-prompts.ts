@@ -12,44 +12,16 @@ Generate real, useful-looking components — just with the specified intentional
 
 CRITICAL: Every component MUST be wrapped in its own fenced code block using \`\`\`mdma and \`\`\`. Never output bare YAML without fences. Each component = one separate \`\`\`mdma block. Do NOT use --- separators between components — use separate fenced blocks instead.`;
 
+/** All validator rule IDs (used for computing exclude lists). */
+export const ALL_RULE_IDS: string[] = [
+  'yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format',
+  'binding-syntax', 'binding-resolution', 'action-references', 'sensitive-flags',
+  'required-markers', 'thinking-block', 'select-options', 'placeholder-content',
+  'field-name-typos', 'table-data-keys', 'chart-validation',
+  'unreferenced-components', 'flow-ordering',
+];
+
 export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
-  {
-    key: 'all',
-    label: 'All Rules',
-    description: 'Stress-test all validator rules at once',
-    rules: [
-      'yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format',
-      'binding-syntax', 'binding-resolution', 'action-references', 'sensitive-flags',
-      'required-markers', 'thinking-block', 'select-options', 'placeholder-content',
-      'field-name-typos', 'table-data-keys', 'chart-validation',
-      'unreferenced-components', 'flow-ordering',
-    ],
-    prompt: `${PREAMBLE}
-
-Mix in as many of these problems as possible across your components:
-
-1. **Duplicate IDs** — Use the same id for two different components
-2. **Bad ID format** — Use camelCase or snake_case IDs instead of kebab-case (e.g. id: myForm, id: user_table)
-3. **Missing sensitive flags** — Include PII fields like email, phone, ssn, address without sensitive: true
-4. **Missing thinking block** — Omit the thinking block entirely
-5. **Bad binding syntax** — Use single braces {var.path} instead of {{var.path}}, or add extra whitespace {{ var.path }}
-6. **Empty callout content** — Create a callout with content: "" or omit the content field
-7. **Missing table headers** — Define table columns with just key: but no header:
-8. **Missing form labels** — Define form fields with just name: but no label:
-9. **YAML document separators** — Add --- at the end of an mdma block
-10. **Bare binding in table data** — Use data: some-component.rows instead of data: "{{some-component.rows}}"
-11. **Select fields without options** — Create a form select field without any options defined
-12. **Placeholder content** — Use "TODO", "TBD", "...", or "Lorem ipsum" as field labels or content
-13. **Field name typos** — Use "roles" instead of "allowedRoles" on approval-gate, "onClick" instead of "onAction" on button
-14. **Table data key mismatch** — Table data rows with keys that don't match defined columns
-15. **Invalid chart axes** — Chart with xAxis or yAxis referencing columns not in the CSV data
-16. **Invalid action targets** — Use onSubmit/onAction pointing to non-existent component IDs
-17. **Unreferenced components** — Add a component that no other component references via bindings or actions
-18. **Backward references** — Make action targets point to components defined earlier in the document
-19. **Deep binding misses** — Use bindings like {{form.nonexistent_field}} where the field doesn't exist on the form
-
-Try to include at least 8-10 different issues in each response.`,
-  },
   {
     key: 'structure',
     label: 'Structure & YAML',
@@ -57,17 +29,51 @@ Try to include at least 8-10 different issues in each response.`,
     rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on these structural issues:
+Focus ONLY on structural and YAML issues. Generate an event registration system with these exact components, each with intentional structural problems:
 
-1. **Duplicate IDs** — Use the same id for two or more components (e.g. two callouts both with id: notice)
-2. **Bad ID format** — Use camelCase (myForm), snake_case (user_table), or UPPERCASE (LOUD_BTN) instead of kebab-case
-3. **YAML document separators** — Add --- at the end of mdma blocks
-4. **Missing required fields** — Omit required fields like "text" on buttons or "content" on callouts
-5. **Unknown component types** — Use a type like "card" or "panel" that doesn't exist in the registry
-6. **Missing form labels** — Define form fields with just name: but no label:
-7. **Missing table headers** — Define table columns with just key: but no header:
+## Required broken components
 
-Generate a document with at least 5-6 components that contains multiple structural issues. Include forms, tables, callouts, and buttons.`,
+1. \`\`\`mdma block: **form** id: \`eventForm\` (camelCase — should be kebab-case)
+   - Fields:
+     - event-name (text, required) — BUT omit the label
+     - date (date, required) — BUT omit the label
+     - category (select, label: "Category", options: [{label: "Conference", value: "conference"}, {label: "Workshop", value: "workshop"}])
+   - onSubmit: registration-complete
+   - Add \`---\` at the end of the mdma block (YAML document separator)
+
+2. \`\`\`mdma block: **table** id: \`attendee_list\` (snake_case — should be kebab-case)
+   - Columns:
+     - name — BUT omit header
+     - email — BUT omit header
+     - status — BUT omit header
+   - Data: 2 rows with sample attendees
+   - Add \`---\` at the end of the mdma block
+
+3. \`\`\`mdma block: **callout** id: \`notice\` variant: info
+   - BUT omit the content field entirely (required field missing)
+
+4. \`\`\`mdma block: **callout** id: \`notice\` variant: warning (DUPLICATE ID — same as #3)
+   - content: "Registration closes soon."
+
+5. \`\`\`mdma block: **button** id: \`SubmitBtn\` (PascalCase — should be kebab-case)
+   - variant: primary
+   - BUT omit the text field (required field missing)
+   - onAction: registration-complete
+
+6. \`\`\`mdma block: **card** id: \`event-card\` (UNKNOWN type — "card" doesn't exist)
+   - title: "Event Details"
+   - content: "Some event info"
+
+Generate all 6 components with the intentional structural mistakes described above.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — Regenerate components with NEW intentional structural issues.
+2. **Ask a normal question** — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first message.`,
   },
   {
     key: 'bindings',
@@ -251,7 +257,7 @@ Generate all 4 components with the intentional mismatches described above.`,
   },
   {
     key: 'flow',
-    label: 'Flow & References',
+    label: 'Stepper Flow',
     description: 'Flow ordering, unreferenced components, action targets',
     rules: ['flow-ordering', 'unreferenced-components', 'action-references'],
     prompt: `${PREAMBLE}
@@ -300,15 +306,52 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked to generate a s
     rules: ['field-name-typos', 'action-references', 'schema-conformance'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on approval gate and webhook issues:
+Focus ONLY on approval gate and webhook issues. Generate an expense approval workflow with these exact components, each with intentional problems:
 
-1. **"roles" instead of "allowedRoles"** — Use the field name "roles" on approval-gate components
-2. **"approvers" instead of "requiredApprovers"** — Use the wrong field name for the approver count
-3. **Invalid webhook trigger** — Set webhook trigger to a component ID that doesn't exist
-4. **Invalid onApprove/onDeny targets** — Point approval gate actions to non-existent components
-5. **Missing required fields** — Omit the required "title" field on approval-gate or "url" on webhook
+## Required broken components
 
-Generate an expense approval workflow with: a form for expense details, an approval-gate for manager review, a webhook for notification, and callouts for status — but use the wrong field names and broken references.`,
+1. \`\`\`mdma block: **form** id: \`expense-form\` — Expense submission form
+   - Fields:
+     - amount (number, required, label: "Amount")
+     - description (textarea, required, label: "Description")
+     - category (select, required, label: "Category", options: [{label: "Travel", value: "travel"}, {label: "Equipment", value: "equipment"}, {label: "Software", value: "software"}])
+   - onSubmit: expense-review
+
+2. \`\`\`mdma block: **approval-gate** id: \`expense-review\` — Manager review
+   - BUT omit the required \`title\` field
+   - description: "Manager must approve expenses over $100."
+   - Use \`roles: ["manager", "director"]\` instead of correct \`allowedRoles\`
+   - Use \`approvers: 2\` instead of correct \`requiredApprovers\`
+   - Set \`onApprove: nonexistent-approval-handler\` (invalid target — doesn't exist)
+   - Set \`onDeny: ghost-rejection\` (invalid target — doesn't exist)
+   - requireReason: true
+
+3. \`\`\`mdma block: **webhook** id: \`expense-notification\` — Notification webhook
+   - BUT omit the required \`url\` field
+   - method: POST
+   - Set \`trigger: phantom-trigger\` (invalid target — doesn't exist)
+
+4. \`\`\`mdma block: **webhook** id: \`expense-audit-log\` — Audit logging webhook
+   - url: "https://api.example.com/audit"
+   - method: POST
+   - Set \`trigger: missing-button\` (invalid target — doesn't exist)
+
+5. \`\`\`mdma block: **callout** id: \`expense-approved\` variant: success
+   - content: "Your expense has been approved and submitted for reimbursement."
+
+6. \`\`\`mdma block: **callout** id: \`expense-denied\` variant: error
+   - content: "Your expense has been denied. Please contact your manager for details."
+
+Generate all 6 components with the intentional mistakes described above.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — Regenerate components with NEW intentional approval/webhook issues.
+2. **Ask a normal question** — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first message.`,
   },
 ];
 
@@ -430,6 +473,74 @@ All labels must be real text (no "TODO", "TBD", "...", "Lorem ipsum", "FIXME"). 
 - body bindings must use "{{contact-form.field}}" syntax with double braces and valid field names
 
 All bindings must use {{component-id.field}} syntax — double braces, no whitespace, valid component IDs and field names. All action targets (onSubmit, onAction, trigger) must point to component IDs that exist in this document.`,
+
+  structure: `This is an event registration system with 6 components. The correct structure:
+
+**1. event-form** (form) — Event registration form (ID must be kebab-case)
+- Fields:
+  - event-name (text, required, label: "Event Name")
+  - date (date, required, label: "Event Date")
+  - category (select, label: "Category", options: [{label: "Conference", value: "conference"}, {label: "Workshop", value: "workshop"}])
+- onSubmit: registration-complete
+
+**2. attendee-list** (table) — Attendee list (ID must be kebab-case, not snake_case)
+- Columns:
+  - name (header: "Name")
+  - email (header: "Email")
+  - status (header: "Status")
+- Data: 2 rows: {name: "Alice", email: "alice@example.com", status: "confirmed"}, {name: "Bob", email: "bob@example.com", status: "pending"}
+
+**3. registration-info** (callout, variant: info) — rename from duplicate "notice"
+- content: "Please fill in your details to register for the event."
+
+**4. registration-warning** (callout, variant: warning) — rename from duplicate "notice"
+- content: "Registration closes soon."
+
+**5. submit-btn** (button, variant: primary) — ID must be kebab-case, not PascalCase
+- text: "Register Now"
+- onAction: registration-complete
+
+**6. The "card" component must be changed to a valid type.** Replace with a callout:
+- event-details (callout, variant: info)
+- content: "Event Details: Join us for an exciting event with industry leaders."
+
+All IDs must be unique kebab-case. All form fields must have labels. All table columns must have headers. All required fields (text, content) must be present. No YAML document separators (---). No unknown component types.`,
+
+  approval: `This is an expense approval workflow with 6 components. The correct structure:
+
+**1. expense-form** (form) — Expense submission
+- Fields:
+  - amount (number, required, label: "Amount")
+  - description (textarea, required, label: "Description")
+  - category (select, required, label: "Category", options: [{label: "Travel", value: "travel"}, {label: "Equipment", value: "equipment"}, {label: "Software", value: "software"}])
+- onSubmit: expense-review
+
+**2. expense-review** (approval-gate) — Manager review
+- title: "Expense Approval" (REQUIRED — must not be omitted)
+- description: "Manager must approve expenses over $100."
+- allowedRoles: ["manager", "director"] (NOT "roles")
+- requiredApprovers: 2 (NOT "approvers")
+- onApprove: expense-approved (must reference existing component)
+- onDeny: expense-denied (must reference existing component)
+- requireReason: true
+
+**3. expense-notification** (webhook) — Notification
+- url: "https://api.example.com/notify" (REQUIRED — must not be omitted)
+- method: POST
+- trigger: expense-form (must reference existing component)
+
+**4. expense-audit-log** (webhook) — Audit logging
+- url: "https://api.example.com/audit"
+- method: POST
+- trigger: expense-form (must reference existing component)
+
+**5. expense-approved** (callout, variant: success)
+- content: "Your expense has been approved and submitted for reimbursement."
+
+**6. expense-denied** (callout, variant: error)
+- content: "Your expense has been denied. Please contact your manager for details."
+
+Approval gates must use allowedRoles (not roles), requiredApprovers (not approvers), and include a title. Webhooks must have a url and a trigger pointing to an existing component. All onApprove/onDeny targets must reference existing component IDs.`,
 
   pii: `This is a KYC verification form with 3 components. The correct structure:
 

@@ -5,11 +5,12 @@ import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { ChatActionLog } from './chat/ChatActionLog.js';
 import { useChatActionLog } from './chat/use-chat-action-log.js';
-import { validate, validateFlow, type ValidationResult, type ValidationIssue, type FlowValidationResult } from '@mobile-reality/mdma-validator';
+import { validate, validateFlow, type ValidationResult, type ValidationIssue, type FlowValidationResult, type ValidationRuleId } from '@mobile-reality/mdma-validator';
 import { buildFixerPrompt, buildFixerMessage, buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import { chatCompletion } from './llm-client.js';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { customizations } from './custom-components.js';
-import { VALIDATOR_PROMPT_VARIANTS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS, SAMPLE_BINDING_DATA } from './validator-prompts.js';
+import { VALIDATOR_PROMPT_VARIANTS, ALL_RULE_IDS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS, SAMPLE_BINDING_DATA } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -187,6 +188,7 @@ function FlowProgressPanel({ steps, result }: {
 
 function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   const variant = VALIDATOR_PROMPT_VARIANTS.find((v) => v.key === promptKey)!;
+  const variantRuleSet = useMemo(() => new Set(variant.rules), [variant.rules]);
 
   const {
     config,
@@ -221,7 +223,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
 
   // Subscribe to user-action events to auto-advance the conversation
-  const subscribedStores = useRef(new Set<import('@mobile-reality/mdma-runtime').DocumentStore>());
+  const subscribedStores = useRef(new Set<DocumentStore>());
   const pendingSendRef = useRef(false);
   const setInputRef = useRef(setInput);
   setInputRef.current = setInput;
@@ -229,7 +231,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   const [showFlowComplete, setShowFlowComplete] = useState(false);
 
   // Seed stores with sample binding data for the active variant
-  const seededStores = useRef(new Set<import('@mobile-reality/mdma-runtime').DocumentStore>());
+  const seededStores = useRef(new Set<DocumentStore>());
   useEffect(() => {
     const sampleData = SAMPLE_BINDING_DATA[promptKey];
     if (!sampleData) return;
@@ -301,8 +303,12 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
           }
         }
 
+        // Only run the rules specified for this variant
+        const excludeRules = ALL_RULE_IDS.filter((r) => !variantRuleSet.has(r));
+
         const result = validate(msg.content, {
           ...(priorComponentIds.length > 0 && { priorComponentIds }),
+          ...(excludeRules.length > 0 && { exclude: excludeRules as ValidationRuleId[] }),
         });
         setValidationResults((prev) => {
           const next = new Map(prev);
@@ -316,7 +322,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
         }
       }
     }
-  }, [messages, isGenerating, updateMessage]);
+  }, [messages, isGenerating, updateMessage, variantRuleSet]);
 
   const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useChatActionLog(messages);
 
@@ -615,7 +621,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
 }
 
 export function ValidatorView() {
-  const [activeVariant, setActiveVariant] = useState('all');
+  const [activeVariant, setActiveVariant] = useState('structure');
 
   return (
     <div className="validator-wrapper">
