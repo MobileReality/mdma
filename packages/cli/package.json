@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-cli",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "type": "module",
   "bin": {
     "mdma": "./dist/bin/mdma.js"
@@ -54,7 +54,10 @@
     "vite": "^6.0.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist", "app-dist"],
+  "files": [
+    "dist",
+    "app-dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

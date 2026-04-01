@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-renderer-react",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "type": "module",
   "exports": {
     ".": {
@@ -28,8 +28,13 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist", "styles.css"],
-  "publishConfig": { "access": "public" },
+  "files": [
+    "dist",
+    "styles.css"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MobileReality/mdma.git",
