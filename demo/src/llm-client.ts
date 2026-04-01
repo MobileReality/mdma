@@ -20,31 +20,31 @@ export interface ChatMessage {
 }
 
 export const DEFAULT_CONFIG: LlmConfig = {
-  baseUrl: 'http://localhost:11434/v1',
+  baseUrl: 'https://api.openai.com/v1',
   apiKey: '',
-  model: 'llama3',
+  model: 'gpt-5.4-mini',
 };
 
 export const PROVIDER_PRESETS: Record<string, LlmConfig> = {
-  ollama: {
-    baseUrl: 'http://localhost:11434/v1',
-    apiKey: '',
-    model: 'llama3',
-  },
   openai: {
     baseUrl: 'https://api.openai.com/v1',
     apiKey: '',
-    model: 'gpt-4o',
+    model: 'gpt-5.4-mini',
   },
   anthropic: {
     baseUrl: 'https://api.anthropic.com/v1',
     apiKey: '',
-    model: 'claude-sonnet-4-5-20250929',
+    model: 'claude-sonnet-4-6',
   },
-  groq: {
-    baseUrl: 'https://api.groq.com/openai/v1',
+  gemini: {
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
     apiKey: '',
-    model: 'llama-3.3-70b-versatile',
+    model: 'gemini-2.5-flash',
+  },
+  openrouter: {
+    baseUrl: 'https://openrouter.ai/api/v1',
+    apiKey: '',
+    model: 'openai/gpt-5.4-mini',
   },
 };
 
@@ -63,7 +63,7 @@ export async function* streamChatCompletion(
     'Content-Type': 'application/json',
   };
   if (config.apiKey) {
-    headers['Authorization'] = `Bearer ${config.apiKey}`;
+    headers.Authorization = `Bearer ${config.apiKey}`;
   }
 
   const response = await fetch(url, {
@@ -127,7 +127,7 @@ export async function chatCompletion(
     'Content-Type': 'application/json',
   };
   if (config.apiKey) {
-    headers['Authorization'] = `Bearer ${config.apiKey}`;
+    headers.Authorization = `Bearer ${config.apiKey}`;
   }
 
   const response = await fetch(url, {

@@ -36,8 +36,9 @@ describe('listPrompts', () => {
     expect(names).toContain('mdma-reviewer');
   });
 
-  it('returns exactly 2 prompts', () => {
+  it('returns exactly 3 prompts', () => {
     const names = listPrompts();
-    expect(names).toHaveLength(2);
+    expect(names).toHaveLength(3);
+    expect(names).toContain('mdma-fixer');
   });
 });

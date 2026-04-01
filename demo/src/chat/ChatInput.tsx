@@ -9,6 +9,10 @@ export interface ChatInputProps {
   isGenerating: boolean;
   hasMessages: boolean;
   inputRef: RefObject<HTMLTextAreaElement | null>;
+  /** When true, the input is disabled (e.g. flow completed). */
+  disabled?: boolean;
+  /** Placeholder text override. */
+  placeholder?: string;
 }
 
 export const ChatInput = memo(function ChatInput({
@@ -20,7 +24,11 @@ export const ChatInput = memo(function ChatInput({
   isGenerating,
   hasMessages,
   inputRef,
+  disabled,
+  placeholder,
 }: ChatInputProps) {
+  const isDisabled = disabled && !isGenerating;
+
   return (
     <div className="chat-input-bar">
       {hasMessages && (
@@ -38,12 +46,13 @@ export const ChatInput = memo(function ChatInput({
         className="chat-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Describe the interactive document you need..."
+        placeholder={placeholder ?? "Describe the interactive document you need..."}
         rows={2}
+        disabled={isDisabled}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            onSend();
+            if (!isDisabled) onSend();
           }
         }}
       />
@@ -56,7 +65,7 @@ export const ChatInput = memo(function ChatInput({
           type="button"
           className="chat-send-btn"
           onClick={onSend}
-          disabled={!value.trim()}
+          disabled={isDisabled || !value.trim()}
         >
           Send
         </button>

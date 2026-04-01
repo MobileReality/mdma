@@ -105,6 +105,13 @@ export interface ValidatorOptions {
   customPiiPatterns?: RegExp[];
   /** Custom component Zod schemas for types not in the built-in registry. */
   customSchemas?: Record<string, unknown>;
+  /**
+   * Component IDs from previous conversation messages.
+   * When set, the flow-ordering rule will flag any component in the current
+   * message that reuses an ID from a prior turn — indicating the LLM
+   * regenerated a previous step instead of advancing to the next one.
+   */
+  priorComponentIds?: string[];
 }
 
 export interface ValidationResult {

@@ -1,5 +1,6 @@
 import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author.js';
 import { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
+import { MDMA_FIXER_PROMPT } from './prompts/mdma-fixer.js';
 
 /**
  * Static registry of all available prompts.
@@ -10,6 +11,7 @@ import { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
 const PROMPTS: Record<string, string> = {
   'mdma-author': MDMA_AUTHOR_PROMPT,
   'mdma-reviewer': MDMA_REVIEWER_PROMPT,
+  'mdma-fixer': MDMA_FIXER_PROMPT,
 };
 
 /**

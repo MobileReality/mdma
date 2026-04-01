@@ -1035,14 +1035,13 @@ body {
 }
 
 .chat-settings-fields {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
 }
 
-.chat-settings-fields .ai-setting {
-  flex: 1;
-  min-width: 160px;
+.chat-settings-fields .ai-setting:first-child {
+  grid-column: 1 / -1;
 }
 
 .ai-settings-presets {
@@ -1052,12 +1051,12 @@ body {
 }
 
 .ai-preset-btn {
-  padding: 3px 8px;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
   text-transform: capitalize;
   border: 1px solid #d1d5db;
-  border-radius: 4px;
+  border-radius: 6px;
   background: #fff;
   color: #555;
   cursor: pointer;
@@ -1078,33 +1077,49 @@ body {
 .ai-setting {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  margin-bottom: 8px;
-}
-
-.ai-setting:last-child {
-  margin-bottom: 0;
+  gap: 3px;
 }
 
 .ai-setting span {
   font-size: 11px;
   font-weight: 600;
   color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-.ai-setting input {
-  padding: 5px 8px;
-  font-size: 12px;
+.ai-setting input,
+.ai-setting select {
+  padding: 6px 10px;
+  font-size: 13px;
   border: 1px solid #d1d5db;
-  border-radius: 5px;
+  border-radius: 6px;
   background: #fff;
   color: #1a1a2e;
   outline: none;
   transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-.ai-setting input:focus {
+.ai-setting input:focus,
+.ai-setting select:focus {
   border-color: #6c5ce7;
+}
+
+.ai-setting select {
+  cursor: pointer;
+}
+
+.ai-setting-model-group {
+  display: flex;
+  gap: 6px;
+}
+
+.ai-setting-model-group select,
+.ai-setting-model-group input {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ===== Chat Messages ===== */
@@ -2408,7 +2423,7 @@ body {
   overflow: hidden;
 }
 
-.validator-results-panel {
+.validator-side-panel {
   width: 520px;
   flex-shrink: 0;
   display: flex;
@@ -2416,6 +2431,193 @@ body {
   overflow-y: auto;
   background: #fafbfc;
   border-left: 1px solid #e0e0e0;
+}
+
+.validator-results-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+/* Flow progress panel */
+.flow-progress-panel {
+  padding: 12px 16px;
+  border-bottom: 2px solid #d0d0d0;
+  background: #f0f4ff;
+}
+
+.flow-progress-panel h3 {
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.flow-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.flow-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.flow-step--done {
+  background: #ecfdf5;
+  border-color: #6ee7b7;
+}
+
+.flow-step--error {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.flow-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 12px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.flow-step--done .flow-step-num {
+  background: #10b981;
+  color: #fff;
+}
+
+.flow-step--error .flow-step-num {
+  background: #ef4444;
+  color: #fff;
+}
+
+.flow-step-label {
+  font-weight: 600;
+  color: #374151;
+}
+
+.flow-step-type {
+  font-size: 11px;
+  color: #9ca3af;
+  font-family: monospace;
+}
+
+.flow-step-badge {
+  margin-left: auto;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.flow-step-badge--done {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.flow-step-badge--error {
+  background: #fee2e2;
+  color: #991b1b;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.flow-progress-summary {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+/* Flow complete modal */
+.flow-complete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.flow-complete-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px 48px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-width: 400px;
+  animation: scaleIn 0.3s ease;
+}
+
+.flow-complete-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.flow-complete-modal h2 {
+  margin: 0 0 8px;
+  font-size: 24px;
+  color: #111827;
+}
+
+.flow-complete-modal p {
+  margin: 0 0 24px;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.flow-complete-btn {
+  padding: 10px 32px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.flow-complete-btn:hover {
+  opacity: 0.9;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 /* Manual paste-and-validate section */
@@ -2789,6 +2991,149 @@ body {
   overflow-x: auto;
   max-height: 300px;
   overflow-y: auto;
+}
+
+/* Fixer settings panel (right sidebar) */
+.fixer-settings-panel {
+  padding: 12px 16px;
+  border-bottom: 1px solid #e0e0e0;
+  background: #f9fafb;
+}
+
+.fixer-settings-panel h3 {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #374151;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fixer-settings-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+.fixer-settings-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #6c5ce7;
+  cursor: pointer;
+}
+
+.fixer-settings-checkbox span {
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.fixer-settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+
+.fixer-settings-field:last-child {
+  margin-bottom: 0;
+}
+
+.fixer-settings-field span {
+  font-size: 11px;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.fixer-settings-field select,
+.fixer-settings-field input {
+  padding: 6px 10px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #fff;
+  color: #1a1a2e;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s;
+}
+
+.fixer-settings-field select {
+  cursor: pointer;
+}
+
+.fixer-settings-field input:focus,
+.fixer-settings-field select:focus {
+  border-color: #6c5ce7;
+}
+
+/* Fixing overlay on message */
+.validator-msg-wrapper {
+  position: relative;
+}
+
+.validator-fixing-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 8px;
+  z-index: 10;
+  animation: fadeIn 0.2s ease;
+}
+
+.validator-fixing-overlay span {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6c5ce7;
+}
+
+.validator-fixing-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6c5ce7;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.validator-fix-btn {
+  display: block;
+  width: calc(100% - 32px);
+  margin: 8px 16px;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #e74c3c;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.validator-fix-btn:hover:not(:disabled) {
+  background: #c0392b;
+}
+
+.validator-fix-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* ─── Stepper Tab ───────────────────────────────────────────────────────── */

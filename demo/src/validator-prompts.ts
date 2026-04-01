@@ -145,14 +145,32 @@ Generate a dashboard with 2 tables and 2 charts — a sales summary and a user a
     rules: ['flow-ordering', 'unreferenced-components', 'action-references'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on component flow and reference issues:
+Focus ONLY on component flow and reference issues. Generate a user registration and approval workflow with ALL of these intentional problems:
 
-1. **Backward action references** — Make onSubmit or onAction point to a component defined EARLIER in the document (target appears before the source)
-2. **Circular references** — Create a cycle: component A's onSubmit points to B, and B's onAction points back to A
-3. **Unreferenced components** — Add a callout or table that no other component references via bindings or action fields (orphan component)
-4. **Invalid action targets** — Use onSubmit, onAction, onComplete, onApprove, onDeny pointing to IDs that don't exist
+## Required broken structure
 
-Generate a multi-step workflow (form submission → approval → notification) with 6+ components — but intentionally create circular dependencies, orphaned components, and broken action chains.`,
+Generate exactly these components in ONE message (this is intentionally wrong — the validator should catch it):
+
+1. \`\`\`mdma block: **form** id: \`registration-form\` with fields: full-name (text, required), email (email, required, sensitive), department (select with options: Engineering, Marketing, Sales)
+   - Set \`onSubmit: approval-gate\` (this creates a multi-step flow error — form targets an interactive component)
+
+2. \`\`\`mdma block: **approval-gate** id: \`approval-gate\` title: "Manager Approval"
+   - Set \`onApprove: registration-form\` (this creates a circular reference — approval points back to form)
+   - Set \`onDeny: nonexistent-rejection\` (this is an invalid action target — ID doesn't exist)
+
+3. \`\`\`mdma block: **button** id: \`notify-btn\` text: "Send Notification"
+   - Set \`onAction: approval-gate\` (backward reference + multi-step chain)
+
+4. \`\`\`mdma block: **callout** id: \`orphan-notice\` variant: info, content: "This notice is not referenced by anything"
+   (orphaned component — no other component points to it)
+
+5. \`\`\`mdma block: **callout** id: \`orphan-table-info\` variant: warning, content: "Another orphan"
+   (second orphaned component)
+
+6. \`\`\`mdma block: **webhook** id: \`notify-webhook\` url: https://api.example.com/notify, method: POST
+   - Set \`trigger: missing-component\` (invalid action target — ID doesn't exist)
+
+Generate all 6 components in a single message. The validator should detect: multi-step flow errors, circular references, orphaned components, invalid action targets, and backward references.`,
   },
   {
     key: 'approval',
@@ -172,3 +190,33 @@ Focus ONLY on approval gate and webhook issues:
 Generate an expense approval workflow with: a form for expense details, an approval-gate for manager review, a webhook for notification, and callouts for status — but use the wrong field names and broken references.`,
   },
 ];
+
+/**
+ * Defines the correct flow for each variant so the fixer knows what each step
+ * should look like. Passed as promptContext to buildFixerMessage().
+ *
+ * Only variants that involve multi-step workflows need entries here.
+ */
+export const FIXER_FLOW_RULES: Record<string, string> = {
+  flow: `This is a user registration and approval workflow. The correct flow split across conversation turns:
+
+- **Step 1:** Form \`registration-form\` with fields: full-name (text, required), email (email, required, sensitive), department (select). Include a success callout \`registration-submitted\`. The form's onSubmit should point to the callout.
+
+- **Step 2:** Approval gate \`approval-gate\` with title "Manager Approval", description "Please review and approve this registration." Include a callout \`approval-complete\` (variant: success). The gate's onApprove should point to the callout.
+
+- **Step 3:** Webhook \`notify-webhook\` (url: https://api.example.com/notify, method: POST) triggered by a button \`send-notification\` (text: "Send Notification"). Include a success callout \`workflow-complete\`. The webhook's trigger should point to the button.
+
+Each step must contain exactly ONE interactive component + its supporting callouts/webhooks. Do not include components from other steps.`,
+};
+
+/**
+ * Structured flow step definitions for deterministic validation via validateFlow().
+ * Keyed by variant key — only variants with multi-step workflows need entries.
+ */
+export const FLOW_STEPS: Record<string, import('@mobile-reality/mdma-validator').FlowStepDefinition[]> = {
+  flow: [
+    { label: 'Registration Form', type: 'form', id: 'registration-form' },
+    { label: 'Manager Approval', type: 'approval-gate', id: 'approval-gate' },
+    { label: 'Send Notification & Webhook', type: 'webhook', id: 'notify-webhook' },
+  ],
+};

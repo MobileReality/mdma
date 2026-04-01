@@ -112,8 +112,12 @@ function patchFormFields(data: Record<string, unknown>): void {
       f.label = keyToHeader(f.name);
     }
 
-    // Wrap bare bind values in {{ }}
-    wrapBareBinding(f, 'bind');
+    // Wrap bare bind values in {{ }}, or remove empty binds
+    if (typeof f.bind === 'string' && f.bind.trim() === '') {
+      f.bind = undefined;
+    } else {
+      wrapBareBinding(f, 'bind');
+    }
   }
 }
 

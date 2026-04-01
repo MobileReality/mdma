@@ -1,0 +1,296 @@
+# MDMA Fixer — Flow & References Test Cases
+#
+# Tests the fixer's ability to fix multi-step flow errors: splitting
+# interactive components into separate steps, fixing circular references,
+# removing orphans, and complying with the original prompt requirements.
+#
+# Each test uses the exact broken structure from the Flow & References
+# validator prompt, matching the concrete example in the fixer prompt.
+
+# ---------------------------------------------------------------------------
+# 1. Exact broken registration workflow — no history (step 1)
+# ---------------------------------------------------------------------------
+- description: Fixes exact broken registration workflow to step 1 only
+  vars:
+    variantKey: flow
+    promptContext: |
+      User registration and approval workflow.
+      Each step should be in a separate conversation turn.
+    brokenDocument: |
+      # User Registration
+
+      ```mdma
+      type: form
+      id: registration-form
+      fields:
+        - name: full-name
+          type: text
+          label: Full Name
+          required: true
+        - name: email
+          type: email
+          label: Email Address
+          required: true
+          sensitive: true
+        - name: department
+          type: select
+          label: Department
+          options:
+            - label: Engineering
+              value: engineering
+            - label: Marketing
+              value: marketing
+            - label: Sales
+              value: sales
+      onSubmit: approval-gate
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: approval-gate
+      title: Manager Approval
+      requiredApprovers: 1
+      onApprove: registration-form
+      onDeny: nonexistent-rejection
+      ```
+
+      ```mdma
+      type: button
+      id: notify-btn
+      text: Send Notification
+      onAction: approval-gate
+      ```
+
+      ```mdma
+      type: callout
+      id: orphan-notice
+      variant: info
+      content: This notice is not referenced by anything
+      ```
+
+      ```mdma
+      type: callout
+      id: orphan-table-info
+      variant: warning
+      content: Another orphan
+      ```
+
+      ```mdma
+      type: webhook
+      id: notify-webhook
+      url: https://api.example.com/notify
+      method: POST
+      trigger: missing-component
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: registration-form
+    - type: not-icontains
+      value: "type: approval-gate"
+    - type: not-icontains
+      value: notify-btn
+
+# ---------------------------------------------------------------------------
+# 2. Same broken structure — step 1 done, show step 2
+# ---------------------------------------------------------------------------
+- description: Fixes to step 2 (approval-gate) when form was in prior message
+  vars:
+    variantKey: flow
+    promptContext: |
+      User registration and approval workflow.
+      Each step should be in a separate conversation turn.
+    conversationHistory:
+      - role: user
+        content: Create a user registration workflow
+      - role: assistant
+        content: |
+          # User Registration — Step 1
+
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: full-name
+              type: text
+              label: Full Name
+              required: true
+            - name: email
+              type: email
+              label: Email Address
+              required: true
+              sensitive: true
+            - name: department
+              type: select
+              label: Department
+              options:
+                - label: Engineering
+                  value: engineering
+                - label: Marketing
+                  value: marketing
+                - label: Sales
+                  value: sales
+          onSubmit: registration-submitted
+          ```
+
+          ```mdma
+          type: callout
+          id: registration-submitted
+          variant: success
+          content: Registration submitted! Awaiting approval.
+          ```
+      - role: user
+        content: Continue to the next step
+    brokenDocument: |
+      # Approval Step
+
+      ```mdma
+      type: form
+      id: registration-form
+      fields:
+        - name: full-name
+          type: text
+          label: Full Name
+          required: true
+        - name: email
+          type: email
+          label: Email Address
+          required: true
+          sensitive: true
+      onSubmit: approval-gate
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: approval-gate
+      title: Manager Approval
+      requiredApprovers: 1
+      onApprove: registration-form
+      onDeny: denied-callout
+      ```
+
+      ```mdma
+      type: callout
+      id: denied-callout
+      variant: error
+      content: Registration denied.
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: not-icontains
+      value: "type: form"
+
+# ---------------------------------------------------------------------------
+# 3. Expense form → approval-gate chain
+# ---------------------------------------------------------------------------
+- description: Strips expense workflow to form step only
+  vars:
+    variantKey: flow
+    promptContext: |
+      Expense approval workflow.
+      Steps: expense form → manager review → notification.
+      One step per message.
+    brokenDocument: |
+      # Expense Approval
+
+      ```mdma
+      type: form
+      id: expense-form
+      fields:
+        - name: amount
+          type: number
+          label: Amount
+          required: true
+        - name: reason
+          type: textarea
+          label: Reason
+      onSubmit: manager-gate
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: manager-gate
+      title: Manager Review
+      requiredApprovers: 1
+      onApprove: approved-callout
+      ```
+
+      ```mdma
+      type: callout
+      id: approved-callout
+      variant: success
+      content: Expense approved!
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: expense-form
+    - type: not-icontains
+      value: "type: approval-gate"
+
+# ---------------------------------------------------------------------------
+# 4. Feedback form with orphans
+# ---------------------------------------------------------------------------
+- description: Removes orphans and splits feedback workflow
+  vars:
+    variantKey: flow
+    promptContext: |
+      Feedback collection workflow.
+      Step 1: feedback form. Step 2: review.
+      One step per message.
+    brokenDocument: |
+      # Feedback Collection
+
+      ```mdma
+      type: form
+      id: feedback-form
+      fields:
+        - name: rating
+          type: number
+          label: Rating
+          required: true
+        - name: comment
+          type: textarea
+          label: Comment
+      onSubmit: review-gate
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: review-gate
+      title: Review Feedback
+      requiredApprovers: 1
+      onApprove: thank-you
+      ```
+
+      ```mdma
+      type: callout
+      id: thank-you
+      variant: success
+      content: Thank you for your feedback!
+      ```
+
+      ```mdma
+      type: callout
+      id: orphan-notice
+      variant: info
+      content: This is an orphaned notice nobody references.
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: feedback-form
+    - type: not-icontains
+      value: "type: approval-gate"

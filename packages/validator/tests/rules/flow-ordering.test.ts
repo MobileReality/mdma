@@ -15,10 +15,10 @@ function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
 }
 
 describe('flow-ordering rule', () => {
-  it('passes for forward-only references', () => {
+  it('passes when interactive component targets a non-interactive component', () => {
     const ctx = createContext([
-      createBlock(0, { type: 'form', id: 'f', fields: [], onSubmit: 'btn' }),
-      createBlock(1, { type: 'button', id: 'btn', text: 'Go' }),
+      createBlock(0, { type: 'form', id: 'f', fields: [], onSubmit: 'c' }),
+      createBlock(1, { type: 'callout', id: 'c', content: 'Done!' }),
     ]);
     flowOrderingRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
@@ -30,8 +30,6 @@ describe('flow-ordering rule', () => {
       createBlock(1, { type: 'button', id: 'btn', text: 'Go', onAction: 'wh' }),
     ]);
     flowOrderingRule.validate(ctx);
-    // wh.trigger → btn is a forward ref (btn at index 1 > wh at index 0): OK
-    // btn.onAction → wh is a backward ref (wh at index 0 < btn at index 1): flagged
     const backwardIssues = ctx.issues.filter((i) => i.message.includes('backward'));
     expect(backwardIssues.length).toBeGreaterThan(0);
   });
@@ -54,12 +52,58 @@ describe('flow-ordering rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
-  it('all issues have info severity', () => {
+  it('flags multi-step flow: interactive → interactive in same document', () => {
     const ctx = createContext([
-      createBlock(0, { type: 'form', id: 'a', fields: [], onSubmit: 'b' }),
-      createBlock(1, { type: 'form', id: 'b', fields: [], onSubmit: 'a' }),
+      createBlock(0, { type: 'form', id: 'step-1', fields: [], onSubmit: 'step-2' }),
+      createBlock(1, { type: 'approval-gate', id: 'step-2', title: 'Approve', onApprove: 'step-3' }),
+      createBlock(2, { type: 'button', id: 'step-3', text: 'Done' }),
     ]);
     flowOrderingRule.validate(ctx);
-    expect(ctx.issues.every((i) => i.severity === 'info')).toBe(true);
+    const chainIssues = ctx.issues.filter((i) => i.message.includes('Multi-step'));
+    // form → approval-gate, approval-gate → button
+    expect(chainIssues).toHaveLength(2);
+    expect(chainIssues[0].severity).toBe('error');
+  });
+
+  it('does not flag interactive → non-interactive (callout, webhook)', () => {
+    const ctx = createContext([
+      createBlock(0, { type: 'form', id: 'f', fields: [], onSubmit: 'wh' }),
+      createBlock(1, { type: 'webhook', id: 'wh', url: 'https://api.example.com', trigger: 'f' }),
+    ]);
+    flowOrderingRule.validate(ctx);
+    const chainIssues = ctx.issues.filter((i) => i.message.includes('Multi-step'));
+    expect(chainIssues).toHaveLength(0);
+  });
+
+  it('flags multiple interactive types without action chains (form + approval-gate)', () => {
+    const ctx = createContext([
+      createBlock(0, { type: 'form', id: 'f', fields: [] }),
+      createBlock(1, { type: 'approval-gate', id: 'ag', title: 'Approve' }),
+      createBlock(2, { type: 'callout', id: 'c', content: 'Done' }),
+    ]);
+    flowOrderingRule.validate(ctx);
+    const typeIssues = ctx.issues.filter((i) => i.message.includes('Multiple interactive'));
+    expect(typeIssues).toHaveLength(1);
+    expect(typeIssues[0].severity).toBe('error');
+  });
+
+  it('allows form + button in the same message', () => {
+    const ctx = createContext([
+      createBlock(0, { type: 'form', id: 'f', fields: [] }),
+      createBlock(1, { type: 'button', id: 'btn', text: 'Submit' }),
+    ]);
+    flowOrderingRule.validate(ctx);
+    const typeIssues = ctx.issues.filter((i) => i.message.includes('Multiple interactive'));
+    expect(typeIssues).toHaveLength(0);
+  });
+
+  it('flags form + tasklist as different workflow stages', () => {
+    const ctx = createContext([
+      createBlock(0, { type: 'form', id: 'f', fields: [] }),
+      createBlock(1, { type: 'tasklist', id: 'tl', items: [{ id: 't1', text: 'Do it' }] }),
+    ]);
+    flowOrderingRule.validate(ctx);
+    const typeIssues = ctx.issues.filter((i) => i.message.includes('Multiple interactive'));
+    expect(typeIssues).toHaveLength(1);
   });
 });
