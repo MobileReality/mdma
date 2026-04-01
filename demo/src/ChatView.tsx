@@ -27,7 +27,13 @@ export interface ChatViewProps {
   editable?: boolean;
 }
 
-export function ChatView({ customizations, systemPrompt, userSuffix, storageKey, editable }: ChatViewProps = {}) {
+export function ChatView({
+  customizations,
+  systemPrompt,
+  userSuffix,
+  storageKey,
+  editable,
+}: ChatViewProps = {}) {
   const chatOptions: UseChatOptions = {
     ...(customizations?.schemas && { parserOptions: { customSchemas: customizations.schemas } }),
     ...(systemPrompt !== undefined && { systemPrompt }),
@@ -72,16 +78,21 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
 
   // Clean up on unmount
   useEffect(() => {
-    return () => { subscribedStores.current.clear(); };
+    return () => {
+      subscribedStores.current.clear();
+    };
   }, []);
 
-  const handleLoadFlow = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const key = e.target.value;
-    if (!key) return;
-    const flow = exampleFlows[key];
-    if (flow) startFlow(flow.steps, flow.customPrompt);
-    e.target.value = '';
-  }, [startFlow]);
+  const handleLoadFlow = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const key = e.target.value;
+      if (!key) return;
+      const flow = exampleFlows[key];
+      if (flow) startFlow(flow.steps, flow.customPrompt);
+      e.target.value = '';
+    },
+    [startFlow],
+  );
 
   const { events, isOpen, setIsOpen, clearEvents } = useChatActionLog(messages);
 
@@ -107,18 +118,15 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
   return (
     <div className={`chat-layout ${isOpen ? 'chat-layout--with-log' : ''}`}>
       <div className="chat-main">
-        <ChatSettings
-          config={config}
-          onUpdate={updateConfig}
-          onPreset={applyPreset}
-        />
+        <ChatSettings config={config} onUpdate={updateConfig} onPreset={applyPreset} />
 
         <div className="chat-messages">
           {messages.length === 0 && (
             <div className="chat-empty">
               <p className="chat-empty-title">MDMA Chat</p>
               <p className="chat-empty-hint">
-                Describe an interactive document and the AI will generate it, or try an example flow:
+                Describe an interactive document and the AI will generate it, or try an example
+                flow:
               </p>
               <select
                 defaultValue=""
@@ -135,9 +143,13 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
                   minWidth: '220px',
                 }}
               >
-                <option value="" disabled>Load an example flow…</option>
+                <option value="" disabled>
+                  Load an example flow…
+                </option>
                 {Object.entries(exampleFlows).map(([key, flow]) => (
-                  <option key={key} value={key}>{flow.label}</option>
+                  <option key={key} value={key}>
+                    {flow.label}
+                  </option>
                 ))}
               </select>
             </div>
@@ -170,11 +182,7 @@ export function ChatView({ customizations, systemPrompt, userSuffix, storageKey,
         />
       </div>
 
-      <ChatActionLog
-        events={events}
-        isOpen={isOpen}
-        onToggle={() => setIsOpen((prev) => !prev)}
-      />
+      <ChatActionLog events={events} isOpen={isOpen} onToggle={() => setIsOpen((prev) => !prev)} />
     </div>
   );
 }

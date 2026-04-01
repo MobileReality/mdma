@@ -1,4 +1,5 @@
 export { validate } from './validate.js';
+export { validateFlow } from './validate-flow.js';
 export type {
   ValidationResult,
   ValidationIssue,
@@ -7,3 +8,9 @@ export type {
   ValidatorOptions,
   ValidationRule,
 } from './types.js';
+export type {
+  FlowStepDefinition,
+  FlowValidationOptions,
+  FlowValidationResult,
+  FlowValidationIssue,
+} from './validate-flow.js';

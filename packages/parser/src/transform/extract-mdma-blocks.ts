@@ -12,11 +12,7 @@ export interface ExtractOptions {
   failFast?: boolean;
 }
 
-export function extractMdmaBlocks(
-  tree: Root,
-  file: VFile,
-  options: ExtractOptions = {},
-): MdmaRoot {
+export function extractMdmaBlocks(tree: Root, file: VFile, options: ExtractOptions = {}): MdmaRoot {
   const ids = new Set<string>();
 
   visit(tree, 'code', (node: Code, index, parent) => {
@@ -32,11 +28,7 @@ export function extractMdmaBlocks(
     }
 
     // 2. Validate against schema
-    const validation = validateComponent(
-      parseResult.data,
-      options.customSchemas,
-      node.position,
-    );
+    const validation = validateComponent(parseResult.data, options.customSchemas, node.position);
     if (!validation.ok) {
       console.warn(
         `[mdma] Validation failed for component type="${parseResult.data.type}" id="${parseResult.data.id ?? '?'}":`,

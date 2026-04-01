@@ -52,22 +52,16 @@ function fixBindingsInObject(obj: Record<string, unknown>): boolean {
 function fixBindingString(str: string): string {
   let result = str;
 
+  // Remove empty bindings: {{ }} or {{}} -> empty string
+  result = result.replace(/\{\{\s*\}\}/g, '');
+
   // Fix whitespace in bindings: {{ var.path }} -> {{var.path}}
-  result = result.replace(
-    /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s*\}\}/g,
-    '{{$1}}',
-  );
-  result = result.replace(
-    /\{\{\s*([a-zA-Z_][a-zA-Z0-9_.]*)\s+\}\}/g,
-    '{{$1}}',
-  );
+  result = result.replace(/\{\{\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s*\}\}/g, '{{$1}}');
+  result = result.replace(/\{\{\s*([a-zA-Z_][a-zA-Z0-9_.]*)\s+\}\}/g, '{{$1}}');
 
   // Fix single-brace bindings: {var.path} -> {{var.path}}
   // Be careful not to match JSON-like objects or YAML flow mappings
-  result = result.replace(
-    /(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_.]*)\}(?!\})/g,
-    '{{$1}}',
-  );
+  result = result.replace(/(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_.]*)\}(?!\})/g, '{{$1}}');
 
   return result;
 }

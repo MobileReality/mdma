@@ -12,9 +12,7 @@ export default function ({ vars }) {
     vars.customPrompt ? { customPrompt: vars.customPrompt } : undefined,
   );
 
-  const escaped = systemPrompt
-    .replaceAll('{{', '{% raw %}{{')
-    .replaceAll('}}', '}}{% endraw %}');
+  const escaped = systemPrompt.replaceAll('{{', '{% raw %}{{').replaceAll('}}', '}}{% endraw %}');
 
   const messages = [{ role: 'system', content: escaped }];
 

@@ -965,7 +965,7 @@ The retro flow has 3 steps:
 Use charts to visualize data. Be encouraging and focused on improvement.`,
     steps: [
       {
-        userMessage: 'Let\'s run the sprint retrospective for Sprint 24',
+        userMessage: "Let's run the sprint retrospective for Sprint 24",
         markdown: `# Sprint 24 Retrospective
 
 Here's the sprint performance overview:
@@ -1012,7 +1012,7 @@ xAxis: Category
 Ready to capture team feedback?`,
       },
       {
-        userMessage: 'Yes, let\'s capture the feedback',
+        userMessage: "Yes, let's capture the feedback",
         markdown: `Share your thoughts on the sprint:
 
 \`\`\`mdma

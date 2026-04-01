@@ -6,8 +6,7 @@ const LIKELY_REQUIRED_NAMES = /^(name|full.?name|email|title|summary)$/i;
 export const requiredMarkersRule: ValidationRule = {
   id: 'required-markers',
   name: 'Required Markers',
-  description:
-    'Suggests form fields that heuristically look required but are not marked as such',
+  description: 'Suggests form fields that heuristically look required but are not marked as such',
   defaultSeverity: 'info',
 
   validate(context) {
@@ -16,8 +15,7 @@ export const requiredMarkersRule: ValidationRule = {
       if (block.data.type !== 'form') continue;
       if (!Array.isArray(block.data.fields)) continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       for (let i = 0; i < block.data.fields.length; i++) {
         const field = block.data.fields[i] as Record<string, unknown>;

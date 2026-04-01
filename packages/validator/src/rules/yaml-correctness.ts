@@ -23,8 +23,7 @@ export const yamlCorrectnessRule: ValidationRule = {
           ruleId: 'yaml-correctness',
           severity: 'warning',
           message: 'Multiple components in one mdma block were split into separate blocks',
-          componentId:
-            typeof block.data.id === 'string' ? block.data.id : null,
+          componentId: typeof block.data.id === 'string' ? block.data.id : null,
           blockIndex: block.index,
           fixed: true,
         });
@@ -34,8 +33,7 @@ export const yamlCorrectnessRule: ValidationRule = {
           ruleId: 'yaml-correctness',
           severity: 'warning',
           message: 'YAML document separator "---" was stripped to fix parsing',
-          componentId:
-            typeof block.data.id === 'string' ? block.data.id : null,
+          componentId: typeof block.data.id === 'string' ? block.data.id : null,
           blockIndex: block.index,
           fixed: true,
         });

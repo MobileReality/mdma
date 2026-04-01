@@ -24,13 +24,22 @@ export function ApprovalConfig({ config, onUpdate }: ApprovalConfigProps) {
 
       <div className="flex gap-1.5 flex-wrap">
         {ag.roles.map((r, i) => (
-          <span key={i} className="bg-primary-light text-primary-text px-2 py-0.5 rounded text-[11px]">
+          <span
+            key={i}
+            className="bg-primary-light text-primary-text px-2 py-0.5 rounded text-[11px]"
+          >
             {r}
             <SmallButton
               variant="ghost"
               className="ml-1"
-              onClick={() => onUpdate('approval-gate', { approvalGate: { ...ag, roles: ag.roles.filter((_, j) => j !== i) } })}
-            >x</SmallButton>
+              onClick={() =>
+                onUpdate('approval-gate', {
+                  approvalGate: { ...ag, roles: ag.roles.filter((_, j) => j !== i) },
+                })
+              }
+            >
+              x
+            </SmallButton>
           </span>
         ))}
       </div>
@@ -51,7 +60,11 @@ export function ApprovalConfig({ config, onUpdate }: ApprovalConfigProps) {
           type="number"
           min={1}
           value={ag.requiredApprovers}
-          onChange={(e) => onUpdate('approval-gate', { approvalGate: { ...ag, requiredApprovers: Number(e.target.value) } })}
+          onChange={(e) =>
+            onUpdate('approval-gate', {
+              approvalGate: { ...ag, requiredApprovers: Number(e.target.value) },
+            })
+          }
           className="w-12"
         />
       </label>
@@ -60,7 +73,9 @@ export function ApprovalConfig({ config, onUpdate }: ApprovalConfigProps) {
         <input
           type="checkbox"
           checked={ag.requireReason}
-          onChange={(e) => onUpdate('approval-gate', { approvalGate: { ...ag, requireReason: e.target.checked } })}
+          onChange={(e) =>
+            onUpdate('approval-gate', { approvalGate: { ...ag, requireReason: e.target.checked } })
+          }
         />
         Require reason on denial
       </label>

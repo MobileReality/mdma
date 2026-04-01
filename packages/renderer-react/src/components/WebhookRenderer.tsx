@@ -1,10 +1,13 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export const WebhookRenderer = memo(function WebhookRenderer({ component, componentState }: MdmaBlockRendererProps) {
+export const WebhookRenderer = memo(function WebhookRenderer({
+  component,
+  componentState,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'webhook') return null;
 
-  const status = componentState?.values.status as string ?? 'idle';
+  const status = (componentState?.values.status as string) ?? 'idle';
 
   return (
     <div className="mdma-webhook" data-component-id={component.id}>

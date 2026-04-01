@@ -3,7 +3,10 @@ import { MDMA_LANG_TAG } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { useRef, useMemo, type ComponentType } from 'react';
 import { MdmaProvider } from '../context/MdmaProvider.js';
-import { ElementOverridesProvider, type ElementOverrides } from '../context/ElementOverridesContext.js';
+import {
+  ElementOverridesProvider,
+  type ElementOverrides,
+} from '../context/ElementOverridesContext.js';
 import { MdmaBlock } from './MdmaBlock.js';
 import { MdmaBlockLoading } from './MdmaBlockLoading.js';
 import { MdastRenderer } from './MdastRenderer.js';
@@ -49,13 +52,12 @@ export interface MdmaDocumentProps {
 }
 
 /** Check if an entry is a config object (has `renderer` or `elements`) rather than a component. */
-function isComponentConfig(
-  entry: ComponentEntry,
-): entry is { renderer?: ComponentType<MdmaBlockRendererProps>; elements?: Record<string, ComponentType<unknown>> } {
+function isComponentConfig(entry: ComponentEntry): entry is {
+  renderer?: ComponentType<MdmaBlockRendererProps>;
+  elements?: Record<string, ComponentType<unknown>>;
+} {
   return (
-    typeof entry === 'object' &&
-    entry !== null &&
-    ('renderer' in entry || 'elements' in entry)
+    typeof entry === 'object' && entry !== null && ('renderer' in entry || 'elements' in entry)
   );
 }
 
@@ -159,43 +161,60 @@ export function MdmaDocument({ ast, store, customizations, className }: MdmaDocu
 
   return (
     <MdmaProvider store={store} dataSources={customizations?.dataSources}>
-    <ElementOverridesProvider value={elementOverrides}>
-      <div className={`mdma-document ${className ?? ''}`}>
-        {ast.children.map((child, index) => {
-          if (isMdmaBlock(child)) {
-            // Cache this successfully parsed block
-            renderedBlocksRef.current.set(child.component.id, child);
-            return <MdmaBlock key={child.component.id} block={child} renderers={renderers} />;
-          }
-          // Incomplete MDMA blocks (still streaming or failed validation)
-          if (isPendingMdmaBlock(child)) {
-            const pendingYaml = (child as { value?: string }).value;
-            const pendingId = extractIdFromYaml(pendingYaml);
-
-            // If this block was previously rendered, keep showing the rendered
-            // version instead of flickering back to the loading skeleton.
-            const cachedBlock = pendingId ? renderedBlocksRef.current.get(pendingId) : null;
-            if (cachedBlock) {
-              return <MdmaBlock key={cachedBlock.component.id} block={cachedBlock} renderers={renderers} />;
+      <ElementOverridesProvider value={elementOverrides}>
+        <div className={`mdma-document ${className ?? ''}`}>
+          {ast.children.map((child, index) => {
+            if (isMdmaBlock(child)) {
+              // Cache this successfully parsed block
+              renderedBlocksRef.current.set(child.component.id, child);
+              return <MdmaBlock key={child.component.id} block={child} renderers={renderers} />;
             }
+            // Incomplete MDMA blocks (still streaming or failed validation)
+            if (isPendingMdmaBlock(child)) {
+              const pendingYaml = (child as { value?: string }).value;
+              const pendingId = extractIdFromYaml(pendingYaml);
 
-            // Thinking blocks stream their content live instead of showing
-            // a loading skeleton — build a synthetic block from partial YAML.
-            const pendingType = extractTypeFromYaml(pendingYaml);
-            if (pendingType === 'thinking' && pendingYaml) {
-              const partialBlock = buildPartialThinkingBlock(pendingYaml);
-              if (partialBlock) {
-                return <MdmaBlock key={partialBlock.component.id} block={partialBlock} renderers={renderers} />;
+              // If this block was previously rendered, keep showing the rendered
+              // version instead of flickering back to the loading skeleton.
+              const cachedBlock = pendingId ? renderedBlocksRef.current.get(pendingId) : null;
+              if (cachedBlock) {
+                return (
+                  <MdmaBlock
+                    key={cachedBlock.component.id}
+                    block={cachedBlock}
+                    renderers={renderers}
+                  />
+                );
               }
-            }
 
-            return <MdmaBlockLoading key={index} node={child as { value?: string }} />;
-          }
-          // Render standard Markdown nodes (headings, paragraphs, lists, etc.)
-          return <MdastRenderer key={index} node={child as Parameters<typeof MdastRenderer>[0]['node']} />;
-        })}
-      </div>
-    </ElementOverridesProvider>
+              // Thinking blocks stream their content live instead of showing
+              // a loading skeleton — build a synthetic block from partial YAML.
+              const pendingType = extractTypeFromYaml(pendingYaml);
+              if (pendingType === 'thinking' && pendingYaml) {
+                const partialBlock = buildPartialThinkingBlock(pendingYaml);
+                if (partialBlock) {
+                  return (
+                    <MdmaBlock
+                      key={partialBlock.component.id}
+                      block={partialBlock}
+                      renderers={renderers}
+                    />
+                  );
+                }
+              }
+
+              return <MdmaBlockLoading key={index} node={child as { value?: string }} />;
+            }
+            // Render standard Markdown nodes (headings, paragraphs, lists, etc.)
+            return (
+              <MdastRenderer
+                key={index}
+                node={child as Parameters<typeof MdastRenderer>[0]['node']}
+              />
+            );
+          })}
+        </div>
+      </ElementOverridesProvider>
     </MdmaProvider>
   );
 }

@@ -203,9 +203,7 @@ describe('webhookHandler', () => {
     const ctx = makeContext({ componentId: 'wh1', dispatch, policy: { enforce } });
     await webhookHandler.onAction?.(ctx, 'execute', undefined);
     expect(enforce).toHaveBeenCalledWith('webhook_call');
-    expect(dispatch).toHaveBeenCalledWith(
-      expect.objectContaining({ type: 'INTEGRATION_CALLED' }),
-    );
+    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'INTEGRATION_CALLED' }));
   });
 });
 

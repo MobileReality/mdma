@@ -24,10 +24,7 @@ export default function (output, { config }) {
 
   if (stepNumbers.length < minSteps) {
     // Fall back to checking for sequential language
-    const sequentialMarkers = [
-      /first|initial|begin/,
-      /then|next|after|subsequent|once.*submit/,
-    ];
+    const sequentialMarkers = [/first|initial|begin/, /then|next|after|subsequent|once.*submit/];
     const foundSequential = sequentialMarkers.filter((m) => m.test(lower)).length;
     if (foundSequential >= minSteps) {
       return {

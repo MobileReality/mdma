@@ -12,7 +12,5 @@ const variants = {
 };
 
 export function SmallButton({ variant = 'primary', className = '', ...props }: SmallButtonProps) {
-  return (
-    <button type="button" {...props} className={`${variants[variant]} ${className}`} />
-  );
+  return <button type="button" {...props} className={`${variants[variant]} ${className}`} />;
 }

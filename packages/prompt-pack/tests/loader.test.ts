@@ -17,9 +17,7 @@ describe('loadPrompt', () => {
   });
 
   it('throws on an unknown prompt name', () => {
-    expect(() => loadPrompt('nonexistent')).toThrowError(
-      /Unknown prompt "nonexistent"/,
-    );
+    expect(() => loadPrompt('nonexistent')).toThrowError(/Unknown prompt "nonexistent"/);
   });
 
   it('includes available prompt names in the error message', () => {
@@ -36,8 +34,9 @@ describe('listPrompts', () => {
     expect(names).toContain('mdma-reviewer');
   });
 
-  it('returns exactly 2 prompts', () => {
+  it('returns exactly 3 prompts', () => {
     const names = listPrompts();
-    expect(names).toHaveLength(2);
+    expect(names).toHaveLength(3);
+    expect(names).toContain('mdma-fixer');
   });
 });

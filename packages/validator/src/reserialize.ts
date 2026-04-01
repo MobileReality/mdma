@@ -9,10 +9,7 @@ export function reserializeBlock(data: Record<string, unknown>): string {
   }).trimEnd();
 }
 
-export function reconstructMarkdown(
-  originalMarkdown: string,
-  blocks: ParsedBlock[],
-): string {
+export function reconstructMarkdown(originalMarkdown: string, blocks: ParsedBlock[]): string {
   let result = originalMarkdown;
 
   // Group blocks by their source offsets.
@@ -37,9 +34,7 @@ export function reconstructMarkdown(
   }
 
   // Process replacements in reverse offset order so earlier offsets stay valid
-  const sorted = Array.from(replacements.values()).sort(
-    (a, b) => b.startOffset - a.startOffset,
-  );
+  const sorted = Array.from(replacements.values()).sort((a, b) => b.startOffset - a.startOffset);
 
   for (const rep of sorted) {
     // Skip if all blocks in this group have null data (unparseable)
@@ -53,10 +48,7 @@ export function reconstructMarkdown(
     }
 
     if (parts.length > 0) {
-      result =
-        result.slice(0, rep.startOffset) +
-        parts.join('\n\n') +
-        result.slice(rep.endOffset);
+      result = result.slice(0, rep.startOffset) + parts.join('\n\n') + result.slice(rep.endOffset);
     }
   }
 

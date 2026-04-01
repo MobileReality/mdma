@@ -8,7 +8,9 @@
     "eval:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; exit 0",
     "eval:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.prompt-builder.yaml; exit 0",
     "eval:flows": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.flows.yaml; exit 0",
-    "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.prompt-builder.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.flows.yaml; exit 0",
+    "eval:fixer": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.fixer.yaml; exit 0",
+    "eval:fixer-flow": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.fixer-flow.yaml; exit 0",
+    "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.prompt-builder.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.flows.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.fixer.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-write -c promptfooconfig.fixer-flow.yaml; exit 0",
     "eval:view": "promptfoo view"
   },
   "dependencies": {

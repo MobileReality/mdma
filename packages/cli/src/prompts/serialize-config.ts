@@ -22,7 +22,9 @@ function serializeStepComponent(comp: ComponentConfig): string[] {
   if (comp.type === 'form' && comp.form?.fields.length) {
     lines.push('    Fields:');
     for (const f of comp.form.fields) {
-      lines.push(`    - ${f.name} (${f.type}, label: "${f.label}", required: ${f.required}, sensitive: ${f.sensitive})`);
+      lines.push(
+        `    - ${f.name} (${f.type}, label: "${f.label}", required: ${f.required}, sensitive: ${f.sensitive})`,
+      );
     }
   }
 
@@ -102,7 +104,10 @@ export function serializeConfig(domain: DomainConfig): string {
       formCount += step.components.filter((c) => c.enabled && c.type === 'form').length;
     }
     if (formCount > 0) {
-      lines.push(`**IMPORTANT:** Your output MUST include concrete \`\`\`mdma code block examples for all ${formCount} form(s) defined above. Each form must include onSubmit and all specified fields.`, '');
+      lines.push(
+        `**IMPORTANT:** Your output MUST include concrete \`\`\`mdma code block examples for all ${formCount} form(s) defined above. Each form must include onSubmit and all specified fields.`,
+        '',
+      );
     }
   }
 

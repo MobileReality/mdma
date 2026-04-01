@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { requiredMarkersRule } from '../../src/rules/required-markers.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -48,9 +45,7 @@ describe('required-markers rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'f',
-        fields: [
-          { name: 'name', type: 'text', label: 'Name' },
-        ],
+        fields: [{ name: 'name', type: 'text', label: 'Name' }],
       }),
     ]);
     requiredMarkersRule.validate(ctx);
@@ -65,9 +60,7 @@ describe('required-markers rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'f',
-        fields: [
-          { name: 'contact', type: 'email', label: 'Contact Email' },
-        ],
+        fields: [{ name: 'contact', type: 'email', label: 'Contact Email' }],
       }),
     ]);
     requiredMarkersRule.validate(ctx);

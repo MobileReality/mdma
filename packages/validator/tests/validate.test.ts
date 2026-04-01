@@ -27,9 +27,7 @@ describe('validate()', () => {
 
     // Re-validate the fixed output
     const recheck = validate(result.output);
-    const dupIssues = recheck.issues.filter(
-      (i) => i.ruleId === 'duplicate-ids',
-    );
+    const dupIssues = recheck.issues.filter((i) => i.ruleId === 'duplicate-ids');
     expect(dupIssues).toHaveLength(0);
   });
 
@@ -37,9 +35,7 @@ describe('validate()', () => {
     const md = fixture('pii-missing-sensitive.md');
     const result = validate(md);
 
-    const sensitiveIssues = result.issues.filter(
-      (i) => i.ruleId === 'sensitive-flags',
-    );
+    const sensitiveIssues = result.issues.filter((i) => i.ruleId === 'sensitive-flags');
     expect(sensitiveIssues.length).toBeGreaterThan(0);
 
     // All should be auto-fixed
@@ -73,9 +69,7 @@ describe('validate()', () => {
     const md = fixture('no-thinking-block.md');
     const result = validate(md);
 
-    const thinkingIssues = result.issues.filter(
-      (i) => i.ruleId === 'thinking-block',
-    );
+    const thinkingIssues = result.issues.filter((i) => i.ruleId === 'thinking-block');
     expect(thinkingIssues).toHaveLength(1);
     expect(thinkingIssues[0].severity).toBe('warning');
   });
@@ -84,18 +78,14 @@ describe('validate()', () => {
     const md = fixture('bad-bindings.md');
     const result = validate(md);
 
-    const bindingIssues = result.issues.filter(
-      (i) => i.ruleId === 'binding-syntax',
-    );
+    const bindingIssues = result.issues.filter((i) => i.ruleId === 'binding-syntax');
     expect(bindingIssues.length).toBeGreaterThan(0);
   });
 
   it('respects exclude option', () => {
     const md = fixture('pii-missing-sensitive.md');
     const result = validate(md, { exclude: ['sensitive-flags'] });
-    const sensitiveIssues = result.issues.filter(
-      (i) => i.ruleId === 'sensitive-flags',
-    );
+    const sensitiveIssues = result.issues.filter((i) => i.ruleId === 'sensitive-flags');
     expect(sensitiveIssues).toHaveLength(0);
   });
 
@@ -206,9 +196,7 @@ content: This is a test
     const result = validate(md);
 
     // Should have parsed successfully after stripping ---
-    const yamlIssues = result.issues.filter(
-      (i) => i.ruleId === 'yaml-correctness',
-    );
+    const yamlIssues = result.issues.filter((i) => i.ruleId === 'yaml-correctness');
     expect(yamlIssues.length).toBe(1);
     expect(yamlIssues[0].fixed).toBe(true);
     expect(yamlIssues[0].message).toContain('separator');
@@ -282,6 +270,48 @@ data: personal-info.rows
     expect(result.output).toContain('{{personal-info.rows}}');
   });
 
+  it('auto-fixes form field bind as bare path by wrapping in {{ }}', () => {
+    const md = `\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+    bind: other-form.email
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'my-form',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    expect(result.output).toContain('{{other-form.email}}');
+  });
+
+  it('auto-fixes button with missing text by deriving from id', () => {
+    const md = `\`\`\`mdma
+type: button
+id: submit-order
+variant: primary
+onAction: some-form
+\`\`\`
+`;
+    const result = validate(md);
+
+    const schemaIssues = result.issues.filter(
+      (i) => i.ruleId === 'schema-conformance' && i.componentId === 'submit-order',
+    );
+    expect(schemaIssues.length).toBeGreaterThan(0);
+    expect(schemaIssues.every((i) => i.fixed)).toBe(true);
+
+    // text should be derived from id
+    expect(result.output).toContain('Submit Order');
+  });
+
   it('auto-splits multi-component mdma blocks into separate blocks', () => {
     const md = `# Test
 
@@ -303,9 +333,7 @@ onSubmit: step-info
     const result = validate(md);
 
     // Should have split into two components
-    const yamlIssues = result.issues.filter(
-      (i) => i.ruleId === 'yaml-correctness',
-    );
+    const yamlIssues = result.issues.filter((i) => i.ruleId === 'yaml-correctness');
     const splitIssues = yamlIssues.filter((i) => i.message.includes('split'));
     expect(splitIssues.length).toBe(2);
     expect(splitIssues.every((i) => i.fixed)).toBe(true);
@@ -317,5 +345,108 @@ onSubmit: step-info
     // Both components should be present
     expect(result.output).toContain('step-info');
     expect(result.output).toContain('my-form');
+  });
+
+  describe('unfenced MDMA detection', () => {
+    it('flags MDMA-like YAML outside of fenced blocks', () => {
+      const md = `# Dashboard
+
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+`;
+      const result = validate(md);
+      expect(result.ok).toBe(false);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(1);
+      expect(unfenced[0].message).toContain('type: form');
+    });
+
+    it('detects multiple unfenced components', () => {
+      const md = `
+type: form
+id: my-form
+fields:
+  - name: name
+    type: text
+    label: Name
+
+---
+
+type: approval-gate
+id: my-gate
+title: Approval
+
+---
+
+type: webhook
+id: my-hook
+url: https://example.com
+trigger: my-form
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(3);
+      expect(unfenced.map((i) => i.message)).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('type: form'),
+          expect.stringContaining('type: approval-gate'),
+          expect.stringContaining('type: webhook'),
+        ]),
+      );
+    });
+
+    it('does not flag components inside fenced blocks', () => {
+      const md = `# Valid
+
+\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
+    it('does not flag type fields inside non-mdma code blocks', () => {
+      const md = `# Example
+
+\`\`\`yaml
+type: form
+id: example
+\`\`\`
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
+    it('does not flag unknown types outside fenced blocks', () => {
+      const md = `
+type: card
+id: some-card
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
   });
 });

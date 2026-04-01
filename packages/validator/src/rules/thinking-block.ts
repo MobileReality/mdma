@@ -10,9 +10,7 @@ export const thinkingBlockRule: ValidationRule = {
     const parsedBlocks = context.blocks.filter((b) => b.data !== null);
     if (parsedBlocks.length === 0) return;
 
-    const hasThinking = parsedBlocks.some(
-      (b) => b.data?.type === 'thinking',
-    );
+    const hasThinking = parsedBlocks.some((b) => b.data?.type === 'thinking');
 
     if (!hasThinking) {
       context.issues.push({
@@ -32,10 +30,8 @@ export const thinkingBlockRule: ValidationRule = {
       context.issues.push({
         ruleId: 'thinking-block',
         severity: 'info',
-        message:
-          'Thinking block should be the first component in the document',
-        componentId:
-          typeof first.data?.id === 'string' ? first.data.id : null,
+        message: 'Thinking block should be the first component in the document',
+        componentId: typeof first.data?.id === 'string' ? first.data.id : null,
         blockIndex: first.index,
         fixed: false,
       });

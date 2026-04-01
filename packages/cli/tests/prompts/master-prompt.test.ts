@@ -41,7 +41,10 @@ describe('MASTER_PROMPT content', () => {
       expect(block).not.toContain('"type": "form"');
       expect(block).not.toContain('"fields": [');
       // Verify each block starts with YAML key: value syntax
-      const content = block.replace(/```mdma\n/, '').replace(/```$/, '').trim();
+      const content = block
+        .replace(/```mdma\n/, '')
+        .replace(/```$/, '')
+        .trim();
       expect(content).toMatch(/^type: /);
     }
   });

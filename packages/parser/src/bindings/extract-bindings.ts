@@ -1,4 +1,4 @@
-const BINDING_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_.]*)\}\}/g;
+const BINDING_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_.\-]*)\}\}/g;
 
 export interface BindingReference {
   expression: string;
@@ -8,11 +8,7 @@ export interface BindingReference {
 }
 
 /** Extract all {{var}} binding expressions from a component's properties */
-export function extractBindings(
-  componentId: string,
-  obj: unknown,
-  field = '',
-): BindingReference[] {
+export function extractBindings(componentId: string, obj: unknown, field = ''): BindingReference[] {
   const bindings: BindingReference[] = [];
 
   if (typeof obj === 'string') {

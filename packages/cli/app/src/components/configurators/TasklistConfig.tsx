@@ -26,8 +26,12 @@ export function TasklistConfig({ config, onUpdate }: TasklistConfigProps) {
           <span className="text-text-primary">{item}</span>
           <SmallButton
             variant="ghost"
-            onClick={() => onUpdate('tasklist', { tasklist: { items: items.filter((_, j) => j !== i) } })}
-          >x</SmallButton>
+            onClick={() =>
+              onUpdate('tasklist', { tasklist: { items: items.filter((_, j) => j !== i) } })
+            }
+          >
+            x
+          </SmallButton>
         </div>
       ))}
       <div className="flex gap-1.5">

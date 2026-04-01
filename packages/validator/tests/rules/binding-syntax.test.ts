@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { bindingSyntaxRule } from '../../src/rules/binding-syntax.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -66,9 +63,7 @@ describe('binding-syntax rule', () => {
       }),
     ]);
     bindingSyntaxRule.validate(ctx);
-    const wsIssues = ctx.issues.filter((i) =>
-      i.message.includes('whitespace'),
-    );
+    const wsIssues = ctx.issues.filter((i) => i.message.includes('whitespace'));
     expect(wsIssues.length).toBeGreaterThan(0);
     expect(wsIssues[0].severity).toBe('warning');
   });
@@ -83,9 +78,7 @@ describe('binding-syntax rule', () => {
       }),
     ]);
     bindingSyntaxRule.validate(ctx);
-    const singleIssues = ctx.issues.filter((i) =>
-      i.message.includes('single-brace'),
-    );
+    const singleIssues = ctx.issues.filter((i) => i.message.includes('single-brace'));
     expect(singleIssues.length).toBeGreaterThan(0);
     expect(singleIssues[0].severity).toBe('warning');
   });
@@ -109,7 +102,15 @@ describe('binding-syntax rule', () => {
 
   it('skips blocks with null data', () => {
     const ctx = createContext([
-      { index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 } as ParsedBlock,
+      {
+        index: 0,
+        rawYaml: '',
+        data: null,
+        startOffset: 0,
+        endOffset: 0,
+        yamlStartOffset: 0,
+        yamlEndOffset: 0,
+      } as ParsedBlock,
     ]);
     bindingSyntaxRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);

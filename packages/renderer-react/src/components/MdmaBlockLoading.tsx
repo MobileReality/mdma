@@ -20,9 +20,7 @@ export const MdmaBlockLoading = memo(function MdmaBlockLoading({ node }: MdmaBlo
       <div className="mdma-block-loading-content">
         <span className="mdma-block-loading-icon" />
         <span className="mdma-block-loading-text">
-          {typeHint
-            ? `Loading ${typeHint} component...`
-            : 'Loading component...'}
+          {typeHint ? `Loading ${typeHint} component...` : 'Loading component...'}
         </span>
       </div>
     </div>

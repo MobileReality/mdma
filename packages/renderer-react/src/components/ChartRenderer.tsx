@@ -7,12 +7,15 @@ interface ParsedChartData {
 }
 
 function parseCsvData(raw: string): ParsedChartData {
-  const lines = raw.trim().split('\n').filter(l => l.trim() !== '');
+  const lines = raw
+    .trim()
+    .split('\n')
+    .filter((l) => l.trim() !== '');
   if (lines.length === 0) return { headers: [], rows: [] };
 
-  const headers = lines[0].split(',').map(h => h.trim());
-  const rows = lines.slice(1).map(line => {
-    const values = line.split(',').map(v => v.trim());
+  const headers = lines[0].split(',').map((h) => h.trim());
+  const rows = lines.slice(1).map((line) => {
+    const values = line.split(',').map((v) => v.trim());
     const row: Record<string, string | number> = {};
     headers.forEach((header, i) => {
       const val = values[i] ?? '';
@@ -61,13 +64,17 @@ export const ChartRenderer = memo(function ChartRenderer({
       <table className="mdma-chart-data">
         <thead>
           <tr>
-            {data.headers.map(h => <th key={h}>{h}</th>)}
+            {data.headers.map((h) => (
+              <th key={h}>{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {data.rows.map((row, i) => (
             <tr key={i}>
-              {data.headers.map(h => <td key={h}>{String(row[h] ?? '')}</td>)}
+              {data.headers.map((h) => (
+                <td key={h}>{String(row[h] ?? '')}</td>
+              ))}
             </tr>
           ))}
         </tbody>

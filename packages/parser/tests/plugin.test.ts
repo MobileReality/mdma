@@ -26,9 +26,7 @@ function parse(md: string): { root: MdmaRoot; messages: string[] } {
 }
 
 function getMdmaBlocks(root: MdmaRoot): MdmaBlock[] {
-  return root.children.filter(
-    (n): n is MdmaBlock => (n as MdmaBlock).type === 'mdmaBlock',
-  );
+  return root.children.filter((n): n is MdmaBlock => (n as MdmaBlock).type === 'mdmaBlock');
 }
 
 describe('remarkMdma plugin', () => {
@@ -74,12 +72,7 @@ describe('remarkMdma plugin', () => {
       const { root } = parse(fixture('multi-component.md'));
       const blocks = getMdmaBlocks(root);
       const ids = blocks.map((b) => b.component.id);
-      expect(ids).toEqual([
-        'triage-form',
-        'triage-checklist',
-        'manager-approval',
-        'notify-slack',
-      ]);
+      expect(ids).toEqual(['triage-form', 'triage-checklist', 'manager-approval', 'notify-slack']);
     });
   });
 
@@ -95,10 +88,17 @@ describe('remarkMdma plugin', () => {
       expect(hasFieldsError).toBe(true);
     });
 
-    it('reports unknown component type', () => {
-      const { messages } = parse(fixture('invalid-schema.md'));
+    it('passes through unknown component type as generic block', () => {
+      const { root, messages } = parse(fixture('invalid-schema.md'));
+      // Unknown types are now passed through as generic blocks (no error)
       const hasUnknown = messages.some((m) => m.includes('Unknown component type'));
-      expect(hasUnknown).toBe(true);
+      expect(hasUnknown).toBe(false);
+      // The unknown type block should still appear in the AST as an mdmaBlock
+      const blocks = root.children.filter(
+        (c: { type: string; component?: { type: string } }) =>
+          c.type === 'mdmaBlock' && c.component?.type === 'super-custom-thing',
+      );
+      expect(blocks).toHaveLength(1);
     });
   });
 

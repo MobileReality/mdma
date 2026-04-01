@@ -1,8 +1,18 @@
-export { MdmaDocument, type MdmaDocumentProps, type MdmaRenderCustomizations, type ComponentEntry } from './components/MdmaDocument.js';
+export {
+  MdmaDocument,
+  type MdmaDocumentProps,
+  type MdmaRenderCustomizations,
+  type ComponentEntry,
+} from './components/MdmaDocument.js';
 export { MdmaBlock, type MdmaBlockProps } from './components/MdmaBlock.js';
 export { MdastRenderer, type MdastRendererProps } from './components/MdastRenderer.js';
 export { MdmaBlockLoading, type MdmaBlockLoadingProps } from './components/MdmaBlockLoading.js';
-export { MdmaProvider, useMdmaContext, type MdmaProviderProps, type DataSources } from './context/MdmaProvider.js';
+export {
+  MdmaProvider,
+  useMdmaContext,
+  type MdmaProviderProps,
+  type DataSources,
+} from './context/MdmaProvider.js';
 export {
   ElementOverridesProvider,
   useElementOverride,

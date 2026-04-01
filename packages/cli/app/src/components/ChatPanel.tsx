@@ -35,7 +35,10 @@ export function ChatPanel({
     const provider = detectProvider(newConfig.baseUrl);
     if (provider) {
       const savedKeys = loadApiKeys();
-      const resolvedKey = newConfig.apiKey !== config.apiKey ? newConfig.apiKey : (savedKeys[provider] || newConfig.apiKey);
+      const resolvedKey =
+        newConfig.apiKey !== config.apiKey
+          ? newConfig.apiKey
+          : savedKeys[provider] || newConfig.apiKey;
       if (newConfig.apiKey !== config.apiKey) saveApiKey(provider, newConfig.apiKey);
       onConfigChange({ ...newConfig, apiKey: resolvedKey });
     } else {
@@ -89,26 +92,34 @@ export function ChatPanel({
         {messages.length === 0 && !isGenerating && (
           <div className="text-text-muted text-sm text-center py-10 px-5">
             {hasKey ? (
-              <>Configure components on the left, then click <strong>Generate</strong>.</>
+              <>
+                Configure components on the left, then click <strong>Generate</strong>.
+              </>
             ) : (
-              <>Set your <strong>{activePreset?.label || 'LLM'}</strong> API key in Settings above to get started.</>
+              <>
+                Set your <strong>{activePreset?.label || 'LLM'}</strong> API key in Settings above
+                to get started.
+              </>
             )}
           </div>
         )}
-        {messages.filter((m) => m.role !== 'system').map((msg, i) => (
-          <div
-            key={i}
-            className={`
+        {messages
+          .filter((m) => m.role !== 'system')
+          .map((msg, i) => (
+            <div
+              key={i}
+              className={`
               px-3 py-2 rounded-lg text-sm leading-relaxed max-w-[90%] whitespace-pre-wrap
-              ${msg.role === 'user'
-                ? 'bg-primary-light text-primary-text self-end'
-                : 'bg-surface-2 text-text-primary self-start'
+              ${
+                msg.role === 'user'
+                  ? 'bg-primary-light text-primary-text self-end'
+                  : 'bg-surface-2 text-text-primary self-start'
               }
             `}
-          >
-            {msg.content}
-          </div>
-        ))}
+            >
+              {msg.content}
+            </div>
+          ))}
         {isGenerating && <div className="text-xs text-primary px-1">Generating...</div>}
         {error && <div className="text-xs text-error px-1">{error}</div>}
       </div>
@@ -120,7 +131,9 @@ export function ChatPanel({
         onStop={onStop}
         isGenerating={isGenerating}
         disabled={!hasKey}
-        placeholder={messages.length === 0 ? 'Click Generate or type to refine...' : 'Refine the prompt...'}
+        placeholder={
+          messages.length === 0 ? 'Click Generate or type to refine...' : 'Refine the prompt...'
+        }
         sendLabel={messages.length === 0 ? 'Generate' : 'Send'}
       />
     </div>

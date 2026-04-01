@@ -11,8 +11,7 @@ export const schemaConformanceRule: ValidationRule = {
     for (const block of context.blocks) {
       if (block.data === null) continue;
       const type = block.data.type;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       if (typeof type !== 'string') {
         context.issues.push({
@@ -27,7 +26,13 @@ export const schemaConformanceRule: ValidationRule = {
         continue;
       }
 
-      const schema = componentSchemaRegistry.get(type);
+      let schema = componentSchemaRegistry.get(type);
+
+      // Fall back to custom schemas for types not in the built-in registry
+      if (!schema && context.options.customSchemas?.[type]) {
+        schema = context.options.customSchemas[type] as import('zod').ZodType;
+      }
+
       if (!schema) {
         context.issues.push({
           ruleId: 'schema-conformance',

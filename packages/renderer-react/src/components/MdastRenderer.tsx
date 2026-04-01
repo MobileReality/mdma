@@ -47,7 +47,11 @@ function MdastNode({ node }: { node: MdastNode }): ReactNode {
 
     case 'list': {
       const Tag = node.ordered ? 'ol' : 'ul';
-      return <Tag start={node.ordered ? (node.start ?? 1) : undefined}>{renderChildren(node.children)}</Tag>;
+      return (
+        <Tag start={node.ordered ? (node.start ?? 1) : undefined}>
+          {renderChildren(node.children)}
+        </Tag>
+      );
     }
 
     case 'listItem': {
@@ -65,9 +69,7 @@ function MdastNode({ node }: { node: MdastNode }): ReactNode {
     case 'code':
       return (
         <pre className="mdast-code-block">
-          <code className={node.lang ? `language-${node.lang}` : undefined}>
-            {node.value}
-          </code>
+          <code className={node.lang ? `language-${node.lang}` : undefined}>{node.value}</code>
         </pre>
       );
 
@@ -89,7 +91,14 @@ function MdastNode({ node }: { node: MdastNode }): ReactNode {
             <thead>
               <tr>
                 {(headerRow.children ?? []).map((cell, ci) => (
-                  <th key={ci} style={node.align?.[ci] ? { textAlign: node.align[ci] as 'left' | 'center' | 'right' } : undefined}>
+                  <th
+                    key={ci}
+                    style={
+                      node.align?.[ci]
+                        ? { textAlign: node.align[ci] as 'left' | 'center' | 'right' }
+                        : undefined
+                    }
+                  >
                     {renderChildren(cell.children)}
                   </th>
                 ))}
@@ -101,7 +110,14 @@ function MdastNode({ node }: { node: MdastNode }): ReactNode {
               {bodyRows.map((row, ri) => (
                 <tr key={ri}>
                   {(row.children ?? []).map((cell, ci) => (
-                    <td key={ci} style={node.align?.[ci] ? { textAlign: node.align[ci] as 'left' | 'center' | 'right' } : undefined}>
+                    <td
+                      key={ci}
+                      style={
+                        node.align?.[ci]
+                          ? { textAlign: node.align[ci] as 'left' | 'center' | 'right' }
+                          : undefined
+                      }
+                    >
                       {renderChildren(cell.children)}
                     </td>
                   ))}
@@ -131,7 +147,12 @@ function MdastNode({ node }: { node: MdastNode }): ReactNode {
 
     case 'link':
       return (
-        <a href={node.url} title={node.title ?? undefined} target="_blank" rel="noopener noreferrer">
+        <a
+          href={node.url}
+          title={node.title ?? undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
           {renderChildren(node.children)}
         </a>
       );

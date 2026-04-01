@@ -31,7 +31,9 @@ function loadSavedConfig(): LlmConfig {
   try {
     const saved = localStorage.getItem(CONFIG_KEY);
     if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return DEFAULT_CONFIG;
 }
 
@@ -54,7 +56,9 @@ function loadSavedHistory(storageKey: string): StoredMsg[] {
   try {
     const saved = localStorage.getItem(historyKey(storageKey));
     if (saved) return JSON.parse(saved);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return [];
 }
 
@@ -69,7 +73,8 @@ function clearSavedHistory(storageKey: string) {
   localStorage.removeItem(historyKey(storageKey));
 }
 
-const DEFAULT_USER_SUFFIX = '\n\nRespond with an MDMA Markdown document. Do not wrap it in code fences.';
+const DEFAULT_USER_SUFFIX =
+  '\n\nRespond with an MDMA Markdown document. Do not wrap it in code fences.';
 
 // ---- Parse throttle interval ----
 
@@ -98,7 +103,7 @@ export function useChat(options?: UseChatOptions) {
   // Build parser — recreate when the customSchemas reference changes (e.g. after HMR or tab switch)
   const customSchemas = options?.parserOptions?.customSchemas;
   const parseMarkdownFn = useMemo(
-    () => customSchemas ? createParser({ customSchemas }) : defaultParseMarkdown,
+    () => (customSchemas ? createParser({ customSchemas }) : defaultParseMarkdown),
     [customSchemas],
   );
   const parseMarkdownRef = useRef(parseMarkdownFn);
@@ -140,11 +145,16 @@ export function useChat(options?: UseChatOptions) {
     // Re-parse all assistant messages to rebuild AST + store
     for (const m of hydrated) {
       if (m.role === 'assistant' && m.content) {
-        parseMarkdownRef.current(m.content).then(({ ast, store }) => {
-          setMessages((prev) =>
-            prev.map((msg) => (msg.id === m.id ? { ...msg, ast, store } : msg)),
-          );
-        }).catch(() => { /* ignore parse errors from old messages */ });
+        parseMarkdownRef
+          .current(m.content)
+          .then(({ ast, store }) => {
+            setMessages((prev) =>
+              prev.map((msg) => (msg.id === m.id ? { ...msg, ast, store } : msg)),
+            );
+          })
+          .catch(() => {
+            /* ignore parse errors from old messages */
+          });
       }
     }
   }, []);
@@ -170,9 +180,7 @@ export function useChat(options?: UseChatOptions) {
       const existingStore = messagesRef.current.find((m) => m.id === msgId)?.store ?? undefined;
       const { ast, store } = await parseMarkdownRef.current(content, existingStore);
       if (gen >= parseGenRef.current) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === msgId ? { ...m, ast, store } : m)),
-        );
+        setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, ast, store } : m)));
       }
     } catch {
       // Parse errors during streaming are fine — will retry on next chunk
@@ -194,14 +202,17 @@ export function useChat(options?: UseChatOptions) {
     });
   }, []);
 
-  const applyPreset = useCallback((presetName: string) => {
-    const preset = PROVIDER_PRESETS[presetName];
-    if (preset) {
-      const next = { ...preset, apiKey: config.apiKey };
-      setConfig(next);
-      saveConfig(next);
-    }
-  }, [config.apiKey]);
+  const applyPreset = useCallback(
+    (presetName: string) => {
+      const preset = PROVIDER_PRESETS[presetName];
+      if (preset) {
+        const next = { ...preset, apiKey: config.apiKey };
+        setConfig(next);
+        saveConfig(next);
+      }
+    },
+    [config.apiKey],
+  );
 
   const send = useCallback(async () => {
     const text = input.trim();
@@ -230,9 +241,7 @@ export function useChat(options?: UseChatOptions) {
     setIsGenerating(true);
 
     // Build conversation history for the LLM
-    const history: LlmMessage[] = [
-      { role: 'system', content: systemPromptRef.current },
-    ];
+    const history: LlmMessage[] = [{ role: 'system', content: systemPromptRef.current }];
 
     for (const m of [...messages, userMsg]) {
       history.push({ role: m.role, content: m.content });
@@ -305,48 +314,44 @@ export function useChat(options?: UseChatOptions) {
   /** Update an assistant message's content and re-parse it. */
   const updateMessage = useCallback(
     async (msgId: number, content: string) => {
-      setMessages((prev) =>
-        prev.map((m) => (m.id === msgId ? { ...m, content } : m)),
-      );
+      setMessages((prev) => prev.map((m) => (m.id === msgId ? { ...m, content } : m)));
       await reparseLastAssistant(content, msgId);
     },
     [reparseLastAssistant],
   );
 
   // Active flow state for multi-step example flows
-  const flowRef = useRef<{ steps: { userMessage: string; markdown: string }[]; currentStep: number } | null>(null);
+  const flowRef = useRef<{
+    steps: { userMessage: string; markdown: string }[];
+    currentStep: number;
+  } | null>(null);
 
   /** Inject a single user+assistant message pair and parse the markdown. */
-  const injectStep = useCallback(
-    async (userMessage: string, markdown: string) => {
-      const userMsg: ChatMsg = {
-        id: ++msgIdRef.current,
-        role: 'user',
-        content: userMessage,
-        ast: null,
-        store: null,
-      };
-      const assistantMsg: ChatMsg = {
-        id: ++msgIdRef.current,
-        role: 'assistant',
-        content: markdown,
-        ast: null,
-        store: null,
-      };
-      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+  const injectStep = useCallback(async (userMessage: string, markdown: string) => {
+    const userMsg: ChatMsg = {
+      id: ++msgIdRef.current,
+      role: 'user',
+      content: userMessage,
+      ast: null,
+      store: null,
+    };
+    const assistantMsg: ChatMsg = {
+      id: ++msgIdRef.current,
+      role: 'assistant',
+      content: markdown,
+      ast: null,
+      store: null,
+    };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
 
-      const asstId = assistantMsg.id;
-      try {
-        const { ast, store } = await parseMarkdownRef.current(markdown);
-        setMessages((prev) =>
-          prev.map((m) => (m.id === asstId ? { ...m, ast, store } : m)),
-        );
-      } catch {
-        // parse error — content is still shown as raw text
-      }
-    },
-    [],
-  );
+    const asstId = assistantMsg.id;
+    try {
+      const { ast, store } = await parseMarkdownRef.current(markdown);
+      setMessages((prev) => prev.map((m) => (m.id === asstId ? { ...m, ast, store } : m)));
+    } catch {
+      // parse error — content is still shown as raw text
+    }
+  }, []);
 
   /** Start a multi-step example flow. Loads the first step immediately. */
   const startFlow = useCallback(

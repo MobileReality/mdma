@@ -45,7 +45,10 @@ export function App() {
     localStorage.setItem('mdma-builder-preview-llm-override', JSON.stringify(override));
   };
 
-  const previewLlmConfig: LlmConfig = { ...llmConfig, ...Object.fromEntries(Object.entries(previewLlmOverride).filter(([, v]) => v)) };
+  const previewLlmConfig: LlmConfig = {
+    ...llmConfig,
+    ...Object.fromEntries(Object.entries(previewLlmOverride).filter(([, v]) => v)),
+  };
 
   const pb = usePromptBuilder(llmConfig);
   const [step, setStep] = useState('domain');
@@ -93,7 +96,10 @@ export function App() {
           <div className="flex gap-2 p-4 border-t border-border-light">
             <button
               type="button"
-              onClick={() => { const prev = STEPS[currentStepIndex - 1]; if (prev) setStep(prev.id); }}
+              onClick={() => {
+                const prev = STEPS[currentStepIndex - 1];
+                if (prev) setStep(prev.id);
+              }}
               disabled={currentStepIndex === 0}
               className="px-4 py-2 text-sm rounded-lg border border-border bg-surface-1 text-text-secondary hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
@@ -101,7 +107,10 @@ export function App() {
             </button>
             <button
               type="button"
-              onClick={() => { const next = STEPS[currentStepIndex + 1]; if (next) setStep(next.id); }}
+              onClick={() => {
+                const next = STEPS[currentStepIndex + 1];
+                if (next) setStep(next.id);
+              }}
               disabled={currentStepIndex === STEPS.length - 1}
               className="px-4 py-2 text-sm rounded-lg border border-primary bg-primary-light text-primary-text font-medium hover:bg-primary hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex-1"
             >
@@ -112,7 +121,12 @@ export function App() {
 
         {/* Right panel */}
         <main className="flex-1 flex flex-col overflow-hidden">
-          <TabBar tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} indicators={tabIndicators} />
+          <TabBar
+            tabs={TABS}
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            indicators={tabIndicators}
+          />
           <div className="flex-1 p-4 overflow-hidden flex flex-col">
             {activeTab === 'chat' ? (
               <ChatPanel

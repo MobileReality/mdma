@@ -28,9 +28,12 @@ export function PromptOutput({ prompt, isGenerating }: PromptOutputProps) {
     return (
       <div className="flex flex-col h-full">
         <div className="text-text-muted text-sm text-center py-10 px-5">
-          <p className="mb-2">Configure your components and click <strong>Generate</strong>.</p>
+          <p className="mb-2">
+            Configure your components and click <strong>Generate</strong>.
+          </p>
           <p className="text-[11px]">
-            The generated prompt will be used with:<br />
+            The generated prompt will be used with:
+            <br />
             <code className="text-primary-text">buildSystemPrompt({'{ customPrompt }'})</code>
           </p>
         </div>

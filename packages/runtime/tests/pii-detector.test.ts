@@ -106,17 +106,12 @@ describe('auditSensitiveFields', () => {
   });
 
   it('returns empty array when no PII detected', () => {
-    const results = auditSensitiveFields([
-      { name: 'quantity' },
-      { name: 'status' },
-    ]);
+    const results = auditSensitiveFields([{ name: 'quantity' }, { name: 'status' }]);
     expect(results).toHaveLength(0);
   });
 
   it('considers defaultValue for detection', () => {
-    const results = auditSensitiveFields([
-      { name: 'contact', defaultValue: 'user@example.com' },
-    ]);
+    const results = auditSensitiveFields([{ name: 'contact', defaultValue: 'user@example.com' }]);
     expect(results).toHaveLength(1);
     expect(results[0].detectedTypes).toContain('email');
   });

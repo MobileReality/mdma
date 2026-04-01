@@ -1,0 +1,26 @@
+# MDMA Fixer — Flow & References eval config
+#
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:fixer-flow
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
+
+description: MDMA Fixer — Flow & References Eval
+
+envPath: .env
+outputPath: results-fixer-flow.json
+
+prompts:
+  - file://prompt-fixer.mjs
+
+providers:
+  - openai:gpt-4.1
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+
+tests: tests-fixer-flow.yaml

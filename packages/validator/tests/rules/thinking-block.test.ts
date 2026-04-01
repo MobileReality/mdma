@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { thinkingBlockRule } from '../../src/rules/thinking-block.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown> | null,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown> | null): ParsedBlock {
   return {
     index,
     rawYaml: '',

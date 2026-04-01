@@ -44,9 +44,7 @@ function splitMultiComponent(yaml: string): string[] | null {
   return chunks.length >= 2 ? chunks : null;
 }
 
-export function extractMdmaBlocksFromMarkdown(
-  markdown: string,
-): ParsedBlock[] {
+export function extractMdmaBlocksFromMarkdown(markdown: string): ParsedBlock[] {
   const blocks: ParsedBlock[] = [];
   let match: RegExpExecArray | null;
   let index = 0;

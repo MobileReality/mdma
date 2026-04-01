@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import {
@@ -10,17 +10,46 @@ import {
   type FormSubmitElementProps,
 } from '../context/ElementOverridesContext.js';
 
+// ─── Sensitive field indicator ──────────────────────────────────────────────
+
+function SensitiveIndicator() {
+  return (
+    <span className="mdma-sensitive-badge" title="This field contains sensitive data (PII)">
+      &#128274;
+    </span>
+  );
+}
+
 // ─── Default sub-elements ────────────────────────────────────────────────────
 
-function DefaultInput({ id, type, value, onChange, required }: FormInputElementProps) {
+function DefaultInput({ id, type, value, onChange, required, sensitive }: FormInputElementProps) {
+  const [masked, setMasked] = useState(sensitive === true && value !== '');
+  const displayType = masked ? 'password' : type;
+
   return (
-    <input
-      id={id}
-      type={type}
-      value={value}
-      required={required}
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <span className={`mdma-input-wrapper ${sensitive ? 'mdma-input--sensitive' : ''}`}>
+      <input
+        id={id}
+        type={displayType}
+        value={value}
+        required={required}
+        placeholder={sensitive ? `Enter ${type}...` : undefined}
+        onChange={(e) => {
+          onChange(e.target.value);
+          if (sensitive && masked) setMasked(false);
+        }}
+      />
+      {sensitive && value && (
+        <button
+          type="button"
+          className="mdma-sensitive-toggle"
+          onClick={() => setMasked(!masked)}
+          title={masked ? 'Reveal value' : 'Mask value'}
+        >
+          {masked ? '👁' : '👁‍🗨'}
+        </button>
+      )}
+    </span>
   );
 }
 
@@ -39,23 +68,21 @@ function DefaultSelect({ id, value, onChange, required, options }: FormSelectEle
 
 function DefaultCheckbox({ id, checked, onChange }: FormCheckboxElementProps) {
   return (
-    <input
-      id={id}
-      type="checkbox"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-    />
+    <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
   );
 }
 
-function DefaultTextarea({ id, value, onChange, required }: FormTextareaElementProps) {
+function DefaultTextarea({ id, value, onChange, required, sensitive }: FormTextareaElementProps) {
   return (
-    <textarea
-      id={id}
-      value={value}
-      required={required}
-      onChange={(e) => onChange(e.target.value)}
-    />
+    <span className={`mdma-input-wrapper ${sensitive ? 'mdma-input--sensitive' : ''}`}>
+      <textarea
+        id={id}
+        value={value}
+        required={required}
+        placeholder={sensitive ? 'Enter sensitive data...' : undefined}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </span>
   );
 }
 
@@ -69,14 +96,21 @@ function DefaultSubmitButton({ onClick, label }: FormSubmitElementProps) {
 
 // ─── FormRenderer ────────────────────────────────────────────────────────────
 
-export const FormRenderer = memo(function FormRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const FormRenderer = memo(function FormRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
   // Hooks must be called unconditionally (Rules of Hooks)
   const { dataSources } = useMdmaContext();
   const Input = useElementOverride<FormInputElementProps>('form', 'input') ?? DefaultInput;
   const Select = useElementOverride<FormSelectElementProps>('form', 'select') ?? DefaultSelect;
-  const Checkbox = useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
-  const Textarea = useElementOverride<FormTextareaElementProps>('form', 'textarea') ?? DefaultTextarea;
-  const SubmitButton = useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
+  const Checkbox =
+    useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
+  const Textarea =
+    useElementOverride<FormTextareaElementProps>('form', 'textarea') ?? DefaultTextarea;
+  const SubmitButton =
+    useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
 
   if (component.type !== 'form') return null;
 
@@ -89,11 +123,22 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
         const handleChange = (value: string) =>
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
         const handleChecked = (checked: boolean) =>
-          dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: checked });
+          dispatch({
+            type: 'FIELD_CHANGED',
+            componentId: component.id,
+            field: field.name,
+            value: checked,
+          });
 
         return (
-          <div key={field.name} className="mdma-form-field">
-            <label htmlFor={fieldId}>{field.label}</label>
+          <div
+            key={field.name}
+            className={`mdma-form-field ${field.sensitive ? 'mdma-form-field--sensitive' : ''}`}
+          >
+            <label htmlFor={fieldId}>
+              {field.label}
+              {field.sensitive && <SensitiveIndicator />}
+            </label>
             {field.type === 'select' ? (
               <Select
                 id={fieldId}
@@ -103,6 +148,7 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
                 value={fieldValue}
                 onChange={handleChange}
                 required={field.required}
+                sensitive={field.sensitive}
                 options={
                   typeof field.options === 'string'
                     ? (dataSources?.[field.options] ?? [])
@@ -116,6 +162,7 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
                 label={field.label}
                 checked={Boolean(componentState?.values[field.name])}
                 onChange={handleChecked}
+                sensitive={field.sensitive}
               />
             ) : field.type === 'textarea' ? (
               <Textarea
@@ -125,6 +172,7 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
                 value={fieldValue}
                 onChange={handleChange}
                 required={field.required}
+                sensitive={field.sensitive}
               />
             ) : (
               <Input
@@ -135,6 +183,7 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
                 value={fieldValue}
                 onChange={handleChange}
                 required={field.required}
+                sensitive={field.sensitive}
               />
             )}
           </div>
@@ -143,7 +192,11 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
       {component.onSubmit && (
         <SubmitButton
           onClick={() =>
-            dispatch({ type: 'ACTION_TRIGGERED', componentId: component.id, actionId: component.onSubmit! })
+            dispatch({
+              type: 'ACTION_TRIGGERED',
+              componentId: component.id,
+              actionId: component.onSubmit!,
+            })
           }
           label="Submit"
         />

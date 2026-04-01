@@ -43,10 +43,7 @@ function printResult(file: string, result: ValidationResult): void {
   }
 }
 
-export async function validateCommand(
-  patterns: string[],
-  options: ValidateOptions,
-): Promise<void> {
+export async function validateCommand(patterns: string[], options: ValidateOptions): Promise<void> {
   const files = await globby(patterns, { expandDirectories: { extensions: ['md'] } });
 
   if (files.length === 0) {

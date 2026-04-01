@@ -3,7 +3,10 @@ import { createEventLog } from '../src/core/event-log.js';
 
 describe('EventLog', () => {
   it('appends entries with metadata', () => {
-    const log = createEventLog({ sessionId: '550e8400-e29b-41d4-a716-446655440000', documentId: 'doc-1' });
+    const log = createEventLog({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      documentId: 'doc-1',
+    });
 
     const entry = log.append({
       eventType: 'field_changed',
@@ -19,7 +22,10 @@ describe('EventLog', () => {
   });
 
   it('tracks entries count', () => {
-    const log = createEventLog({ sessionId: '550e8400-e29b-41d4-a716-446655440000', documentId: 'doc-1' });
+    const log = createEventLog({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      documentId: 'doc-1',
+    });
     expect(log.size()).toBe(0);
 
     log.append({ eventType: 'component_rendered', componentId: 'c1', payload: {} });
@@ -29,7 +35,10 @@ describe('EventLog', () => {
   });
 
   it('filters by component', () => {
-    const log = createEventLog({ sessionId: '550e8400-e29b-41d4-a716-446655440000', documentId: 'doc-1' });
+    const log = createEventLog({
+      sessionId: '550e8400-e29b-41d4-a716-446655440000',
+      documentId: 'doc-1',
+    });
 
     log.append({ eventType: 'field_changed', componentId: 'form-1', payload: {} });
     log.append({ eventType: 'field_changed', componentId: 'form-2', payload: {} });

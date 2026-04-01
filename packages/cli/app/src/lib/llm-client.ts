@@ -26,12 +26,48 @@ export interface ProviderPreset extends LlmConfig {
 }
 
 export const PROVIDER_PRESETS: Record<string, ProviderPreset> = {
-  openai: { label: 'OpenAI', baseUrl: 'https://api.openai.com/v1', apiKey: '', model: 'gpt-4o', requiresKey: true },
-  anthropic: { label: 'Anthropic', baseUrl: 'https://api.anthropic.com/v1', apiKey: '', model: 'claude-sonnet-4-5-20250929', requiresKey: true },
-  gemini: { label: 'Gemini', baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai', apiKey: '', model: 'gemini-2.0-flash', requiresKey: true },
-  openrouter: { label: 'OpenRouter', baseUrl: 'https://openrouter.ai/api/v1', apiKey: '', model: 'anthropic/claude-sonnet-4-5-20250929', requiresKey: true },
-  groq: { label: 'Groq', baseUrl: 'https://api.groq.com/openai/v1', apiKey: '', model: 'llama-3.3-70b-versatile', requiresKey: true },
-  ollama: { label: 'Ollama', baseUrl: 'http://localhost:11434/v1', apiKey: '', model: 'llama3', requiresKey: false },
+  openai: {
+    label: 'OpenAI',
+    baseUrl: 'https://api.openai.com/v1',
+    apiKey: '',
+    model: 'gpt-4o',
+    requiresKey: true,
+  },
+  anthropic: {
+    label: 'Anthropic',
+    baseUrl: 'https://api.anthropic.com/v1',
+    apiKey: '',
+    model: 'claude-sonnet-4-5-20250929',
+    requiresKey: true,
+  },
+  gemini: {
+    label: 'Gemini',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
+    apiKey: '',
+    model: 'gemini-2.0-flash',
+    requiresKey: true,
+  },
+  openrouter: {
+    label: 'OpenRouter',
+    baseUrl: 'https://openrouter.ai/api/v1',
+    apiKey: '',
+    model: 'anthropic/claude-sonnet-4-5-20250929',
+    requiresKey: true,
+  },
+  groq: {
+    label: 'Groq',
+    baseUrl: 'https://api.groq.com/openai/v1',
+    apiKey: '',
+    model: 'llama-3.3-70b-versatile',
+    requiresKey: true,
+  },
+  ollama: {
+    label: 'Ollama',
+    baseUrl: 'http://localhost:11434/v1',
+    apiKey: '',
+    model: 'llama3',
+    requiresKey: false,
+  },
 };
 
 export async function* streamChatCompletion(

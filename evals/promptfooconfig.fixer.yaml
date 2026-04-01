@@ -1,0 +1,26 @@
+# MDMA Fixer Prompt — promptfoo evaluation config
+#
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:fixer
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
+
+description: MDMA Fixer Prompt Eval
+
+envPath: .env
+outputPath: results-fixer.json
+
+prompts:
+  - file://prompt-fixer.mjs
+
+providers:
+  - openai:gpt-4.1-mini
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 2
+
+tests: tests-fixer.yaml

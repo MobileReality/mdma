@@ -1,10 +1,14 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export const ApprovalGateRenderer = memo(function ApprovalGateRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const ApprovalGateRenderer = memo(function ApprovalGateRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'approval-gate') return null;
 
-  const status = componentState?.values.status as string ?? 'pending';
+  const status = (componentState?.values.status as string) ?? 'pending';
 
   return (
     <div

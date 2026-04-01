@@ -6,9 +6,7 @@ import type { FixContext } from '../types.js';
  * e.g. "first_name" → "First Name", "email" → "Email"
  */
 function keyToHeader(key: string): string {
-  return key
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 /**
@@ -38,7 +36,15 @@ function patchTableColumns(data: Record<string, unknown>): void {
 }
 
 /** Valid form field types from the schema */
-const VALID_FIELD_TYPES = new Set(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea']);
+const VALID_FIELD_TYPES = new Set([
+  'text',
+  'number',
+  'email',
+  'date',
+  'select',
+  'checkbox',
+  'textarea',
+]);
 
 /** Common misspellings / aliases of the `type` key */
 const TYPE_KEY_TYPOS = ['typ', 'tyep', 'tpye', 'ype', 'filed_type', 'fieldType', 'field_type'];
@@ -50,9 +56,33 @@ function inferFieldType(name: string): string {
   const lower = name.toLowerCase().replace(/[-_]/g, '');
   if (lower.includes('email')) return 'email';
   if (lower.includes('date') || lower.includes('birthday') || lower.includes('dob')) return 'date';
-  if (lower.includes('phone') || lower.includes('age') || lower.includes('amount') || lower.includes('salary') || lower.includes('price') || lower.includes('quantity') || lower.includes('count')) return 'number';
-  if (lower.includes('description') || lower.includes('address') || lower.includes('comment') || lower.includes('note') || lower.includes('bio') || lower.includes('message')) return 'textarea';
-  if (lower.includes('agree') || lower.includes('accept') || lower.includes('consent') || lower.includes('subscribe') || lower.includes('optIn')) return 'checkbox';
+  if (
+    lower.includes('phone') ||
+    lower.includes('age') ||
+    lower.includes('amount') ||
+    lower.includes('salary') ||
+    lower.includes('price') ||
+    lower.includes('quantity') ||
+    lower.includes('count')
+  )
+    return 'number';
+  if (
+    lower.includes('description') ||
+    lower.includes('address') ||
+    lower.includes('comment') ||
+    lower.includes('note') ||
+    lower.includes('bio') ||
+    lower.includes('message')
+  )
+    return 'textarea';
+  if (
+    lower.includes('agree') ||
+    lower.includes('accept') ||
+    lower.includes('consent') ||
+    lower.includes('subscribe') ||
+    lower.includes('optIn')
+  )
+    return 'checkbox';
   return 'text';
 }
 
@@ -111,25 +141,59 @@ function patchFormFields(data: Record<string, unknown>): void {
     if ((!f.label || f.label === null) && typeof f.name === 'string') {
       f.label = keyToHeader(f.name);
     }
+
+    // Wrap bare bind values in {{ }}, or remove empty binds
+    if (typeof f.bind === 'string' && f.bind.trim() === '') {
+      f.bind = undefined;
+    } else {
+      wrapBareBinding(f, 'bind');
+    }
+  }
+}
+
+/** Binding path pattern: identifier with dots and hyphens (e.g. "form.email", "my-form.field") */
+const BARE_BINDING_PATH = /^[a-zA-Z_][\w.-]*$/;
+const WRAPPED_BINDING = /^\{\{.+\}\}$/s;
+
+/**
+ * If `obj[field]` is a bare string that looks like a binding path but isn't
+ * wrapped in {{ }}, wrap it. LLMs often omit the double-brace wrapper.
+ */
+function wrapBareBinding(obj: Record<string, unknown>, field: string): void {
+  const val = obj[field];
+  if (typeof val !== 'string') return;
+  if (WRAPPED_BINDING.test(val)) return;
+  if (BARE_BINDING_PATH.test(val)) {
+    obj[field] = `{{${val}}}`;
   }
 }
 
 /**
- * Pre-fix table data: if `data` is a bare string that looks like a binding
- * path but isn't wrapped in {{ }}, wrap it. LLMs often generate
- * `data: personal-info.rows` instead of `data: "{{personal-info.rows}}"`.
+ * Pre-fix any component: wrap bare binding paths for fields that accept
+ * binding expressions (`disabled`, `visible`, table `data`, form field `bind`).
  */
-function patchTableData(data: Record<string, unknown>): void {
-  if (data.type !== 'table') return;
-  const d = data.data;
-  if (typeof d !== 'string') return;
+function patchBareBindings(data: Record<string, unknown>): void {
+  // Component base: disabled, visible
+  wrapBareBinding(data, 'disabled');
+  wrapBareBinding(data, 'visible');
 
-  // Already wrapped — nothing to do
-  if (/^\{\{.+\}\}$/s.test(d)) return;
+  // Table data
+  if (data.type === 'table') {
+    wrapBareBinding(data, 'data');
+  }
 
-  // Looks like a binding path (e.g. "component.field" or "component")
-  if (/^[a-zA-Z_][\w.-]*$/.test(d)) {
-    data.data = `{{${d}}}`;
+  // Tasklist item binds
+  if (data.type === 'tasklist' && Array.isArray(data.items)) {
+    for (const item of data.items) {
+      if (typeof item === 'object' && item !== null) {
+        wrapBareBinding(item as Record<string, unknown>, 'bind');
+      }
+    }
+  }
+
+  // Webhook url and body bindings
+  if (data.type === 'webhook') {
+    wrapBareBinding(data, 'url');
   }
 }
 
@@ -155,6 +219,21 @@ function patchCalloutContent(data: Record<string, unknown>): void {
 
   // Fallback
   data.content = 'Information';
+}
+
+/**
+ * Pre-fix button: fill missing `text` from `id`.
+ */
+function patchButtonText(data: Record<string, unknown>): void {
+  if (data.type !== 'button') return;
+  if (typeof data.text === 'string' && data.text.trim().length > 0) return;
+
+  if (typeof data.id === 'string') {
+    data.text = keyToHeader(data.id);
+    return;
+  }
+
+  data.text = 'Button';
 }
 
 /**
@@ -227,14 +306,21 @@ export function fixSchemaDefaults(context: FixContext): void {
     const type = block.data.type;
     if (typeof type !== 'string') continue;
 
-    const schema = componentSchemaRegistry.get(type);
+    let schema = componentSchemaRegistry.get(type);
+
+    // Fall back to custom schemas for types not in the built-in registry
+    if (!schema && context.options.customSchemas?.[type]) {
+      schema = context.options.customSchemas[type] as import('zod').ZodType;
+    }
+
     if (!schema) continue;
 
     // Patch known gaps before Zod re-parse
     patchTableColumns(block.data);
-    patchTableData(block.data);
+    patchBareBindings(block.data);
     patchFormFields(block.data);
     patchCalloutContent(block.data);
+    patchButtonText(block.data);
 
     // Re-parse with Zod to apply defaults and coercions
     const result = schema.safeParse(block.data);

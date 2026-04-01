@@ -7,7 +7,11 @@ interface LlmSettingsPanelProps {
   activeProvider: string | null;
 }
 
-export function LlmSettingsPanel({ config, onConfigChange, activeProvider }: LlmSettingsPanelProps) {
+export function LlmSettingsPanel({
+  config,
+  onConfigChange,
+  activeProvider,
+}: LlmSettingsPanelProps) {
   const activePreset = activeProvider ? PROVIDER_PRESETS[activeProvider] : null;
 
   return (
@@ -18,12 +22,19 @@ export function LlmSettingsPanel({ config, onConfigChange, activeProvider }: Llm
           <button
             key={name}
             type="button"
-            onClick={() => onConfigChange({ baseUrl: preset.baseUrl, model: preset.model, apiKey: config.apiKey })}
+            onClick={() =>
+              onConfigChange({
+                baseUrl: preset.baseUrl,
+                model: preset.model,
+                apiKey: config.apiKey,
+              })
+            }
             className={`
               px-3 py-1.5 border rounded text-xs font-medium cursor-pointer transition-colors
-              ${activeProvider === name
-                ? 'border-primary text-primary-text bg-primary-light'
-                : 'border-border text-text-secondary bg-surface-2 hover:bg-surface-3'
+              ${
+                activeProvider === name
+                  ? 'border-primary text-primary-text bg-primary-light'
+                  : 'border-border text-text-secondary bg-surface-2 hover:bg-surface-3'
               }
             `}
           >

@@ -15,9 +15,10 @@ export function TabBar({ tabs, activeTab, onTabChange, indicators = {} }: TabBar
           onClick={() => onTabChange(tab)}
           className={`
             px-4 py-2.5 text-sm font-medium border-b-2 transition-colors capitalize
-            ${activeTab === tab
-              ? 'border-primary text-primary'
-              : 'border-transparent text-text-secondary hover:text-text-primary'
+            ${
+              activeTab === tab
+                ? 'border-primary text-primary'
+                : 'border-transparent text-text-secondary hover:text-text-primary'
             }
           `}
         >
