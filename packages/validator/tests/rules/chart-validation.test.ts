@@ -3,7 +3,15 @@ import { chartValidationRule } from '../../src/rules/chart-validation.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -18,7 +26,8 @@ describe('chart-validation rule', () => {
   it('passes for valid CSV with matching axes', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'chart', id: 'ch',
+        type: 'chart',
+        id: 'ch',
         data: 'Month,Revenue,Costs\nJan,100,80\nFeb,120,90',
         xAxis: 'Month',
         yAxis: ['Revenue', 'Costs'],
@@ -31,7 +40,8 @@ describe('chart-validation rule', () => {
   it('warns when xAxis not in CSV headers', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'chart', id: 'ch',
+        type: 'chart',
+        id: 'ch',
         data: 'Month,Revenue\nJan,100',
         xAxis: 'Date',
       }),
@@ -45,7 +55,8 @@ describe('chart-validation rule', () => {
   it('warns when yAxis item not in CSV headers', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'chart', id: 'ch',
+        type: 'chart',
+        id: 'ch',
         data: 'Month,Revenue\nJan,100',
         yAxis: 'Profit',
       }),
@@ -59,7 +70,8 @@ describe('chart-validation rule', () => {
   it('skips binding expression data', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'chart', id: 'ch',
+        type: 'chart',
+        id: 'ch',
         data: '{{sales-data.csv}}',
         xAxis: 'anything',
       }),
@@ -71,7 +83,8 @@ describe('chart-validation rule', () => {
   it('warns on CSV with only header row (no data)', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'chart', id: 'ch',
+        type: 'chart',
+        id: 'ch',
         data: 'Month,Revenue',
       }),
     ]);
@@ -81,9 +94,7 @@ describe('chart-validation rule', () => {
   });
 
   it('skips non-chart components', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'c', content: 'hi' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: 'hi' })]);
     chartValidationRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });

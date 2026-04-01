@@ -3,7 +3,15 @@ import { placeholderContentRule } from '../../src/rules/placeholder-content.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -26,9 +34,7 @@ describe('placeholder-content rule', () => {
   });
 
   it('flags "..." in content', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'c', content: '...' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: '...' })]);
     placeholderContentRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].field).toBe('content');
@@ -53,7 +59,8 @@ describe('placeholder-content rule', () => {
   it('detects placeholder in form field labels', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
+        type: 'form',
+        id: 'f',
         fields: [{ name: 'email', type: 'email', label: 'TBD' }],
       }),
     ]);
@@ -65,7 +72,8 @@ describe('placeholder-content rule', () => {
   it('detects placeholder in table column headers', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
+        type: 'table',
+        id: 't',
         columns: [{ key: 'name', header: 'FIXME' }],
         data: [],
       }),
@@ -77,7 +85,17 @@ describe('placeholder-content rule', () => {
 
   it('skips blocks with null data', () => {
     const ctx: ValidationRuleContext = {
-      blocks: [{ index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 }],
+      blocks: [
+        {
+          index: 0,
+          rawYaml: '',
+          data: null,
+          startOffset: 0,
+          endOffset: 0,
+          yamlStartOffset: 0,
+          yamlEndOffset: 0,
+        },
+      ],
       idMap: new Map(),
       issues: [],
       options: {},

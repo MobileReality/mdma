@@ -31,17 +31,13 @@ function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
 
 describe('yaml-correctness rule', () => {
   it('passes for valid blocks', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'form', id: 'f', fields: [] }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'form', id: 'f', fields: [] })]);
     yamlCorrectnessRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
 
   it('flags blocks with null data (invalid YAML)', () => {
-    const ctx = createContext([
-      createBlock(0, null, { parseError: 'Unexpected token at line 2' }),
-    ]);
+    const ctx = createContext([createBlock(0, null, { parseError: 'Unexpected token at line 2' })]);
     yamlCorrectnessRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].ruleId).toBe('yaml-correctness');
@@ -69,11 +65,7 @@ describe('yaml-correctness rule', () => {
 
   it('warns when YAML document separators were stripped', () => {
     const ctx = createContext([
-      createBlock(
-        0,
-        { type: 'callout', id: 'c', content: 'hi' },
-        { yamlSanitized: true },
-      ),
+      createBlock(0, { type: 'callout', id: 'c', content: 'hi' }, { yamlSanitized: true }),
     ]);
     yamlCorrectnessRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
@@ -84,11 +76,7 @@ describe('yaml-correctness rule', () => {
 
   it('reports componentId from data when available', () => {
     const ctx = createContext([
-      createBlock(
-        0,
-        { type: 'form', id: 'my-form', fields: [] },
-        { yamlSanitized: true },
-      ),
+      createBlock(0, { type: 'form', id: 'my-form', fields: [] }, { yamlSanitized: true }),
     ]);
     yamlCorrectnessRule.validate(ctx);
     expect(ctx.issues[0].componentId).toBe('my-form');

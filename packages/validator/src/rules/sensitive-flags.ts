@@ -22,8 +22,7 @@ function matchesPii(value: string, patterns: RegExp[]): boolean {
 export const sensitiveFlagsRule: ValidationRule = {
   id: 'sensitive-flags',
   name: 'Sensitive Flags',
-  description:
-    'Checks that PII fields have sensitive: true',
+  description: 'Checks that PII fields have sensitive: true',
   defaultSeverity: 'warning',
 
   validate(context) {
@@ -32,8 +31,7 @@ export const sensitiveFlagsRule: ValidationRule = {
     for (const block of context.blocks) {
       if (block.data === null) continue;
       const type = block.data.type;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       // Check form fields
       if (type === 'form' && Array.isArray(block.data.fields)) {

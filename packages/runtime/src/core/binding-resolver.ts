@@ -19,10 +19,7 @@ export function parseBindingExpression(expr: string): string | null {
 }
 
 /** Resolve a value that may be a binding expression or a literal */
-export function resolveValue(
-  value: unknown,
-  state: Record<string, unknown>,
-): unknown {
+export function resolveValue(value: unknown, state: Record<string, unknown>): unknown {
   if (typeof value === 'string') {
     const path = parseBindingExpression(value);
     if (path) {

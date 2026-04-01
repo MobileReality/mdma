@@ -86,18 +86,14 @@ describe('FormComponentSchema', () => {
     const form = {
       id: 'ds-form',
       type: 'form',
-      fields: [
-        { name: 'country', type: 'select', label: 'Country', options: 'countries' },
-      ],
+      fields: [{ name: 'country', type: 'select', label: 'Country', options: 'countries' }],
     };
     const result = FormComponentSchema.parse(form);
     expect(result.fields[0].options).toBe('countries');
   });
 
   it('rejects form with no fields', () => {
-    expect(() =>
-      FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] }),
-    ).toThrow();
+    expect(() => FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] })).toThrow();
   });
 
   it('rejects form with missing id', () => {
@@ -254,9 +250,7 @@ describe('MdmaComponentSchema (discriminated union)', () => {
   });
 
   it('rejects unknown component type', () => {
-    expect(() =>
-      MdmaComponentSchema.parse({ id: 'x', type: 'unknown-widget' }),
-    ).toThrow();
+    expect(() => MdmaComponentSchema.parse({ id: 'x', type: 'unknown-widget' })).toThrow();
   });
 });
 
@@ -281,7 +275,12 @@ describe('PolicySchema', () => {
     const policy = {
       version: 1 as const,
       rules: [
-        { action: 'send_email', environments: ['preview'], effect: 'deny' as const, reason: 'Blocked in preview' },
+        {
+          action: 'send_email',
+          environments: ['preview'],
+          effect: 'deny' as const,
+          reason: 'Blocked in preview',
+        },
         { action: 'webhook_call', environments: ['production'], effect: 'allow' as const },
       ],
       defaultEffect: 'deny' as const,

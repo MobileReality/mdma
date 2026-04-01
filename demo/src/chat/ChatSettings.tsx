@@ -65,11 +65,7 @@ export const ChatSettings = memo(function ChatSettings({
 
   return (
     <div className="chat-settings-bar">
-      <button
-        type="button"
-        className="chat-settings-toggle"
-        onClick={() => setOpen(!open)}
-      >
+      <button type="button" className="chat-settings-toggle" onClick={() => setOpen(!open)}>
         {open ? 'Hide Settings' : 'LLM Settings'}
       </button>
       {open && (
@@ -120,7 +116,9 @@ export const ChatSettings = memo(function ChatSettings({
                     }}
                   >
                     {models.map((m) => (
-                      <option key={m.value} value={m.value}>{m.label}</option>
+                      <option key={m.value} value={m.value}>
+                        {m.label}
+                      </option>
                     ))}
                     <option value="__custom__">Custom...</option>
                   </select>

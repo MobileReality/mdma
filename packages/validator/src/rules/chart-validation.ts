@@ -5,14 +5,16 @@ const BINDING_PATTERN = /^\{\{.*\}\}$/s;
 function parseCsvHeaders(csv: string): string[] {
   const lines = csv.trim().split('\n');
   if (lines.length === 0) return [];
-  return lines[0].split(',').map((h) => h.trim()).filter(Boolean);
+  return lines[0]
+    .split(',')
+    .map((h) => h.trim())
+    .filter(Boolean);
 }
 
 export const chartValidationRule: ValidationRule = {
   id: 'chart-validation',
   name: 'Chart Validation',
-  description:
-    'Validates chart data format and axis references against CSV headers',
+  description: 'Validates chart data format and axis references against CSV headers',
   defaultSeverity: 'warning',
 
   validate(context) {
@@ -20,8 +22,7 @@ export const chartValidationRule: ValidationRule = {
       if (block.data === null) continue;
       if (block.data.type !== 'chart') continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
       const data = block.data.data;
 
       if (typeof data !== 'string') continue;
@@ -35,7 +36,8 @@ export const chartValidationRule: ValidationRule = {
         context.issues.push({
           ruleId: 'chart-validation',
           severity: 'warning',
-          message: 'Chart data does not appear to be valid CSV (expected at least a header row and one data row)',
+          message:
+            'Chart data does not appear to be valid CSV (expected at least a header row and one data row)',
           componentId: id,
           field: 'data',
           blockIndex: block.index,
@@ -75,11 +77,12 @@ export const chartValidationRule: ValidationRule = {
 
       // Validate yAxis
       const yAxis = block.data.yAxis;
-      const yAxes: string[] = typeof yAxis === 'string'
-        ? [yAxis]
-        : Array.isArray(yAxis)
-          ? yAxis.filter((v): v is string => typeof v === 'string')
-          : [];
+      const yAxes: string[] =
+        typeof yAxis === 'string'
+          ? [yAxis]
+          : Array.isArray(yAxis)
+            ? yAxis.filter((v): v is string => typeof v === 'string')
+            : [];
 
       for (const axis of yAxes) {
         if (!headerSet.has(axis)) {

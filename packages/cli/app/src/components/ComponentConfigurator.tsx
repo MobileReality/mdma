@@ -14,9 +14,7 @@ export function ComponentConfigurator({ components, onUpdate }: ComponentConfigu
 
   if (enabled.length === 0) {
     return (
-      <p className="text-text-muted text-sm italic">
-        Select components above to configure them.
-      </p>
+      <p className="text-text-muted text-sm italic">Select components above to configure them.</p>
     );
   }
 
@@ -49,7 +47,9 @@ function ConfigPanel({
     default:
       return (
         <div className="flex flex-col gap-2 p-2.5 border border-border rounded-md bg-surface-1">
-          <span className="text-[13px] font-semibold text-primary-text capitalize">{config.type}</span>
+          <span className="text-[13px] font-semibold text-primary-text capitalize">
+            {config.type}
+          </span>
           <span className="text-xs text-text-muted">No additional configuration needed.</span>
         </div>
       );

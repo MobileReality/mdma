@@ -68,12 +68,7 @@ function DefaultSelect({ id, value, onChange, required, options }: FormSelectEle
 
 function DefaultCheckbox({ id, checked, onChange }: FormCheckboxElementProps) {
   return (
-    <input
-      id={id}
-      type="checkbox"
-      checked={checked}
-      onChange={(e) => onChange(e.target.checked)}
-    />
+    <input id={id} type="checkbox" checked={checked} onChange={(e) => onChange(e.target.checked)} />
   );
 }
 
@@ -101,14 +96,21 @@ function DefaultSubmitButton({ onClick, label }: FormSubmitElementProps) {
 
 // ─── FormRenderer ────────────────────────────────────────────────────────────
 
-export const FormRenderer = memo(function FormRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const FormRenderer = memo(function FormRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
   // Hooks must be called unconditionally (Rules of Hooks)
   const { dataSources } = useMdmaContext();
   const Input = useElementOverride<FormInputElementProps>('form', 'input') ?? DefaultInput;
   const Select = useElementOverride<FormSelectElementProps>('form', 'select') ?? DefaultSelect;
-  const Checkbox = useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
-  const Textarea = useElementOverride<FormTextareaElementProps>('form', 'textarea') ?? DefaultTextarea;
-  const SubmitButton = useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
+  const Checkbox =
+    useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
+  const Textarea =
+    useElementOverride<FormTextareaElementProps>('form', 'textarea') ?? DefaultTextarea;
+  const SubmitButton =
+    useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
 
   if (component.type !== 'form') return null;
 
@@ -121,10 +123,18 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
         const handleChange = (value: string) =>
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
         const handleChecked = (checked: boolean) =>
-          dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value: checked });
+          dispatch({
+            type: 'FIELD_CHANGED',
+            componentId: component.id,
+            field: field.name,
+            value: checked,
+          });
 
         return (
-          <div key={field.name} className={`mdma-form-field ${field.sensitive ? 'mdma-form-field--sensitive' : ''}`}>
+          <div
+            key={field.name}
+            className={`mdma-form-field ${field.sensitive ? 'mdma-form-field--sensitive' : ''}`}
+          >
             <label htmlFor={fieldId}>
               {field.label}
               {field.sensitive && <SensitiveIndicator />}
@@ -182,7 +192,11 @@ export const FormRenderer = memo(function FormRenderer({ component, componentSta
       {component.onSubmit && (
         <SubmitButton
           onClick={() =>
-            dispatch({ type: 'ACTION_TRIGGERED', componentId: component.id, actionId: component.onSubmit! })
+            dispatch({
+              type: 'ACTION_TRIGGERED',
+              componentId: component.id,
+              actionId: component.onSubmit!,
+            })
           }
           label="Submit"
         />

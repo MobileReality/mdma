@@ -25,9 +25,7 @@ export function loadPrompt(name: string): string {
   const prompt = PROMPTS[name];
   if (prompt === undefined) {
     const available = Object.keys(PROMPTS).join(', ');
-    throw new Error(
-      `Unknown prompt "${name}". Available prompts: ${available}`,
-    );
+    throw new Error(`Unknown prompt "${name}". Available prompts: ${available}`);
   }
   return prompt;
 }

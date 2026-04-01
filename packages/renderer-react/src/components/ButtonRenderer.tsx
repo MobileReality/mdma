@@ -1,7 +1,10 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export const ButtonRenderer = memo(function ButtonRenderer({ component, dispatch }: MdmaBlockRendererProps) {
+export const ButtonRenderer = memo(function ButtonRenderer({
+  component,
+  dispatch,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'button') return null;
 
   const variantClass = `mdma-button--${component.variant ?? 'primary'}`;

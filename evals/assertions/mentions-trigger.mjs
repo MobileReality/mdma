@@ -73,7 +73,8 @@ export default function (output, { config }) {
 
   if (mode === 'multi-step') {
     // Check that output describes a multi-step / sequential flow
-    const stepMarkers = /step\s*[12345]|phase\s*[12345]|first.*then|after.*submit|next.*step|sequential|in order/i;
+    const stepMarkers =
+      /step\s*[12345]|phase\s*[12345]|first.*then|after.*submit|next.*step|sequential|in order/i;
     if (!stepMarkers.test(output)) {
       return { pass: false, score: 0, reason: 'Output does not describe a multi-step flow' };
     }

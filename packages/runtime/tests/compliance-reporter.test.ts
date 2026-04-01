@@ -86,9 +86,7 @@ describe('generateComplianceReport', () => {
   });
 
   it('warns when no form components exist', () => {
-    const ast = createAst([
-      { id: 'btn1', type: 'button', text: 'Click', onAction: 'do' },
-    ]);
+    const ast = createAst([{ id: 'btn1', type: 'button', text: 'Click', onAction: 'do' }]);
 
     const report = generateComplianceReport(ast, 'doc-1');
     const formCheck = report.checks.find((c) => c.name === 'has-interactive-components');

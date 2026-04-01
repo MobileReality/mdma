@@ -1,7 +1,11 @@
 import { useState } from 'react';
 import { SmallInput } from '../ui/SmallInput.js';
 import { SmallButton } from '../ui/SmallButton.js';
-import type { ComponentConfig, ComponentType, FormFieldConfig } from '../../hooks/use-prompt-builder.js';
+import type {
+  ComponentConfig,
+  ComponentType,
+  FormFieldConfig,
+} from '../../hooks/use-prompt-builder.js';
 
 interface FormConfigProps {
   config: ComponentConfig;
@@ -39,7 +43,9 @@ export function FormConfig({ config, onUpdate }: FormConfigProps) {
           <span className="text-text-secondary">"{f.label}"</span>
           {f.required && <span className="text-warning text-[10px]">required</span>}
           {f.sensitive && <span className="text-error text-[10px]">sensitive</span>}
-          <SmallButton variant="ghost" onClick={() => removeField(i)}>x</SmallButton>
+          <SmallButton variant="ghost" onClick={() => removeField(i)}>
+            x
+          </SmallButton>
         </div>
       ))}
 
@@ -58,19 +64,31 @@ export function FormConfig({ config, onUpdate }: FormConfigProps) {
         />
         <select
           value={newField.type}
-          onChange={(e) => setNewField((p) => ({ ...p, type: e.target.value as FormFieldConfig['type'] }))}
+          onChange={(e) =>
+            setNewField((p) => ({ ...p, type: e.target.value as FormFieldConfig['type'] }))
+          }
           className="px-2 py-1 border border-border rounded bg-surface-2 text-text-primary text-xs outline-none focus:border-primary"
         >
           {['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea'].map((t) => (
-            <option key={t} value={t}>{t}</option>
+            <option key={t} value={t}>
+              {t}
+            </option>
           ))}
         </select>
         <label className="text-[11px] text-text-secondary flex items-center gap-1">
-          <input type="checkbox" checked={newField.required} onChange={(e) => setNewField((p) => ({ ...p, required: e.target.checked }))} />
+          <input
+            type="checkbox"
+            checked={newField.required}
+            onChange={(e) => setNewField((p) => ({ ...p, required: e.target.checked }))}
+          />
           req
         </label>
         <label className="text-[11px] text-text-secondary flex items-center gap-1">
-          <input type="checkbox" checked={newField.sensitive} onChange={(e) => setNewField((p) => ({ ...p, sensitive: e.target.checked }))} />
+          <input
+            type="checkbox"
+            checked={newField.sensitive}
+            onChange={(e) => setNewField((p) => ({ ...p, sensitive: e.target.checked }))}
+          />
           PII
         </label>
         <SmallButton onClick={addField}>+ Add</SmallButton>

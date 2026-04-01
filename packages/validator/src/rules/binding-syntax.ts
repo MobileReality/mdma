@@ -4,7 +4,8 @@ const VALID_BINDING_REGEX = /^\{\{[a-zA-Z_][a-zA-Z0-9_.\-]*\}\}$/;
 
 // Patterns that look like malformed bindings (support hyphens in kebab-case IDs)
 const SINGLE_BRACE_REGEX = /(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_.\-]*)\}(?!\})/g;
-const WHITESPACE_BINDING_REGEX = /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.\-]*)\s*\}\}|\{\{\s*([a-zA-Z_][a-zA-Z0-9_.\-]*)\s+\}\}/g;
+const WHITESPACE_BINDING_REGEX =
+  /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.\-]*)\s*\}\}|\{\{\s*([a-zA-Z_][a-zA-Z0-9_.\-]*)\s+\}\}/g;
 const EMPTY_BINDING_REGEX = /\{\{\s*\}\}/g;
 
 function scanForMalformedBindings(
@@ -61,13 +62,7 @@ function scanForMalformedBindings(
     }
   } else if (Array.isArray(obj)) {
     obj.forEach((item, i) => {
-      scanForMalformedBindings(
-        item,
-        componentId,
-        blockIndex,
-        `${field}[${i}]`,
-        issues,
-      );
+      scanForMalformedBindings(item, componentId, blockIndex, `${field}[${i}]`, issues);
     });
   } else if (typeof obj === 'object' && obj !== null) {
     for (const [key, value] of Object.entries(obj)) {
@@ -91,16 +86,9 @@ export const bindingSyntaxRule: ValidationRule = {
   validate(context) {
     for (const block of context.blocks) {
       if (block.data === null) continue;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
-      scanForMalformedBindings(
-        block.data,
-        id,
-        block.index,
-        '',
-        context.issues,
-      );
+      scanForMalformedBindings(block.data, id, block.index, '', context.issues);
     }
   },
 };

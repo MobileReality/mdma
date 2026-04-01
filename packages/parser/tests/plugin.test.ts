@@ -26,9 +26,7 @@ function parse(md: string): { root: MdmaRoot; messages: string[] } {
 }
 
 function getMdmaBlocks(root: MdmaRoot): MdmaBlock[] {
-  return root.children.filter(
-    (n): n is MdmaBlock => (n as MdmaBlock).type === 'mdmaBlock',
-  );
+  return root.children.filter((n): n is MdmaBlock => (n as MdmaBlock).type === 'mdmaBlock');
 }
 
 describe('remarkMdma plugin', () => {
@@ -74,12 +72,7 @@ describe('remarkMdma plugin', () => {
       const { root } = parse(fixture('multi-component.md'));
       const blocks = getMdmaBlocks(root);
       const ids = blocks.map((b) => b.component.id);
-      expect(ids).toEqual([
-        'triage-form',
-        'triage-checklist',
-        'manager-approval',
-        'notify-slack',
-      ]);
+      expect(ids).toEqual(['triage-form', 'triage-checklist', 'manager-approval', 'notify-slack']);
     });
   });
 

@@ -17,9 +17,7 @@ describe('loadPrompt', () => {
   });
 
   it('throws on an unknown prompt name', () => {
-    expect(() => loadPrompt('nonexistent')).toThrowError(
-      /Unknown prompt "nonexistent"/,
-    );
+    expect(() => loadPrompt('nonexistent')).toThrowError(/Unknown prompt "nonexistent"/);
   });
 
   it('includes available prompt names in the error message', () => {

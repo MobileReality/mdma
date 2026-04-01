@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { bindingResolutionRule } from '../../src/rules/binding-resolution.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -33,9 +30,7 @@ describe('binding-resolution rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'contact-form',
-        fields: [
-          { name: 'email', type: 'email', label: 'Email' },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email' }],
       }),
       createBlock(1, {
         type: 'callout',
@@ -110,9 +105,7 @@ describe('binding-resolution rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'myform',
-        fields: [
-          { name: 'email', type: 'email', label: 'Email' },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email' }],
       }),
       createBlock(1, {
         type: 'callout',
@@ -188,7 +181,15 @@ describe('binding-resolution rule', () => {
 
   it('skips blocks with null data', () => {
     const blocks: ParsedBlock[] = [
-      { index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 },
+      {
+        index: 0,
+        rawYaml: '',
+        data: null,
+        startOffset: 0,
+        endOffset: 0,
+        yamlStartOffset: 0,
+        yamlEndOffset: 0,
+      },
     ];
     const ctx: ValidationRuleContext = {
       blocks,

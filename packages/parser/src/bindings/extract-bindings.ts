@@ -8,11 +8,7 @@ export interface BindingReference {
 }
 
 /** Extract all {{var}} binding expressions from a component's properties */
-export function extractBindings(
-  componentId: string,
-  obj: unknown,
-  field = '',
-): BindingReference[] {
+export function extractBindings(componentId: string, obj: unknown, field = ''): BindingReference[] {
   const bindings: BindingReference[] = [];
 
   if (typeof obj === 'string') {

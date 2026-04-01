@@ -97,9 +97,7 @@ export const ChatMessage = memo(function ChatMessage({
   return (
     <div className={`chat-msg chat-msg--${message.role}`}>
       <div className="chat-msg-header">
-        <span className="chat-msg-label">
-          {message.role === 'user' ? 'You' : 'MDMA AI'}
-        </span>
+        <span className="chat-msg-label">{message.role === 'user' ? 'You' : 'MDMA AI'}</span>
         {message.role === 'assistant' && message.content && (
           <button
             type="button"
@@ -142,9 +140,7 @@ export const ChatMessage = memo(function ChatMessage({
         ) : message.ast && message.store ? (
           <>
             {renderDocument()}
-            {isStreaming && (
-              <span className="chat-msg-streaming">Streaming...</span>
-            )}
+            {isStreaming && <span className="chat-msg-streaming">Streaming...</span>}
           </>
         ) : message.content ? (
           <div className="chat-msg-parsing">

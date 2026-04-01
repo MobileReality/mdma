@@ -3,7 +3,15 @@ import { selectOptionsRule } from '../../src/rules/select-options.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -18,8 +26,16 @@ describe('select-options rule', () => {
   it('passes for select with valid options array', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
-        fields: [{ name: 'color', type: 'select', label: 'Color', options: [{ label: 'Red', value: 'red' }] }],
+        type: 'form',
+        id: 'f',
+        fields: [
+          {
+            name: 'color',
+            type: 'select',
+            label: 'Color',
+            options: [{ label: 'Red', value: 'red' }],
+          },
+        ],
       }),
     ]);
     selectOptionsRule.validate(ctx);
@@ -29,7 +45,8 @@ describe('select-options rule', () => {
   it('passes for select with binding string options', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
+        type: 'form',
+        id: 'f',
         fields: [{ name: 'country', type: 'select', label: 'Country', options: '{{countries}}' }],
       }),
     ]);
@@ -40,7 +57,8 @@ describe('select-options rule', () => {
   it('warns for select with missing options', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
+        type: 'form',
+        id: 'f',
         fields: [{ name: 'color', type: 'select', label: 'Color' }],
       }),
     ]);
@@ -53,7 +71,8 @@ describe('select-options rule', () => {
   it('warns for malformed option objects', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
+        type: 'form',
+        id: 'f',
         fields: [{ name: 'color', type: 'select', label: 'Color', options: [{ label: 'Red' }] }],
       }),
     ]);
@@ -65,7 +84,8 @@ describe('select-options rule', () => {
   it('skips non-select fields', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'form', id: 'f',
+        type: 'form',
+        id: 'f',
         fields: [{ name: 'email', type: 'email', label: 'Email' }],
       }),
     ]);
@@ -74,9 +94,7 @@ describe('select-options rule', () => {
   });
 
   it('skips non-form components', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'c', content: 'hi' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: 'hi' })]);
     selectOptionsRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });

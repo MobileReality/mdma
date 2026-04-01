@@ -5,12 +5,30 @@ import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { ChatActionLog } from './chat/ChatActionLog.js';
 import { useChatActionLog } from './chat/use-chat-action-log.js';
-import { validate, validateFlow, type ValidationResult, type ValidationIssue, type FlowValidationResult, type ValidationRuleId } from '@mobile-reality/mdma-validator';
-import { buildFixerPrompt, buildFixerMessage, buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
+import {
+  validate,
+  validateFlow,
+  type ValidationResult,
+  type ValidationIssue,
+  type FlowValidationResult,
+  type ValidationRuleId,
+} from '@mobile-reality/mdma-validator';
+import {
+  buildFixerPrompt,
+  buildFixerMessage,
+  buildSystemPrompt,
+} from '@mobile-reality/mdma-prompt-pack';
 import { chatCompletion } from './llm-client.js';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { customizations } from './custom-components.js';
-import { VALIDATOR_PROMPT_VARIANTS, ALL_RULE_IDS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS, SAMPLE_BINDING_DATA } from './validator-prompts.js';
+import {
+  VALIDATOR_PROMPT_VARIANTS,
+  ALL_RULE_IDS,
+  FIXER_FLOW_RULES,
+  FIXER_CORRECT_STRUCTURE,
+  FLOW_STEPS,
+  SAMPLE_BINDING_DATA,
+} from './validator-prompts.js';
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -25,9 +43,7 @@ function IssueRow({ issue }: { issue: ValidationIssue }) {
         {issue.severity}
       </span>
       <span className="validator-issue-rule">{issue.ruleId}</span>
-      {issue.componentId && (
-        <span className="validator-issue-component">#{issue.componentId}</span>
-      )}
+      {issue.componentId && <span className="validator-issue-component">#{issue.componentId}</span>}
       <span className="validator-issue-msg">{issue.message}</span>
       {issue.fixed && <span className="validator-issue-badge">fixed</span>}
     </div>
@@ -41,10 +57,7 @@ interface ValidationPanelProps {
 }
 
 function ValidationPanel({ results, onRequestFix, isGenerating }: ValidationPanelProps) {
-  const entries = useMemo(
-    () => Array.from(results.entries()).reverse(),
-    [results],
-  );
+  const entries = useMemo(() => Array.from(results.entries()).reverse(), [results]);
 
   if (entries.length === 0) {
     return (
@@ -65,10 +78,10 @@ function ValidationPanel({ results, onRequestFix, isGenerating }: ValidationPane
 
         return (
           <div key={msgId} className="validator-msg-result">
-            <div className={`validator-summary ${result.ok ? 'validator-summary--ok' : 'validator-summary--fail'}`}>
-              <span className="validator-summary-status">
-                {result.ok ? 'PASS' : 'FAIL'}
-              </span>
+            <div
+              className={`validator-summary ${result.ok ? 'validator-summary--ok' : 'validator-summary--fail'}`}
+            >
+              <span className="validator-summary-status">{result.ok ? 'PASS' : 'FAIL'}</span>
               <span className="validator-summary-label">msg #{msgId}</span>
               <span className="validator-summary-counts">
                 {result.summary.errors > 0 && (
@@ -87,9 +100,7 @@ function ValidationPanel({ results, onRequestFix, isGenerating }: ValidationPane
                   </span>
                 )}
                 {result.fixCount > 0 && (
-                  <span className="validator-fix-count">
-                    {result.fixCount} auto-fixed
-                  </span>
+                  <span className="validator-fix-count">{result.fixCount} auto-fixed</span>
                 )}
               </span>
             </div>
@@ -112,7 +123,9 @@ function ValidationPanel({ results, onRequestFix, isGenerating }: ValidationPane
                 onClick={() => onRequestFix(msgId)}
                 disabled={isGenerating}
               >
-                {isGenerating ? 'Fixing...' : `Fix with LLM (${unfixedErrors.length + unfixedWarnings.length} issues)`}
+                {isGenerating
+                  ? 'Fixing...'
+                  : `Fix with LLM (${unfixedErrors.length + unfixedWarnings.length} issues)`}
               </button>
             )}
 
@@ -131,7 +144,10 @@ function ValidationPanel({ results, onRequestFix, isGenerating }: ValidationPane
   );
 }
 
-function FlowProgressPanel({ steps, result }: {
+function FlowProgressPanel({
+  steps,
+  result,
+}: {
   steps: import('@mobile-reality/mdma-validator').FlowStepDefinition[];
   result: FlowValidationResult | null;
 }) {
@@ -142,10 +158,13 @@ function FlowProgressPanel({ steps, result }: {
     const matchingIssue = result.issues.find((iss) => iss.message.startsWith(stepPrefix));
     if (!matchingIssue) {
       // Check "not yet shown"
-      const notShown = result.issues.find((iss) => iss.message.includes(step.id) && iss.message.includes('not yet shown'));
-      return notShown ? 'pending' as const : 'pending' as const;
+      const notShown = result.issues.find(
+        (iss) => iss.message.includes(step.id) && iss.message.includes('not yet shown'),
+      );
+      return notShown ? ('pending' as const) : ('pending' as const);
     }
-    if (matchingIssue.severity === 'info' && matchingIssue.message.includes('correct')) return 'done' as const;
+    if (matchingIssue.severity === 'info' && matchingIssue.message.includes('correct'))
+      return 'done' as const;
     if (matchingIssue.severity === 'error') return 'error' as const;
     return 'pending' as const;
   });
@@ -159,14 +178,20 @@ function FlowProgressPanel({ steps, result }: {
         {steps.map((step, i) => {
           const status = stepStatuses[i];
           const stepPrefix = `Step ${i + 1} `;
-          const issue = result?.issues.find((iss) => iss.message.startsWith(stepPrefix) && iss.severity === 'error');
+          const issue = result?.issues.find(
+            (iss) => iss.message.startsWith(stepPrefix) && iss.severity === 'error',
+          );
 
           return (
             <div key={step.id} className={`flow-step flow-step--${status}`}>
               <span className="flow-step-num">{i + 1}</span>
               <span className="flow-step-label">{step.label}</span>
-              <span className="flow-step-type">{step.type}#{step.id}</span>
-              {status === 'done' && <span className="flow-step-badge flow-step-badge--done">done</span>}
+              <span className="flow-step-type">
+                {step.type}#{step.id}
+              </span>
+              {status === 'done' && (
+                <span className="flow-step-badge flow-step-badge--done">done</span>
+              )}
               {status === 'error' && issue && (
                 <span className="flow-step-badge flow-step-badge--error">{issue.message}</span>
               )}
@@ -210,17 +235,19 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
     ...(customizations.schemas && { parserOptions: { customSchemas: customizations.schemas } }),
   });
 
-  const [fixerModel, setFixerModel] = useState(() =>
-    localStorage.getItem('mdma-fixer-model') || '',
+  const [fixerModel, setFixerModel] = useState(
+    () => localStorage.getItem('mdma-fixer-model') || '',
   );
-  const [customFixerModel, setCustomFixerModel] = useState(() =>
-    localStorage.getItem('mdma-fixer-custom-model') || '',
+  const [customFixerModel, setCustomFixerModel] = useState(
+    () => localStorage.getItem('mdma-fixer-custom-model') || '',
   );
-  const [autoFixWithLlm, setAutoFixWithLlm] = useState(() =>
-    localStorage.getItem('mdma-auto-fix-llm') !== 'false',
+  const [autoFixWithLlm, setAutoFixWithLlm] = useState(
+    () => localStorage.getItem('mdma-auto-fix-llm') !== 'false',
   );
 
-  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
+  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(
+    new Map(),
+  );
 
   // Subscribe to user-action events to auto-advance the conversation
   const subscribedStores = useRef(new Set<DocumentStore>());
@@ -277,7 +304,9 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   }, [input, isGenerating, send]);
 
   useEffect(() => {
-    return () => { subscribedStores.current.clear(); };
+    return () => {
+      subscribedStores.current.clear();
+    };
   }, []);
 
   // Track which messages we've already validated
@@ -324,7 +353,12 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
     }
   }, [messages, isGenerating, updateMessage, variantRuleSet]);
 
-  const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useChatActionLog(messages);
+  const {
+    events,
+    isOpen: logOpen,
+    setIsOpen: setLogOpen,
+    clearEvents,
+  } = useChatActionLog(messages);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevMsgCountRef = useRef(messages.length);
@@ -347,65 +381,78 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   const isFixing = fixingMsgId !== null;
   const fixAbortRef = useRef<AbortController | null>(null);
 
-  const handleRequestFix = useCallback(async (msgId: number) => {
-    const result = validationResults.get(msgId);
-    const msg = messages.find((m) => m.id === msgId);
-    if (!result || !msg || isFixing) return;
+  const handleRequestFix = useCallback(
+    async (msgId: number) => {
+      const result = validationResults.get(msgId);
+      const msg = messages.find((m) => m.id === msgId);
+      if (!result || !msg || isFixing) return;
 
-    const unfixed = result.issues.filter((i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'));
-    if (unfixed.length === 0) return;
-
-    setFixingMsgId(msgId);
-    fixAbortRef.current = new AbortController();
-
-    try {
-      const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt(promptKey)}`;
-
-      // Build conversation history from messages before the broken one
-      const history = messages
-        .filter((m) => m.id < msgId)
-        .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
-
-      const userMessage = buildFixerMessage(result.output, unfixed, {
-        conversationHistory: history.length > 0 ? history : undefined,
-        promptContext: FIXER_FLOW_RULES[promptKey] ?? FIXER_CORRECT_STRUCTURE[promptKey] ?? undefined,
-      });
-
-      const resolvedModel = fixerModel === '__custom__' ? customFixerModel : fixerModel;
-      const fixerConfig = resolvedModel
-        ? { ...config, model: resolvedModel }
-        : config;
-
-      const fixedContent = await chatCompletion(
-        fixerConfig,
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        fixAbortRef.current.signal,
+      const unfixed = result.issues.filter(
+        (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
       );
+      if (unfixed.length === 0) return;
 
-      if (fixedContent) {
-        // Overwrite the original message with the fixed content
-        updateMessage(msg.id, fixedContent);
-        // Clear old validation and seeded stores so they re-run on the new store
-        validatedRef.current.delete(msg.id);
-        seededStores.current.clear();
-        setValidationResults((prev) => {
-          const next = new Map(prev);
-          next.delete(msg.id);
-          return next;
+      setFixingMsgId(msgId);
+      fixAbortRef.current = new AbortController();
+
+      try {
+        const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt(promptKey)}`;
+
+        // Build conversation history from messages before the broken one
+        const history = messages
+          .filter((m) => m.id < msgId)
+          .map((m) => ({ role: m.role as 'user' | 'assistant', content: m.content }));
+
+        const userMessage = buildFixerMessage(result.output, unfixed, {
+          conversationHistory: history.length > 0 ? history : undefined,
+          promptContext:
+            FIXER_FLOW_RULES[promptKey] ?? FIXER_CORRECT_STRUCTURE[promptKey] ?? undefined,
         });
+
+        const resolvedModel = fixerModel === '__custom__' ? customFixerModel : fixerModel;
+        const fixerConfig = resolvedModel ? { ...config, model: resolvedModel } : config;
+
+        const fixedContent = await chatCompletion(
+          fixerConfig,
+          [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userMessage },
+          ],
+          fixAbortRef.current.signal,
+        );
+
+        if (fixedContent) {
+          // Overwrite the original message with the fixed content
+          updateMessage(msg.id, fixedContent);
+          // Clear old validation and seeded stores so they re-run on the new store
+          validatedRef.current.delete(msg.id);
+          seededStores.current.clear();
+          setValidationResults((prev) => {
+            const next = new Map(prev);
+            next.delete(msg.id);
+            return next;
+          });
+        }
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          console.error('Fixer error:', err);
+        }
+      } finally {
+        setFixingMsgId(null);
+        fixAbortRef.current = null;
       }
-    } catch (err) {
-      if (!(err instanceof DOMException && err.name === 'AbortError')) {
-        console.error('Fixer error:', err);
-      }
-    } finally {
-      setFixingMsgId(null);
-      fixAbortRef.current = null;
-    }
-  }, [validationResults, messages, config, isFixing, updateMessage, fixerModel, customFixerModel, promptKey]);
+    },
+    [
+      validationResults,
+      messages,
+      config,
+      isFixing,
+      updateMessage,
+      fixerModel,
+      customFixerModel,
+      promptKey,
+    ],
+  );
 
   // Auto-fix with LLM when enabled and unfixed issues detected
   const autoFixTriggeredRef = useRef<Set<number>>(new Set());
@@ -415,7 +462,9 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
     if (!autoFixWithLlm || isFixing || isGenerating) return;
     for (const [msgId, result] of validationResults) {
       if (autoFixTriggeredRef.current.has(msgId)) continue;
-      const unfixed = result.issues.filter((i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'));
+      const unfixed = result.issues.filter(
+        (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
+      );
       if (unfixed.length > 0) {
         autoFixTriggeredRef.current.add(msgId);
         autoFixQueueRef.current = msgId;
@@ -444,8 +493,11 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   }, [flowSteps, messages]);
 
   // All flow steps completed — check by counting info "correct" issues
-  const flowComplete = flowSteps != null && flowResult != null
-    && flowResult.issues.filter((i) => i.severity === 'info' && i.message.includes('correct')).length >= flowSteps.length;
+  const flowComplete =
+    flowSteps != null &&
+    flowResult != null &&
+    flowResult.issues.filter((i) => i.severity === 'info' && i.message.includes('correct'))
+      .length >= flowSteps.length;
 
   flowCompleteRef.current = flowComplete;
 
@@ -454,18 +506,17 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   return (
     <div className="validator-content">
       <div className="validator-chat-panel">
-        <ChatSettings
-          config={config}
-          onUpdate={updateConfig}
-          onPreset={applyPreset}
-        />
+        <ChatSettings config={config} onUpdate={updateConfig} onPreset={applyPreset} />
 
         <div className="chat-messages">
           {messages.length === 0 && (
             <div className="chat-empty">
               <p className="chat-empty-title">{variant.label}</p>
               <p className="chat-empty-hint">{variant.description}</p>
-              <p className="chat-empty-hint" style={{ marginTop: '4px', fontSize: '12px', opacity: 0.7 }}>
+              <p
+                className="chat-empty-hint"
+                style={{ marginTop: '4px', fontSize: '12px', opacity: 0.7 }}
+              >
                 Rules tested: {variant.rules.join(', ')}
               </p>
             </div>
@@ -502,9 +553,9 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
           hasMessages={messages.length > 0}
           inputRef={inputRef}
           disabled={flowComplete}
-          placeholder={flowComplete
-            ? 'Flow completed — all steps validated successfully'
-            : undefined}
+          placeholder={
+            flowComplete ? 'Flow completed — all steps validated successfully' : undefined
+          }
         />
       </div>
 
@@ -590,9 +641,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
           )}
         </div>
 
-        {flowSteps && (
-          <FlowProgressPanel steps={flowSteps} result={flowResult} />
-        )}
+        {flowSteps && <FlowProgressPanel steps={flowSteps} result={flowResult} />}
         <ValidationPanel
           results={validationResults}
           onRequestFix={autoFixWithLlm ? undefined : handleRequestFix}
@@ -628,7 +677,8 @@ export function ValidatorView() {
       <div className="validator-info">
         <strong>Validator</strong>
         <span>
-          Chat with the AI — every response is automatically validated. Issues and auto-fixes appear on the right.
+          Chat with the AI — every response is automatically validated. Issues and auto-fixes appear
+          on the right.
         </span>
       </div>
 

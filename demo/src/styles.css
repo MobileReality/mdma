@@ -8,7 +8,8 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: #1a1a2e;
@@ -198,7 +199,7 @@ body {
   overflow-y: auto;
   padding: 8px;
   font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
 }
 
 .demo-event-empty {
@@ -232,12 +233,30 @@ body {
   color: #333;
 }
 
-.demo-event-type--FIELD_CHANGED { background: #dfe6e9; color: #2d3436; }
-.demo-event-type--ACTION_TRIGGERED { background: #a29bfe; color: #fff; }
-.demo-event-type--APPROVAL_GRANTED { background: #55efc4; color: #00473e; }
-.demo-event-type--APPROVAL_DENIED { background: #fab1a0; color: #6b1900; }
-.demo-event-type--INTEGRATION_CALLED { background: #ffeaa7; color: #6b5900; }
-.demo-event-type--COMPONENT_RENDERED { background: #f0f0f0; color: #666; }
+.demo-event-type--FIELD_CHANGED {
+  background: #dfe6e9;
+  color: #2d3436;
+}
+.demo-event-type--ACTION_TRIGGERED {
+  background: #a29bfe;
+  color: #fff;
+}
+.demo-event-type--APPROVAL_GRANTED {
+  background: #55efc4;
+  color: #00473e;
+}
+.demo-event-type--APPROVAL_DENIED {
+  background: #fab1a0;
+  color: #6b1900;
+}
+.demo-event-type--INTEGRATION_CALLED {
+  background: #ffeaa7;
+  color: #6b5900;
+}
+.demo-event-type--COMPONENT_RENDERED {
+  background: #f0f0f0;
+  color: #666;
+}
 
 .demo-event-component {
   color: #6c5ce7;
@@ -313,8 +332,12 @@ body {
 }
 
 @keyframes mdma-shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 .mdma-block-loading-content {
@@ -336,7 +359,9 @@ body {
 }
 
 @keyframes mdma-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .mdma-block-loading-text {
@@ -384,10 +409,18 @@ body {
   color: #1a1a2e;
 }
 
-.mdma-markdown-content h1 { font-size: 1.8em; }
-.mdma-markdown-content h2 { font-size: 1.4em; }
-.mdma-markdown-content h3 { font-size: 1.15em; }
-.mdma-markdown-content h4 { font-size: 1em; }
+.mdma-markdown-content h1 {
+  font-size: 1.8em;
+}
+.mdma-markdown-content h2 {
+  font-size: 1.4em;
+}
+.mdma-markdown-content h3 {
+  font-size: 1.15em;
+}
+.mdma-markdown-content h4 {
+  font-size: 1em;
+}
 
 .mdma-markdown-content p {
   margin: 0 0 10px;
@@ -944,9 +977,15 @@ body {
   letter-spacing: 0.5px;
 }
 
-.mdma-approval-gate--pending .mdma-approval-gate-status strong { color: #f39c12; }
-.mdma-approval-gate--approved .mdma-approval-gate-status strong { color: #27ae60; }
-.mdma-approval-gate--denied .mdma-approval-gate-status strong { color: #e74c3c; }
+.mdma-approval-gate--pending .mdma-approval-gate-status strong {
+  color: #f39c12;
+}
+.mdma-approval-gate--approved .mdma-approval-gate-status strong {
+  color: #27ae60;
+}
+.mdma-approval-gate--denied .mdma-approval-gate-status strong {
+  color: #e74c3c;
+}
 
 .mdma-approval-gate-actions {
   display: flex;
@@ -978,10 +1017,22 @@ body {
   font-weight: 500;
 }
 
-.mdma-webhook-status--idle { background: #f0f0f0; color: #666; }
-.mdma-webhook-status--executing { background: #ffeaa7; color: #6b5900; }
-.mdma-webhook-status--success { background: #55efc4; color: #00473e; }
-.mdma-webhook-status--error { background: #fab1a0; color: #6b1900; }
+.mdma-webhook-status--idle {
+  background: #f0f0f0;
+  color: #666;
+}
+.mdma-webhook-status--executing {
+  background: #ffeaa7;
+  color: #6b5900;
+}
+.mdma-webhook-status--success {
+  background: #55efc4;
+  color: #00473e;
+}
+.mdma-webhook-status--error {
+  background: #fab1a0;
+  color: #6b1900;
+}
 
 /* ===== Unknown Component ===== */
 .mdma-unknown-component {
@@ -1080,7 +1131,7 @@ body {
   overflow-y: auto;
   padding: 8px;
   font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
 }
 
 .chat-action-log-empty {
@@ -1354,7 +1405,7 @@ body {
 
 .chat-msg-raw {
   font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
   white-space: pre-wrap;
   word-break: break-word;
   color: #555;
@@ -1364,7 +1415,7 @@ body {
 
 .chat-msg-source {
   font-size: 12.5px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
   white-space: pre-wrap;
   word-break: break-word;
   color: #e0e0e0;
@@ -1387,7 +1438,7 @@ body {
 
 .chat-msg-editor-textarea {
   font-size: 12.5px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
   white-space: pre;
   color: #e0e0e0;
   background: #1e1e2e;
@@ -1454,8 +1505,13 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
 
 .chat-msg-typing {
@@ -1932,7 +1988,7 @@ body {
 }
 
 .ce-toggle-track::after {
-  content: '';
+  content: "";
   position: absolute;
   top: 3px;
   left: 3px;
@@ -2030,7 +2086,7 @@ body {
   padding: 0 8px;
   font-size: 10px;
   font-weight: 600;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
   border: 1px solid rgba(162, 155, 254, 0.25);
   border-radius: 6px;
   background: rgba(108, 92, 231, 0.1);
@@ -2103,7 +2159,7 @@ body {
   padding: 0 8px;
   font-size: 10px;
   font-weight: 600;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
   border: 1px solid rgba(162, 155, 254, 0.25);
   border-radius: 6px;
   background: rgba(108, 92, 231, 0.1);
@@ -2336,7 +2392,7 @@ body {
 }
 
 .mdma-thinking-summary::after {
-  content: '\25B6';
+  content: "\25B6";
   font-size: 10px;
   margin-left: auto;
   transition: transform 0.2s;
@@ -2357,8 +2413,15 @@ body {
 }
 
 @keyframes mdma-thinking-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(0.8); }
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
 }
 
 .mdma-thinking-label {
@@ -2714,13 +2777,23 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 /* Manual paste-and-validate section */
@@ -2762,7 +2835,7 @@ body {
   border-top: 1px solid #e0e0e0;
   border-bottom: 1px solid #e0e0e0;
   background: #fff;
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
   font-size: 12px;
   line-height: 1.5;
   resize: vertical;
@@ -2959,7 +3032,7 @@ body {
   font-size: 11px;
   font-weight: 500;
   color: #888;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
 }
 
 .validator-summary-counts {
@@ -3037,14 +3110,14 @@ body {
 }
 
 .validator-issue-rule {
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
   font-size: 10px;
   color: #6c5ce7;
   font-weight: 500;
 }
 
 .validator-issue-component {
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
   font-size: 10px;
   color: #636e72;
 }
@@ -3082,7 +3155,7 @@ body {
 
 .validator-output-pre {
   font-size: 11px;
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
   white-space: pre-wrap;
   word-break: break-word;
   color: #e0e0e0;
@@ -3212,7 +3285,9 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .validator-fix-btn {
@@ -3546,8 +3621,16 @@ body {
 }
 
 @keyframes creator-dot-bounce {
-  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-  30% { transform: translateY(-6px); opacity: 1; }
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
 }
 
 .creator-msg-typing {
@@ -3614,7 +3697,7 @@ body {
 .creator-panel-source {
   margin: 0;
   padding: 20px;
-  font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  font-family: "SF Mono", "Fira Code", "Consolas", monospace;
   font-size: 12px;
   line-height: 1.6;
   color: #2d3748;
@@ -3806,13 +3889,28 @@ body {
   color: #fff;
 }
 
-.creator-approved-type--form { background: #6c5ce7; }
-.creator-approved-type--table { background: #00b894; }
-.creator-approved-type--chart { background: #e17055; }
-.creator-approved-type--callout { background: #0984e3; }
-.creator-approved-type--button { background: #636e72; }
-.creator-approved-type--tasklist { background: #fdcb6e; color: #2d3748; }
-.creator-approved-type--unknown { background: #94a3b8; }
+.creator-approved-type--form {
+  background: #6c5ce7;
+}
+.creator-approved-type--table {
+  background: #00b894;
+}
+.creator-approved-type--chart {
+  background: #e17055;
+}
+.creator-approved-type--callout {
+  background: #0984e3;
+}
+.creator-approved-type--button {
+  background: #636e72;
+}
+.creator-approved-type--tasklist {
+  background: #fdcb6e;
+  color: #2d3748;
+}
+.creator-approved-type--unknown {
+  background: #94a3b8;
+}
 
 .creator-approved-label {
   color: #374151;
@@ -4011,7 +4109,7 @@ body {
   padding: 16px;
   margin: 0;
   font-size: 12px;
-  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-family: "SF Mono", "Fira Code", monospace;
   line-height: 1.6;
   white-space: pre-wrap;
   word-break: break-word;

@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { sensitiveFlagsRule } from '../../src/rules/sensitive-flags.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -17,10 +14,7 @@ function createBlock(
   };
 }
 
-function createContext(
-  blocks: ParsedBlock[],
-  options = {},
-): ValidationRuleContext {
+function createContext(blocks: ParsedBlock[], options = {}): ValidationRuleContext {
   const idMap = new Map<string, number>();
   for (const block of blocks) {
     if (block.data && typeof block.data.id === 'string') {
@@ -36,9 +30,7 @@ describe('sensitive-flags rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'f',
-        fields: [
-          { name: 'email', type: 'email', label: 'Email', sensitive: true },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email', sensitive: true }],
       }),
     ]);
     sensitiveFlagsRule.validate(ctx);
@@ -86,9 +78,7 @@ describe('sensitive-flags rule', () => {
         createBlock(0, {
           type: 'form',
           id: 'f',
-          fields: [
-            { name: 'badge_id', type: 'text', label: 'Badge ID' },
-          ],
+          fields: [{ name: 'badge_id', type: 'text', label: 'Badge ID' }],
         }),
       ],
       { customPiiPatterns: [/badge/i] },

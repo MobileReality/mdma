@@ -7,7 +7,15 @@ export interface FlowStepDefinition {
   /** Human-readable step label (e.g. "Registration Form") */
   label: string;
   /** The primary component type for this step */
-  type: 'form' | 'button' | 'tasklist' | 'approval-gate' | 'webhook' | 'callout' | 'table' | 'chart';
+  type:
+    | 'form'
+    | 'button'
+    | 'tasklist'
+    | 'approval-gate'
+    | 'webhook'
+    | 'callout'
+    | 'table'
+    | 'chart';
   /** Expected component ID for the interactive component */
   id: string;
 }

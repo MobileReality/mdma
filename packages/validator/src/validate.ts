@@ -47,10 +47,7 @@ function buildIdMap(blocks: ParsedBlock[]): Map<string, number> {
   return map;
 }
 
-export function validate(
-  markdown: string,
-  options: ValidatorOptions = {},
-): ValidationResult {
+export function validate(markdown: string, options: ValidatorOptions = {}): ValidationResult {
   const { exclude = [], autoFix = true } = options;
 
   // 0. Detect MDMA-like YAML outside of fenced blocks
@@ -111,15 +108,9 @@ export function validate(
 
   // 6. Build result
   const unfixedIssues = context.issues.filter((i) => !i.fixed);
-  const errors = unfixedIssues.filter(
-    (i) => i.severity === 'error',
-  ).length;
-  const warnings = unfixedIssues.filter(
-    (i) => i.severity === 'warning',
-  ).length;
-  const infos = unfixedIssues.filter(
-    (i) => i.severity === 'info',
-  ).length;
+  const errors = unfixedIssues.filter((i) => i.severity === 'error').length;
+  const warnings = unfixedIssues.filter((i) => i.severity === 'warning').length;
+  const infos = unfixedIssues.filter((i) => i.severity === 'info').length;
 
   return {
     ok: errors === 0,

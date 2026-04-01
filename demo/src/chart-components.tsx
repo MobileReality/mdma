@@ -3,11 +3,20 @@ import type { ChartComponent } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '@mobile-reality/mdma-renderer-react';
 import {
   ResponsiveContainer,
-  LineChart, Line,
-  BarChart, Bar,
-  AreaChart, Area,
-  PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
 } from 'recharts';
 
 // ─── CSV Data Parser ─────────────────────────────────────────────────────────
@@ -18,12 +27,15 @@ interface ParsedChartData {
 }
 
 function parseCsvData(raw: string): ParsedChartData {
-  const lines = raw.trim().split('\n').filter(l => l.trim() !== '');
+  const lines = raw
+    .trim()
+    .split('\n')
+    .filter((l) => l.trim() !== '');
   if (lines.length === 0) return { headers: [], rows: [] };
 
-  const headers = lines[0].split(',').map(h => h.trim());
-  const rows = lines.slice(1).map(line => {
-    const values = line.split(',').map(v => v.trim());
+  const headers = lines[0].split(',').map((h) => h.trim());
+  const rows = lines.slice(1).map((line) => {
+    const values = line.split(',').map((v) => v.trim());
     const row: Record<string, string | number> = {};
     headers.forEach((header, i) => {
       const val = values[i] ?? '';
@@ -40,7 +52,7 @@ function arrayToChartData(resolved: unknown): ParsedChartData {
   if (!Array.isArray(resolved) || resolved.length === 0) return { headers: [], rows: [] };
   const first = resolved[0] as Record<string, unknown>;
   const headers = Object.keys(first);
-  const rows = resolved.map(item => {
+  const rows = resolved.map((item) => {
     const row: Record<string, string | number> = {};
     for (const key of headers) {
       const val = (item as Record<string, unknown>)[key];
@@ -54,8 +66,14 @@ function arrayToChartData(resolved: unknown): ParsedChartData {
 // ─── Color Palette ───────────────────────────────────────────────────────────
 
 const DEFAULT_COLORS = [
-  '#6c5ce7', '#00b894', '#fdcb6e', '#e74c3c',
-  '#a29bfe', '#74b9ff', '#fd79a8', '#55efc4',
+  '#6c5ce7',
+  '#00b894',
+  '#fdcb6e',
+  '#e74c3c',
+  '#a29bfe',
+  '#74b9ff',
+  '#fd79a8',
+  '#55efc4',
 ];
 
 // ─── Shared helpers ──────────────────────────────────────────────────────────
@@ -74,8 +92,10 @@ function resolveChartData(
 
   const xKey = chart.xAxis ?? parsed.headers[0] ?? '';
   const yKeys = chart.yAxis
-    ? (Array.isArray(chart.yAxis) ? chart.yAxis : [chart.yAxis])
-    : parsed.headers.filter(h => h !== xKey);
+    ? Array.isArray(chart.yAxis)
+      ? chart.yAxis
+      : [chart.yAxis]
+    : parsed.headers.filter((h) => h !== xKey);
   const colors = chart.colors ?? DEFAULT_COLORS;
 
   return { data: parsed, xKey, yKeys, colors };
@@ -97,15 +117,34 @@ const tooltipStyle = {
 
 // ─── Line ────────────────────────────────────────────────────────────────────
 
-function RechartLine({ data, xKey, yKeys, colors, chart }: {
-  data: ParsedChartData; xKey: string; yKeys: string[]; colors: string[]; chart: ChartComponent;
+function RechartLine({
+  data,
+  xKey,
+  yKeys,
+  colors,
+  chart,
+}: {
+  data: ParsedChartData;
+  xKey: string;
+  yKeys: string[];
+  colors: string[];
+  chart: ChartComponent;
 }) {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <LineChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <XAxis
+          dataKey={xKey}
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
+        <YAxis
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -126,15 +165,34 @@ function RechartLine({ data, xKey, yKeys, colors, chart }: {
 
 // ─── Bar ─────────────────────────────────────────────────────────────────────
 
-function RechartBar({ data, xKey, yKeys, colors, chart }: {
-  data: ParsedChartData; xKey: string; yKeys: string[]; colors: string[]; chart: ChartComponent;
+function RechartBar({
+  data,
+  xKey,
+  yKeys,
+  colors,
+  chart,
+}: {
+  data: ParsedChartData;
+  xKey: string;
+  yKeys: string[];
+  colors: string[];
+  chart: ChartComponent;
 }) {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <BarChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <XAxis
+          dataKey={xKey}
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
+        <YAxis
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -153,15 +211,34 @@ function RechartBar({ data, xKey, yKeys, colors, chart }: {
 
 // ─── Area ────────────────────────────────────────────────────────────────────
 
-function RechartArea({ data, xKey, yKeys, colors, chart }: {
-  data: ParsedChartData; xKey: string; yKeys: string[]; colors: string[]; chart: ChartComponent;
+function RechartArea({
+  data,
+  xKey,
+  yKeys,
+  colors,
+  chart,
+}: {
+  data: ParsedChartData;
+  xKey: string;
+  yKeys: string[];
+  colors: string[];
+  chart: ChartComponent;
 }) {
   return (
     <ResponsiveContainer width="100%" height={chart.height}>
       <AreaChart data={data.rows} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
         {chart.showGrid && <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.1)" />}
-        <XAxis dataKey={xKey} tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
-        <YAxis tick={{ fill: '#636e72', fontSize: 11 }} axisLine={{ stroke: 'rgba(0,0,0,0.15)' }} tickLine={false} />
+        <XAxis
+          dataKey={xKey}
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
+        <YAxis
+          tick={{ fill: '#636e72', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(0,0,0,0.15)' }}
+          tickLine={false}
+        />
         <Tooltip {...tooltipStyle} />
         {chart.showLegend && <Legend wrapperStyle={{ fontSize: 12, color: '#b2bec3' }} />}
         {yKeys.map((key, i) => (
@@ -187,10 +264,20 @@ function renderPieLabel(props: { name?: string; percent?: number }) {
   return `${props.name ?? ''} ${((props.percent ?? 0) * 100).toFixed(0)}%`;
 }
 
-function RechartPie({ data, xKey, yKeys, colors, chart }: {
-  data: ParsedChartData; xKey: string; yKeys: string[]; colors: string[]; chart: ChartComponent;
+function RechartPie({
+  data,
+  xKey,
+  yKeys,
+  colors,
+  chart,
+}: {
+  data: ParsedChartData;
+  xKey: string;
+  yKeys: string[];
+  colors: string[];
+  chart: ChartComponent;
 }) {
-  const valueKey = yKeys[0] ?? data.headers.find(h => h !== xKey) ?? '';
+  const valueKey = yKeys[0] ?? data.headers.find((h) => h !== xKey) ?? '';
 
   return (
     <ResponsiveContainer width="100%" height={chart.height}>

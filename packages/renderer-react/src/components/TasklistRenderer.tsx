@@ -1,7 +1,11 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export const TasklistRenderer = memo(function TasklistRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const TasklistRenderer = memo(function TasklistRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'tasklist') return null;
 
   return (

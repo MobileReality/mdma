@@ -138,9 +138,7 @@ export function createDocumentStore(
       payload: redacted,
       redacted: wasRedacted,
       actor:
-        'actor' in action
-          ? (action as { actor: { id: string; role?: string } }).actor
-          : undefined,
+        'actor' in action ? (action as { actor: { id: string; role?: string } }).actor : undefined,
     });
   }
 
@@ -177,10 +175,14 @@ export function createDocumentStore(
             comp.touched = true;
             // Store both flat (for backward compat) and nested (for {{componentId.field}} resolution)
             state.bindings[action.field] = action.value;
-            if (!state.bindings[action.componentId] || typeof state.bindings[action.componentId] !== 'object') {
+            if (
+              !state.bindings[action.componentId] ||
+              typeof state.bindings[action.componentId] !== 'object'
+            ) {
               state.bindings[action.componentId] = {};
             }
-            (state.bindings[action.componentId] as Record<string, unknown>)[action.field] = action.value;
+            (state.bindings[action.componentId] as Record<string, unknown>)[action.field] =
+              action.value;
           }
           break;
         }
@@ -199,7 +201,12 @@ export function createDocumentStore(
         case 'APPROVAL_DENIED': {
           const comp = state.components.get(action.componentId);
           if (comp) {
-            comp.values = { ...comp.values, status: 'denied', deniedBy: action.actor, deniedReason: action.reason };
+            comp.values = {
+              ...comp.values,
+              status: 'denied',
+              deniedBy: action.actor,
+              deniedReason: action.reason,
+            };
             state.bindings[`${action.componentId}.status`] = 'denied';
           }
           break;

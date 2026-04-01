@@ -28,9 +28,7 @@ export class PolicyEngine {
   evaluate(action: string): PolicyEvaluationResult {
     // Find matching rules for this action and environment
     const matchingRules = this.policy.rules.filter(
-      (rule) =>
-        rule.action === action &&
-        rule.environments.includes(this.environment),
+      (rule) => rule.action === action && rule.environments.includes(this.environment),
     );
 
     // If we have explicit rules, use the first matching one

@@ -167,7 +167,15 @@ export const MDMA_FIXER_APPROVAL = `
  * Map from validator variant keys to their fixer extensions.
  */
 export const FIXER_EXTENSIONS: Record<string, string[]> = {
-  all: [MDMA_FIXER_STRUCTURE, MDMA_FIXER_BINDINGS, MDMA_FIXER_PII, MDMA_FIXER_FORMS, MDMA_FIXER_TABLES_CHARTS, MDMA_FIXER_FLOW, MDMA_FIXER_APPROVAL],
+  all: [
+    MDMA_FIXER_STRUCTURE,
+    MDMA_FIXER_BINDINGS,
+    MDMA_FIXER_PII,
+    MDMA_FIXER_FORMS,
+    MDMA_FIXER_TABLES_CHARTS,
+    MDMA_FIXER_FLOW,
+    MDMA_FIXER_APPROVAL,
+  ],
   structure: [MDMA_FIXER_STRUCTURE],
   bindings: [MDMA_FIXER_BINDINGS],
   pii: [MDMA_FIXER_PII],
@@ -182,9 +190,18 @@ export const FIXER_EXTENSIONS: Record<string, string[]> = {
  * Combines the base prompt with only the relevant extensions.
  */
 export function buildFixerPrompt(variantKey?: string): string {
-  const extensions = variantKey && FIXER_EXTENSIONS[variantKey]
-    ? FIXER_EXTENSIONS[variantKey]
-    : [MDMA_FIXER_STRUCTURE, MDMA_FIXER_BINDINGS, MDMA_FIXER_PII, MDMA_FIXER_FORMS, MDMA_FIXER_TABLES_CHARTS, MDMA_FIXER_FLOW, MDMA_FIXER_APPROVAL];
+  const extensions =
+    variantKey && FIXER_EXTENSIONS[variantKey]
+      ? FIXER_EXTENSIONS[variantKey]
+      : [
+          MDMA_FIXER_STRUCTURE,
+          MDMA_FIXER_BINDINGS,
+          MDMA_FIXER_PII,
+          MDMA_FIXER_FORMS,
+          MDMA_FIXER_TABLES_CHARTS,
+          MDMA_FIXER_FLOW,
+          MDMA_FIXER_APPROVAL,
+        ];
 
   return `${MDMA_FIXER_BASE}\n${extensions.join('\n')}`;
 }
@@ -226,9 +243,7 @@ export function buildFixerMessage(
     const summary = options.conversationHistory
       .map((m) => {
         const prefix = m.role === 'user' ? 'User' : 'Assistant';
-        const short = m.content.length > 200
-          ? `${m.content.slice(0, 200)}...`
-          : m.content;
+        const short = m.content.length > 200 ? `${m.content.slice(0, 200)}...` : m.content;
         return `${prefix}: ${short}`;
       })
       .join('\n\n');

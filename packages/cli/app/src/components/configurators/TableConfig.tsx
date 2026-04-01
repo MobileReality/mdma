@@ -27,8 +27,12 @@ export function TableConfig({ config, onUpdate }: TableConfigProps) {
           <span className="text-text-secondary">"{col.header}"</span>
           <SmallButton
             variant="ghost"
-            onClick={() => onUpdate('table', { table: { columns: columns.filter((_, j) => j !== i) } })}
-          >x</SmallButton>
+            onClick={() =>
+              onUpdate('table', { table: { columns: columns.filter((_, j) => j !== i) } })
+            }
+          >
+            x
+          </SmallButton>
         </div>
       ))}
       <div className="flex gap-1.5">

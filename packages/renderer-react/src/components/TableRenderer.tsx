@@ -14,10 +14,14 @@ function MaskedCell({ value }: { value: string }) {
   );
 }
 
-export const TableRenderer = memo(function TableRenderer({ component, resolveBinding }: MdmaBlockRendererProps) {
+export const TableRenderer = memo(function TableRenderer({
+  component,
+  resolveBinding,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'table') return null;
 
-  const rawData = typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
+  const rawData =
+    typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
   const data = Array.isArray(rawData) ? rawData : [];
 
   const sensitiveKeys = new Set(
@@ -34,7 +38,9 @@ export const TableRenderer = memo(function TableRenderer({ component, resolveBin
               <th key={col.key} style={col.width ? { width: col.width } : undefined}>
                 {col.header}
                 {col.sensitive && (
-                  <span className="mdma-sensitive-badge" title="Sensitive column (PII)">&#128274;</span>
+                  <span className="mdma-sensitive-badge" title="Sensitive column (PII)">
+                    &#128274;
+                  </span>
                 )}
               </th>
             ))}
@@ -45,9 +51,8 @@ export const TableRenderer = memo(function TableRenderer({ component, resolveBin
             <tr key={i}>
               {component.columns.map((col) => {
                 const raw = (row as Record<string, unknown>)[col.key] ?? '';
-                const resolved = typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
-                  ? resolveBinding(raw)
-                  : raw;
+                const resolved =
+                  typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw) ? resolveBinding(raw) : raw;
                 const cellValue = String(resolved ?? '');
                 return (
                   <td key={col.key}>

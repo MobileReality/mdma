@@ -19,15 +19,15 @@ export interface ComplianceReport {
   };
 }
 
-export function generateComplianceReport(
-  ast: MdmaRoot,
-  documentId: string,
-): ComplianceReport {
+export function generateComplianceReport(ast: MdmaRoot, documentId: string): ComplianceReport {
   const checks: ComplianceCheck[] = [];
 
   const blocks = ast.children.filter(
     (n): n is MdmaBlock =>
-      typeof n === 'object' && n !== null && 'type' in n && (n as { type: string }).type === 'mdmaBlock',
+      typeof n === 'object' &&
+      n !== null &&
+      'type' in n &&
+      (n as { type: string }).type === 'mdmaBlock',
   );
 
   // Check: All components have unique IDs
@@ -82,9 +82,7 @@ export function generateComplianceReport(
     category: 'schema',
     name: 'has-interactive-components',
     status: hasForms ? 'pass' : 'warn',
-    message: hasForms
-      ? 'Document has interactive form components'
-      : 'No form components found',
+    message: hasForms ? 'Document has interactive form components' : 'No form components found',
   });
 
   const summary = {

@@ -1,5 +1,9 @@
 import { CalloutComponentSchema } from '@mobile-reality/mdma-spec';
-import type { AttachableHandler, ComponentState, AttachableContext } from '@mobile-reality/mdma-runtime';
+import type {
+  AttachableHandler,
+  ComponentState,
+  AttachableContext,
+} from '@mobile-reality/mdma-runtime';
 
 export const calloutHandler: AttachableHandler = {
   definition: {

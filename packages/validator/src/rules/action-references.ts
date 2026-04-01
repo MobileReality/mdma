@@ -15,8 +15,7 @@ export const actionReferencesRule: ValidationRule = {
       if (block.data === null) continue;
       const type = block.data.type;
       if (typeof type !== 'string') continue;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       const fields = ACTION_REFERENCE_FIELDS[type];
       if (!fields) continue;
@@ -29,9 +28,7 @@ export const actionReferencesRule: ValidationRule = {
           let suggestion = '';
           const normalized = value.toLowerCase().replace(/[-_]/g, '');
           for (const knownId of knownIds) {
-            if (
-              knownId.toLowerCase().replace(/[-_]/g, '') === normalized
-            ) {
+            if (knownId.toLowerCase().replace(/[-_]/g, '') === normalized) {
               suggestion = ` (did you mean "${knownId}"?)`;
               break;
             }

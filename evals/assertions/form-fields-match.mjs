@@ -18,9 +18,7 @@ export default function (output, { config }) {
   // Extract all mdma form blocks
   const blockRegex = /```mdma\n([\s\S]*?)```/g;
   const blocks = [...output.matchAll(blockRegex)];
-  const formBlocks = blocks
-    .map((b) => b[1].trim())
-    .filter((b) => /^type:\s*form/m.test(b));
+  const formBlocks = blocks.map((b) => b[1].trim()).filter((b) => /^type:\s*form/m.test(b));
 
   if (formBlocks.length === 0) {
     return {
@@ -45,8 +43,10 @@ export default function (output, { config }) {
     const blockLower = block.toLowerCase();
 
     // Check field names
-    const fieldsFound = expected.fields.filter((f) =>
-      blockLower.includes(`name: ${f.toLowerCase()}`) || blockLower.includes(`name: "${f.toLowerCase()}"`)
+    const fieldsFound = expected.fields.filter(
+      (f) =>
+        blockLower.includes(`name: ${f.toLowerCase()}`) ||
+        blockLower.includes(`name: "${f.toLowerCase()}"`),
     );
     const fieldScore = fieldsFound.length / expected.fields.length;
 
@@ -63,10 +63,7 @@ export default function (output, { config }) {
       let sensitiveFound = 0;
       for (const sf of expected.sensitive) {
         // Find the field block and check for sensitive: true
-        const fieldPattern = new RegExp(
-          `name:\\s*"?${sf}"?[\\s\\S]{0,200}sensitive:\\s*true`,
-          'i'
-        );
+        const fieldPattern = new RegExp(`name:\\s*"?${sf}"?[\\s\\S]{0,200}sensitive:\\s*true`, 'i');
         if (fieldPattern.test(block)) {
           sensitiveFound++;
         }
@@ -80,10 +77,14 @@ export default function (output, { config }) {
 
     const missingFields = expected.fields.filter((f) => !fieldsFound.includes(f));
     if (missingFields.length > 0) {
-      results.push(`Form ${i + 1}: missing fields [${missingFields.join(', ')}] (${fieldsFound.length}/${expected.fields.length} found)`);
+      results.push(
+        `Form ${i + 1}: missing fields [${missingFields.join(', ')}] (${fieldsFound.length}/${expected.fields.length} found)`,
+      );
     }
     if (sensitiveScore < 1 && expected.sensitive) {
-      results.push(`Form ${i + 1}: some sensitive flags missing (score: ${sensitiveScore.toFixed(2)})`);
+      results.push(
+        `Form ${i + 1}: some sensitive flags missing (score: ${sensitiveScore.toFixed(2)})`,
+      );
     }
     if (missingFields.length === 0 && sensitiveScore === 1) {
       results.push(`Form ${i + 1}: all ${expected.fields.length} fields correct`);

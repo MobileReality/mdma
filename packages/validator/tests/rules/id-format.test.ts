@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { idFormatRule } from '../../src/rules/id-format.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -38,26 +35,20 @@ describe('id-format rule', () => {
   });
 
   it('flags camelCase IDs', () => {
-    const ctx = createContext([
-      createBlock(0, { id: 'myForm', type: 'form' }),
-    ]);
+    const ctx = createContext([createBlock(0, { id: 'myForm', type: 'form' })]);
     idFormatRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].ruleId).toBe('id-format');
   });
 
   it('flags snake_case IDs', () => {
-    const ctx = createContext([
-      createBlock(0, { id: 'my_form', type: 'form' }),
-    ]);
+    const ctx = createContext([createBlock(0, { id: 'my_form', type: 'form' })]);
     idFormatRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
   });
 
   it('flags UPPERCASE IDs', () => {
-    const ctx = createContext([
-      createBlock(0, { id: 'LOUD-BUTTON', type: 'button' }),
-    ]);
+    const ctx = createContext([createBlock(0, { id: 'LOUD-BUTTON', type: 'button' })]);
     idFormatRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
   });

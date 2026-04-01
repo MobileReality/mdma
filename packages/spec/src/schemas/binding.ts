@@ -2,10 +2,7 @@ import { z } from 'zod';
 
 export const BindingExpressionSchema = z
   .string()
-  .regex(
-    /^\{\{.+\}\}$/s,
-    'Binding must be wrapped in {{ }}',
-  );
+  .regex(/^\{\{.+\}\}$/s, 'Binding must be wrapped in {{ }}');
 
 export type BindingExpression = z.infer<typeof BindingExpressionSchema>;
 

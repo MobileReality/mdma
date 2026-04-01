@@ -46,7 +46,7 @@ export const ChatInput = memo(function ChatInput({
         className="chat-input"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder ?? "Describe the interactive document you need..."}
+        placeholder={placeholder ?? 'Describe the interactive document you need...'}
         rows={2}
         disabled={isDisabled}
         onKeyDown={(e) => {

@@ -3,7 +3,15 @@ import { flowOrderingRule } from '../../src/rules/flow-ordering.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -55,7 +63,12 @@ describe('flow-ordering rule', () => {
   it('flags multi-step flow: interactive → interactive in same document', () => {
     const ctx = createContext([
       createBlock(0, { type: 'form', id: 'step-1', fields: [], onSubmit: 'step-2' }),
-      createBlock(1, { type: 'approval-gate', id: 'step-2', title: 'Approve', onApprove: 'step-3' }),
+      createBlock(1, {
+        type: 'approval-gate',
+        id: 'step-2',
+        title: 'Approve',
+        onApprove: 'step-3',
+      }),
       createBlock(2, { type: 'button', id: 'step-3', text: 'Done' }),
     ]);
     flowOrderingRule.validate(ctx);

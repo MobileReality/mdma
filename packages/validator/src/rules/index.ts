@@ -46,9 +46,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   flowOrderingRule,
 ];
 
-export function getRulesExcluding(
-  exclude: ValidationRuleId[],
-): ValidationRule[] {
+export function getRulesExcluding(exclude: ValidationRuleId[]): ValidationRule[] {
   const excludeSet = new Set(exclude);
   return ALL_RULES.filter((r) => !excludeSet.has(r.id));
 }

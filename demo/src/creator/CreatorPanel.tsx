@@ -48,7 +48,14 @@ export const CreatorPanel = memo(function CreatorPanel({
             onClick={() => setShowRaw((v) => !v)}
             title={showRaw ? 'Show rendered view' : 'Show MDMA source'}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <polyline points="16 18 22 12 16 6" />
               <polyline points="8 6 2 12 8 18" />
             </svg>
@@ -72,15 +79,20 @@ export const CreatorPanel = memo(function CreatorPanel({
         ) : (
           <div className="creator-panel-empty">
             <div className="creator-panel-empty-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="1.5">
+              <svg
+                width="48"
+                height="48"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#6c5ce7"
+                strokeWidth="1.5"
+              >
                 <rect x="3" y="3" width="18" height="18" rx="2" />
                 <line x1="3" y1="9" x2="21" y2="9" />
                 <line x1="9" y1="21" x2="9" y2="9" />
               </svg>
             </div>
-            <p className="creator-panel-empty-title">
-              Component preview will appear here
-            </p>
+            <p className="creator-panel-empty-title">Component preview will appear here</p>
             <p className="creator-panel-empty-hint">
               Describe a component in the chat and the AI will generate it for you to preview.
             </p>
@@ -92,29 +104,42 @@ export const CreatorPanel = memo(function CreatorPanel({
         <div className="creator-panel-actions">
           {isApproved ? (
             <div className="creator-panel-approved-badge">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
                 <polyline points="20 6 9 17 4 12" />
               </svg>
               Component Approved
             </div>
           ) : (
             <>
-              <button
-                type="button"
-                className="creator-approve-btn"
-                onClick={onApprove}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <button type="button" className="creator-approve-btn" onClick={onApprove}>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
                 Approve
               </button>
-              <button
-                type="button"
-                className="creator-reject-btn"
-                onClick={onReject}
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <button type="button" className="creator-reject-btn" onClick={onReject}>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                >
                   <line x1="18" y1="6" x2="6" y2="18" />
                   <line x1="6" y1="6" x2="18" y2="18" />
                 </svg>

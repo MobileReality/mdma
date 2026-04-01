@@ -11,8 +11,7 @@ export const schemaConformanceRule: ValidationRule = {
     for (const block of context.blocks) {
       if (block.data === null) continue;
       const type = block.data.type;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       if (typeof type !== 'string') {
         context.issues.push({

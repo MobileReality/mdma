@@ -3,7 +3,15 @@ import { tableDataKeysRule } from '../../src/rules/table-data-keys.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -18,8 +26,12 @@ describe('table-data-keys rule', () => {
   it('passes when data keys match columns', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
-        columns: [{ key: 'name', header: 'Name' }, { key: 'email', header: 'Email' }],
+        type: 'table',
+        id: 't',
+        columns: [
+          { key: 'name', header: 'Name' },
+          { key: 'email', header: 'Email' },
+        ],
         data: [{ name: 'Alice', email: 'alice@example.com' }],
       }),
     ]);
@@ -30,7 +42,8 @@ describe('table-data-keys rule', () => {
   it('flags extra keys in data rows', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
+        type: 'table',
+        id: 't',
         columns: [{ key: 'name', header: 'Name' }],
         data: [{ name: 'Alice', phone: '555-1234' }],
       }),
@@ -42,8 +55,12 @@ describe('table-data-keys rule', () => {
   it('flags columns with no matching data keys', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
-        columns: [{ key: 'name', header: 'Name' }, { key: 'email', header: 'Email' }],
+        type: 'table',
+        id: 't',
+        columns: [
+          { key: 'name', header: 'Name' },
+          { key: 'email', header: 'Email' },
+        ],
         data: [{ name: 'Alice' }],
       }),
     ]);
@@ -54,7 +71,8 @@ describe('table-data-keys rule', () => {
   it('skips binding expression data', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
+        type: 'table',
+        id: 't',
         columns: [{ key: 'name', header: 'Name' }],
         data: '{{some-component.rows}}',
       }),
@@ -64,9 +82,7 @@ describe('table-data-keys rule', () => {
   });
 
   it('skips non-table components', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'c', content: 'hi' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: 'hi' })]);
     tableDataKeysRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
@@ -74,7 +90,8 @@ describe('table-data-keys rule', () => {
   it('reports each extra key only once across rows', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'table', id: 't',
+        type: 'table',
+        id: 't',
         columns: [{ key: 'name', header: 'Name' }],
         data: [
           { name: 'Alice', phone: '555' },

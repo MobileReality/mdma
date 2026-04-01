@@ -42,8 +42,7 @@ export const fieldNameTyposRule: ValidationRule = {
       const typos = TYPO_MAP[type];
       if (!typos) continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       for (const [wrong, correct] of Object.entries(typos)) {
         if (wrong in block.data) {

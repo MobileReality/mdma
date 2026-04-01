@@ -4,15 +4,13 @@ import type { ValidationRule } from '../types.js';
 export const bindingResolutionRule: ValidationRule = {
   id: 'binding-resolution',
   name: 'Binding Resolution',
-  description:
-    'Checks that binding expressions reference existing components and valid fields',
+  description: 'Checks that binding expressions reference existing components and valid fields',
   defaultSeverity: 'warning',
 
   validate(context) {
     for (const block of context.blocks) {
       if (block.data === null) continue;
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       const bindings = extractBindings(id ?? '', block.data);
 
@@ -24,9 +22,7 @@ export const bindingResolutionRule: ValidationRule = {
           // Check for near-matches (e.g., user_form vs user-form)
           let suggestion = '';
           for (const knownId of context.idMap.keys()) {
-            if (
-              normalize(knownId) === normalize(rootSegment)
-            ) {
+            if (normalize(knownId) === normalize(rootSegment)) {
               suggestion = ` (did you mean "${knownId}"?)`;
               break;
             }

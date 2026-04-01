@@ -6,9 +6,7 @@ import type { FixContext } from '../types.js';
  * e.g. "first_name" → "First Name", "email" → "Email"
  */
 function keyToHeader(key: string): string {
-  return key
-    .replace(/[_-]/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return key.replace(/[_-]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 /**
@@ -38,7 +36,15 @@ function patchTableColumns(data: Record<string, unknown>): void {
 }
 
 /** Valid form field types from the schema */
-const VALID_FIELD_TYPES = new Set(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea']);
+const VALID_FIELD_TYPES = new Set([
+  'text',
+  'number',
+  'email',
+  'date',
+  'select',
+  'checkbox',
+  'textarea',
+]);
 
 /** Common misspellings / aliases of the `type` key */
 const TYPE_KEY_TYPOS = ['typ', 'tyep', 'tpye', 'ype', 'filed_type', 'fieldType', 'field_type'];
@@ -50,9 +56,33 @@ function inferFieldType(name: string): string {
   const lower = name.toLowerCase().replace(/[-_]/g, '');
   if (lower.includes('email')) return 'email';
   if (lower.includes('date') || lower.includes('birthday') || lower.includes('dob')) return 'date';
-  if (lower.includes('phone') || lower.includes('age') || lower.includes('amount') || lower.includes('salary') || lower.includes('price') || lower.includes('quantity') || lower.includes('count')) return 'number';
-  if (lower.includes('description') || lower.includes('address') || lower.includes('comment') || lower.includes('note') || lower.includes('bio') || lower.includes('message')) return 'textarea';
-  if (lower.includes('agree') || lower.includes('accept') || lower.includes('consent') || lower.includes('subscribe') || lower.includes('optIn')) return 'checkbox';
+  if (
+    lower.includes('phone') ||
+    lower.includes('age') ||
+    lower.includes('amount') ||
+    lower.includes('salary') ||
+    lower.includes('price') ||
+    lower.includes('quantity') ||
+    lower.includes('count')
+  )
+    return 'number';
+  if (
+    lower.includes('description') ||
+    lower.includes('address') ||
+    lower.includes('comment') ||
+    lower.includes('note') ||
+    lower.includes('bio') ||
+    lower.includes('message')
+  )
+    return 'textarea';
+  if (
+    lower.includes('agree') ||
+    lower.includes('accept') ||
+    lower.includes('consent') ||
+    lower.includes('subscribe') ||
+    lower.includes('optIn')
+  )
+    return 'checkbox';
   return 'text';
 }
 

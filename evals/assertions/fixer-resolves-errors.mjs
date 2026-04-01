@@ -29,12 +29,8 @@ export default function (output, { config } = {}) {
     autoFix: false,
   });
 
-  const unfixedErrors = result.issues.filter(
-    (i) => i.severity === 'error',
-  );
-  const unfixedWarnings = result.issues.filter(
-    (i) => i.severity === 'warning',
-  );
+  const unfixedErrors = result.issues.filter((i) => i.severity === 'error');
+  const unfixedWarnings = result.issues.filter((i) => i.severity === 'warning');
 
   if (unfixedErrors.length > 0) {
     const details = unfixedErrors

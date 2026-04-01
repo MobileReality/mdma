@@ -2,11 +2,7 @@ import { createContext, useContext } from 'react';
 
 export interface EditableFieldContextValue {
   /** Apply one or more property changes to a form field in the underlying YAML. */
-  editField: (
-    componentId: string,
-    fieldName: string,
-    changes: Record<string, string>,
-  ) => void;
+  editField: (componentId: string, fieldName: string, changes: Record<string, string>) => void;
   /** Available data source names (for select options switching). */
   dataSourceNames: string[];
 }
@@ -56,75 +52,72 @@ function applySingleChange(
   property: string,
   newValue: string,
 ): string {
-  return markdown.replace(
-    /```mdma\n([\s\S]*?)```/g,
-    (fullMatch, yamlBlock: string) => {
-      // Only modify the block that contains our component
-      if (!new RegExp(`^\\s*id:\\s*${escapeRegex(componentId)}\\s*$`, 'm').test(yamlBlock)) {
-        return fullMatch;
+  return markdown.replace(/```mdma\n([\s\S]*?)```/g, (fullMatch, yamlBlock: string) => {
+    // Only modify the block that contains our component
+    if (!new RegExp(`^\\s*id:\\s*${escapeRegex(componentId)}\\s*$`, 'm').test(yamlBlock)) {
+      return fullMatch;
+    }
+
+    const lines = yamlBlock.split('\n');
+
+    // 1. Find the field's `- name: <fieldName>` line
+    let fieldStart = -1;
+    let fieldNameIndent = -1;
+    for (let i = 0; i < lines.length; i++) {
+      const trimmed = lines[i].trimStart();
+      if (trimmed === `- name: ${fieldName}`) {
+        fieldStart = i;
+        fieldNameIndent = lines[i].length - trimmed.length;
+        break;
       }
+    }
+    if (fieldStart === -1) return fullMatch;
 
-      const lines = yamlBlock.split('\n');
-
-      // 1. Find the field's `- name: <fieldName>` line
-      let fieldStart = -1;
-      let fieldNameIndent = -1;
-      for (let i = 0; i < lines.length; i++) {
-        const trimmed = lines[i].trimStart();
-        if (trimmed === `- name: ${fieldName}`) {
-          fieldStart = i;
-          fieldNameIndent = lines[i].length - trimmed.length;
-          break;
-        }
+    // 2. Find end of this field (next list item at same/lower indent, or end)
+    let fieldEnd = lines.length;
+    for (let i = fieldStart + 1; i < lines.length; i++) {
+      const trimmed = lines[i].trimStart();
+      if (trimmed === '') continue;
+      const indent = lines[i].length - trimmed.length;
+      if (indent <= fieldNameIndent) {
+        fieldEnd = i;
+        break;
       }
-      if (fieldStart === -1) return fullMatch;
+    }
 
-      // 2. Find end of this field (next list item at same/lower indent, or end)
-      let fieldEnd = lines.length;
-      for (let i = fieldStart + 1; i < lines.length; i++) {
-        const trimmed = lines[i].trimStart();
-        if (trimmed === '') continue;
-        const indent = lines[i].length - trimmed.length;
-        if (indent <= fieldNameIndent) {
-          fieldEnd = i;
-          break;
-        }
-      }
+    // 3. Within the field, find the property line
+    const propRegex = new RegExp(`^(\\s*)${escapeRegex(property)}:`);
+    for (let i = fieldStart + 1; i < fieldEnd; i++) {
+      const match = lines[i].match(propRegex);
+      if (match) {
+        const propIndent = match[1].length;
 
-      // 3. Within the field, find the property line
-      const propRegex = new RegExp(`^(\\s*)${escapeRegex(property)}:`);
-      for (let i = fieldStart + 1; i < fieldEnd; i++) {
-        const match = lines[i].match(propRegex);
-        if (match) {
-          const propIndent = match[1].length;
-
-          // Find end of this property's value (includes deeper-indented continuation lines)
-          let propEnd = i + 1;
-          while (propEnd < fieldEnd) {
-            const nextTrimmed = lines[propEnd].trimStart();
-            if (nextTrimmed === '') {
-              propEnd++;
-              continue;
-            }
-            const nextIndent = lines[propEnd].length - nextTrimmed.length;
-            if (nextIndent > propIndent) {
-              propEnd++;
-            } else {
-              break;
-            }
+        // Find end of this property's value (includes deeper-indented continuation lines)
+        let propEnd = i + 1;
+        while (propEnd < fieldEnd) {
+          const nextTrimmed = lines[propEnd].trimStart();
+          if (nextTrimmed === '') {
+            propEnd++;
+            continue;
           }
-
-          // Replace the property (possibly multi-line) with a single line
-          const newLine = match[1] + `${property}: ${newValue}`;
-          lines.splice(i, propEnd - i, newLine);
-          return '```mdma\n' + lines.join('\n') + '```';
+          const nextIndent = lines[propEnd].length - nextTrimmed.length;
+          if (nextIndent > propIndent) {
+            propEnd++;
+          } else {
+            break;
+          }
         }
-      }
 
-      // 4. Property not found — add it after the `- name:` line
-      const propIndent = ' '.repeat(fieldNameIndent + 2);
-      lines.splice(fieldStart + 1, 0, propIndent + `${property}: ${newValue}`);
-      return '```mdma\n' + lines.join('\n') + '```';
-    },
-  );
+        // Replace the property (possibly multi-line) with a single line
+        const newLine = match[1] + `${property}: ${newValue}`;
+        lines.splice(i, propEnd - i, newLine);
+        return '```mdma\n' + lines.join('\n') + '```';
+      }
+    }
+
+    // 4. Property not found — add it after the `- name:` line
+    const propIndent = ' '.repeat(fieldNameIndent + 2);
+    lines.splice(fieldStart + 1, 0, propIndent + `${property}: ${newValue}`);
+    return '```mdma\n' + lines.join('\n') + '```';
+  });
 }

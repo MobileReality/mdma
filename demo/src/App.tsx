@@ -28,9 +28,7 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Documents',
-    items: [
-      { mode: 'examples', label: 'Examples' },
-    ],
+    items: [{ mode: 'examples', label: 'Examples' }],
   },
   {
     label: 'AI',
@@ -42,9 +40,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Tools',
-    items: [
-      { mode: 'validator', label: 'Validator' },
-    ],
+    items: [{ mode: 'validator', label: 'Validator' }],
   },
 ];
 
@@ -151,7 +147,14 @@ export function App() {
               onClick={() => setDropdownOpen((v) => !v)}
             >
               {getModeLabel(mode)}
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
                 <polyline points="6 9 12 15 18 9" />
               </svg>
             </button>
@@ -165,7 +168,10 @@ export function App() {
                         key={item.mode}
                         type="button"
                         className={`demo-nav-item ${mode === item.mode ? 'demo-nav-item--active' : ''}`}
-                        onClick={() => { setMode(item.mode); setDropdownOpen(false); }}
+                        onClick={() => {
+                          setMode(item.mode);
+                          setDropdownOpen(false);
+                        }}
                       >
                         {item.label}
                       </button>
@@ -211,9 +217,7 @@ export function App() {
             <h2 className="demo-event-title">Event Log</h2>
             <div className="demo-event-log" ref={eventLogRef}>
               {events.length === 0 && (
-                <p className="demo-event-empty">
-                  Interact with the document to see events here.
-                </p>
+                <p className="demo-event-empty">Interact with the document to see events here.</p>
               )}
               {events.map((entry) => (
                 <div key={entry.id} className="demo-event-entry">
@@ -221,12 +225,11 @@ export function App() {
                   <span className={`demo-event-type demo-event-type--${entry.action.type}`}>
                     {entry.action.type}
                   </span>
-                  <span className="demo-event-component">
-                    {entry.action.componentId}
-                  </span>
+                  <span className="demo-event-component">{entry.action.componentId}</span>
                   {'field' in entry.action && (
                     <span className="demo-event-detail">
-                      .{entry.action.field} = {JSON.stringify((entry.action as { value: unknown }).value)}
+                      .{entry.action.field} ={' '}
+                      {JSON.stringify((entry.action as { value: unknown }).value)}
                     </span>
                   )}
                   {'actionId' in entry.action && (

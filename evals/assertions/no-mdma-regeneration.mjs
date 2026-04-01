@@ -12,7 +12,11 @@ export default function (output) {
   const nonThinking = mdmaBlocks.filter((m) => !/^\s*type:\s*thinking\b/m.test(m[1]));
 
   if (nonThinking.length === 0) {
-    return { pass: true, score: 1, reason: 'No MDMA blocks regenerated — conversational reply only' };
+    return {
+      pass: true,
+      score: 1,
+      reason: 'No MDMA blocks regenerated — conversational reply only',
+    };
   }
 
   return {

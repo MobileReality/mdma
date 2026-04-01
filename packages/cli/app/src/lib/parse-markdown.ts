@@ -1,7 +1,11 @@
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
-import { createDocumentStore, AttachableRegistry, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import {
+  createDocumentStore,
+  AttachableRegistry,
+  type DocumentStore,
+} from '@mobile-reality/mdma-runtime';
 import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 

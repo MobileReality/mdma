@@ -21,8 +21,7 @@ export const flowOrderingRule: ValidationRule = {
       const type = block.data.type;
       if (typeof type !== 'string') continue;
 
-      const sourceId =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const sourceId = typeof block.data.id === 'string' ? block.data.id : null;
 
       const fields = ACTION_REFERENCE_FIELDS[type];
       if (!fields) continue;
@@ -149,8 +148,7 @@ export const flowOrderingRule: ValidationRule = {
       if (typeof type !== 'string') continue;
       if (!INTERACTIVE_TYPES.has(type)) continue;
 
-      const sourceId =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const sourceId = typeof block.data.id === 'string' ? block.data.id : null;
 
       interactiveBlocks.push({
         id: sourceId ?? `block-${block.index}`,
@@ -198,8 +196,7 @@ export const flowOrderingRule: ValidationRule = {
     // But form + approval-gate, form + tasklist, etc. = different stages.
     if (interactiveBlocks.length > 1) {
       const types = new Set(interactiveBlocks.map((b) => b.type));
-      const isJustFormAndButton =
-        types.size <= 2 && types.has('form') && types.has('button');
+      const isJustFormAndButton = types.size <= 2 && types.has('form') && types.has('button');
 
       if (!isJustFormAndButton && types.size > 1) {
         const typeList = [...types].join(', ');

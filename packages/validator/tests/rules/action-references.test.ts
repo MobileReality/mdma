@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { actionReferencesRule } from '../../src/rules/action-references.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown>,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -163,7 +160,15 @@ describe('action-references rule', () => {
 
   it('skips blocks with null data', () => {
     const blocks: ParsedBlock[] = [
-      { index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 },
+      {
+        index: 0,
+        rawYaml: '',
+        data: null,
+        startOffset: 0,
+        endOffset: 0,
+        yamlStartOffset: 0,
+        yamlEndOffset: 0,
+      },
     ];
     const ctx: ValidationRuleContext = {
       blocks,

@@ -26,10 +26,7 @@ export function useComponentState(componentId: string): ComponentState | undefin
   const { store } = useMdmaContext();
   const cachedRef = useRef<ComponentState | undefined>(undefined);
 
-  const subscribe = useCallback(
-    (cb: () => void) => store.subscribe(cb),
-    [store],
-  );
+  const subscribe = useCallback((cb: () => void) => store.subscribe(cb), [store]);
 
   const getSnapshot = useCallback(() => {
     const current = store.getComponentState(componentId);
@@ -61,10 +58,7 @@ export function useComponentState(componentId: string): ComponentState | undefin
 export function useBinding<T = unknown>(expression: string): T {
   const { store } = useMdmaContext();
 
-  const subscribe = useCallback(
-    (cb: () => void) => store.subscribe(cb),
-    [store],
-  );
+  const subscribe = useCallback((cb: () => void) => store.subscribe(cb), [store]);
 
   return useSyncExternalStore(
     subscribe,

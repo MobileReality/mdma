@@ -52,10 +52,7 @@ export function fixIdFormat(context: FixContext): void {
   }
 }
 
-function updateBindingsInObject(
-  obj: Record<string, unknown>,
-  renames: Map<string, string>,
-): void {
+function updateBindingsInObject(obj: Record<string, unknown>, renames: Map<string, string>): void {
   for (const [key, value] of Object.entries(obj)) {
     if (typeof value === 'string') {
       obj[key] = replaceBindingIds(value, renames);
@@ -64,10 +61,7 @@ function updateBindingsInObject(
         if (typeof value[i] === 'string') {
           value[i] = replaceBindingIds(value[i] as string, renames);
         } else if (typeof value[i] === 'object' && value[i] !== null) {
-          updateBindingsInObject(
-            value[i] as Record<string, unknown>,
-            renames,
-          );
+          updateBindingsInObject(value[i] as Record<string, unknown>, renames);
         }
       }
     } else if (typeof value === 'object' && value !== null) {
@@ -76,19 +70,13 @@ function updateBindingsInObject(
   }
 }
 
-function replaceBindingIds(
-  str: string,
-  renames: Map<string, string>,
-): string {
-  return str.replace(
-    /\{\{([a-zA-Z_][a-zA-Z0-9_.]*)\}\}/g,
-    (match, path: string) => {
-      const rootSegment = path.split('.')[0];
-      const newId = renames.get(rootSegment);
-      if (newId) {
-        return `{{${newId}${path.slice(rootSegment.length)}}}`;
-      }
-      return match;
-    },
-  );
+function replaceBindingIds(str: string, renames: Map<string, string>): string {
+  return str.replace(/\{\{([a-zA-Z_][a-zA-Z0-9_.]*)\}\}/g, (match, path: string) => {
+    const rootSegment = path.split('.')[0];
+    const newId = renames.get(rootSegment);
+    if (newId) {
+      return `{{${newId}${path.slice(rootSegment.length)}}}`;
+    }
+    return match;
+  });
 }

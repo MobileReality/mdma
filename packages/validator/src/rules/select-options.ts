@@ -3,8 +3,7 @@ import type { ValidationRule } from '../types.js';
 export const selectOptionsRule: ValidationRule = {
   id: 'select-options',
   name: 'Select Options',
-  description:
-    'Checks that form fields with type "select" have options defined',
+  description: 'Checks that form fields with type "select" have options defined',
   defaultSeverity: 'warning',
 
   validate(context) {
@@ -15,8 +14,7 @@ export const selectOptionsRule: ValidationRule = {
       const fields = block.data.fields;
       if (!Array.isArray(fields)) continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];

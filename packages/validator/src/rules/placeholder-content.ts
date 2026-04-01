@@ -15,16 +15,14 @@ function isPlaceholder(value: string): boolean {
 export const placeholderContentRule: ValidationRule = {
   id: 'placeholder-content',
   name: 'Placeholder Content',
-  description:
-    'Warns when fields contain placeholder or stub content (TODO, TBD, "...", etc.)',
+  description: 'Warns when fields contain placeholder or stub content (TODO, TBD, "...", etc.)',
   defaultSeverity: 'info',
 
   validate(context) {
     for (const block of context.blocks) {
       if (block.data === null) continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       // Check top-level fields
       for (const field of TOP_LEVEL_FIELDS) {

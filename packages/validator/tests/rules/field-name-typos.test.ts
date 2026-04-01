@@ -3,7 +3,15 @@ import { fieldNameTyposRule } from '../../src/rules/field-name-typos.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -18,7 +26,9 @@ describe('field-name-typos rule', () => {
   it('flags approval-gate with "roles" instead of "allowedRoles"', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'approval-gate', id: 'ag', title: 'Approve',
+        type: 'approval-gate',
+        id: 'ag',
+        title: 'Approve',
         roles: ['admin', 'manager'],
       }),
     ]);
@@ -31,7 +41,9 @@ describe('field-name-typos rule', () => {
   it('passes for correct field names', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'approval-gate', id: 'ag', title: 'Approve',
+        type: 'approval-gate',
+        id: 'ag',
+        title: 'Approve',
         allowedRoles: ['admin'],
       }),
     ]);
@@ -42,7 +54,9 @@ describe('field-name-typos rule', () => {
   it('flags button with "onClick" instead of "onAction"', () => {
     const ctx = createContext([
       createBlock(0, {
-        type: 'button', id: 'btn', text: 'Go',
+        type: 'button',
+        id: 'btn',
+        text: 'Go',
         onClick: 'do-something',
       }),
     ]);
@@ -52,16 +66,24 @@ describe('field-name-typos rule', () => {
   });
 
   it('skips component types without typo map', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'c', content: 'hi' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: 'hi' })]);
     fieldNameTyposRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
 
   it('skips blocks with null data', () => {
     const ctx: ValidationRuleContext = {
-      blocks: [{ index: 0, rawYaml: '', data: null, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 }],
+      blocks: [
+        {
+          index: 0,
+          rawYaml: '',
+          data: null,
+          startOffset: 0,
+          endOffset: 0,
+          yamlStartOffset: 0,
+          yamlEndOffset: 0,
+        },
+      ],
       idMap: new Map(),
       issues: [],
       options: {},

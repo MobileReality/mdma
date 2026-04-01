@@ -1,7 +1,11 @@
 import { memo } from 'react';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 
-export const CalloutRenderer = memo(function CalloutRenderer({ component, componentState, dispatch }: MdmaBlockRendererProps) {
+export const CalloutRenderer = memo(function CalloutRenderer({
+  component,
+  componentState,
+  dispatch,
+}: MdmaBlockRendererProps) {
   if (component.type !== 'callout') return null;
 
   if (componentState?.values.dismissed) return null;

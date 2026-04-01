@@ -1,14 +1,28 @@
 import { describe, it, expect } from 'vitest';
-import { PolicyEngine, PolicyViolationError, createDefaultPolicy } from '../src/policy/policy-engine.js';
+import {
+  PolicyEngine,
+  PolicyViolationError,
+  createDefaultPolicy,
+} from '../src/policy/policy-engine.js';
 import type { Policy } from '@mobile-reality/mdma-spec';
 
 describe('PolicyEngine', () => {
   const testPolicy: Policy = {
     version: 1,
     rules: [
-      { action: 'send_email', environments: ['preview'], effect: 'deny', reason: 'No emails in preview' },
+      {
+        action: 'send_email',
+        environments: ['preview'],
+        effect: 'deny',
+        reason: 'No emails in preview',
+      },
       { action: 'webhook_call', environments: ['production'], effect: 'allow' },
-      { action: 'webhook_call', environments: ['preview'], effect: 'deny', reason: 'No webhooks in preview' },
+      {
+        action: 'webhook_call',
+        environments: ['preview'],
+        effect: 'deny',
+        reason: 'No webhooks in preview',
+      },
     ],
     defaultEffect: 'allow',
   };

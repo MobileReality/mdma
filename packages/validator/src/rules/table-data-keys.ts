@@ -3,8 +3,7 @@ import type { ValidationRule } from '../types.js';
 export const tableDataKeysRule: ValidationRule = {
   id: 'table-data-keys',
   name: 'Table Data Keys',
-  description:
-    'Checks that table data row keys match defined column keys',
+  description: 'Checks that table data row keys match defined column keys',
   defaultSeverity: 'warning',
 
   validate(context) {
@@ -17,8 +16,7 @@ export const tableDataKeysRule: ValidationRule = {
 
       if (!Array.isArray(columns) || !Array.isArray(data)) continue;
 
-      const id =
-        typeof block.data.id === 'string' ? block.data.id : null;
+      const id = typeof block.data.id === 'string' ? block.data.id : null;
 
       const columnKeys = new Set<string>();
       for (const col of columns) {
@@ -63,7 +61,7 @@ export const tableDataKeysRule: ValidationRule = {
             severity: 'warning',
             message: `Column "${colKey}" has no matching keys in any data row`,
             componentId: id,
-            field: `columns`,
+            field: 'columns',
             blockIndex: block.index,
             fixed: false,
           });

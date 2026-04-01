@@ -57,8 +57,7 @@ export class ChainedEventLog {
     actor?: EventLogEntry['actor'];
   }): ChainedEventLogEntry {
     const sequence = this.entries.length;
-    const previousHash =
-      sequence === 0 ? GENESIS_HASH : this.entries[sequence - 1].hash;
+    const previousHash = sequence === 0 ? GENESIS_HASH : this.entries[sequence - 1].hash;
 
     const chained: ChainedEventLogEntry = {
       timestamp: new Date().toISOString(),
@@ -84,8 +83,7 @@ export class ChainedEventLog {
       const entry = this.entries[i];
 
       // Verify chain link
-      const expectedPrev =
-        i === 0 ? GENESIS_HASH : this.entries[i - 1].hash;
+      const expectedPrev = i === 0 ? GENESIS_HASH : this.entries[i - 1].hash;
       if (entry.previousHash !== expectedPrev) {
         return {
           valid: false,

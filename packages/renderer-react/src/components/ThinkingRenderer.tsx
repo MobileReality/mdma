@@ -13,7 +13,8 @@ export const ThinkingRenderer = memo(function ThinkingRenderer({
 }: MdmaBlockRendererProps) {
   if (component.type !== 'thinking') return null;
 
-  const collapsed = (componentState?.values.collapsed as boolean | undefined) ?? component.collapsed ?? true;
+  const collapsed =
+    (componentState?.values.collapsed as boolean | undefined) ?? component.collapsed ?? true;
   const status = component.status ?? 'done';
   const label = component.label ?? 'Thinking';
 

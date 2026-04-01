@@ -23,5 +23,9 @@
   },
   "files": ["dist"],
   "publishConfig": { "access": "public" },
-  "repository": { "type": "git", "url": "git+https://github.com/MobileReality/mdma.git", "directory": "packages/runtime" }
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobileReality/mdma.git",
+    "directory": "packages/runtime"
+  }
 }

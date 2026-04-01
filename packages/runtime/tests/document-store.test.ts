@@ -22,9 +22,7 @@ describe('DocumentStore', () => {
         sensitive: false,
         disabled: false,
         visible: true,
-        fields: [
-          { name: 'email', type: 'email', label: 'Email', required: true, sensitive: true },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email', required: true, sensitive: true }],
       },
     ]);
 
@@ -131,9 +129,7 @@ describe('DocumentStore', () => {
         sensitive: false,
         disabled: false,
         visible: true,
-        fields: [
-          { name: 'email', type: 'email', label: 'Email', sensitive: true },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email', sensitive: true }],
       },
     ]);
 

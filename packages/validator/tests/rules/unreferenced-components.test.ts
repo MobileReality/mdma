@@ -3,7 +3,15 @@ import { unreferencedComponentsRule } from '../../src/rules/unreferenced-compone
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown>): ParsedBlock {
-  return { index, rawYaml: '', data, startOffset: 0, endOffset: 0, yamlStartOffset: 0, yamlEndOffset: 0 };
+  return {
+    index,
+    rawYaml: '',
+    data,
+    startOffset: 0,
+    endOffset: 0,
+    yamlStartOffset: 0,
+    yamlEndOffset: 0,
+  };
 }
 
 function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
@@ -17,7 +25,11 @@ function createContext(blocks: ParsedBlock[]): ValidationRuleContext {
 describe('unreferenced-components rule', () => {
   it('does not flag component referenced via binding', () => {
     const ctx = createContext([
-      createBlock(0, { type: 'form', id: 'my-form', fields: [{ name: 'email', type: 'email', label: 'Email' }] }),
+      createBlock(0, {
+        type: 'form',
+        id: 'my-form',
+        fields: [{ name: 'email', type: 'email', label: 'Email' }],
+      }),
       createBlock(1, { type: 'callout', id: 'info', content: 'hi', visible: '{{my-form.email}}' }),
     ]);
     unreferencedComponentsRule.validate(ctx);
@@ -50,7 +62,12 @@ describe('unreferenced-components rule', () => {
   it('does not flag the first component', () => {
     const ctx = createContext([
       createBlock(0, { type: 'callout', id: 'first', content: 'I am first' }),
-      createBlock(1, { type: 'callout', id: 'second', content: 'hi', visible: '{{first.something}}' }),
+      createBlock(1, {
+        type: 'callout',
+        id: 'second',
+        content: 'hi',
+        visible: '{{first.something}}',
+      }),
     ]);
     unreferencedComponentsRule.validate(ctx);
     const issues = ctx.issues.filter((i) => i.componentId === 'first');
@@ -60,7 +77,13 @@ describe('unreferenced-components rule', () => {
   it('does not flag thinking blocks', () => {
     const ctx = createContext([
       createBlock(0, { type: 'form', id: 'f', fields: [] }),
-      createBlock(1, { type: 'thinking', id: 'think', content: 'Reasoning...', status: 'done', collapsed: true }),
+      createBlock(1, {
+        type: 'thinking',
+        id: 'think',
+        content: 'Reasoning...',
+        status: 'done',
+        collapsed: true,
+      }),
     ]);
     unreferencedComponentsRule.validate(ctx);
     const issues = ctx.issues.filter((i) => i.componentId === 'think');
@@ -68,9 +91,7 @@ describe('unreferenced-components rule', () => {
   });
 
   it('skips when only one component exists', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'callout', id: 'only', content: 'Solo' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'only', content: 'Solo' })]);
     unreferencedComponentsRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });

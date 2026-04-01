@@ -14,11 +14,23 @@ CRITICAL: Every component MUST be wrapped in its own fenced code block using \`\
 
 /** All validator rule IDs (used for computing exclude lists). */
 export const ALL_RULE_IDS: string[] = [
-  'yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format',
-  'binding-syntax', 'binding-resolution', 'action-references', 'sensitive-flags',
-  'required-markers', 'thinking-block', 'select-options', 'placeholder-content',
-  'field-name-typos', 'table-data-keys', 'chart-validation',
-  'unreferenced-components', 'flow-ordering',
+  'yaml-correctness',
+  'schema-conformance',
+  'duplicate-ids',
+  'id-format',
+  'binding-syntax',
+  'binding-resolution',
+  'action-references',
+  'sensitive-flags',
+  'required-markers',
+  'thinking-block',
+  'select-options',
+  'placeholder-content',
+  'field-name-typos',
+  'table-data-keys',
+  'chart-validation',
+  'unreferenced-components',
+  'flow-ordering',
 ];
 
 export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
@@ -371,7 +383,6 @@ export const FIXER_FLOW_RULES: Record<string, string> = {
 - **Step 3:** Webhook \`notify-webhook\` (url: https://api.example.com/notify, method: POST) triggered by a button \`send-notification\` (text: "Send Notification"). Include a success callout \`workflow-complete\`. The webhook's trigger should point to the button.
 
 Each step must contain exactly ONE interactive component + its supporting callouts/webhooks. Do not include components from other steps.`,
-
 };
 
 /**
@@ -405,7 +416,7 @@ export const FIXER_CORRECT_STRUCTURE: Record<string, string> = {
 
 All table data keys must exactly match their column keys. All chart axes must reference actual CSV headers. Charts must have data rows, not just headers.`,
 
-  'forms': `This is a job application with 5 components. The correct structure:
+  forms: `This is a job application with 5 components. The correct structure:
 
 **1. personal-info-form** (form) — Personal details
 - Fields:
@@ -583,9 +594,9 @@ export const SAMPLE_BINDING_DATA: Record<string, Record<string, Record<string, s
   bindings: {
     'contact-form': {
       'full-name': 'Jane Smith',
-      'email': 'jane.smith@example.com',
-      'phone': '+1 555-0123',
-      'message': 'I\'d like to learn more about your services.',
+      email: 'jane.smith@example.com',
+      phone: '+1 555-0123',
+      message: "I'd like to learn more about your services.",
     },
   },
 };
@@ -601,7 +612,7 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
       { field: 'Name', value: 'Jane Smith' },
       { field: 'Email', value: 'jane.smith@example.com' },
       { field: 'Phone', value: '+1 555-0123' },
-      { field: 'Message', value: 'I\'d like to learn more about your services.' },
+      { field: 'Message', value: "I'd like to learn more about your services." },
     ],
   },
 };
@@ -610,7 +621,10 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
  * Structured flow step definitions for deterministic validation via validateFlow().
  * Keyed by variant key — only variants with multi-step workflows need entries.
  */
-export const FLOW_STEPS: Record<string, import('@mobile-reality/mdma-validator').FlowStepDefinition[]> = {
+export const FLOW_STEPS: Record<
+  string,
+  import('@mobile-reality/mdma-validator').FlowStepDefinition[]
+> = {
   flow: [
     { label: 'Registration Form', type: 'form', id: 'registration-form' },
     { label: 'Manager Approval', type: 'approval-gate', id: 'approval-gate' },

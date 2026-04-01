@@ -18,9 +18,7 @@ function renderDetail(action: StoreAction) {
   }
   if ('actionId' in action) {
     return (
-      <span className="demo-event-detail">
-        action: {(action as { actionId: string }).actionId}
-      </span>
+      <span className="demo-event-detail">action: {(action as { actionId: string }).actionId}</span>
     );
   }
   return null;
@@ -48,9 +46,7 @@ export const ChatActionLog = memo(function ChatActionLog({
         title={isOpen ? 'Hide action log' : 'Show action log'}
       >
         {isOpen ? 'Hide Log' : 'Action Log'}
-        {events.length > 0 && (
-          <span className="chat-action-log-badge">{events.length}</span>
-        )}
+        {events.length > 0 && <span className="chat-action-log-badge">{events.length}</span>}
       </button>
 
       {isOpen && (

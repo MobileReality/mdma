@@ -75,9 +75,7 @@ export interface ElementOverridesProviderProps {
 export function ElementOverridesProvider({ value, children }: ElementOverridesProviderProps) {
   const stable = useMemo(() => value ?? null, [value]);
   return (
-    <ElementOverridesContext.Provider value={stable}>
-      {children}
-    </ElementOverridesContext.Provider>
+    <ElementOverridesContext.Provider value={stable}>{children}</ElementOverridesContext.Provider>
   );
 }
 

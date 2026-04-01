@@ -2,10 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { schemaConformanceRule } from '../../src/rules/schema-conformance.js';
 import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
 
-function createBlock(
-  index: number,
-  data: Record<string, unknown> | null,
-): ParsedBlock {
+function createBlock(index: number, data: Record<string, unknown> | null): ParsedBlock {
   return {
     index,
     rawYaml: '',
@@ -33,9 +30,7 @@ describe('schema-conformance rule', () => {
       createBlock(0, {
         type: 'form',
         id: 'my-form',
-        fields: [
-          { name: 'email', type: 'email', label: 'Email' },
-        ],
+        fields: [{ name: 'email', type: 'email', label: 'Email' }],
       }),
     ]);
     schemaConformanceRule.validate(ctx);
@@ -43,9 +38,7 @@ describe('schema-conformance rule', () => {
   });
 
   it('flags missing type field', () => {
-    const ctx = createContext([
-      createBlock(0, { id: 'no-type' }),
-    ]);
+    const ctx = createContext([createBlock(0, { id: 'no-type' })]);
     schemaConformanceRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].message).toContain('"type"');
@@ -53,9 +46,7 @@ describe('schema-conformance rule', () => {
   });
 
   it('flags unknown component type', () => {
-    const ctx = createContext([
-      createBlock(0, { type: 'foobar', id: 'x' }),
-    ]);
+    const ctx = createContext([createBlock(0, { type: 'foobar', id: 'x' })]);
     schemaConformanceRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].message).toContain('Unknown component type');

@@ -1,4 +1,8 @@
-import { buildFixerPrompt, buildFixerMessage, buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
+import {
+  buildFixerPrompt,
+  buildFixerMessage,
+  buildSystemPrompt,
+} from '@mobile-reality/mdma-prompt-pack';
 import { validate } from '@mobile-reality/mdma-validator';
 
 /**

@@ -4,8 +4,7 @@
 export default function (output) {
   const hasButton = output.includes('type: button');
   const hasConfirm = output.includes('confirm:');
-  const hasConfirmText =
-    output.includes('confirmText:') || output.includes('message:');
+  const hasConfirmText = output.includes('confirmText:') || output.includes('message:');
 
   if (hasButton && hasConfirm && hasConfirmText) {
     return { pass: true, score: 1, reason: 'Button with confirmation dialog found' };

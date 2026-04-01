@@ -1,12 +1,15 @@
 // OUTDATED: This file was part of an experiment with a step-by-step form generation flow. It is no longer actively maintained and may contain outdated code. Use for reference only.
 
-
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
-import { validate, type ValidationResult, type ValidationIssue } from '@mobile-reality/mdma-validator';
+import {
+  validate,
+  type ValidationResult,
+  type ValidationIssue,
+} from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
 
 const STEPPER_PROMPT = `You are an AI assistant that generates a multi-step onboarding flow using MDMA components.
@@ -86,11 +89,7 @@ const STEP_PROMPTS = [
   'Generate Step 3: Payment & Review form with summary table and approval gate.',
 ];
 
-const STEP_LABELS = [
-  'Personal Info',
-  'Shipping Address',
-  'Payment & Review',
-];
+const STEP_LABELS = ['Personal Info', 'Shipping Address', 'Payment & Review'];
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -105,9 +104,7 @@ function IssueRow({ issue }: { issue: ValidationIssue }) {
         {issue.severity}
       </span>
       <span className="validator-issue-rule">{issue.ruleId}</span>
-      {issue.componentId && (
-        <span className="validator-issue-component">#{issue.componentId}</span>
-      )}
+      {issue.componentId && <span className="validator-issue-component">#{issue.componentId}</span>}
       <span className="validator-issue-msg">{issue.message}</span>
       {issue.fixed && <span className="validator-issue-badge">fixed</span>}
     </div>
@@ -121,10 +118,7 @@ function ValidationPanel({
   results: Map<number, ValidationResult>;
   stepLabels: Map<number, string>;
 }) {
-  const entries = useMemo(
-    () => Array.from(results.entries()).reverse(),
-    [results],
-  );
+  const entries = useMemo(() => Array.from(results.entries()).reverse(), [results]);
 
   if (entries.length === 0) {
     return (
@@ -140,10 +134,10 @@ function ValidationPanel({
     <div className="validator-results-panel">
       {entries.map(([msgId, result]) => (
         <div key={msgId} className="validator-msg-result">
-          <div className={`validator-summary ${result.ok ? 'validator-summary--ok' : 'validator-summary--fail'}`}>
-            <span className="validator-summary-status">
-              {result.ok ? 'PASS' : 'FAIL'}
-            </span>
+          <div
+            className={`validator-summary ${result.ok ? 'validator-summary--ok' : 'validator-summary--fail'}`}
+          >
+            <span className="validator-summary-status">{result.ok ? 'PASS' : 'FAIL'}</span>
             <span className="validator-summary-label">
               {stepLabels.get(msgId) ?? `msg #${msgId}`}
             </span>
@@ -164,9 +158,7 @@ function ValidationPanel({
                 </span>
               )}
               {result.fixCount > 0 && (
-                <span className="validator-fix-count">
-                  {result.fixCount} auto-fixed
-                </span>
+                <span className="validator-fix-count">{result.fixCount} auto-fixed</span>
               )}
             </span>
           </div>
@@ -217,7 +209,9 @@ export function StepperView() {
     ...(customizations.schemas && { parserOptions: { customSchemas: customizations.schemas } }),
   });
 
-  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
+  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(
+    new Map(),
+  );
   const [stepLabelMap, setStepLabelMap] = useState<Map<number, string>>(new Map());
   const validatedRef = useRef<Set<number>>(new Set());
 
@@ -312,11 +306,7 @@ export function StepperView() {
           ))}
         </div>
         {!isGenerating && currentStep < 3 && (
-          <button
-            type="button"
-            className="stepper-generate-btn"
-            onClick={handleNextStep}
-          >
+          <button type="button" className="stepper-generate-btn" onClick={handleNextStep}>
             {currentStep === 0 ? 'Start' : `Step ${currentStep + 1}`}: {STEP_LABELS[currentStep]}
           </button>
         )}
@@ -327,19 +317,15 @@ export function StepperView() {
 
       <div className="validator-content">
         <div className="validator-chat-panel">
-          <ChatSettings
-            config={config}
-            onUpdate={updateConfig}
-            onPreset={applyPreset}
-          />
+          <ChatSettings config={config} onUpdate={updateConfig} onPreset={applyPreset} />
 
           <div className="chat-messages">
             {messages.length === 0 && (
               <div className="chat-empty">
                 <p className="chat-empty-title">Stepper Forms Playground</p>
                 <p className="chat-empty-hint">
-                  Generate a 3-step onboarding flow one step at a time.
-                  Each step is a separate AI response, validated by <code>@mobile-reality/mdma-validator</code>.
+                  Generate a 3-step onboarding flow one step at a time. Each step is a separate AI
+                  response, validated by <code>@mobile-reality/mdma-validator</code>.
                 </p>
               </div>
             )}

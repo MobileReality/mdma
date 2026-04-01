@@ -9,8 +9,8 @@ export function PlaygroundView() {
       <div className="playground-info">
         <strong>Playground</strong>
         <span>
-          Free-form chat. The AI knows MDMA basics and will generate interactive
-          components when you ask for them.
+          Free-form chat. The AI knows MDMA basics and will generate interactive components when you
+          ask for them.
         </span>
       </div>
       <ChatView

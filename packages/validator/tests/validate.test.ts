@@ -27,9 +27,7 @@ describe('validate()', () => {
 
     // Re-validate the fixed output
     const recheck = validate(result.output);
-    const dupIssues = recheck.issues.filter(
-      (i) => i.ruleId === 'duplicate-ids',
-    );
+    const dupIssues = recheck.issues.filter((i) => i.ruleId === 'duplicate-ids');
     expect(dupIssues).toHaveLength(0);
   });
 
@@ -37,9 +35,7 @@ describe('validate()', () => {
     const md = fixture('pii-missing-sensitive.md');
     const result = validate(md);
 
-    const sensitiveIssues = result.issues.filter(
-      (i) => i.ruleId === 'sensitive-flags',
-    );
+    const sensitiveIssues = result.issues.filter((i) => i.ruleId === 'sensitive-flags');
     expect(sensitiveIssues.length).toBeGreaterThan(0);
 
     // All should be auto-fixed
@@ -73,9 +69,7 @@ describe('validate()', () => {
     const md = fixture('no-thinking-block.md');
     const result = validate(md);
 
-    const thinkingIssues = result.issues.filter(
-      (i) => i.ruleId === 'thinking-block',
-    );
+    const thinkingIssues = result.issues.filter((i) => i.ruleId === 'thinking-block');
     expect(thinkingIssues).toHaveLength(1);
     expect(thinkingIssues[0].severity).toBe('warning');
   });
@@ -84,18 +78,14 @@ describe('validate()', () => {
     const md = fixture('bad-bindings.md');
     const result = validate(md);
 
-    const bindingIssues = result.issues.filter(
-      (i) => i.ruleId === 'binding-syntax',
-    );
+    const bindingIssues = result.issues.filter((i) => i.ruleId === 'binding-syntax');
     expect(bindingIssues.length).toBeGreaterThan(0);
   });
 
   it('respects exclude option', () => {
     const md = fixture('pii-missing-sensitive.md');
     const result = validate(md, { exclude: ['sensitive-flags'] });
-    const sensitiveIssues = result.issues.filter(
-      (i) => i.ruleId === 'sensitive-flags',
-    );
+    const sensitiveIssues = result.issues.filter((i) => i.ruleId === 'sensitive-flags');
     expect(sensitiveIssues).toHaveLength(0);
   });
 
@@ -206,9 +196,7 @@ content: This is a test
     const result = validate(md);
 
     // Should have parsed successfully after stripping ---
-    const yamlIssues = result.issues.filter(
-      (i) => i.ruleId === 'yaml-correctness',
-    );
+    const yamlIssues = result.issues.filter((i) => i.ruleId === 'yaml-correctness');
     expect(yamlIssues.length).toBe(1);
     expect(yamlIssues[0].fixed).toBe(true);
     expect(yamlIssues[0].message).toContain('separator');
@@ -345,9 +333,7 @@ onSubmit: step-info
     const result = validate(md);
 
     // Should have split into two components
-    const yamlIssues = result.issues.filter(
-      (i) => i.ruleId === 'yaml-correctness',
-    );
+    const yamlIssues = result.issues.filter((i) => i.ruleId === 'yaml-correctness');
     const splitIssues = yamlIssues.filter((i) => i.message.includes('split'));
     expect(splitIssues.length).toBe(2);
     expect(splitIssues.every((i) => i.fixed)).toBe(true);
