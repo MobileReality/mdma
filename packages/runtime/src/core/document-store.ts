@@ -83,6 +83,10 @@ export function createDocumentStore(
           if (field.defaultValue !== undefined) {
             compState.values[field.name] = field.defaultValue;
             state.bindings[field.name] = field.defaultValue;
+            if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+              state.bindings[comp.id] = {};
+            }
+            (state.bindings[comp.id] as Record<string, unknown>)[field.name] = field.defaultValue;
           }
         }
       }
@@ -171,7 +175,12 @@ export function createDocumentStore(
           if (comp) {
             comp.values = { ...comp.values, [action.field]: action.value };
             comp.touched = true;
+            // Store both flat (for backward compat) and nested (for {{componentId.field}} resolution)
             state.bindings[action.field] = action.value;
+            if (!state.bindings[action.componentId] || typeof state.bindings[action.componentId] !== 'object') {
+              state.bindings[action.componentId] = {};
+            }
+            (state.bindings[action.componentId] as Record<string, unknown>)[action.field] = action.value;
           }
           break;
         }
@@ -279,6 +288,13 @@ export function createDocumentStore(
               // Only set binding if not already set by user interaction
               if (!(field.name in state.bindings)) {
                 state.bindings[field.name] = field.defaultValue;
+              }
+              if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+                state.bindings[comp.id] = {};
+              }
+              const nested = state.bindings[comp.id] as Record<string, unknown>;
+              if (!(field.name in nested)) {
+                nested[field.name] = field.defaultValue;
               }
             }
           }

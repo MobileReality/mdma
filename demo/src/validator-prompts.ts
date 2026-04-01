@@ -76,18 +76,50 @@ Generate a document with at least 5-6 components that contains multiple structur
     rules: ['binding-syntax', 'binding-resolution', 'action-references'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on binding and reference issues:
+Focus ONLY on binding and reference issues. Generate a contact submission workflow with these exact components, each with intentional binding/reference problems:
 
-1. **Bad binding syntax** — Use single braces {form.email} instead of {{form.email}}
-2. **Whitespace in bindings** — Use {{ form.email }} with extra spaces inside the braces
-3. **Empty bindings** — Use {{}} with nothing inside
-4. **Non-existent component references** — Use bindings like {{missing_form.email}} where missing_form doesn't exist
-5. **Deep binding mismatches** — Use {{myform.nonexistent}} where myform exists but has no field named "nonexistent"
-6. **Invalid onSubmit targets** — Set form onSubmit to a non-existent component ID
-7. **Invalid onAction targets** — Set button onAction to a non-existent component ID
-8. **Invalid webhook trigger** — Set webhook trigger to a non-existent component ID
+## Required broken components
 
-Generate a multi-component document (form, table, callout, button, webhook) with bindings between them — but intentionally make the binding paths and action targets wrong.`,
+1. \`\`\`mdma block: **form** id: \`contact-form\` — Contact form
+   - Fields:
+     - full-name (text, required, label: "Full Name")
+     - email (email, required, sensitive: true, label: "Email Address")
+     - phone (text, sensitive: true, label: "Phone Number")
+     - message (textarea, required, label: "Message")
+   - Set \`onSubmit: nonexistent-handler\` (invalid target — ID doesn't exist)
+
+2. \`\`\`mdma block: **table** id: \`submission-summary\` — Summary table showing form data
+   - Columns: field (header: "Field"), value (header: "Value")
+   - Data rows using BROKEN bindings (always use double braces {{...}}):
+     - field: "Name", value: \`{{ contact-form.full-name }}\` (extra whitespace inside braces)
+     - field: "Email", value: \`{{missing_form.email}}\` (references non-existent component "missing_form")
+     - field: "Phone", value: \`{{contact-form.nonexistent}}\` (field "nonexistent" doesn't exist on contact-form)
+     - field: "Message", value: \`{{}}\` (empty binding — no path inside braces)
+
+3. \`\`\`mdma block: **callout** id: \`submission-status\` variant: info
+   - content: "Your submission for {{contact-form.nonexistent_field}} has been received."
+     (deep binding mismatch — contact-form has no field named "nonexistent_field")
+
+4. \`\`\`mdma block: **button** id: \`submit-btn\` variant: primary
+   - text: "Submit Contact Form"
+   - Set \`onAction: missing-action\` (invalid target — ID doesn't exist)
+
+5. \`\`\`mdma block: **webhook** id: \`contact-webhook\`
+   - url: "https://api.example.com/contacts"
+   - method: POST
+   - Set \`trigger: ghost-component\` (invalid target — ID doesn't exist)
+   - body with broken binding: \`data: contact-form.values\` (bare binding, missing {{ }})
+
+Generate all 5 components with the intentional binding and reference mistakes described above.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — Regenerate components with NEW intentional binding issues.
+2. **Ask a normal question** — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first message.`,
   },
   {
     key: 'pii',
@@ -96,13 +128,44 @@ Generate a multi-component document (form, table, callout, button, webhook) with
     rules: ['sensitive-flags', 'required-markers'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on PII and data sensitivity issues:
+Focus ONLY on PII and data sensitivity issues. Generate a KYC (Know Your Customer) verification form with these exact components, each missing sensitive/required flags:
 
-1. **Missing sensitive flags on form fields** — Include fields named email, phone, ssn, address, card_number, date_of_birth without sensitive: true
-2. **Missing sensitive flags on table columns** — Include table columns with keys like email, phone, address without sensitive: true
-3. **Missing required on important fields** — Fields named "name", "email", "title" should typically be required but omit the required flag
+## Required broken components
 
-Generate a comprehensive form (like a user registration or KYC form) with many PII fields and a table displaying user data — but forget to mark any of them as sensitive or required.`,
+1. \`\`\`mdma block: **form** id: \`kyc-form\` — Customer verification form
+   - Fields (ALL must be missing \`sensitive: true\` — this is intentional):
+     - full-name (text, label: "Full Name") — also omit \`required: true\`
+     - email (email, label: "Email Address") — also omit \`required: true\`
+     - phone (text, label: "Phone Number")
+     - ssn (text, label: "Social Security Number")
+     - date-of-birth (date, label: "Date of Birth")
+     - home-address (text, label: "Home Address")
+     - card-number (text, label: "Credit Card Number")
+     - passport-number (text, label: "Passport Number")
+   - onSubmit: kyc-submitted
+
+2. \`\`\`mdma block: **table** id: \`customer-records\` — Customer data table
+   - Columns (ALL must be missing \`sensitive: true\`):
+     - name (header: "Name")
+     - email (header: "Email")
+     - phone (header: "Phone")
+     - ssn (header: "SSN")
+     - address (header: "Address")
+   - Data: 3 rows with sample customer data
+
+3. \`\`\`mdma block: **callout** id: \`kyc-submitted\` variant: success
+   - content: "KYC verification submitted successfully."
+
+Generate all 3 components. Do NOT add sensitive: true or required: true to any field — the validator should catch all of them.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — Regenerate the components with NEW intentional issues (different from before).
+2. **Ask a normal question** — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first message.`,
   },
   {
     key: 'forms',
@@ -111,15 +174,49 @@ Generate a comprehensive form (like a user registration or KYC form) with many P
     rules: ['select-options', 'field-name-typos', 'placeholder-content'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on form-specific issues:
+Focus ONLY on form-specific issues. Generate a job application form with these exact components, each with intentional problems:
 
-1. **Select fields without options** — Create select fields with no options array at all
-2. **Malformed select options** — Create select options as plain strings or objects missing label/value
-3. **Placeholder labels** — Use "TODO", "TBD", "...", or "Lorem ipsum" as form field labels
-4. **Placeholder content** — Use "FIXME" or "sample" as callout content or component titles
-5. **Field name typos** — On buttons use "onClick" instead of "onAction", on forms use "submit" instead of "onSubmit"
+## Required broken components
 
-Generate a multi-step form (like an application form) with multiple select fields, text inputs, and buttons — but with these mistakes throughout.`,
+1. \`\`\`mdma block: **form** id: \`personal-info-form\` — Personal details form
+   - Fields:
+     - full-name (text, required) — BUT set label: "TODO"
+     - email (email, required, sensitive) — BUT set label: "..."
+     - phone (text, sensitive) — BUT set label: "TBD"
+     - country (select, required) — BUT omit the options array entirely
+     - gender (select) — BUT use plain strings as options: ["Male", "Female", "Other"] instead of {label, value} objects
+   - Set \`submit: apply-btn\` instead of correct \`onSubmit: apply-btn\` (field name typo)
+
+2. \`\`\`mdma block: **form** id: \`education-form\` — Education background form
+   - Fields:
+     - university (text, required) — BUT set label: "Lorem ipsum"
+     - highest-degree (select, required) — BUT use malformed options: one string "PhD" mixed with {label, value} objects
+     - graduation-year (number) — label: "Graduation Year"
+   - onSubmit: education-submitted
+
+3. \`\`\`mdma block: **form** id: \`preferences-form\` — Job preferences form
+   - Fields:
+     - department (select, required) — BUT use plain string options: ["Engineering", "Marketing", "Sales"]
+     - start-date (date, required) — label: "Preferred Start Date"
+   - onSubmit: preferences-submitted
+
+4. \`\`\`mdma block: **callout** id: \`preferences-note\` variant: info
+   - Set title: "FIXME" and content: "Please ensure your preferences are accurate."
+
+5. \`\`\`mdma block: **button** id: \`apply-btn\` variant: primary
+   - text: "Submit Application"
+   - Set \`onClick: submit-application\` instead of correct \`onAction: submit-application\` (field name typo)
+
+Generate all 5 components with the intentional mistakes described above.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — This means the fixer has already fixed your output. Regenerate the components with NEW intentional issues (different from before).
+2. **Ask a normal question** — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first message.`,
   },
   {
     key: 'tables-charts',
@@ -264,6 +361,138 @@ export const FIXER_CORRECT_STRUCTURE: Record<string, string> = {
 - xAxis: "week", yAxis: ["new_users", "active_users"]
 
 All table data keys must exactly match their column keys. All chart axes must reference actual CSV headers. Charts must have data rows, not just headers.`,
+
+  'forms': `This is a job application with 5 components. The correct structure:
+
+**1. personal-info-form** (form) — Personal details
+- Fields:
+  - full-name (text, required, label: "Full Name")
+  - email (email, required, sensitive: true, label: "Email Address")
+  - phone (text, sensitive: true, label: "Phone Number")
+  - country (select, required, label: "Country", options: [{label: "United States", value: "us"}, {label: "Canada", value: "ca"}, {label: "United Kingdom", value: "uk"}, {label: "Germany", value: "de"}])
+  - gender (select, label: "Gender", options: [{label: "Male", value: "male"}, {label: "Female", value: "female"}, {label: "Other", value: "other"}])
+- onSubmit: apply-btn (NOT "submit" — the correct field name is "onSubmit")
+
+**2. education-form** (form) — Education background
+- Fields:
+  - university (text, required, label: "University")
+  - highest-degree (select, required, label: "Highest Degree", options: [{label: "Bachelor's", value: "bachelors"}, {label: "Master's", value: "masters"}, {label: "PhD", value: "phd"}])
+  - graduation-year (number, label: "Graduation Year")
+- onSubmit: education-submitted
+
+**3. preferences-form** (form) — Job preferences
+- Fields:
+  - department (select, required, label: "Department", options: [{label: "Engineering", value: "engineering"}, {label: "Marketing", value: "marketing"}, {label: "Sales", value: "sales"}])
+  - start-date (date, required, label: "Preferred Start Date")
+- onSubmit: preferences-submitted
+
+**4. preferences-note** (callout, variant: info)
+- title: "Job Preferences"
+- content: "Please ensure your preferences are accurate."
+- No placeholder text — use real, meaningful content
+
+**5. apply-btn** (button, variant: primary)
+- text: "Submit Application"
+- onAction: submit-application (NOT "onClick" — the correct field name is "onAction")
+
+All labels must be real text (no "TODO", "TBD", "...", "Lorem ipsum", "FIXME"). All select fields must have options as [{label, value}] objects. Use correct field names: onSubmit (not submit), onAction (not onClick).`,
+
+  bindings: `This is a contact submission workflow with 5 components. The correct structure:
+
+**1. contact-form** (form) — Contact form
+- Fields:
+  - full-name (text, required, defaultValue: "Jane Smith")
+  - email (email, required, sensitive: true, defaultValue: "jane.smith@example.com")
+  - phone (text, sensitive: true, defaultValue: "+1 555-0123")
+  - message (textarea, required, defaultValue: "I'd like to learn more about your services.")
+- onSubmit: submit-btn (must reference an existing component ID in this document)
+- IMPORTANT: Include defaultValue on every field so bindings resolve immediately in the demo
+
+**2. submission-summary** (table) — Summary of submitted data
+- Columns: field (header: "Field"), value (header: "Value")
+- Data rows with static inline values (the broken version used bindings to test syntax — the fixed version uses real data):
+  - field: "Name", value: "Jane Smith"
+  - field: "Email", value: "jane.smith@example.com"
+  - field: "Phone", value: "+1 555-0123"
+  - field: "Message", value: "I'd like to learn more about your services."
+
+**3. submission-status** (callout, variant: info)
+- content: "Your contact form submission has been received. We will get back to you shortly."
+
+**4. submit-btn** (button, variant: primary)
+- text: "Submit Contact Form"
+- onAction: contact-webhook (must reference an existing component ID)
+
+**5. contact-webhook** (webhook)
+- url: "https://api.example.com/contacts"
+- method: POST
+- trigger: submit-btn (must reference an existing component ID)
+- body bindings must use "{{contact-form.field}}" syntax with double braces and valid field names
+
+All bindings must use {{component-id.field}} syntax — double braces, no whitespace, valid component IDs and field names. All action targets (onSubmit, onAction, trigger) must point to component IDs that exist in this document.`,
+
+  pii: `This is a KYC verification form with 3 components. The correct structure:
+
+**1. kyc-form** (form) — Customer verification
+- Fields:
+  - full-name (text, required: true, label: "Full Name")
+  - email (email, required: true, sensitive: true, label: "Email Address")
+  - phone (text, sensitive: true, label: "Phone Number")
+  - ssn (text, sensitive: true, label: "Social Security Number")
+  - date-of-birth (date, sensitive: true, label: "Date of Birth")
+  - home-address (text, sensitive: true, label: "Home Address")
+  - card-number (text, sensitive: true, label: "Credit Card Number")
+  - passport-number (text, sensitive: true, label: "Passport Number")
+- onSubmit: kyc-submitted
+
+PII fields that MUST have sensitive: true: email, phone, ssn, date-of-birth, home-address, card-number, passport-number.
+Fields that MUST have required: true: full-name, email.
+
+**2. customer-records** (table) — Customer data
+- Columns:
+  - name (header: "Name")
+  - email (header: "Email", sensitive: true)
+  - phone (header: "Phone", sensitive: true)
+  - ssn (header: "SSN", sensitive: true)
+  - address (header: "Address", sensitive: true)
+- 3 data rows with sample customer data
+
+**3. kyc-submitted** (callout, variant: success)
+- content: "KYC verification submitted successfully."
+
+Every field containing PII (email, phone, SSN, address, card numbers, DOB, passport) must have sensitive: true. Important fields like name and email must have required: true.`,
+};
+
+/**
+ * Sample data to seed into message stores so bindings resolve with visible values.
+ * Keyed by variant key. Each entry maps componentId → { fieldName: value }.
+ * Dispatched as FIELD_CHANGED actions when a new store is created.
+ */
+export const SAMPLE_BINDING_DATA: Record<string, Record<string, Record<string, string>>> = {
+  bindings: {
+    'contact-form': {
+      'full-name': 'Jane Smith',
+      'email': 'jane.smith@example.com',
+      'phone': '+1 555-0123',
+      'message': 'I\'d like to learn more about your services.',
+    },
+  },
+};
+
+/**
+ * Sample table data to inject into stores for demo rendering.
+ * Keyed by variant key → component ID → array of row objects.
+ * Applied after store creation so tables with binding data show real values.
+ */
+export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<string, string>>>> = {
+  bindings: {
+    'submission-summary': [
+      { field: 'Name', value: 'Jane Smith' },
+      { field: 'Email', value: 'jane.smith@example.com' },
+      { field: 'Phone', value: '+1 555-0123' },
+      { field: 'Message', value: 'I\'d like to learn more about your services.' },
+    ],
+  },
 };
 
 /**

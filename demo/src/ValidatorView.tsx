@@ -3,11 +3,13 @@ import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';
 import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
+import { ChatActionLog } from './chat/ChatActionLog.js';
+import { useChatActionLog } from './chat/use-chat-action-log.js';
 import { validate, validateFlow, type ValidationResult, type ValidationIssue, type FlowValidationResult } from '@mobile-reality/mdma-validator';
 import { buildFixerPrompt, buildFixerMessage, buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import { chatCompletion } from './llm-client.js';
 import { customizations } from './custom-components.js';
-import { VALIDATOR_PROMPT_VARIANTS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS } from './validator-prompts.js';
+import { VALIDATOR_PROMPT_VARIANTS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS, SAMPLE_BINDING_DATA } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -226,6 +228,23 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   const flowCompleteRef = useRef(false);
   const [showFlowComplete, setShowFlowComplete] = useState(false);
 
+  // Seed stores with sample binding data for the active variant
+  const seededStores = useRef(new Set<import('@mobile-reality/mdma-runtime').DocumentStore>());
+  useEffect(() => {
+    const sampleData = SAMPLE_BINDING_DATA[promptKey];
+    if (!sampleData) return;
+    for (const msg of messages) {
+      if (msg.role === 'assistant' && msg.store && !seededStores.current.has(msg.store)) {
+        seededStores.current.add(msg.store);
+        for (const [componentId, fields] of Object.entries(sampleData)) {
+          for (const [field, value] of Object.entries(fields)) {
+            msg.store.dispatch({ type: 'FIELD_CHANGED', componentId, field, value });
+          }
+        }
+      }
+    }
+  }, [messages, promptKey]);
+
   useEffect(() => {
     const ADVANCE_EVENTS = ['ACTION_TRIGGERED', 'APPROVAL_GRANTED', 'APPROVAL_DENIED'] as const;
     for (const msg of messages) {
@@ -299,6 +318,8 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
     }
   }, [messages, isGenerating, updateMessage]);
 
+  const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useChatActionLog(messages);
+
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevMsgCountRef = useRef(messages.length);
 
@@ -311,9 +332,10 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
 
   const handleClear = useCallback(() => {
     clear();
+    clearEvents();
     setValidationResults(new Map());
     validatedRef.current = new Set();
-  }, [clear]);
+  }, [clear, clearEvents]);
 
   const [fixingMsgId, setFixingMsgId] = useState<number | null>(null);
   const isFixing = fixingMsgId !== null;
@@ -360,8 +382,9 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
       if (fixedContent) {
         // Overwrite the original message with the fixed content
         updateMessage(msg.id, fixedContent);
-        // Clear old validation result so it gets re-validated
+        // Clear old validation and seeded stores so they re-run on the new store
         validatedRef.current.delete(msg.id);
+        seededStores.current.clear();
         setValidationResults((prev) => {
           const next = new Map(prev);
           next.delete(msg.id);
@@ -478,6 +501,12 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
             : undefined}
         />
       </div>
+
+      <ChatActionLog
+        events={events}
+        isOpen={logOpen}
+        onToggle={() => setLogOpen((prev) => !prev)}
+      />
 
       <div className="validator-side-panel">
         <div className="fixer-settings-panel">

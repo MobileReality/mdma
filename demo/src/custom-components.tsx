@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
 import { ChartRenderer } from './chart-components.js';
 import type {
@@ -200,21 +200,36 @@ function DataSourceSelector({
 
 // ─── Custom Form Element Overrides (scoped) ─────────────────────────────────
 
-function GlassInput({ id, type, value, onChange, required, name }: FormInputElementProps) {
+function GlassInput({ id, type, value, onChange, required, name, sensitive }: FormInputElementProps) {
   const edit = useEditableField();
   const componentId = extractComponentId(id, name);
+  const [masked, setMasked] = useState(sensitive === true && value !== '');
+  const displayType = masked ? 'password' : type;
 
   return (
-    <div className="ce-editable-field">
+    <div className={`ce-editable-field ${sensitive ? 'ce-field--sensitive' : ''}`}>
       <input
         id={id}
-        type={type}
+        type={displayType}
         value={value}
         required={required}
-        className="ce-glass-input"
+        className={`ce-glass-input ${sensitive ? 'ce-glass-input--sensitive' : ''}`}
         placeholder={`Enter ${type}...`}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => {
+          onChange(e.target.value);
+          if (sensitive && masked) setMasked(false);
+        }}
       />
+      {sensitive && value && (
+        <button
+          type="button"
+          className="mdma-sensitive-toggle"
+          onClick={() => setMasked(!masked)}
+          title={masked ? 'Reveal value' : 'Mask value'}
+        >
+          {masked ? '👁' : '👁‍🗨'}
+        </button>
+      )}
       {edit && <FieldTypeSelector currentType={type} componentId={componentId} fieldName={name} />}
     </div>
   );
@@ -264,17 +279,17 @@ function ToggleCheckbox({ id, checked, onChange, label, name }: FormCheckboxElem
   );
 }
 
-function GlassTextarea({ id, value, onChange, required, name }: FormTextareaElementProps) {
+function GlassTextarea({ id, value, onChange, required, name, sensitive }: FormTextareaElementProps) {
   const edit = useEditableField();
   const componentId = extractComponentId(id, name);
 
   return (
-    <div className="ce-editable-field">
+    <div className={`ce-editable-field ${sensitive ? 'ce-field--sensitive' : ''}`}>
       <textarea
         id={id}
         value={value}
         required={required}
-        className="ce-glass-textarea"
+        className={`ce-glass-textarea ${sensitive ? 'ce-glass-input--sensitive' : ''}`}
         onChange={(e) => onChange(e.target.value)}
       />
       {edit && <FieldTypeSelector currentType="textarea" componentId={componentId} fieldName={name} />}
@@ -314,6 +329,19 @@ export const CustomButtonRenderer = memo(function CustomButtonRenderer({
 
 // ─── Custom Table (override) ─────────────────────────────────────────────────
 
+function SensitiveCell({ value }: { value: string }) {
+  const [revealed, setRevealed] = useState(false);
+  return (
+    <span
+      className="custom-table-cell--sensitive"
+      onClick={() => setRevealed(!revealed)}
+      title={revealed ? 'Click to mask' : 'Click to reveal'}
+    >
+      {revealed ? value : '\u2022\u2022\u2022\u2022\u2022'}
+    </span>
+  );
+}
+
 export const CustomTableRenderer = memo(function CustomTableRenderer({
   component,
   resolveBinding,
@@ -323,6 +351,12 @@ export const CustomTableRenderer = memo(function CustomTableRenderer({
   const rawData = typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
   const data = Array.isArray(rawData) ? rawData : [];
 
+  const sensitiveKeys = new Set(
+    component.columns
+      .filter((col: { key: string; sensitive?: boolean }) => col.sensitive)
+      .map((col: { key: string }) => col.key),
+  );
+
   return (
     <div className="custom-table" data-component-id={component.id}>
       {component.label && <h3 className="custom-table-label">{component.label}</h3>}
@@ -330,9 +364,10 @@ export const CustomTableRenderer = memo(function CustomTableRenderer({
         <table>
           <thead>
             <tr>
-              {component.columns.map((col: { key: string; header: string; width?: string }) => (
+              {component.columns.map((col: { key: string; header: string; width?: string; sensitive?: boolean }) => (
                 <th key={col.key} style={col.width ? { width: col.width } : undefined}>
                   {col.header}
+                  {col.sensitive && <span className="mdma-sensitive-badge" title="Sensitive (PII)">&#128274;</span>}
                 </th>
               ))}
             </tr>
@@ -340,9 +375,22 @@ export const CustomTableRenderer = memo(function CustomTableRenderer({
           <tbody>
             {data.map((row, i) => (
               <tr key={i}>
-                {component.columns.map((col: { key: string }) => (
-                  <td key={col.key}>{String((row as Record<string, unknown>)[col.key] ?? '')}</td>
-                ))}
+                {component.columns.map((col: { key: string }) => {
+                  const raw = (row as Record<string, unknown>)[col.key] ?? '';
+                  const resolved = typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
+                    ? resolveBinding(raw)
+                    : raw;
+                  const cellValue = String(resolved ?? '');
+                  return (
+                    <td key={col.key}>
+                      {sensitiveKeys.has(col.key) && cellValue ? (
+                        <SensitiveCell value={cellValue} />
+                      ) : (
+                        cellValue
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             ))}
             {data.length === 0 && (

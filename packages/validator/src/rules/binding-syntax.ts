@@ -1,10 +1,10 @@
 import type { ValidationRule, ValidationIssue } from '../types.js';
 
-const VALID_BINDING_REGEX = /^\{\{[a-zA-Z_][a-zA-Z0-9_.]*\}\}$/;
+const VALID_BINDING_REGEX = /^\{\{[a-zA-Z_][a-zA-Z0-9_.\-]*\}\}$/;
 
-// Patterns that look like malformed bindings
-const SINGLE_BRACE_REGEX = /(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_.]*)\}(?!\})/g;
-const WHITESPACE_BINDING_REGEX = /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.]*)\s*\}\}|\{\{\s*([a-zA-Z_][a-zA-Z0-9_.]*)\s+\}\}/g;
+// Patterns that look like malformed bindings (support hyphens in kebab-case IDs)
+const SINGLE_BRACE_REGEX = /(?<!\{)\{([a-zA-Z_][a-zA-Z0-9_.\-]*)\}(?!\})/g;
+const WHITESPACE_BINDING_REGEX = /\{\{\s+([a-zA-Z_][a-zA-Z0-9_.\-]*)\s*\}\}|\{\{\s*([a-zA-Z_][a-zA-Z0-9_.\-]*)\s+\}\}/g;
 const EMPTY_BINDING_REGEX = /\{\{\s*\}\}/g;
 
 function scanForMalformedBindings(

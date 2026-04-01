@@ -14,7 +14,7 @@ export function resolveBindingPath(state: Record<string, unknown>, path: string)
 
 /** Extract binding path from a {{...}} expression */
 export function parseBindingExpression(expr: string): string | null {
-  const match = expr.match(/^\{\{([a-zA-Z_][a-zA-Z0-9_.]*)\}\}$/);
+  const match = expr.match(/^\{\{([a-zA-Z_][a-zA-Z0-9_.\-]*)\}\}$/);
   return match ? match[1] : null;
 }
 

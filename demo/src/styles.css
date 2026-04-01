@@ -560,6 +560,109 @@ body {
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
 }
 
+/* Sensitive field styles */
+.mdma-form-field--sensitive {
+  position: relative;
+}
+
+.mdma-form-field--sensitive input,
+.mdma-form-field--sensitive textarea {
+  border-color: #f59e0b;
+  background: #fffbeb;
+}
+
+.mdma-form-field--sensitive input:focus,
+.mdma-form-field--sensitive textarea:focus {
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+}
+
+.mdma-sensitive-badge {
+  font-size: 11px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.mdma-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.mdma-input-wrapper input,
+.mdma-input-wrapper textarea {
+  flex: 1;
+}
+
+.mdma-sensitive-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.mdma-sensitive-toggle:hover {
+  opacity: 1;
+}
+
+/* Table sensitive styles */
+.mdma-table-cell--sensitive {
+  cursor: pointer;
+  color: #000;
+  background: #fef3c7;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 12px;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+.mdma-table-cell--sensitive:hover {
+  background: #fde68a;
+}
+
+/* Custom glass input sensitive styles */
+.ce-field--sensitive {
+  position: relative;
+}
+
+.ce-glass-input--sensitive {
+  border-color: #f59e0b !important;
+  background: #fffbeb !important;
+}
+
+.ce-glass-input--sensitive:focus {
+  border-color: #d97706 !important;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+}
+
+/* Custom table sensitive cells */
+.custom-table-cell--sensitive {
+  cursor: pointer;
+  display: inline-block;
+  color: #000;
+  background: #fef3c7;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 12px;
+  user-select: none;
+  transition: background 0.15s;
+  letter-spacing: 1px;
+}
+
+.custom-table-cell--sensitive:hover {
+  background: #fde68a;
+}
+
 .mdma-form-field textarea {
   min-height: 80px;
   resize: vertical;
@@ -2114,7 +2217,7 @@ body {
 .custom-table td {
   padding: 10px 16px;
   font-size: 13px;
-  color: #dfe6e9;
+  color: #1a1a2e;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 }
 

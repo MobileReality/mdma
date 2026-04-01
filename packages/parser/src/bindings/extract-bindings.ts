@@ -1,4 +1,4 @@
-const BINDING_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_.]*)\}\}/g;
+const BINDING_REGEX = /\{\{([a-zA-Z_][a-zA-Z0-9_.\-]*)\}\}/g;
 
 export interface BindingReference {
   expression: string;

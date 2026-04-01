@@ -10,6 +10,8 @@ export interface FormInputElementProps {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  /** When true, the field contains PII and should be visually marked / masked. */
+  sensitive?: boolean;
 }
 
 export interface FormSelectElementProps extends FormInputElementProps {
@@ -22,6 +24,8 @@ export interface FormCheckboxElementProps {
   label: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  /** When true, the field contains PII and should be visually marked / masked. */
+  sensitive?: boolean;
 }
 
 export interface FormTextareaElementProps {
@@ -31,6 +35,8 @@ export interface FormTextareaElementProps {
   value: string;
   onChange: (value: string) => void;
   required?: boolean;
+  /** When true, the field contains PII and should be visually marked / masked. */
+  sensitive?: boolean;
 }
 
 export interface FormSubmitElementProps {
