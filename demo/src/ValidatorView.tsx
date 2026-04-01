@@ -7,7 +7,7 @@ import { validate, validateFlow, type ValidationResult, type ValidationIssue, ty
 import { buildFixerPrompt, buildFixerMessage, buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import { chatCompletion } from './llm-client.js';
 import { customizations } from './custom-components.js';
-import { VALIDATOR_PROMPT_VARIANTS, FIXER_FLOW_RULES, FLOW_STEPS } from './validator-prompts.js';
+import { VALIDATOR_PROMPT_VARIANTS, FIXER_FLOW_RULES, FIXER_CORRECT_STRUCTURE, FLOW_STEPS } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
   if (severity === 'error') return 'validator-severity--error';
@@ -340,7 +340,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
 
       const userMessage = buildFixerMessage(result.output, unfixed, {
         conversationHistory: history.length > 0 ? history : undefined,
-        promptContext: FIXER_FLOW_RULES[promptKey] ?? variant.prompt,
+        promptContext: FIXER_FLOW_RULES[promptKey] ?? FIXER_CORRECT_STRUCTURE[promptKey] ?? undefined,
       });
 
       const resolvedModel = fixerModel === '__custom__' ? customFixerModel : fixerModel;
@@ -376,10 +376,12 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
       setFixingMsgId(null);
       fixAbortRef.current = null;
     }
-  }, [validationResults, messages, config, isFixing, updateMessage, variant.prompt, fixerModel, customFixerModel, promptKey]);
+  }, [validationResults, messages, config, isFixing, updateMessage, fixerModel, customFixerModel, promptKey]);
 
   // Auto-fix with LLM when enabled and unfixed issues detected
   const autoFixTriggeredRef = useRef<Set<number>>(new Set());
+  const autoFixQueueRef = useRef<number | null>(null);
+
   useEffect(() => {
     if (!autoFixWithLlm || isFixing || isGenerating) return;
     for (const [msgId, result] of validationResults) {
@@ -387,11 +389,19 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
       const unfixed = result.issues.filter((i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'));
       if (unfixed.length > 0) {
         autoFixTriggeredRef.current.add(msgId);
-        setTimeout(() => handleRequestFix(msgId), 300);
+        autoFixQueueRef.current = msgId;
         break;
       }
     }
-  }, [validationResults, autoFixWithLlm, isFixing, isGenerating, handleRequestFix]);
+  }, [validationResults, autoFixWithLlm, isFixing, isGenerating]);
+
+  // Process the queued auto-fix in a separate effect to avoid stale closures
+  useEffect(() => {
+    if (autoFixQueueRef.current === null || isFixing || isGenerating) return;
+    const msgId = autoFixQueueRef.current;
+    autoFixQueueRef.current = null;
+    handleRequestFix(msgId);
+  }, [isFixing, isGenerating, handleRequestFix]);
 
   // Flow validation — run against all assistant messages when steps are defined
   const flowSteps = FLOW_STEPS[promptKey];

@@ -8,7 +8,9 @@ export interface ValidatorPromptVariant {
 
 const PREAMBLE = `You are an AI assistant for testing the MDMA validator.
 Generate MDMA components with intentional issues so the validator can demonstrate its detection and auto-fix capabilities.
-Generate real, useful-looking components — just with the specified intentional mistakes baked in.`;
+Generate real, useful-looking components — just with the specified intentional mistakes baked in.
+
+CRITICAL: Every component MUST be wrapped in its own fenced code block using \`\`\`mdma and \`\`\`. Never output bare YAML without fences. Each component = one separate \`\`\`mdma block. Do NOT use --- separators between components — use separate fenced blocks instead.`;
 
 export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
   {
@@ -126,17 +128,29 @@ Generate a multi-step form (like an application form) with multiple select field
     rules: ['table-data-keys', 'chart-validation'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on table and chart data issues:
+Focus ONLY on table and chart data issues. Generate a sales dashboard with these exact components, each with intentional problems:
 
-1. **Table data key mismatch** — Define table columns as [name, email, role] but include data rows with keys like [full_name, mail, position] that don't match
-2. **Missing column data** — Define a column that no data row populates
-3. **Extra data keys** — Include data row keys that aren't in the columns
-4. **Invalid chart xAxis** — Set xAxis to a header name that doesn't exist in the CSV data
-5. **Invalid chart yAxis** — Set yAxis to header names that don't exist in the CSV
-6. **Chart with only headers** — Provide CSV data with only a header row and no data rows
-7. **Bare table data binding** — Use data: some-component.rows without wrapping in {{ }}
+## Required broken components
 
-Generate a dashboard with 2 tables and 2 charts — a sales summary and a user analytics view — but with mismatched column/data keys and wrong axis references.`,
+1. \`\`\`mdma block: **table** id: \`sales-table\` — Sales summary table
+   - Columns: product (header: "Product"), revenue (header: "Revenue"), units (header: "Units Sold")
+   - BUT use wrong data keys: \`product_name\` instead of \`product\`, \`total_revenue\` instead of \`revenue\`, \`quantity\` instead of \`units\`
+   - Include 3 data rows (Widget A, Widget B, Widget C)
+
+2. \`\`\`mdma block: **chart** id: \`sales-chart\` variant: bar — Sales bar chart
+   - CSV data with headers: month,sales,returns
+   - 4 rows of data (Jan-Apr)
+   - BUT set xAxis: "date" (doesn't exist, should be "month") and yAxis: ["revenue", "refunds"] (don't exist, should be "sales", "returns")
+
+3. \`\`\`mdma block: **table** id: \`users-table\` — User analytics table
+   - Columns: name (header: "Name"), email (header: "Email", sensitive: true), signups (header: "Sign-ups")
+   - Use data: analytics-form.results (bare binding, missing {{ }})
+
+4. \`\`\`mdma block: **chart** id: \`users-chart\` variant: line — User growth line chart
+   - CSV data with ONLY a header row: week,new_users,active_users (no data rows)
+   - Set xAxis: "week", yAxis: ["new_users", "active_users"]
+
+Generate all 4 components with the intentional mismatches described above.`,
   },
   {
     key: 'flow',
@@ -170,7 +184,17 @@ Generate exactly these components in ONE message (this is intentionally wrong �
 6. \`\`\`mdma block: **webhook** id: \`notify-webhook\` url: https://api.example.com/notify, method: POST
    - Set \`trigger: missing-component\` (invalid action target — ID doesn't exist)
 
-Generate all 6 components in a single message. The validator should detect: multi-step flow errors, circular references, orphaned components, invalid action targets, and backward references.`,
+Generate all 6 components in a single message. The validator should detect: multi-step flow errors, circular references, orphaned components, invalid action targets, and backward references.
+
+## Between MDMA generations
+
+Between generating MDMA steps, the user may:
+
+1. **"Continue to the next step"** — This means the fixer has already split your broken output into step 1. Now generate ONLY step 2 (the approval-gate step) with intentional issues. Do NOT regenerate step 1.
+2. **Ask a normal question** ("What's that?", "How does this work?", etc.) — Respond conversationally in plain text. Do NOT generate any \`\`\`mdma blocks. Just answer their question about the workflow.
+3. **Click Submit/Approve/Deny** — The system auto-sends "Continue to the next step". Generate the next step only.
+
+IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked to generate a step or on the first message. For all other user messages, respond with plain text only.`,
   },
   {
     key: 'approval',
@@ -207,6 +231,39 @@ export const FIXER_FLOW_RULES: Record<string, string> = {
 - **Step 3:** Webhook \`notify-webhook\` (url: https://api.example.com/notify, method: POST) triggered by a button \`send-notification\` (text: "Send Notification"). Include a success callout \`workflow-complete\`. The webhook's trigger should point to the button.
 
 Each step must contain exactly ONE interactive component + its supporting callouts/webhooks. Do not include components from other steps.`,
+
+};
+
+/**
+ * Describes the correct component structure for each variant.
+ * Used as promptContext for the LLM fixer so it knows what the fixed output
+ * should look like — not how to break it.
+ *
+ * Keyed by variant key. Variants without an entry fall back to no promptContext.
+ */
+export const FIXER_CORRECT_STRUCTURE: Record<string, string> = {
+  'tables-charts': `This is a sales dashboard with 4 components. The correct structure:
+
+**1. sales-table** (table) — Sales summary
+- Columns: product (header: "Product"), revenue (header: "Revenue"), units (header: "Units Sold")
+- Data rows must use keys matching column keys exactly: product, revenue, units
+- 3 rows: Widget A ($50,000, 1200), Widget B ($32,000, 800), Widget C ($18,000, 450)
+
+**2. sales-chart** (chart, variant: bar) — Sales bar chart
+- CSV data with headers: month,sales,returns
+- 4 rows: Jan (12000,450), Feb (15000,380), Mar (18000,520), Apr (21000,410)
+- xAxis: "month", yAxis: ["sales", "returns"] — must match actual CSV headers
+
+**3. users-table** (table) — User analytics
+- Columns: name (header: "Name"), email (header: "Email", sensitive: true), signups (header: "Sign-ups")
+- Data must be wrapped in binding syntax: data: "{{analytics-form.results}}"
+
+**4. users-chart** (chart, variant: line) — User growth
+- CSV data with headers: week,new_users,active_users
+- Must have at least 4 data rows (Week 1-4) with actual numeric data
+- xAxis: "week", yAxis: ["new_users", "active_users"]
+
+All table data keys must exactly match their column keys. All chart axes must reference actual CSV headers. Charts must have data rows, not just headers.`,
 };
 
 /**

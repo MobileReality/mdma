@@ -360,4 +360,107 @@ onSubmit: step-info
     expect(result.output).toContain('step-info');
     expect(result.output).toContain('my-form');
   });
+
+  describe('unfenced MDMA detection', () => {
+    it('flags MDMA-like YAML outside of fenced blocks', () => {
+      const md = `# Dashboard
+
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+`;
+      const result = validate(md);
+      expect(result.ok).toBe(false);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(1);
+      expect(unfenced[0].message).toContain('type: form');
+    });
+
+    it('detects multiple unfenced components', () => {
+      const md = `
+type: form
+id: my-form
+fields:
+  - name: name
+    type: text
+    label: Name
+
+---
+
+type: approval-gate
+id: my-gate
+title: Approval
+
+---
+
+type: webhook
+id: my-hook
+url: https://example.com
+trigger: my-form
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(3);
+      expect(unfenced.map((i) => i.message)).toEqual(
+        expect.arrayContaining([
+          expect.stringContaining('type: form'),
+          expect.stringContaining('type: approval-gate'),
+          expect.stringContaining('type: webhook'),
+        ]),
+      );
+    });
+
+    it('does not flag components inside fenced blocks', () => {
+      const md = `# Valid
+
+\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
+    it('does not flag type fields inside non-mdma code blocks', () => {
+      const md = `# Example
+
+\`\`\`yaml
+type: form
+id: example
+\`\`\`
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
+    it('does not flag unknown types outside fenced blocks', () => {
+      const md = `
+type: card
+id: some-card
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+  });
 });

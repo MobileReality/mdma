@@ -83,7 +83,8 @@ export const MDMA_FIXER_FORMS = `
 |-------|-----------|
 | \`Missing options on select field\` | Add an \`options\` array with \`{label, value}\` objects. Generate realistic options for the field context. |
 | \`field is likely a typo\` | Rename the field to the suggested correct name (e.g. \`onClick\` → \`onAction\`, \`submit\` → \`onSubmit\`) |
-| \`placeholder content\` | Replace placeholder text like "TODO", "TBD", "FIXME", "...", or "Lorem ipsum" with real, meaningful content appropriate to the context. NEVER keep placeholder text — always replace it. |`;
+| \`placeholder content\` | Replace placeholder text like "TODO", "TBD", "FIXME", "...", or "Lorem ipsum" with real, meaningful content appropriate to the context. NEVER keep placeholder text — always replace it. |
+| \`outside of a \\\`\\\`\\\`mdma fenced block\` | The YAML component is missing its fenced code block wrapper. Wrap it in \`\`\`mdma ... \`\`\`. Each component must be in its own separate fenced block. |`;
 
 /**
  * Extension: Table & chart fixes.
