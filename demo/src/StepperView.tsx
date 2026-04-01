@@ -1,3 +1,6 @@
+// OUTDATED: This file was part of an experiment with a step-by-step form generation flow. It is no longer actively maintained and may contain outdated code. Use for reference only.
+
+
 import { useRef, useEffect, useState, useCallback, useMemo } from 'react';
 import { useChat } from './chat/use-chat.js';
 import { ChatSettings } from './chat/ChatSettings.js';

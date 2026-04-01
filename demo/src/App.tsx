@@ -44,7 +44,6 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Tools',
     items: [
       { mode: 'validator', label: 'Validator' },
-      { mode: 'stepper', label: 'Stepper' },
     ],
   },
 ];
@@ -192,9 +191,7 @@ export function App() {
         </div>
       </header>
 
-      {mode === 'stepper' ? (
-        <StepperView />
-      ) : mode === 'validator' ? (
+      {mode === 'validator' ? (
         <ValidatorView />
       ) : mode === 'playground' ? (
         <PlaygroundView />
