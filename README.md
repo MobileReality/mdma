@@ -321,7 +321,10 @@ pnpm eval:view
 ### v0.2 — Developer Experience
 - [x] More examples (14 real-world use cases)
 - [x] CLI tool for prompt creation (MDMA flows)
-- [ ] Improved error messages in parser and validator
+- [x] Improved validator
+- [ ] Added MCP
+- [ ] Added Skills for Agentic usage
+- [ ] Improved error messages in parser
 - [ ] File upload field type for forms
 
 ### v0.3 — AI & Generation
