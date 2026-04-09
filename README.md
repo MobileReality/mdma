@@ -231,6 +231,7 @@ function App({ ast, store }) {
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 10 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding resolution, and PII sensitivity. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
+| `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
 | `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 4 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), multi-turn conversation handling (11 conversations, 25 turns), and prompt builder verification (25 tests). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
 
 ## Architecture
@@ -244,6 +245,7 @@ function App({ ast, store }) {
         └── @mobile-reality/mdma-attachables-core   Component handlers
               └── @mobile-reality/mdma-renderer-react   React components
 @mobile-reality/mdma-cli                   CLI prompt builder + validation
+@mobile-reality/mdma-mcp                   MCP server for AI assistants
 @mobile-reality/mdma-evals                 LLM evaluation suite (promptfoo)
 ```
 
@@ -284,6 +286,63 @@ const systemPrompt = buildSystemPrompt({
 });
 ```
 
+## MCP Server
+
+MCP (Model Context Protocol) server that lets AI assistants understand and work with MDMA.
+
+### Setup
+
+Add to your AI tool config (Claude Desktop, VS Code, Cursor, etc.):
+
+```json
+{
+  "mcpServers": {
+    "mdma": {
+      "command": "npx",
+      "args": ["@mobile-reality/mdma-mcp"]
+    }
+  }
+}
+```
+
+### Tools
+
+| Tool | Description |
+|------|-------------|
+| `get-spec` | Returns the full MDMA specification: component types, JSON schemas, binding syntax, and authoring rules |
+| `get-prompt` | Returns a named prompt (`mdma-author`, `mdma-reviewer`, or `mdma-fixer`) |
+| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules) |
+| `validate-prompt` | Validates a custom prompt against MDMA conventions — returns warnings, suggestions, and constraint reference |
+| `list-packages` | Returns all MDMA packages with purpose, install command, and usage example |
+
+### Example: Building a prompt with structured input
+
+An AI agent calls `build-system-prompt` with:
+
+```json
+{
+  "domain": "HR onboarding",
+  "components": ["form", "approval-gate", "webhook"],
+  "fields": [
+    { "name": "email", "type": "email", "sensitive": true, "required": true },
+    { "name": "department", "type": "select", "options": ["Engineering", "Marketing"] }
+  ],
+  "steps": [
+    { "label": "Registration", "description": "Employee fills in personal details" },
+    { "label": "Approval", "description": "Manager reviews and approves" }
+  ],
+  "businessRules": "All PII fields must be marked sensitive."
+}
+```
+
+The tool returns a structured custom prompt ready to use with `buildSystemPrompt({ customPrompt })`.
+
+### Testing locally
+
+```bash
+npx @modelcontextprotocol/inspector node packages/mcp/dist/bin/mdma-mcp.js
+```
+
 ## Evals
 
 LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/) to verify MDMA generation quality.
@@ -322,7 +381,7 @@ pnpm eval:view
 - [x] More examples (14 real-world use cases)
 - [x] CLI tool for prompt creation (MDMA flows)
 - [x] Improved validator
-- [ ] Added MCP
+- [x] Added MCP
 - [ ] Added Skills for Agentic usage
 - [ ] Improved error messages in parser
 - [ ] File upload field type for forms
