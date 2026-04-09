@@ -343,6 +343,21 @@ The tool returns a structured custom prompt ready to use with `buildSystemPrompt
 npx @modelcontextprotocol/inspector node packages/mcp/dist/bin/mdma-mcp.js
 ```
 
+### MCP vs No-MCP: Agent Implementation Comparison
+
+We tested building the same MDMA chat app with two AI agents — one with the MCP server enabled, one without. Here's what happened:
+
+| Aspect | With MCP | Without MCP |
+|--------|----------|-------------|
+| **Package discovery** | Agent called `list-packages` — got all 9 packages with install commands and usage in one step | Agent had to read README, explore repo, and piece together which packages exist |
+| **Spec knowledge** | Agent called `get-spec` — received all 9 component types with JSON schemas, binding syntax, and authoring rules | Agent had to read source files across multiple packages to understand component types |
+| **Prompt setup** | Agent called `get-prompt("mdma-author")` — got the exact system prompt ready to use | Agent had to find `mdma-prompt-pack`, understand `buildSystemPrompt()`, and figure out how to use it |
+| **Time to working app** | Agent knew the right packages, APIs, and patterns from the start — fewer wrong turns | Agent spent significant time exploring, reading docs, and backtracking on wrong approaches |
+| **Code quality** | Focused implementation — agent used exactly the right APIs because MCP told it what exists | More verbose — agent implemented some things manually that packages already provided |
+
+**Key takeaway:** The MCP server eliminated the discovery phase entirely. Instead of the agent reading source code to understand MDMA, it called 3 tools (`list-packages` → `get-spec` → `get-prompt`) and had complete, structured knowledge of the ecosystem within seconds.
+
+
 ## Evals
 
 LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/) to verify MDMA generation quality.
