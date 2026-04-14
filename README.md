@@ -314,6 +314,8 @@ Add to your AI tool config (Claude Desktop, VS Code, Cursor, etc.):
 | `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules) |
 | `validate-prompt` | Validates a custom prompt against MDMA conventions — returns warnings, suggestions, and constraint reference |
 | `list-packages` | Returns all MDMA packages with purpose, install command, and usage example |
+| `list-docs` | Returns the catalog of MDMA documentation files (path, title, description) available for fetching from the public GitHub repo |
+| `get-doc` | Fetches the latest version of an MDMA documentation file from `raw.githubusercontent.com/MobileReality/mdma`. Supports optional `ref` (branch/tag/SHA, defaults to `main`) |
 
 ### Example: Building a prompt with structured input
 
@@ -358,6 +360,19 @@ We tested building the same MDMA chat app with two AI agents — one with the MC
 **Key takeaway:** The MCP server eliminated the discovery phase entirely. Instead of the agent reading source code to understand MDMA, it called 3 tools (`list-packages` → `get-spec` → `get-prompt`) and had complete, structured knowledge of the ecosystem within seconds.
 
 
+## Skills
+
+Agent-authoring guidance packaged as a portable [Agent Skill](https://docs.claude.com/en/docs/claude-code/skills) (compatible with Claude Code, the Agent SDK, and any harness that consumes `SKILL.md`).
+
+| Skill | Path | Purpose |
+|-------|------|---------|
+| `mdma-integration` | [skills/mdma-integration/SKILL.md](skills/mdma-integration/SKILL.md) | Teaches agents how to integrate MDMA into an application — package selection, parse → store → render wiring, LLM streaming (with the `updateAst` reparse pattern), custom components, prompt authoring & maintenance, CI validation, and MCP exposure. |
+
+The skill is intentionally portable: every code sample is inline and every reference uses `@mobile-reality/mdma-*` package names, so it works when dropped into a project that only installs the published packages. Drop the folder into `.claude/skills/` (Claude Code), your Agent SDK skills directory, or any compatible location.
+
+Paired with the MCP server, an agent gets both *how to think about the integration* (skill) and *live access to spec, prompts, and docs* (MCP tools) — the skill tells it to call `buildSystemPrompt` / `validate` / `updateAst`, and the MCP tools give it the actual spec and docs to do so correctly.
+
+
 ## Evals
 
 LLM evaluation suite using [promptfoo](https://www.promptfoo.dev/) to verify MDMA generation quality.
@@ -397,7 +412,7 @@ pnpm eval:view
 - [x] CLI tool for prompt creation (MDMA flows)
 - [x] Improved validator
 - [x] Added MCP
-- [ ] Added Skills for Agentic usage
+- [x] Added Skills for Agentic usage
 - [ ] Improved error messages in parser
 - [ ] File upload field type for forms
 
