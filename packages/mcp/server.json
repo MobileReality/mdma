@@ -1,0 +1,21 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.MobileReality/mdma",
+  "description": "MCP server for MDMA — exposes spec, prompts, docs, and package metadata to AI assistants.",
+  "repository": {
+    "url": "https://github.com/MobileReality/mdma",
+    "source": "github",
+    "subfolder": "packages/mcp"
+  },
+  "version": "0.2.4",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@mobile-reality/mdma-mcp",
+      "version": "0.2.4",
+      "transport": {
+        "type": "stdio"
+      }
+    }
+  ]
+}
