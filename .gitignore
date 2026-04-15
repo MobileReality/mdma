@@ -14,3 +14,7 @@ evals/results*.json
 
 # Claude Code
 .claude/
+
+# mcp-publisher auth tokens (contain GitHub OAuth token + registry JWT)
+.mcpregistry_github_token
+.mcpregistry_registry_token
