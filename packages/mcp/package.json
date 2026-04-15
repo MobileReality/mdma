@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-mcp",
-  "version": "0.2.2",
+  "version": "0.2.3",
+  "mcpName": "io.github.mobilereality/mdma",
   "type": "module",
   "bin": {
     "mdma-mcp": "./dist/bin/mdma-mcp.js"

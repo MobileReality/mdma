@@ -10,7 +10,7 @@ import { listDocs, getDoc } from './tools/get-doc.js';
 export function createMdmaMcpServer(): McpServer {
   const server = new McpServer({
     name: 'mdma-mcp',
-    version: '0.2.2',
+    version: '0.2.3',
   });
 
   server.tool(
