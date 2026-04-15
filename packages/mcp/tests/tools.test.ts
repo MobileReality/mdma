@@ -1,9 +1,10 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { getSpec } from '../src/tools/get-spec.js';
 import { getPrompt } from '../src/tools/get-prompt.js';
 import { buildPrompt } from '../src/tools/build-system-prompt.js';
 import { validatePrompt } from '../src/tools/validate-prompt.js';
 import { listPackages } from '../src/tools/list-packages.js';
+import { listDocs, getDoc, isAllowedPath } from '../src/tools/get-doc.js';
 
 describe('get-spec', () => {
   it('returns spec with all 9 component types', () => {
@@ -166,5 +167,129 @@ describe('list-packages', () => {
   it('includes the mcp package itself', () => {
     const packages = listPackages();
     expect(packages.some((p) => p.name === '@mobile-reality/mdma-mcp')).toBe(true);
+  });
+});
+
+describe('list-docs', () => {
+  it('returns a non-empty catalog', () => {
+    const docs = listDocs();
+    expect(docs.length).toBeGreaterThan(0);
+  });
+
+  it('every entry has path, title, description', () => {
+    for (const doc of listDocs()) {
+      expect(doc.path).toMatch(/\.md$/);
+      expect(doc.title.length).toBeGreaterThan(0);
+      expect(doc.description.length).toBeGreaterThan(10);
+    }
+  });
+
+  it('includes the README and the quick-start guide', () => {
+    const paths = listDocs().map((d) => d.path);
+    expect(paths).toContain('README.md');
+    expect(paths).toContain('docs/getting-started/quick-start.md');
+  });
+});
+
+describe('isAllowedPath', () => {
+  it('accepts catalog entries', () => {
+    expect(isAllowedPath('README.md')).toBe(true);
+    expect(isAllowedPath('docs/getting-started/quick-start.md')).toBe(true);
+  });
+
+  it('accepts any *.md under docs/ or blueprints/', () => {
+    expect(isAllowedPath('docs/whatever/new-guide.md')).toBe(true);
+    expect(isAllowedPath('blueprints/kyc-case/README.md')).toBe(true);
+  });
+
+  it('rejects path traversal', () => {
+    expect(isAllowedPath('../etc/passwd')).toBe(false);
+    expect(isAllowedPath('docs/../../secret.md')).toBe(false);
+  });
+
+  it('rejects absolute paths', () => {
+    expect(isAllowedPath('/etc/passwd')).toBe(false);
+  });
+
+  it('rejects non-markdown files outside the catalog', () => {
+    expect(isAllowedPath('docs/foo.json')).toBe(false);
+    expect(isAllowedPath('package.json')).toBe(false);
+  });
+
+  it('rejects empty path', () => {
+    expect(isAllowedPath('')).toBe(false);
+  });
+});
+
+describe('get-doc', () => {
+  const originalFetch = globalThis.fetch;
+
+  beforeEach(() => {
+    globalThis.fetch = vi.fn() as unknown as typeof fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+    vi.restoreAllMocks();
+  });
+
+  it('rejects disallowed paths without making a network request', async () => {
+    const result = await getDoc('../secret');
+    expect('error' in result).toBe(true);
+    expect(globalThis.fetch).not.toHaveBeenCalled();
+  });
+
+  it('fetches from raw.githubusercontent.com on the main branch by default', async () => {
+    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      text: async () => '# Quick Start\n\nHello',
+    });
+    const result = await getDoc('docs/getting-started/quick-start.md');
+    expect('content' in result).toBe(true);
+    if ('content' in result) {
+      expect(result.ref).toBe('main');
+      expect(result.url).toBe(
+        'https://raw.githubusercontent.com/MobileReality/mdma/main/docs/getting-started/quick-start.md',
+      );
+      expect(result.content).toContain('Quick Start');
+    }
+  });
+
+  it('honours a custom ref', async () => {
+    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      status: 200,
+      statusText: 'OK',
+      text: async () => 'tagged',
+    });
+    const result = await getDoc('README.md', 'v0.2.0');
+    if ('content' in result) {
+      expect(result.url).toContain('/v0.2.0/');
+    }
+  });
+
+  it('returns an error on non-2xx responses', async () => {
+    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: false,
+      status: 404,
+      statusText: 'Not Found',
+      text: async () => '',
+    });
+    const result = await getDoc('README.md');
+    expect('error' in result).toBe(true);
+    if ('error' in result) {
+      expect(result.error).toContain('404');
+    }
+  });
+
+  it('returns an error on network failure', async () => {
+    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('ENETUNREACH'));
+    const result = await getDoc('README.md');
+    expect('error' in result).toBe(true);
+    if ('error' in result) {
+      expect(result.error).toContain('ENETUNREACH');
+    }
   });
 });

@@ -5,11 +5,12 @@ import { getPrompt } from './tools/get-prompt.js';
 import { buildPrompt } from './tools/build-system-prompt.js';
 import { validatePrompt } from './tools/validate-prompt.js';
 import { listPackages } from './tools/list-packages.js';
+import { listDocs, getDoc } from './tools/get-doc.js';
 
 export function createMdmaMcpServer(): McpServer {
   const server = new McpServer({
     name: 'mdma-mcp',
-    version: '0.2.0',
+    version: '0.2.2',
   });
 
   server.tool(
@@ -77,6 +78,35 @@ export function createMdmaMcpServer(): McpServer {
     }),
   );
 
+  server.tool(
+    'list-docs',
+    'Returns the catalog of MDMA documentation files available for fetching from the public GitHub repo (path, title, description). Use this to discover what docs you can pass to get-doc.',
+    {},
+    async () => ({
+      content: [{ type: 'text', text: JSON.stringify(listDocs(), null, 2) }],
+    }),
+  );
+
+  server.tool(
+    'get-doc',
+    'Fetches the latest version of an MDMA documentation file from the public GitHub repo (raw.githubusercontent.com/MobileReality/mdma) and returns its contents as text. Allowed paths: any entry from list-docs, plus any *.md file under "docs/" or "blueprints/". Defaults to the "main" branch.',
+    {
+      path: z.string().describe('Repo-relative path to the doc, e.g. "docs/getting-started/quick-start.md" or "blueprints/kyc-case/README.md"'),
+      ref: z.string().optional().describe('Git ref (branch, tag, or commit SHA). Defaults to "main".'),
+    },
+    async ({ path, ref }) => {
+      const result = await getDoc(path, ref);
+      if ('error' in result) {
+        return { content: [{ type: 'text', text: result.error }], isError: true };
+      }
+      return {
+        content: [
+          { type: 'text', text: `# Source: ${result.url}\n\n${result.content}` },
+        ],
+      };
+    },
+  );
+
   return server;
 }
 
@@ -85,3 +115,4 @@ export { getPrompt } from './tools/get-prompt.js';
 export { buildPrompt, type BuildPromptInput, type FieldDefinition, type FlowStep } from './tools/build-system-prompt.js';
 export { validatePrompt, type PromptValidationResult, type PromptConstraints } from './tools/validate-prompt.js';
 export { listPackages, type PackageInfo } from './tools/list-packages.js';
+export { listDocs, getDoc, isAllowedPath, type DocEntry, type GetDocResult, type GetDocSuccess, type GetDocError } from './tools/get-doc.js';
