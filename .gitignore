@@ -18,3 +18,6 @@ evals/results*.json
 # mcp-publisher tokens
 .mcpregistry_github_token
 .mcpregistry_registry_token
+
+# MCPB bundle build artifacts
+*.mcpb

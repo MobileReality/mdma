@@ -1,0 +1,81 @@
+{
+  "manifest_version": "0.2",
+  "name": "@mobile-reality/mdma-mcp",
+  "display_name": "MDMA",
+  "version": "0.2.4",
+  "description": "MCP server for MDMA — exposes spec, prompts, docs, and package metadata to AI assistants.",
+  "long_description": "Provides AI assistants with structured access to MDMA (Markdown Document with Mounted Applications) — an open-source library for building interactive Markdown documents with forms, approval gates, tables, and other mounted components. Use this server when developing chat apps, agents, or tools that generate MDMA documents: it exposes the format spec, authoring prompts, package metadata, and always-fresh docs fetched straight from the GitHub repository. Tools included: get-spec, get-prompt, build-system-prompt, validate-prompt, list-packages, list-docs, get-doc. Built and maintained by Mobile Reality — https://github.com/MobileReality/mdma",
+  "author": {
+    "name": "Mobile Reality",
+    "email": "marcin.sadowski@mobilereality.pl",
+    "url": "https://github.com/MobileReality"
+  },
+  "homepage": "https://themobilereality.com/",
+  "documentation": "https://github.com/MobileReality/mdma#readme",
+  "support": "https://themobilereality.com/contact-us",
+  "icon": "icon.png",
+  "screenshots": [
+    "screenshots/1.png",
+    "screenshots/2.png",
+    "screenshots/3.png",
+    "screenshots/4.png"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "dist/bin/mdma-mcp.js",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/dist/bin/mdma-mcp.js"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "get-spec",
+      "description": "Returns the full MDMA specification: component types, JSON schemas, binding syntax, and authoring rules."
+    },
+    {
+      "name": "get-prompt",
+      "description": "Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer)."
+    },
+    {
+      "name": "build-system-prompt",
+      "description": "Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules)."
+    },
+    {
+      "name": "validate-prompt",
+      "description": "Validates a custom prompt against MDMA conventions — returns warnings and suggestions."
+    },
+    {
+      "name": "list-packages",
+      "description": "Returns all MDMA npm packages with purpose, install command, usage example, and category."
+    },
+    {
+      "name": "list-docs",
+      "description": "Returns the catalog of MDMA documentation files available for fetching from the public GitHub repo."
+    },
+    {
+      "name": "get-doc",
+      "description": "Fetches the latest version of an MDMA doc from raw.githubusercontent.com/MobileReality/mdma. Supports an optional ref (branch, tag, or commit SHA)."
+    }
+  ],
+  "keywords": [
+    "mcp",
+    "mcp-server",
+    "model-context-protocol",
+    "mdma",
+    "agents",
+    "llm",
+    "generative-ui",
+    "interactive-markdown",
+    "markdown",
+    "documentation"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobileReality/mdma.git"
+  }
+}
