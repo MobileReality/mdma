@@ -36,8 +36,6 @@ Places where MDMA's MCP server is published or should be published. Each venue h
 | **awesome-mcp-servers** | `punkpeye/awesome-mcp-servers` | Entry sits under **Developer Tools** alphabetically. |
 | **Smithery Skills** | `mobilereality/mdma` | Skills surface — not the MCP surface (Smithery's MCP flow is HTTP-only, unusable for stdio). |
 | **MCPB Desktop Extensions** | Anthropic intake form | Partner queue at Anthropic. Bundle built locally; not shipped in this repo. |
-| **GitHub topic tags** | repo `MobileReality/mdma` | Add `mcp-server`, `claude-skill`, `agent-skill`, etc. via repo Settings. |
-| **modelcontextprotocol/servers** | official community list | Higher signal than awesome-mcp-servers; file a PR when ready. |
 
 ## Release checklist — when bumping the version
 
