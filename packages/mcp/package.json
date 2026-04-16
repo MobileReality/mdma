@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-mcp",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "mcpName": "io.github.MobileReality/mdma",
   "type": "module",
   "bin": {
@@ -30,8 +30,12 @@
     "vitest": "^3.2.0",
     "zod": "^3.24.0"
   },
-  "files": ["dist"],
-  "publishConfig": { "access": "public" },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MobileReality/mdma.git",
