@@ -177,6 +177,53 @@ fields:
     expect(result.output).toContain('Phone Number');
   });
 
+  describe('unknown component types', () => {
+    it('suggests closest type for a typo', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+      expect(unknownIssues).toHaveLength(3);
+
+      // "frm" → did you mean "form"?
+      const typo = unknownIssues.find((i) => i.message.includes('"frm"'));
+      expect(typo).toBeDefined();
+      expect(typo!.message).toContain('did you mean "form"');
+      expect(typo!.message).toContain('Valid types:');
+    });
+
+    it('suggests closest type for separator mismatch', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+
+      // "approval_gate" → did you mean "approval-gate"?
+      const separator = unknownIssues.find((i) => i.message.includes('"approval_gate"'));
+      expect(separator).toBeDefined();
+      expect(separator!.message).toContain('did you mean "approval-gate"');
+    });
+
+    it('does not suggest when type is completely unrelated', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+
+      // "zzzzzzz" → no suggestion, but still lists valid types
+      const noMatch = unknownIssues.find((i) => i.message.includes('"zzzzzzz"'));
+      expect(noMatch).toBeDefined();
+      expect(noMatch!.message).not.toContain('did you mean');
+      expect(noMatch!.message).toContain('Valid types:');
+    });
+  });
+
   it('returns empty issues for markdown with no mdma blocks', () => {
     const result = validate('# Just a heading\n\nSome text.\n');
     expect(result.ok).toBe(true);
