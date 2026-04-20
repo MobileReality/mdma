@@ -81,6 +81,50 @@ key: value
     expect(blocks).toHaveLength(0);
   });
 
+  it('strips YAML document separators and parses successfully', () => {
+    const md = `\`\`\`mdma
+---
+type: callout
+id: notice
+content: Hello
+---
+\`\`\`
+`;
+    const blocks = extractMdmaBlocksFromMarkdown(md);
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].data).toEqual({
+      type: 'callout',
+      id: 'notice',
+      content: 'Hello',
+    });
+    expect(blocks[0].yamlSanitized).toBe(true);
+  });
+
+  it('splits multi-component block into separate blocks', () => {
+    const md = `\`\`\`mdma
+type: callout
+id: step-info
+variant: info
+content: Please fill in your details.
+
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+`;
+    const blocks = extractMdmaBlocksFromMarkdown(md);
+    expect(blocks).toHaveLength(2);
+    expect(blocks[0].data?.type).toBe('callout');
+    expect(blocks[0].data?.id).toBe('step-info');
+    expect(blocks[1].data?.type).toBe('form');
+    expect(blocks[1].data?.id).toBe('my-form');
+    expect(blocks[0].splitFrom).toBeDefined();
+    expect(blocks[1].splitFrom).toBeDefined();
+  });
+
   it('captures correct offsets', () => {
     const md = '# Title\n\n```mdma\ntype: callout\nid: test\ncontent: Hello\n```\n';
     const blocks = extractMdmaBlocksFromMarkdown(md);

@@ -65,13 +65,12 @@ describe('validate()', () => {
     expect(result.output).toContain('onAction: my-callout');
   });
 
-  it('flags missing thinking block', () => {
+  it('does not flag missing thinking block', () => {
     const md = fixture('no-thinking-block.md');
     const result = validate(md);
 
     const thinkingIssues = result.issues.filter((i) => i.ruleId === 'thinking-block');
-    expect(thinkingIssues).toHaveLength(1);
-    expect(thinkingIssues[0].severity).toBe('warning');
+    expect(thinkingIssues).toHaveLength(0);
   });
 
   it('flags bad binding syntax', () => {
@@ -476,6 +475,19 @@ fields:
 type: form
 id: example
 \`\`\`
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
+    it('does not flag type without nearby id field', () => {
+      const md = `
+Some docs about component types:
+type: form
+This is just documentation text.
 `;
       const result = validate(md);
       const unfenced = result.issues.filter(

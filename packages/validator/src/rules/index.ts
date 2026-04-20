@@ -5,7 +5,9 @@ import { schemaConformanceRule } from './schema-conformance.js';
 import { duplicateIdsRule } from './duplicate-ids.js';
 import { idFormatRule } from './id-format.js';
 import { bindingSyntaxRule } from './binding-syntax.js';
-import { bindingResolutionRule } from './binding-resolution.js';
+// Disabled: binding-resolution checks intra-message bindings but components
+// and their bindings are never generated in the same message.
+// import { bindingResolutionRule } from './binding-resolution.js';
 import { actionReferencesRule } from './action-references.js';
 import { sensitiveFlagsRule } from './sensitive-flags.js';
 import { requiredMarkersRule } from './required-markers.js';
@@ -33,7 +35,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   duplicateIdsRule,
   idFormatRule,
   bindingSyntaxRule,
-  bindingResolutionRule,
+  // bindingResolutionRule,
   actionReferencesRule,
   sensitiveFlagsRule,
   requiredMarkersRule,
