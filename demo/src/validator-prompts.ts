@@ -41,7 +41,7 @@ export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
     key: 'structure',
     label: 'Structure & YAML',
     description: 'YAML correctness, duplicate IDs, ID format, schema conformance',
-    rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format'],
+    rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on structural and YAML issues. Generate an event registration system with these exact components, each with intentional structural problems:
@@ -94,7 +94,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'bindings',
     label: 'Bindings & References',
     description: 'Binding syntax, resolution, deep field validation, action references',
-    rules: ['binding-syntax', 'binding-resolution', 'action-references'],
+    rules: ['binding-syntax', 'binding-resolution', 'action-references', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on binding and reference issues. Generate a contact submission workflow with these exact components, each with intentional binding/reference problems:
@@ -146,7 +146,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'pii',
     label: 'PII & Sensitive Data',
     description: 'Sensitive flags, required markers',
-    rules: ['sensitive-flags', 'required-markers'],
+    rules: ['sensitive-flags', 'required-markers', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on PII and data sensitivity issues. Generate a KYC (Know Your Customer) verification form with these exact components, each missing sensitive/required flags:
@@ -192,7 +192,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'forms',
     label: 'Form Validation',
     description: 'Select options, field name typos, placeholder content, expected components',
-    rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components'],
+    rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on form-specific issues. Generate a single job application form with intentional problems:
@@ -232,7 +232,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'tables-charts',
     label: 'Tables & Charts',
     description: 'Table data keys, chart axis validation',
-    rules: ['table-data-keys', 'chart-validation'],
+    rules: ['table-data-keys', 'chart-validation', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on table and chart data issues. Generate a sales dashboard with these exact components, each with intentional problems:
@@ -262,8 +262,8 @@ Generate all 4 components with the intentional mismatches described above.`,
   {
     key: 'flow',
     label: 'Stepper Flow',
-    description: 'Flow ordering, unreferenced components, action targets, expected components',
-    rules: ['flow-ordering', 'unreferenced-components', 'action-references', 'expected-components'],
+    description: 'Flow ordering, thinking block, action targets, expected components',
+    rules: ['flow-ordering', 'thinking-block', 'action-references', 'expected-components'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on component flow and reference issues. Generate a user registration and approval workflow with ALL of these intentional problems:
@@ -307,7 +307,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked to generate a s
     key: 'approval',
     label: 'Approval & Webhooks',
     description: 'Field name typos on approval-gate, action references on webhooks',
-    rules: ['field-name-typos', 'action-references', 'schema-conformance'],
+    rules: ['field-name-typos', 'action-references', 'schema-conformance', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on approval gate and webhook issues. Generate an expense approval workflow with these exact components, each with intentional problems:
@@ -611,21 +611,31 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
  */
 export const FLOW_EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>[]> = {
   flow: [
-    // Step 1: Registration form
+    // Step 1: Registration form + success callout
     {
       'registration-form': {
         type: 'form',
         fields: ['full-name', 'email', 'department'],
+        actions: { onSubmit: 'registration-submitted' },
       },
+      'registration-submitted': { type: 'callout' },
     },
-    // Step 2: Approval gate
+    // Step 2: Approval gate + success callout
     {
-      'approval-gate': { type: 'approval-gate' },
+      'approval-gate': {
+        type: 'approval-gate',
+        actions: { onApprove: 'approval-complete' },
+      },
+      'approval-complete': { type: 'callout' },
     },
-    // Step 3: Webhook + button
+    // Step 3: Webhook + button + success callout
     {
-      'notify-webhook': { type: 'webhook' },
+      'notify-webhook': {
+        type: 'webhook',
+        actions: { trigger: 'send-notification' },
+      },
       'send-notification': { type: 'button' },
+      'workflow-complete': { type: 'callout' },
     },
   ],
 };
