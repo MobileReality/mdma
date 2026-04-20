@@ -327,7 +327,7 @@ const result = validate(markdown, {
 | `chart-validation` | warning | -- | Chart CSV data has headers + data rows. `xAxis`/`yAxis` reference actual CSV column headers. |
 | `placeholder-content` | info | -- | Catches `TODO`, `TBD`, `FIXME`, `...`, `lorem ipsum` in content fields. |
 | `flow-ordering` | error/info | -- | Forward-only action references, no circular refs, one interactive component type per message. Detects regenerated components from prior conversation turns. |
-| `expected-components` | error | -- | Verifies the LLM generated the expected components with correct types, form fields, and table columns. |
+| `expected-components` | error | -- | Verifies that components present in the message match their expected types, form fields, and table columns. Components not in the message are silently skipped — useful for multi-turn flows where you pass all expected components upfront. |
 
 ### Auto-fix Pipeline
 
@@ -342,25 +342,33 @@ When `autoFix: true` (default), 6 fix strategies run in strict dependency order:
 
 ### Expected Components
 
-Pass expected component shapes to verify the LLM generated what was requested:
+When you need to guarantee that the LLM generates specific critical components for the user (e.g. a form with required fields, a table with specific columns), pass their expected shapes to the validator. The rule only validates components that are actually present in the current message — components not found are silently skipped. This makes it safe to pass the full set of expected components across a multi-turn flow:
 
 ```typescript
-const result = validate(markdown, {
-  expectedComponents: {
-    'contact-form': {
-      type: 'form',
-      fields: ['email', 'phone', 'full-name'],
-    },
-    'users-table': {
-      type: 'table',
-      columns: ['name', 'email', 'status'],
-    },
-    'submit-btn': { type: 'button' },
+// Define all expected components once (e.g. from a blueprint or flow definition)
+const expectedComponents = {
+  'contact-form': {
+    type: 'form',
+    fields: ['email', 'phone', 'full-name'],
   },
-});
+  'approval-gate': { type: 'approval-gate' },
+  'submit-btn': { type: 'button' },
+};
+
+// Pass the same set to every message — the rule checks only what's present
+const result = validate(message1, { expectedComponents });
+// Message 1 contains contact-form → validates type + fields
+// approval-gate and submit-btn not in this message → skipped
+
+const result2 = validate(message2, { expectedComponents });
+// Message 2 contains approval-gate → validates type
+// contact-form and submit-btn not in this message → skipped
 ```
 
-The rule checks: does each component exist? Is the type correct? Are all expected form fields and table columns present? Lists available fields/columns on mismatch.
+For each component found in the message, the rule checks:
+- Is the type correct?
+- Are all expected form fields present? (lists available fields on mismatch)
+- Are all expected table columns present? (lists available columns on mismatch)
 
 ### LLM Error Recovery
 
