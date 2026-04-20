@@ -16,7 +16,9 @@ import { tableDataKeysRule } from './table-data-keys.js';
 import { selectOptionsRule } from './select-options.js';
 import { chartValidationRule } from './chart-validation.js';
 import { placeholderContentRule } from './placeholder-content.js';
-import { unreferencedComponentsRule } from './unreferenced-components.js';
+// Disabled: unreferenced-components checks intra-message references but components
+// are often referenced across messages in a multi-turn conversation.
+// import { unreferencedComponentsRule } from './unreferenced-components.js';
 import { flowOrderingRule } from './flow-ordering.js';
 
 /**
@@ -44,7 +46,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   selectOptionsRule,
   chartValidationRule,
   placeholderContentRule,
-  unreferencedComponentsRule,
+  // unreferencedComponentsRule,
   flowOrderingRule,
 ];
 
