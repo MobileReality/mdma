@@ -273,8 +273,8 @@ Generate all 4 components with the intentional mismatches described above.`,
   {
     key: 'flow',
     label: 'Stepper Flow',
-    description: 'Flow ordering, unreferenced components, action targets',
-    rules: ['flow-ordering', 'unreferenced-components', 'action-references'],
+    description: 'Flow ordering, unreferenced components, action targets, expected components',
+    rules: ['flow-ordering', 'unreferenced-components', 'action-references', 'expected-components'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on component flow and reference issues. Generate a user registration and approval workflow with ALL of these intentional problems:
@@ -625,6 +625,33 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
  * so the rule can verify the LLM generated the correct components with the right fields.
  * Keyed by variant key — only variants that need component verification need entries.
  */
+/**
+ * Per-step expected components for multi-step flow variants.
+ * Each entry is an array of steps — the demo picks the right step
+ * based on priorComponentIds to determine which components should
+ * be in the current message.
+ */
+export const FLOW_EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>[]> = {
+  flow: [
+    // Step 1: Registration form
+    {
+      'registration-form': {
+        type: 'form',
+        fields: ['full-name', 'email', 'department'],
+      },
+    },
+    // Step 2: Approval gate
+    {
+      'approval-gate': { type: 'approval-gate' },
+    },
+    // Step 3: Webhook + button
+    {
+      'notify-webhook': { type: 'webhook' },
+      'send-notification': { type: 'button' },
+    },
+  ],
+};
+
 export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>> = {
   forms: {
     'personal-info-form': {

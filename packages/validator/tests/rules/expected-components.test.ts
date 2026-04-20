@@ -50,15 +50,13 @@ describe('expected-components rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
-  it('flags missing expected component', () => {
+  it('skips expected components not present in this message', () => {
     const ctx = createContext(
       [createBlock(0, { type: 'callout', id: 'notice', content: 'Hi' })],
       { 'my-form': { type: 'form' } },
     );
     expectedComponentsRule.validate(ctx);
-    expect(ctx.issues).toHaveLength(1);
-    expect(ctx.issues[0].message).toContain('was not generated');
-    expect(ctx.issues[0].message).toContain('my-form');
+    expect(ctx.issues).toHaveLength(0);
   });
 
   it('flags wrong component type', () => {
@@ -117,14 +115,29 @@ describe('expected-components rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
-  it('flags multiple missing components', () => {
+  it('skips all expected components when message has no mdma blocks', () => {
     const ctx = createContext([], {
       'form-a': { type: 'form' },
       'table-b': { type: 'table' },
     });
     expectedComponentsRule.validate(ctx);
-    expect(ctx.issues).toHaveLength(2);
-    expect(ctx.issues[0].message).toContain('form-a');
-    expect(ctx.issues[1].message).toContain('table-b');
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('only checks components present in message, ignores the rest', () => {
+    const ctx = createContext(
+      [
+        createBlock(0, { type: 'form', id: 'form-a', fields: [{ name: 'email', type: 'email', label: 'Email' }] }),
+      ],
+      {
+        'form-a': { type: 'form', fields: ['email', 'phone'] },
+        'form-b': { type: 'form', fields: ['name'] },
+      },
+    );
+    expectedComponentsRule.validate(ctx);
+    // form-a is present → checked → missing "phone"
+    // form-b is absent → skipped
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('missing expected field "phone"');
   });
 });

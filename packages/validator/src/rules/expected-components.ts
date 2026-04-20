@@ -14,18 +14,9 @@ export const expectedComponentsRule: ValidationRule = {
     for (const [expectedId, spec] of Object.entries(expected)) {
       const blockIndex = context.idMap.get(expectedId);
 
-      // 1. Does the component exist?
-      if (blockIndex === undefined) {
-        context.issues.push({
-          ruleId: 'expected-components',
-          severity: 'error',
-          message: `Expected component "${expectedId}" (${spec.type}) was not generated`,
-          componentId: expectedId,
-          blockIndex: -1,
-          fixed: false,
-        });
-        continue;
-      }
+      // Skip components not present in this message — the LLM may generate
+      // them in a different message or respond with plain text
+      if (blockIndex === undefined) continue;
 
       const block = context.blocks[blockIndex];
       if (!block?.data) continue;

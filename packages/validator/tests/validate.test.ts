@@ -510,7 +510,7 @@ id: some-card
   });
 
   describe('expected-components', () => {
-    it('flags missing and incorrect components via validate()', () => {
+    it('flags incorrect components and skips absent ones', () => {
       const md = `\`\`\`mdma
 type: form
 id: contact-form
@@ -528,10 +528,10 @@ fields:
       });
 
       const issues = result.issues.filter((i) => i.ruleId === 'expected-components');
-      expect(issues).toHaveLength(2);
+      // contact-form is present �� missing "phone" flagged
+      // submit-btn is absent → skipped
+      expect(issues).toHaveLength(1);
       expect(issues[0].message).toContain('missing expected field "phone"');
-      expect(issues[1].message).toContain('submit-btn');
-      expect(issues[1].message).toContain('was not generated');
     });
 
     it('passes when all expected components are correct', () => {

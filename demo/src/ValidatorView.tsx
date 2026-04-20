@@ -29,6 +29,7 @@ import {
   FLOW_STEPS,
   SAMPLE_BINDING_DATA,
   EXPECTED_COMPONENTS,
+  FLOW_EXPECTED_COMPONENTS,
 } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
@@ -336,7 +337,15 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
         // Only run the rules specified for this variant
         const excludeRules = ALL_RULE_IDS.filter((r) => !variantRuleSet.has(r));
 
-        const expectedComps = EXPECTED_COMPONENTS[promptKey];
+        // Determine expected components for this message
+        // For flow variants, merge all steps into one map — the rule only checks
+        // components that are actually present in the message
+        let expectedComps = EXPECTED_COMPONENTS[promptKey];
+        const flowStepDefs = FLOW_EXPECTED_COMPONENTS[promptKey];
+        if (!expectedComps && flowStepDefs) {
+          expectedComps = Object.assign({}, ...flowStepDefs);
+        }
+
         const result = validate(msg.content, {
           ...(priorComponentIds.length > 0 && { priorComponentIds }),
           ...(excludeRules.length > 0 && { exclude: excludeRules as ValidationRuleId[] }),
