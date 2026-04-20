@@ -508,4 +508,58 @@ id: some-card
       expect(unfenced.length).toBe(0);
     });
   });
+
+  describe('expected-components', () => {
+    it('flags missing and incorrect components via validate()', () => {
+      const md = `\`\`\`mdma
+type: form
+id: contact-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+`;
+      const result = validate(md, {
+        expectedComponents: {
+          'contact-form': { type: 'form', fields: ['email', 'phone'] },
+          'submit-btn': { type: 'button' },
+        },
+      });
+
+      const issues = result.issues.filter((i) => i.ruleId === 'expected-components');
+      expect(issues).toHaveLength(2);
+      expect(issues[0].message).toContain('missing expected field "phone"');
+      expect(issues[1].message).toContain('submit-btn');
+      expect(issues[1].message).toContain('was not generated');
+    });
+
+    it('passes when all expected components are correct', () => {
+      const md = `\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+
+\`\`\`mdma
+type: button
+id: my-btn
+text: Submit
+onAction: my-form
+\`\`\`
+`;
+      const result = validate(md, {
+        expectedComponents: {
+          'my-form': { type: 'form', fields: ['email'] },
+          'my-btn': { type: 'button' },
+        },
+      });
+
+      const issues = result.issues.filter((i) => i.ruleId === 'expected-components');
+      expect(issues).toHaveLength(0);
+    });
+  });
 });

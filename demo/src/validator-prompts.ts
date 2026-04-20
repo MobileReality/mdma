@@ -1,3 +1,5 @@
+import type { ExpectedComponent, FlowStepDefinition } from '@mobile-reality/mdma-validator';
+
 export interface ValidatorPromptVariant {
   key: string;
   label: string;
@@ -31,6 +33,7 @@ export const ALL_RULE_IDS: string[] = [
   'chart-validation',
   'unreferenced-components',
   'flow-ordering',
+  'expected-components',
 ];
 
 export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
@@ -188,8 +191,8 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
   {
     key: 'forms',
     label: 'Form Validation',
-    description: 'Select options, field name typos, placeholder content',
-    rules: ['select-options', 'field-name-typos', 'placeholder-content'],
+    description: 'Select options, field name typos, placeholder content, expected components',
+    rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on form-specific issues. Generate a job application form with these exact components, each with intentional problems:
@@ -618,13 +621,34 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
 };
 
 /**
+ * Expected components per variant. Passed to validate() as expectedComponents
+ * so the rule can verify the LLM generated the correct components with the right fields.
+ * Keyed by variant key — only variants that need component verification need entries.
+ */
+export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>> = {
+  forms: {
+    'personal-info-form': {
+      type: 'form',
+      fields: ['full-name', 'email', 'phone', 'country', 'gender'],
+    },
+    'education-form': {
+      type: 'form',
+      fields: ['university', 'highest-degree', 'graduation-year'],
+    },
+    'preferences-form': {
+      type: 'form',
+      fields: ['department', 'start-date'],
+    },
+    'preferences-note': { type: 'callout' },
+    'apply-btn': { type: 'button' },
+  },
+};
+
+/**
  * Structured flow step definitions for deterministic validation via validateFlow().
  * Keyed by variant key — only variants with multi-step workflows need entries.
  */
-export const FLOW_STEPS: Record<
-  string,
-  import('@mobile-reality/mdma-validator').FlowStepDefinition[]
-> = {
+export const FLOW_STEPS: Record<string, FlowStepDefinition[]> = {
   flow: [
     { label: 'Registration Form', type: 'form', id: 'registration-form' },
     { label: 'Manager Approval', type: 'approval-gate', id: 'approval-gate' },

@@ -28,6 +28,7 @@ import {
   FIXER_CORRECT_STRUCTURE,
   FLOW_STEPS,
   SAMPLE_BINDING_DATA,
+  EXPECTED_COMPONENTS,
 } from './validator-prompts.js';
 
 function severityClass(severity: string): string {
@@ -335,9 +336,11 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
         // Only run the rules specified for this variant
         const excludeRules = ALL_RULE_IDS.filter((r) => !variantRuleSet.has(r));
 
+        const expectedComps = EXPECTED_COMPONENTS[promptKey];
         const result = validate(msg.content, {
           ...(priorComponentIds.length > 0 && { priorComponentIds }),
           ...(excludeRules.length > 0 && { exclude: excludeRules as ValidationRuleId[] }),
+          ...(expectedComps && { expectedComponents: expectedComps }),
         });
         setValidationResults((prev) => {
           const next = new Map(prev);
@@ -351,7 +354,7 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
         }
       }
     }
-  }, [messages, isGenerating, updateMessage, variantRuleSet]);
+  }, [messages, isGenerating, updateMessage, variantRuleSet, promptKey]);
 
   const {
     events,

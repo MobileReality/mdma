@@ -20,6 +20,7 @@ import { placeholderContentRule } from './placeholder-content.js';
 // are often referenced across messages in a multi-turn conversation.
 // import { unreferencedComponentsRule } from './unreferenced-components.js';
 import { flowOrderingRule } from './flow-ordering.js';
+import { expectedComponentsRule } from './expected-components.js';
 
 /**
  * Ordered list of all validation rules.
@@ -48,6 +49,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   placeholderContentRule,
   // unreferencedComponentsRule,
   flowOrderingRule,
+  expectedComponentsRule,
 ];
 
 export function getRulesExcluding(exclude: ValidationRuleId[]): ValidationRule[] {

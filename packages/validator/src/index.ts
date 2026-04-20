@@ -7,6 +7,7 @@ export type {
   ValidationRuleId,
   ValidatorOptions,
   ValidationRule,
+  ExpectedComponent,
 } from './types.js';
 export type {
   FlowStepDefinition,
