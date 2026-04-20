@@ -195,40 +195,29 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on form-specific issues. Generate a job application form with these exact components, each with intentional problems:
+Focus ONLY on form-specific issues. Generate a single job application form with intentional problems:
 
 ## Required broken components
 
-1. \`\`\`mdma block: **form** id: \`personal-info-form\` — Personal details form
+1. \`\`\`mdma block: **form** id: \`job-application\` — Job application form
    - Fields:
      - full-name (text, required) — BUT set label: "TODO"
      - email (email, required, sensitive) — BUT set label: "..."
      - phone (text, sensitive) — BUT set label: "TBD"
-     - country (select, required) — BUT omit the options array entirely
-     - gender (select) — BUT use plain strings as options: ["Male", "Female", "Other"] instead of {label, value} objects
-   - Set \`submit: apply-btn\` instead of correct \`onSubmit: apply-btn\` (field name typo)
-
-2. \`\`\`mdma block: **form** id: \`education-form\` — Education background form
-   - Fields:
      - university (text, required) — BUT set label: "Lorem ipsum"
      - highest-degree (select, required) — BUT use malformed options: one string "PhD" mixed with {label, value} objects
-     - graduation-year (number) — label: "Graduation Year"
-   - onSubmit: education-submitted
-
-3. \`\`\`mdma block: **form** id: \`preferences-form\` — Job preferences form
-   - Fields:
-     - department (select, required) — BUT use plain string options: ["Engineering", "Marketing", "Sales"]
+     - department (select, required) — BUT omit the options array entirely
      - start-date (date, required) — label: "Preferred Start Date"
-   - onSubmit: preferences-submitted
+   - Set \`submit: apply-btn\` instead of correct \`onSubmit: apply-btn\` (field name typo)
 
-4. \`\`\`mdma block: **callout** id: \`preferences-note\` variant: info
-   - Set title: "FIXME" and content: "Please ensure your preferences are accurate."
+2. \`\`\`mdma block: **callout** id: \`application-note\` variant: info
+   - Set title: "FIXME" and content: "Please review your application before submitting."
 
-5. \`\`\`mdma block: **button** id: \`apply-btn\` variant: primary
+3. \`\`\`mdma block: **button** id: \`apply-btn\` variant: primary
    - text: "Submit Application"
    - Set \`onClick: submit-application\` instead of correct \`onAction: submit-application\` (field name typo)
 
-Generate all 5 components with the intentional mistakes described above.
+Generate all 3 components with the intentional mistakes described above.
 
 ## Between MDMA generations
 
@@ -419,36 +408,25 @@ export const FIXER_CORRECT_STRUCTURE: Record<string, string> = {
 
 All table data keys must exactly match their column keys. All chart axes must reference actual CSV headers. Charts must have data rows, not just headers.`,
 
-  forms: `This is a job application with 5 components. The correct structure:
+  forms: `This is a job application with 3 components. The correct structure:
 
-**1. personal-info-form** (form) — Personal details
+**1. job-application** (form) — Job application form
 - Fields:
   - full-name (text, required, label: "Full Name")
   - email (email, required, sensitive: true, label: "Email Address")
   - phone (text, sensitive: true, label: "Phone Number")
-  - country (select, required, label: "Country", options: [{label: "United States", value: "us"}, {label: "Canada", value: "ca"}, {label: "United Kingdom", value: "uk"}, {label: "Germany", value: "de"}])
-  - gender (select, label: "Gender", options: [{label: "Male", value: "male"}, {label: "Female", value: "female"}, {label: "Other", value: "other"}])
-- onSubmit: apply-btn (NOT "submit" — the correct field name is "onSubmit")
-
-**2. education-form** (form) — Education background
-- Fields:
   - university (text, required, label: "University")
   - highest-degree (select, required, label: "Highest Degree", options: [{label: "Bachelor's", value: "bachelors"}, {label: "Master's", value: "masters"}, {label: "PhD", value: "phd"}])
-  - graduation-year (number, label: "Graduation Year")
-- onSubmit: education-submitted
-
-**3. preferences-form** (form) — Job preferences
-- Fields:
   - department (select, required, label: "Department", options: [{label: "Engineering", value: "engineering"}, {label: "Marketing", value: "marketing"}, {label: "Sales", value: "sales"}])
   - start-date (date, required, label: "Preferred Start Date")
-- onSubmit: preferences-submitted
+- onSubmit: apply-btn (NOT "submit" — the correct field name is "onSubmit")
 
-**4. preferences-note** (callout, variant: info)
-- title: "Job Preferences"
-- content: "Please ensure your preferences are accurate."
+**2. application-note** (callout, variant: info)
+- title: "Application Info"
+- content: "Please review your application before submitting."
 - No placeholder text — use real, meaningful content
 
-**5. apply-btn** (button, variant: primary)
+**3. apply-btn** (button, variant: primary)
 - text: "Submit Application"
 - onAction: submit-application (NOT "onClick" — the correct field name is "onAction")
 
@@ -654,20 +632,13 @@ export const FLOW_EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedCom
 
 export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>> = {
   forms: {
-    'personal-info-form': {
+    'job-application': {
       type: 'form',
-      fields: ['full-name', 'email', 'phone', 'country', 'gender'],
+      fields: ['full-name', 'email', 'phone', 'university', 'highest-degree', 'department', 'start-date'],
+      actions: { onSubmit: 'apply-btn' },
     },
-    'education-form': {
-      type: 'form',
-      fields: ['university', 'highest-degree', 'graduation-year'],
-    },
-    'preferences-form': {
-      type: 'form',
-      fields: ['department', 'start-date'],
-    },
-    'preferences-note': { type: 'callout' },
-    'apply-btn': { type: 'button' },
+    'application-note': { type: 'callout' },
+    'apply-btn': { type: 'button', actions: { onAction: 'submit-application' } },
   },
 };
 

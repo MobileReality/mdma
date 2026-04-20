@@ -104,6 +104,8 @@ export interface ExpectedComponent {
   fields?: string[];
   /** Expected table column keys (for type: 'table') */
   columns?: string[];
+  /** Expected action reference fields (e.g. { onSubmit: 'submit-btn' }) */
+  actions?: Record<string, string>;
 }
 
 export interface ValidatorOptions {

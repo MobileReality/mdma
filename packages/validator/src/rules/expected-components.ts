@@ -62,7 +62,35 @@ export const expectedComponentsRule: ValidationRule = {
         }
       }
 
-      // 4. For tables — check expected columns
+      // 4. Check expected action references (onSubmit, onAction, etc.)
+      if (spec.actions) {
+        for (const [actionField, expectedTarget] of Object.entries(spec.actions)) {
+          const actual = block.data[actionField];
+          if (actual === undefined) {
+            context.issues.push({
+              ruleId: 'expected-components',
+              severity: 'error',
+              message: `Component "${expectedId}" is missing expected action "${actionField}" (should reference "${expectedTarget}")`,
+              componentId: expectedId,
+              field: actionField,
+              blockIndex,
+              fixed: false,
+            });
+          } else if (typeof actual === 'string' && actual !== expectedTarget) {
+            context.issues.push({
+              ruleId: 'expected-components',
+              severity: 'warning',
+              message: `Component "${expectedId}" has ${actionField}: "${actual}" but expected "${expectedTarget}"`,
+              componentId: expectedId,
+              field: actionField,
+              blockIndex,
+              fixed: false,
+            });
+          }
+        }
+      }
+
+      // 5. For tables — check expected columns
       if (spec.columns && spec.columns.length > 0) {
         const actualColumns = new Set<string>();
         if (Array.isArray(block.data.columns)) {

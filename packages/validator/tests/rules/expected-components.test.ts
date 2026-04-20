@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { expectedComponentsRule } from '../../src/rules/expected-components.js';
-import type { ValidationRuleContext, ParsedBlock } from '../../src/types.js';
+import type { ValidationRuleContext, ParsedBlock, ExpectedComponent } from '../../src/types.js';
 
 function createBlock(index: number, data: Record<string, unknown> | null): ParsedBlock {
   return {
@@ -16,7 +16,7 @@ function createBlock(index: number, data: Record<string, unknown> | null): Parse
 
 function createContext(
   blocks: ParsedBlock[],
-  expectedComponents: Record<string, { type: string; fields?: string[]; columns?: string[] }>,
+  expectedComponents: Record<string, ExpectedComponent>,
 ): ValidationRuleContext {
   const idMap = new Map<string, number>();
   for (const block of blocks) {
@@ -120,6 +120,58 @@ describe('expected-components rule', () => {
       'form-a': { type: 'form' },
       'table-b': { type: 'table' },
     });
+    expectedComponentsRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('flags missing action reference', () => {
+    const ctx = createContext(
+      [
+        createBlock(0, {
+          type: 'form',
+          id: 'my-form',
+          fields: [{ name: 'email', type: 'email', label: 'Email' }],
+        }),
+      ],
+      { 'my-form': { type: 'form', actions: { onSubmit: 'submit-btn' } } },
+    );
+    expectedComponentsRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('missing expected action "onSubmit"');
+    expect(ctx.issues[0].message).toContain('submit-btn');
+  });
+
+  it('flags wrong action target', () => {
+    const ctx = createContext(
+      [
+        createBlock(0, {
+          type: 'form',
+          id: 'my-form',
+          fields: [{ name: 'email', type: 'email', label: 'Email' }],
+          onSubmit: 'wrong-target',
+        }),
+      ],
+      { 'my-form': { type: 'form', actions: { onSubmit: 'submit-btn' } } },
+    );
+    expectedComponentsRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].severity).toBe('warning');
+    expect(ctx.issues[0].message).toContain('"wrong-target"');
+    expect(ctx.issues[0].message).toContain('"submit-btn"');
+  });
+
+  it('passes when action reference matches', () => {
+    const ctx = createContext(
+      [
+        createBlock(0, {
+          type: 'form',
+          id: 'my-form',
+          fields: [{ name: 'email', type: 'email', label: 'Email' }],
+          onSubmit: 'submit-btn',
+        }),
+      ],
+      { 'my-form': { type: 'form', actions: { onSubmit: 'submit-btn' } } },
+    );
     expectedComponentsRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
