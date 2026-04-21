@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies
+  - @mobile-reality/mdma-validator@0.2.1
+
 ## 0.0.1
 
 ### Patch Changes
