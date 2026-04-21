@@ -17,7 +17,8 @@ export type ValidationRuleId =
   | 'placeholder-content'
   | 'unreferenced-components'
   | 'flow-ordering'
-  | 'field-name-typos';
+  | 'field-name-typos'
+  | 'expected-components';
 
 export interface ValidationIssue {
   /** Which rule flagged this */
@@ -96,6 +97,17 @@ export interface FixContext {
 
 export type FixFunction = (context: FixContext) => void;
 
+export interface ExpectedComponent {
+  /** Expected component type (e.g. 'form', 'button', 'table') */
+  type: string;
+  /** Expected form field names (for type: 'form') */
+  fields?: string[];
+  /** Expected table column keys (for type: 'table') */
+  columns?: string[];
+  /** Expected action reference fields (e.g. { onSubmit: 'submit-btn' }) */
+  actions?: Record<string, string>;
+}
+
 export interface ValidatorOptions {
   /** Rule IDs to skip. Default: none (all rules run). */
   exclude?: ValidationRuleId[];
@@ -105,6 +117,13 @@ export interface ValidatorOptions {
   customPiiPatterns?: RegExp[];
   /** Custom component Zod schemas for types not in the built-in registry. */
   customSchemas?: Record<string, unknown>;
+  /**
+   * Expected components that the LLM should have generated.
+   * Keyed by component ID. The rule verifies each expected component exists
+   * with the correct type, and optionally checks that forms have the expected
+   * fields and tables have the expected columns.
+   */
+  expectedComponents?: Record<string, ExpectedComponent>;
   /**
    * Component IDs from previous conversation messages.
    * When set, the flow-ordering rule will flag any component in the current

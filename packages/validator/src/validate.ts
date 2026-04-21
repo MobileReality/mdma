@@ -27,10 +27,20 @@ function detectUnfencedComponents(markdown: string): Array<{ type: string; line:
   const results: Array<{ type: string; line: number }> = [];
   const lines = stripped.split('\n');
   for (let i = 0; i < lines.length; i++) {
-    const match = lines[i].match(/^type:\s*(\S+)/);
-    if (match && KNOWN_TYPES.has(match[1])) {
-      results.push({ type: match[1], line: i + 1 });
+    const typeMatch = lines[i].match(/^type:\s*(\S+)/);
+    if (!typeMatch || !KNOWN_TYPES.has(typeMatch[1])) continue;
+
+    // Look for a nearby `id:` line within ±3 lines to confirm it's an MDMA block
+    let hasId = false;
+    for (let j = Math.max(0, i - 3); j <= Math.min(lines.length - 1, i + 3); j++) {
+      if (/^id:\s*\S+/.test(lines[j])) {
+        hasId = true;
+        break;
+      }
     }
+    if (!hasId) continue;
+
+    results.push({ type: typeMatch[1], line: i + 1 });
   }
   return results;
 }

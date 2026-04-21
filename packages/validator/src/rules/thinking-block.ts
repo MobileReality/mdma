@@ -10,20 +10,10 @@ export const thinkingBlockRule: ValidationRule = {
     const parsedBlocks = context.blocks.filter((b) => b.data !== null);
     if (parsedBlocks.length === 0) return;
 
-    const hasThinking = parsedBlocks.some((b) => b.data?.type === 'thinking');
+    const thinkingBlocks = parsedBlocks.filter((b) => b.data?.type === 'thinking');
 
-    if (!hasThinking) {
-      context.issues.push({
-        ruleId: 'thinking-block',
-        severity: 'warning',
-        message:
-          'Document should include a thinking block to show AI reasoning. Add a thinking component with status: done and collapsed: true.',
-        componentId: null,
-        blockIndex: 0,
-        fixed: false,
-      });
-      return;
-    }
+    // Only validate if a thinking block was actually generated
+    if (thinkingBlocks.length === 0) return;
 
     const first = parsedBlocks[0];
     if (first.data?.type !== 'thinking') {
@@ -35,6 +25,20 @@ export const thinkingBlockRule: ValidationRule = {
         blockIndex: first.index,
         fixed: false,
       });
+    }
+
+    if (thinkingBlocks.length > 1) {
+      for (const block of thinkingBlocks.slice(1)) {
+        const id = typeof block.data?.id === 'string' ? block.data.id : null;
+        context.issues.push({
+          ruleId: 'thinking-block',
+          severity: 'warning',
+          message: `Duplicate thinking block "${id ?? `block ${block.index}`}" — only one thinking block should exist per document`,
+          componentId: id,
+          blockIndex: block.index,
+          fixed: false,
+        });
+      }
     }
   },
 };

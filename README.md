@@ -229,7 +229,7 @@ function App({ ast, store }) {
 | `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
 | `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
-| `@mobile-reality/mdma-validator` | Static analysis engine with 10 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding resolution, and PII sensitivity. Powers programmatic validation in CI pipelines and custom tooling. |
+| `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
 | `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
 | `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 4 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), multi-turn conversation handling (11 conversations, 25 turns), and prompt builder verification (25 tests). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
@@ -285,6 +285,98 @@ const systemPrompt = buildSystemPrompt({
   customPrompt: '<paste generated prompt here>',
 });
 ```
+
+## Validator
+
+Static analysis engine for MDMA documents. Validates structure, catches common LLM mistakes, and auto-fixes what it can.
+
+```typescript
+import { validate } from '@mobile-reality/mdma-validator';
+
+const result = validate(markdown);
+// result.ok        — true if no unfixed errors
+// result.issues    — all issues found
+// result.output    — auto-fixed markdown
+// result.fixCount  — number of issues auto-fixed
+```
+
+### Rules
+
+Every rule can be individually disabled via the `exclude` option:
+
+```typescript
+const result = validate(markdown, {
+  exclude: ['thinking-block', 'placeholder-content'],
+});
+```
+
+| Rule | Severity | Auto-fix | Description |
+|------|----------|----------|-------------|
+| `yaml-correctness` | error | -- | YAML parses successfully. Detects and auto-splits multi-component blocks, strips `---` separators LLMs insert. |
+| `field-name-typos` | warning | -- | Common field name mistakes: `roles` -> `allowedRoles`, `onClick` -> `onAction`, `submit` -> `onSubmit`. |
+| `schema-conformance` | error | yes | Component type exists and data conforms to its Zod schema. Suggests closest type via fuzzy matching (e.g. `"frm"` -> `did you mean "form"?`) and lists all valid types. |
+| `duplicate-ids` | error | yes | All component IDs are unique. Auto-fix appends `-1`, `-2` suffixes. |
+| `id-format` | warning | yes | IDs follow kebab-case (`my-component-id`). Auto-fix converts camelCase, snake_case, PascalCase and updates all references. |
+| `binding-syntax` | error/warning | yes | `{{binding}}` expressions are well-formed. Catches empty `{{ }}`, extra whitespace `{{ path }}`, and single-brace `{path}`. |
+| `action-references` | warning | yes | `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, `trigger` reference existing component IDs. Suggests near-matches for typos. |
+| `sensitive-flags` | warning | yes | Form fields and table columns with PII-like names (email, phone, ssn, address, etc.) have `sensitive: true`. Supports custom PII patterns. |
+| `required-markers` | info | -- | Suggests `required: true` for fields named `name`, `email`, `title`, `summary`. |
+| `thinking-block` | warning/info | -- | If a thinking block is present, it should be the first component and only one should exist. |
+| `table-data-keys` | warning | -- | Data row keys match defined column keys. Flags extra keys and columns with no matching data. |
+| `select-options` | warning | -- | `type: select` fields have `options` defined as `[{label, value}]` objects. |
+| `chart-validation` | warning | -- | Chart CSV data has headers + data rows. `xAxis`/`yAxis` reference actual CSV column headers. |
+| `placeholder-content` | info | -- | Catches `TODO`, `TBD`, `FIXME`, `...`, `lorem ipsum` in content fields. |
+| `flow-ordering` | error/info | -- | Forward-only action references, no circular refs, one interactive component type per message. Detects regenerated components from prior conversation turns. |
+| `expected-components` | error | -- | Verifies that components present in the message match their expected types, form fields, and table columns. Components not in the message are silently skipped — useful for multi-turn flows where you pass all expected components upfront. |
+
+### Auto-fix Pipeline
+
+When `autoFix: true` (default), 6 fix strategies run in strict dependency order:
+
+1. **id-format** — normalize IDs to kebab-case, update all cross-references
+2. **duplicate-ids** — deduplicate after normalization
+3. **binding-syntax** — fix `{x}` -> `{{x}}`, strip whitespace
+4. **sensitive-flags** — add `sensitive: true` to PII fields
+5. **action-references** — remove invalid references
+6. **schema-conformance** — patch missing labels/headers/content, infer field types, wrap bare bindings, re-validate with Zod
+
+### Expected Components
+
+When you need to guarantee that the LLM generates specific critical components for the user (e.g. a form with required fields, a table with specific columns), pass their expected shapes to the validator. The rule only validates components that are actually present in the current message — components not found are silently skipped. This makes it safe to pass the full set of expected components across a multi-turn flow:
+
+```typescript
+// Define all expected components once (e.g. from a blueprint or flow definition)
+const expectedComponents = {
+  'contact-form': {
+    type: 'form',
+    fields: ['email', 'phone', 'full-name'],
+  },
+  'approval-gate': { type: 'approval-gate' },
+  'submit-btn': { type: 'button' },
+};
+
+// Pass the same set to every message — the rule checks only what's present
+const result = validate(message1, { expectedComponents });
+// Message 1 contains contact-form → validates type + fields
+// approval-gate and submit-btn not in this message → skipped
+
+const result2 = validate(message2, { expectedComponents });
+// Message 2 contains approval-gate → validates type
+// contact-form and submit-btn not in this message → skipped
+```
+
+For each component found in the message, the rule checks:
+- Is the type correct?
+- Are all expected form fields present? (lists available fields on mismatch)
+- Are all expected table columns present? (lists available columns on mismatch)
+
+### LLM Error Recovery
+
+The parser handles three common LLM mistakes automatically during block extraction:
+
+- **Colon-space in values** — `label: Step 1: Enter info` auto-quoted to `label: "Step 1: Enter info"`
+- **YAML `---` separators** — stripped before parsing
+- **Multiple components in one block** — split at each root-level `type:` line into separate blocks
 
 ## MCP Server
 
@@ -413,7 +505,7 @@ pnpm eval:view
 - [x] Improved validator
 - [x] Added MCP
 - [x] Added Skills for Agentic usage
-- [ ] Improved error messages in parser
+- [x] Improved error messages in parser
 - [ ] File upload field type for forms
 
 ### v0.3 — AI & Generation

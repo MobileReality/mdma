@@ -1,3 +1,5 @@
+import type { ExpectedComponent, FlowStepDefinition } from '@mobile-reality/mdma-validator';
+
 export interface ValidatorPromptVariant {
   key: string;
   label: string;
@@ -31,6 +33,7 @@ export const ALL_RULE_IDS: string[] = [
   'chart-validation',
   'unreferenced-components',
   'flow-ordering',
+  'expected-components',
 ];
 
 export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
@@ -38,7 +41,7 @@ export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
     key: 'structure',
     label: 'Structure & YAML',
     description: 'YAML correctness, duplicate IDs, ID format, schema conformance',
-    rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format'],
+    rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on structural and YAML issues. Generate an event registration system with these exact components, each with intentional structural problems:
@@ -91,7 +94,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'bindings',
     label: 'Bindings & References',
     description: 'Binding syntax, resolution, deep field validation, action references',
-    rules: ['binding-syntax', 'binding-resolution', 'action-references'],
+    rules: ['binding-syntax', 'binding-resolution', 'action-references', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on binding and reference issues. Generate a contact submission workflow with these exact components, each with intentional binding/reference problems:
@@ -143,7 +146,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'pii',
     label: 'PII & Sensitive Data',
     description: 'Sensitive flags, required markers',
-    rules: ['sensitive-flags', 'required-markers'],
+    rules: ['sensitive-flags', 'required-markers', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on PII and data sensitivity issues. Generate a KYC (Know Your Customer) verification form with these exact components, each missing sensitive/required flags:
@@ -188,44 +191,33 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
   {
     key: 'forms',
     label: 'Form Validation',
-    description: 'Select options, field name typos, placeholder content',
-    rules: ['select-options', 'field-name-typos', 'placeholder-content'],
+    description: 'Select options, field name typos, placeholder content, expected components',
+    rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components', 'thinking-block'],
     prompt: `${PREAMBLE}
 
-Focus ONLY on form-specific issues. Generate a job application form with these exact components, each with intentional problems:
+Focus ONLY on form-specific issues. Generate a single job application form with intentional problems:
 
 ## Required broken components
 
-1. \`\`\`mdma block: **form** id: \`personal-info-form\` — Personal details form
+1. \`\`\`mdma block: **form** id: \`job-application\` — Job application form
    - Fields:
      - full-name (text, required) — BUT set label: "TODO"
      - email (email, required, sensitive) — BUT set label: "..."
      - phone (text, sensitive) — BUT set label: "TBD"
-     - country (select, required) — BUT omit the options array entirely
-     - gender (select) — BUT use plain strings as options: ["Male", "Female", "Other"] instead of {label, value} objects
-   - Set \`submit: apply-btn\` instead of correct \`onSubmit: apply-btn\` (field name typo)
-
-2. \`\`\`mdma block: **form** id: \`education-form\` — Education background form
-   - Fields:
      - university (text, required) — BUT set label: "Lorem ipsum"
      - highest-degree (select, required) — BUT use malformed options: one string "PhD" mixed with {label, value} objects
-     - graduation-year (number) — label: "Graduation Year"
-   - onSubmit: education-submitted
-
-3. \`\`\`mdma block: **form** id: \`preferences-form\` — Job preferences form
-   - Fields:
-     - department (select, required) — BUT use plain string options: ["Engineering", "Marketing", "Sales"]
+     - department (select, required) — BUT omit the options array entirely
      - start-date (date, required) — label: "Preferred Start Date"
-   - onSubmit: preferences-submitted
+   - Set \`submit: apply-btn\` instead of correct \`onSubmit: apply-btn\` (field name typo)
 
-4. \`\`\`mdma block: **callout** id: \`preferences-note\` variant: info
-   - Set title: "FIXME" and content: "Please ensure your preferences are accurate."
+2. \`\`\`mdma block: **callout** id: \`application-note\` variant: info
+   - Set title: "FIXME" and content: "Please review your application before submitting."
 
-5. \`\`\`mdma block: **button** id: \`apply-btn\` variant: primary
+3. \`\`\`mdma block: **button** id: \`apply-btn\` variant: primary
    - text: "Submit Application"
    - Set \`onClick: submit-application\` instead of correct \`onAction: submit-application\` (field name typo)
 
-Generate all 5 components with the intentional mistakes described above.
+Generate all 3 components with the intentional mistakes described above.
 
 ## Between MDMA generations
 
@@ -240,7 +232,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'tables-charts',
     label: 'Tables & Charts',
     description: 'Table data keys, chart axis validation',
-    rules: ['table-data-keys', 'chart-validation'],
+    rules: ['table-data-keys', 'chart-validation', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on table and chart data issues. Generate a sales dashboard with these exact components, each with intentional problems:
@@ -270,8 +262,8 @@ Generate all 4 components with the intentional mismatches described above.`,
   {
     key: 'flow',
     label: 'Stepper Flow',
-    description: 'Flow ordering, unreferenced components, action targets',
-    rules: ['flow-ordering', 'unreferenced-components', 'action-references'],
+    description: 'Flow ordering, thinking block, action targets, expected components',
+    rules: ['flow-ordering', 'thinking-block', 'action-references', 'expected-components'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on component flow and reference issues. Generate a user registration and approval workflow with ALL of these intentional problems:
@@ -315,7 +307,7 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked to generate a s
     key: 'approval',
     label: 'Approval & Webhooks',
     description: 'Field name typos on approval-gate, action references on webhooks',
-    rules: ['field-name-typos', 'action-references', 'schema-conformance'],
+    rules: ['field-name-typos', 'action-references', 'schema-conformance', 'thinking-block'],
     prompt: `${PREAMBLE}
 
 Focus ONLY on approval gate and webhook issues. Generate an expense approval workflow with these exact components, each with intentional problems:
@@ -416,36 +408,25 @@ export const FIXER_CORRECT_STRUCTURE: Record<string, string> = {
 
 All table data keys must exactly match their column keys. All chart axes must reference actual CSV headers. Charts must have data rows, not just headers.`,
 
-  forms: `This is a job application with 5 components. The correct structure:
+  forms: `This is a job application with 3 components. The correct structure:
 
-**1. personal-info-form** (form) — Personal details
+**1. job-application** (form) — Job application form
 - Fields:
   - full-name (text, required, label: "Full Name")
   - email (email, required, sensitive: true, label: "Email Address")
   - phone (text, sensitive: true, label: "Phone Number")
-  - country (select, required, label: "Country", options: [{label: "United States", value: "us"}, {label: "Canada", value: "ca"}, {label: "United Kingdom", value: "uk"}, {label: "Germany", value: "de"}])
-  - gender (select, label: "Gender", options: [{label: "Male", value: "male"}, {label: "Female", value: "female"}, {label: "Other", value: "other"}])
-- onSubmit: apply-btn (NOT "submit" — the correct field name is "onSubmit")
-
-**2. education-form** (form) — Education background
-- Fields:
   - university (text, required, label: "University")
   - highest-degree (select, required, label: "Highest Degree", options: [{label: "Bachelor's", value: "bachelors"}, {label: "Master's", value: "masters"}, {label: "PhD", value: "phd"}])
-  - graduation-year (number, label: "Graduation Year")
-- onSubmit: education-submitted
-
-**3. preferences-form** (form) — Job preferences
-- Fields:
   - department (select, required, label: "Department", options: [{label: "Engineering", value: "engineering"}, {label: "Marketing", value: "marketing"}, {label: "Sales", value: "sales"}])
   - start-date (date, required, label: "Preferred Start Date")
-- onSubmit: preferences-submitted
+- onSubmit: apply-btn (NOT "submit" — the correct field name is "onSubmit")
 
-**4. preferences-note** (callout, variant: info)
-- title: "Job Preferences"
-- content: "Please ensure your preferences are accurate."
+**2. application-note** (callout, variant: info)
+- title: "Application Info"
+- content: "Please review your application before submitting."
 - No placeholder text — use real, meaningful content
 
-**5. apply-btn** (button, variant: primary)
+**3. apply-btn** (button, variant: primary)
 - text: "Submit Application"
 - onAction: submit-application (NOT "onClick" — the correct field name is "onAction")
 
@@ -618,13 +599,64 @@ export const SAMPLE_TABLE_DATA: Record<string, Record<string, Array<Record<strin
 };
 
 /**
+ * Expected components per variant. Passed to validate() as expectedComponents
+ * so the rule can verify the LLM generated the correct components with the right fields.
+ * Keyed by variant key — only variants that need component verification need entries.
+ */
+/**
+ * Per-step expected components for multi-step flow variants.
+ * Each entry is an array of steps — the demo picks the right step
+ * based on priorComponentIds to determine which components should
+ * be in the current message.
+ */
+export const FLOW_EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>[]> = {
+  flow: [
+    // Step 1: Registration form + success callout
+    {
+      'registration-form': {
+        type: 'form',
+        fields: ['full-name', 'email', 'department'],
+        actions: { onSubmit: 'registration-submitted' },
+      },
+      'registration-submitted': { type: 'callout' },
+    },
+    // Step 2: Approval gate + success callout
+    {
+      'approval-gate': {
+        type: 'approval-gate',
+        actions: { onApprove: 'approval-complete' },
+      },
+      'approval-complete': { type: 'callout' },
+    },
+    // Step 3: Webhook + button + success callout
+    {
+      'notify-webhook': {
+        type: 'webhook',
+        actions: { trigger: 'send-notification' },
+      },
+      'send-notification': { type: 'button' },
+      'workflow-complete': { type: 'callout' },
+    },
+  ],
+};
+
+export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponent>> = {
+  forms: {
+    'job-application': {
+      type: 'form',
+      fields: ['full-name', 'email', 'phone', 'university', 'highest-degree', 'department', 'start-date'],
+      actions: { onSubmit: 'apply-btn' },
+    },
+    'application-note': { type: 'callout' },
+    'apply-btn': { type: 'button', actions: { onAction: 'submit-application' } },
+  },
+};
+
+/**
  * Structured flow step definitions for deterministic validation via validateFlow().
  * Keyed by variant key — only variants with multi-step workflows need entries.
  */
-export const FLOW_STEPS: Record<
-  string,
-  import('@mobile-reality/mdma-validator').FlowStepDefinition[]
-> = {
+export const FLOW_STEPS: Record<string, FlowStepDefinition[]> = {
   flow: [
     { label: 'Registration Form', type: 'form', id: 'registration-form' },
     { label: 'Manager Approval', type: 'approval-gate', id: 'approval-gate' },

@@ -45,12 +45,52 @@ describe('schema-conformance rule', () => {
     expect(ctx.issues[0].field).toBe('type');
   });
 
-  it('flags unknown component type', () => {
+  it('flags unknown component type with valid types list', () => {
     const ctx = createContext([createBlock(0, { type: 'foobar', id: 'x' })]);
     schemaConformanceRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].message).toContain('Unknown component type');
     expect(ctx.issues[0].message).toContain('foobar');
+    expect(ctx.issues[0].message).toContain('Valid types:');
+    expect(ctx.issues[0].message).toContain('form');
+    expect(ctx.issues[0].message).toContain('button');
+  });
+
+  it('suggests closest type for a typo via Levenshtein', () => {
+    const ctx = createContext([createBlock(0, { type: 'frm', id: 'x' })]);
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('did you mean "form"');
+  });
+
+  it('suggests closest type for normalized match', () => {
+    const ctx = createContext([createBlock(0, { type: 'approval_gate', id: 'x' })]);
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('did you mean "approval-gate"');
+  });
+
+  it('does not suggest when type is too far from any known type', () => {
+    const ctx = createContext([createBlock(0, { type: 'zzzzzzz', id: 'x' })]);
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).not.toContain('did you mean');
+    expect(ctx.issues[0].message).toContain('Valid types:');
+  });
+
+  it('includes custom schema types in valid types list', () => {
+    const { z } = require('zod');
+    const customSchema = z.object({ type: z.literal('progress'), id: z.string(), value: z.number() });
+    const ctx: ValidationRuleContext = {
+      blocks: [createBlock(0, { type: 'foobar', id: 'x' })],
+      idMap: new Map([['x', 0]]),
+      issues: [],
+      options: { customSchemas: { progress: customSchema } },
+    };
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].message).toContain('progress');
+    expect(ctx.issues[0].message).toContain('form');
   });
 
   it('flags Zod validation errors', () => {

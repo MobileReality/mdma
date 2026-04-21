@@ -65,13 +65,12 @@ describe('validate()', () => {
     expect(result.output).toContain('onAction: my-callout');
   });
 
-  it('flags missing thinking block', () => {
+  it('does not flag missing thinking block', () => {
     const md = fixture('no-thinking-block.md');
     const result = validate(md);
 
     const thinkingIssues = result.issues.filter((i) => i.ruleId === 'thinking-block');
-    expect(thinkingIssues).toHaveLength(1);
-    expect(thinkingIssues[0].severity).toBe('warning');
+    expect(thinkingIssues).toHaveLength(0);
   });
 
   it('flags bad binding syntax', () => {
@@ -175,6 +174,53 @@ fields:
     expect(result.output).toContain('Full Name');
     expect(result.output).toContain('Email');
     expect(result.output).toContain('Phone Number');
+  });
+
+  describe('unknown component types', () => {
+    it('suggests closest type for a typo', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+      expect(unknownIssues).toHaveLength(3);
+
+      // "frm" → did you mean "form"?
+      const typo = unknownIssues.find((i) => i.message.includes('"frm"'));
+      expect(typo).toBeDefined();
+      expect(typo!.message).toContain('did you mean "form"');
+      expect(typo!.message).toContain('Valid types:');
+    });
+
+    it('suggests closest type for separator mismatch', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+
+      // "approval_gate" → did you mean "approval-gate"?
+      const separator = unknownIssues.find((i) => i.message.includes('"approval_gate"'));
+      expect(separator).toBeDefined();
+      expect(separator!.message).toContain('did you mean "approval-gate"');
+    });
+
+    it('does not suggest when type is completely unrelated', () => {
+      const md = fixture('unknown-types.md');
+      const result = validate(md);
+
+      const unknownIssues = result.issues.filter(
+        (i) => i.ruleId === 'schema-conformance' && i.message.includes('Unknown component type'),
+      );
+
+      // "zzzzzzz" → no suggestion, but still lists valid types
+      const noMatch = unknownIssues.find((i) => i.message.includes('"zzzzzzz"'));
+      expect(noMatch).toBeDefined();
+      expect(noMatch!.message).not.toContain('did you mean');
+      expect(noMatch!.message).toContain('Valid types:');
+    });
   });
 
   it('returns empty issues for markdown with no mdma blocks', () => {
@@ -437,6 +483,19 @@ id: example
       expect(unfenced.length).toBe(0);
     });
 
+    it('does not flag type without nearby id field', () => {
+      const md = `
+Some docs about component types:
+type: form
+This is just documentation text.
+`;
+      const result = validate(md);
+      const unfenced = result.issues.filter(
+        (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
+      );
+      expect(unfenced.length).toBe(0);
+    });
+
     it('does not flag unknown types outside fenced blocks', () => {
       const md = `
 type: card
@@ -447,6 +506,60 @@ id: some-card
         (i) => i.ruleId === 'yaml-correctness' && i.message.includes('outside of a'),
       );
       expect(unfenced.length).toBe(0);
+    });
+  });
+
+  describe('expected-components', () => {
+    it('flags incorrect components and skips absent ones', () => {
+      const md = `\`\`\`mdma
+type: form
+id: contact-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+`;
+      const result = validate(md, {
+        expectedComponents: {
+          'contact-form': { type: 'form', fields: ['email', 'phone'] },
+          'submit-btn': { type: 'button' },
+        },
+      });
+
+      const issues = result.issues.filter((i) => i.ruleId === 'expected-components');
+      // contact-form is present �� missing "phone" flagged
+      // submit-btn is absent → skipped
+      expect(issues).toHaveLength(1);
+      expect(issues[0].message).toContain('missing expected field "phone"');
+    });
+
+    it('passes when all expected components are correct', () => {
+      const md = `\`\`\`mdma
+type: form
+id: my-form
+fields:
+  - name: email
+    type: email
+    label: Email
+\`\`\`
+
+\`\`\`mdma
+type: button
+id: my-btn
+text: Submit
+onAction: my-form
+\`\`\`
+`;
+      const result = validate(md, {
+        expectedComponents: {
+          'my-form': { type: 'form', fields: ['email'] },
+          'my-btn': { type: 'button' },
+        },
+      });
+
+      const issues = result.issues.filter((i) => i.ruleId === 'expected-components');
+      expect(issues).toHaveLength(0);
     });
   });
 });
