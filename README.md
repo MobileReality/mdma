@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/mobilereality-mdma-badge.png)](https://mseep.ai/app/mobilereality-mdma)
+
 <p align="center">
   <img src="assets/logo.png" alt="MDMA Logo" width="600" />
 </p>
