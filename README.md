@@ -506,7 +506,7 @@ pnpm eval:view
 - [x] Added MCP
 - [x] Added Skills for Agentic usage
 - [x] Improved error messages in parser
-- [ ] File upload field type for forms
+- [x] File upload field type for forms
 
 ### v0.3 — AI & Generation
 - [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)
