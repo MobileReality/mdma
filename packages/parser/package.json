@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-parser",
   "version": "0.2.1",
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "remark", "unified", "parser"],
   "type": "module",
   "exports": {
     ".": {

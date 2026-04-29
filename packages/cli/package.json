@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-cli",
   "version": "0.2.2",
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "cli", "prompt-builder"],
   "type": "module",
   "bin": {
     "mdma": "./dist/bin/mdma.js"

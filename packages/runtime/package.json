@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-runtime",
   "version": "0.2.1",
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "state-management", "audit-log", "pii"],
   "type": "module",
   "exports": {
     ".": {
