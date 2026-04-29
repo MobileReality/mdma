@@ -1,5 +1,15 @@
 # @mobile-reality/mdma-cli
 
+## 0.2.3
+
+### Patch Changes
+
+- d972139: Add npm keywords for discoverability
+- Updated dependencies [d972139]
+  - @mobile-reality/mdma-prompt-pack@0.2.2
+  - @mobile-reality/mdma-validator@0.2.3
+  - @mobile-reality/mdma-spec@0.2.2
+
 ## 0.2.2
 
 ### Patch Changes
