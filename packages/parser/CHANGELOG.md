@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-parser
 
+## 0.2.1
+
+### Patch Changes
+
+- Updated dependencies [9ba720a]
+  - @mobile-reality/mdma-spec@0.2.1
+
 ## 0.2.0
 
 ### Major Changes
