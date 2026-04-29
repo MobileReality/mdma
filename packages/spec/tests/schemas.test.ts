@@ -96,6 +96,21 @@ describe('FormComponentSchema', () => {
     expect(() => FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] })).toThrow();
   });
 
+  it('validates a file field', () => {
+    const form = {
+      id: 'upload-form',
+      type: 'form',
+      fields: [
+        { name: 'resume', type: 'file', label: 'Resume', required: true },
+        { name: 'passport', type: 'file', label: 'Passport', sensitive: true },
+      ],
+    };
+    const result = FormComponentSchema.parse(form);
+    expect(result.fields[0].type).toBe('file');
+    expect(result.fields[0].required).toBe(true);
+    expect(result.fields[1].sensitive).toBe(true);
+  });
+
   it('rejects form with missing id', () => {
     expect(() =>
       FormComponentSchema.parse({

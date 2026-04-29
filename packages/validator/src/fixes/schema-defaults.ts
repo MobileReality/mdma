@@ -44,6 +44,7 @@ const VALID_FIELD_TYPES = new Set([
   'select',
   'checkbox',
   'textarea',
+  'file',
 ]);
 
 /** Common misspellings / aliases of the `type` key */
@@ -83,6 +84,15 @@ function inferFieldType(name: string): string {
     lower.includes('optIn')
   )
     return 'checkbox';
+  if (
+    lower.includes('upload') ||
+    lower.includes('attachment') ||
+    lower.includes('file') ||
+    lower.includes('document') ||
+    lower.includes('avatar') ||
+    lower.includes('photo')
+  )
+    return 'file';
   return 'text';
 }
 

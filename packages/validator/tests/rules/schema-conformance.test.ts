@@ -173,4 +173,16 @@ describe('schema-conformance rule', () => {
     schemaConformanceRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
+
+  it('passes for a form with a file field', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'upload-form',
+        fields: [{ name: 'resume', type: 'file', label: 'Resume', required: true }],
+      }),
+    ]);
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
 });

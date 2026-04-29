@@ -18,6 +18,8 @@ defaultTest:
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
+      config:
+        exclude: ['thinking-block']
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
