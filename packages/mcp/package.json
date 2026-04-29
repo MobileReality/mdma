@@ -1,7 +1,16 @@
 {
   "name": "@mobile-reality/mdma-mcp",
-  "version": "0.2.5",
-  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "mcp", "model-context-protocol", "claude"],
+  "version": "0.2.6",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "mcp",
+    "model-context-protocol",
+    "claude"
+  ],
   "mcpName": "io.github.MobileReality/mdma",
   "type": "module",
   "bin": {

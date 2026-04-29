@@ -1,7 +1,16 @@
 {
   "name": "@mobile-reality/mdma-prompt-pack",
-  "version": "0.2.1",
-  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "prompt", "prompt-engineering", "system-prompt"],
+  "version": "0.2.2",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "prompt",
+    "prompt-engineering",
+    "system-prompt"
+  ],
   "type": "module",
   "exports": {
     ".": {

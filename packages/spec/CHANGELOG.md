@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-spec
 
+## 0.2.2
+
+### Patch Changes
+
+- d972139: Add npm keywords for discoverability
+
 ## 0.2.1
 
 ### Patch Changes
