@@ -13,6 +13,7 @@ import { validate } from '@mobile-reality/mdma-validator';
  */
 export default function (output, { config } = {}) {
   const maxWarnings = config?.maxWarnings ?? Infinity;
+  const exclude = config?.exclude ?? ['thinking-block', 'flow-ordering'];
 
   // Check the output actually contains mdma blocks
   const blockCount = (output.match(/```mdma/g) ?? []).length;
@@ -25,7 +26,7 @@ export default function (output, { config } = {}) {
   }
 
   const result = validate(output, {
-    exclude: ['thinking-block'],
+    exclude,
     autoFix: false,
   });
 

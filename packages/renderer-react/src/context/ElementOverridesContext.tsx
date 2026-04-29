@@ -39,6 +39,18 @@ export interface FormTextareaElementProps {
   sensitive?: boolean;
 }
 
+export interface FormFileElementProps {
+  id: string;
+  name: string;
+  label: string;
+  /** Files currently selected for this field. */
+  value: File[];
+  onChange: (files: File[]) => void;
+  required?: boolean;
+  /** When true, the field contains PII and should be visually marked / masked. */
+  sensitive?: boolean;
+}
+
 export interface FormSubmitElementProps {
   onClick: () => void;
   label: string;

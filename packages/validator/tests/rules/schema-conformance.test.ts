@@ -80,7 +80,11 @@ describe('schema-conformance rule', () => {
 
   it('includes custom schema types in valid types list', () => {
     const { z } = require('zod');
-    const customSchema = z.object({ type: z.literal('progress'), id: z.string(), value: z.number() });
+    const customSchema = z.object({
+      type: z.literal('progress'),
+      id: z.string(),
+      value: z.number(),
+    });
     const ctx: ValidationRuleContext = {
       blocks: [createBlock(0, { type: 'foobar', id: 'x' })],
       idMap: new Map([['x', 0]]),
@@ -168,6 +172,18 @@ describe('schema-conformance rule', () => {
         type: 'callout',
         id: 'notice',
         content: 'Hello world',
+      }),
+    ]);
+    schemaConformanceRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('passes for a form with a file field', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'upload-form',
+        fields: [{ name: 'resume', type: 'file', label: 'Resume', required: true }],
       }),
     ]);
     schemaConformanceRule.validate(ctx);

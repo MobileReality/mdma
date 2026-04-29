@@ -634,7 +634,119 @@
       value: "allowedRoles:"
 
 # ---------------------------------------------------------------------------
-# 10. Account deletion — button with confirmation dialog MDMA blueprint
+# 10b. Recruiting — job application with file uploads (resume + portfolio)
+# ---------------------------------------------------------------------------
+- description: "Recruiting domain produces file fields for resume / portfolio uploads"
+  vars:
+    customPrompt: |
+      You are a recruiting assistant that helps candidates submit job
+      applications with supporting documents. When a candidate wants to
+      apply, generate a single form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: job-application
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+        - name: resume
+          type: file
+          label: "Resume"
+          required: true
+        - name: portfolio
+          type: file
+          label: "Portfolio Samples"
+        - name: cover-letter
+          type: textarea
+          label: "Cover Letter"
+      ```
+
+      Mark only the email as sensitive. Generate only this form — no
+      buttons, callouts, webhooks, or other components.
+    request: I'd like to apply for the senior product designer role you posted.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/file-field.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# 10c. KYC — sensitive file upload (passport scan) marked sensitive
+# ---------------------------------------------------------------------------
+- description: "KYC domain marks identity document uploads as sensitive"
+  vars:
+    customPrompt: |
+      You are a KYC (Know Your Customer) compliance assistant. When
+      onboarding a new customer for identity verification, generate a
+      single form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: kyc-identity-form
+      fields:
+        - name: full-legal-name
+          type: text
+          label: "Full Legal Name"
+          required: true
+          sensitive: true
+        - name: date-of-birth
+          type: date
+          label: "Date of Birth"
+          required: true
+          sensitive: true
+        - name: passport-scan
+          type: file
+          label: "Passport Scan"
+          required: true
+          sensitive: true
+        - name: proof-of-address
+          type: file
+          label: "Proof of Address (utility bill or bank statement)"
+          required: true
+          sensitive: true
+      ```
+
+      Every field in this form is PII and MUST have `sensitive: true`.
+      Generate only this form — no buttons, callouts, approval gates,
+      or other components.
+    request: I need to verify the identity of a new customer applying for an account.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/file-field.mjs
+      config:
+        sensitive: true
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+
+# ---------------------------------------------------------------------------
+# 11. Account deletion — button with confirmation dialog MDMA blueprint
 # ---------------------------------------------------------------------------
 - description: "Generates exact danger button with confirmation"
   vars:

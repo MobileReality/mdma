@@ -1,5 +1,6 @@
 import { memo, useRef, useEffect } from 'react';
 import type { StoreAction } from '@mobile-reality/mdma-spec';
+import { serializeFiles } from '@mobile-reality/mdma-runtime';
 import type { ChatActionEntry } from './use-chat-action-log.js';
 
 export interface ChatActionLogProps {
@@ -12,7 +13,7 @@ function renderDetail(action: StoreAction) {
   if ('field' in action) {
     return (
       <span className="demo-event-detail">
-        .{action.field} = {JSON.stringify((action as { value: unknown }).value)}
+        .{action.field} = {JSON.stringify(serializeFiles((action as { value: unknown }).value))}
       </span>
     );
   }

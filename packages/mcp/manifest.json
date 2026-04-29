@@ -25,9 +25,7 @@
     "entry_point": "dist/bin/mdma-mcp.js",
     "mcp_config": {
       "command": "node",
-      "args": [
-        "${__dirname}/dist/bin/mdma-mcp.js"
-      ],
+      "args": ["${__dirname}/dist/bin/mdma-mcp.js"],
       "env": {}
     }
   },

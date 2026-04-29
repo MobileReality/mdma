@@ -41,7 +41,13 @@ export const VALIDATOR_PROMPT_VARIANTS: ValidatorPromptVariant[] = [
     key: 'structure',
     label: 'Structure & YAML',
     description: 'YAML correctness, duplicate IDs, ID format, schema conformance',
-    rules: ['yaml-correctness', 'schema-conformance', 'duplicate-ids', 'id-format', 'thinking-block'],
+    rules: [
+      'yaml-correctness',
+      'schema-conformance',
+      'duplicate-ids',
+      'id-format',
+      'thinking-block',
+    ],
     prompt: `${PREAMBLE}
 
 Focus ONLY on structural and YAML issues. Generate an event registration system with these exact components, each with intentional structural problems:
@@ -192,7 +198,13 @@ IMPORTANT: Only generate \`\`\`mdma blocks when explicitly asked or on the first
     key: 'forms',
     label: 'Form Validation',
     description: 'Select options, field name typos, placeholder content, expected components',
-    rules: ['select-options', 'field-name-typos', 'placeholder-content', 'expected-components', 'thinking-block'],
+    rules: [
+      'select-options',
+      'field-name-typos',
+      'placeholder-content',
+      'expected-components',
+      'thinking-block',
+    ],
     prompt: `${PREAMBLE}
 
 Focus ONLY on form-specific issues. Generate a single job application form with intentional problems:
@@ -644,7 +656,15 @@ export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponen
   forms: {
     'job-application': {
       type: 'form',
-      fields: ['full-name', 'email', 'phone', 'university', 'highest-degree', 'department', 'start-date'],
+      fields: [
+        'full-name',
+        'email',
+        'phone',
+        'university',
+        'highest-degree',
+        'department',
+        'start-date',
+      ],
       actions: { onSubmit: 'apply-btn' },
     },
     'application-note': { type: 'callout' },

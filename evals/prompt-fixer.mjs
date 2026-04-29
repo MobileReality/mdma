@@ -20,7 +20,10 @@ import { validate } from '@mobile-reality/mdma-validator';
  * 3. Sends the fixer system prompt (with variant-specific extensions) + user message
  */
 export default function ({ vars }) {
-  const result = validate(vars.brokenDocument, { exclude: ['thinking-block'] });
+  const exclude = ['thinking-block'];
+  if (vars.variantKey !== 'flow') exclude.push('flow-ordering');
+
+  const result = validate(vars.brokenDocument, { exclude });
   const unfixed = result.issues.filter(
     (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
   );

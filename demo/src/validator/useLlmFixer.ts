@@ -95,7 +95,17 @@ export function useLlmFixer({
         fixAbortRef.current = null;
       }
     },
-    [validationResults, messages, config, isFixing, fixerModel, customFixerModel, promptKey, onFixed, onInvalidate],
+    [
+      validationResults,
+      messages,
+      config,
+      isFixing,
+      fixerModel,
+      customFixerModel,
+      promptKey,
+      onFixed,
+      onInvalidate,
+    ],
   );
 
   // Auto-fix with LLM when enabled and unfixed issues detected

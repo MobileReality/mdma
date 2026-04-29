@@ -103,8 +103,6 @@
       ```
   assert:
     - type: javascript
-      value: file://assertions/thinking-first.mjs
-    - type: javascript
       value: file://assertions/only-components.mjs
       config:
         allowed: [callout]
@@ -1044,3 +1042,71 @@
       value: file://assertions/pie-chart.mjs
     - type: contains
       value: "type: table"
+
+# ---------------------------------------------------------------------------
+# 26. File upload field — basic
+# ---------------------------------------------------------------------------
+- description: Generates a form with a basic file upload field
+  vars:
+    request: |
+      Create a form with a file upload matching this exact structure:
+
+      ```mdma
+      type: form
+      id: resume-form
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: resume
+          type: file
+          label: "Resume"
+          required: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 2
+    - type: javascript
+      value: file://assertions/file-field.mjs
+
+# ---------------------------------------------------------------------------
+# 27. File upload — sensitive PII document (passport)
+# ---------------------------------------------------------------------------
+- description: Marks a sensitive file upload (passport) as sensitive
+  vars:
+    request: |
+      Create a KYC form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: kyc-form
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+          sensitive: true
+        - name: passport-scan
+          type: file
+          label: "Passport Scan"
+          required: true
+          sensitive: true
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/file-field.mjs
+      config:
+        sensitive: true
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

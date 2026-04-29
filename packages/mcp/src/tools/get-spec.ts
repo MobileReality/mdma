@@ -30,11 +30,7 @@ export function getSpec() {
       description:
         'Bindings use {{component-id.field}} syntax to reference values from other components. ' +
         'Double braces required, no whitespace inside. Component IDs must be kebab-case.',
-      examples: [
-        '{{contact-form.email}}',
-        '{{order-table.selected}}',
-        '{{approval-gate.status}}',
-      ],
+      examples: ['{{contact-form.email}}', '{{order-table.selected}}', '{{approval-gate.status}}'],
     },
     components,
     authoringRules: [

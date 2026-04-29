@@ -7,6 +7,7 @@ import orderTracking from '../../examples/order-tracking/document.md?raw';
 import meetingNotes from '../../examples/meeting-notes/document.md?raw';
 import salesDashboard from '../../examples/sales-dashboard/document.md?raw';
 import featureRequest from '../../examples/feature-request/document.md?raw';
+import fileUpload from '../../examples/file-upload/document.md?raw';
 import incidentTriage from '../../blueprints/incident-triage/document.md?raw';
 import changeManagement from '../../blueprints/change-management/document.md?raw';
 import customerEscalation from '../../blueprints/customer-escalation/document.md?raw';
@@ -55,6 +56,10 @@ export const documents: Record<string, DocumentEntry> = {
   'feature-request': {
     label: 'Feature Request',
     markdown: featureRequest,
+  },
+  'file-upload': {
+    label: 'Job Application (File Upload)',
+    markdown: fileUpload,
   },
   // Blueprints — industry-specific workflows
   'incident-triage': {

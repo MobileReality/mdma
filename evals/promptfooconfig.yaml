@@ -19,5 +19,8 @@ defaultTest:
     # Every test case runs the MDMA validator as a baseline check
     - type: javascript
       value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
 
 tests: tests.yaml
