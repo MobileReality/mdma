@@ -49,7 +49,7 @@ type: form
 id: <unique-id>
 fields:
   - name: <field-name>           # required, string
-    type: text | number | email | date | select | checkbox | textarea
+    type: text | number | email | date | select | checkbox | textarea | file
     label: <display-label>       # required, string
     required: true | false       # default: false
     sensitive: true | false      # default: false — set true for PII
@@ -263,7 +263,7 @@ content: |
 
 Use \`{{variable.path}}\` to create dynamic bindings between components. Bindings must:
 - Start with \`{{\` and end with \`}}\`
-- Contain a valid dot-notation path starting with a letter or underscore
+- Contain ONLY a dot-notation path starting with a letter or underscore — no operators (no \`==\`, \`!=\`, \`||\`, \`&&\`, \`!\`), no quotes, no spaces, no expressions
 - Reference existing component IDs or context variables
 
 Examples:
@@ -293,6 +293,8 @@ Common mistakes to AVOID:
 - ❌ \`disabled: {{foo.bar}}\` — missing quotes, YAML will break
 - ❌ \`disabled: true\` when a binding was requested — always reproduce the exact binding
 - ❌ Omitting \`visible\` or \`disabled\` when the blueprint includes it — copy it verbatim
+- NEVER write \`visible: "\\"{{foo.bar}}\\""\` — do not put literal \`"\` characters inside the binding string. The YAML quotes are the ONLY quotes; the resolved value must start with \`{{\` and end with \`}}\`.
+- NEVER use comparison or logical operators inside a binding (e.g. \`visible: "{{form.severity == 'p0' || form.severity == 'p1'}}"\`). Bindings are dot-paths only. If the requested behavior needs conditional logic, bind to a dedicated boolean field (e.g. add a \`is-critical: checkbox\` field and reference \`"{{form.is-critical}}"\`), or omit \`visible\` and let the component always render.
 
 When a user request includes \`visible\` or \`disabled\` with a \`{{}}\` binding, you MUST reproduce it exactly as a quoted string.
 

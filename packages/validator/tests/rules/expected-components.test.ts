@@ -51,19 +51,17 @@ describe('expected-components rule', () => {
   });
 
   it('skips expected components not present in this message', () => {
-    const ctx = createContext(
-      [createBlock(0, { type: 'callout', id: 'notice', content: 'Hi' })],
-      { 'my-form': { type: 'form' } },
-    );
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'notice', content: 'Hi' })], {
+      'my-form': { type: 'form' },
+    });
     expectedComponentsRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
   });
 
   it('flags wrong component type', () => {
-    const ctx = createContext(
-      [createBlock(0, { type: 'callout', id: 'my-form', content: 'Hi' })],
-      { 'my-form': { type: 'form' } },
-    );
+    const ctx = createContext([createBlock(0, { type: 'callout', id: 'my-form', content: 'Hi' })], {
+      'my-form': { type: 'form' },
+    });
     expectedComponentsRule.validate(ctx);
     expect(ctx.issues).toHaveLength(1);
     expect(ctx.issues[0].message).toContain('has type "callout"');
@@ -179,7 +177,11 @@ describe('expected-components rule', () => {
   it('only checks components present in message, ignores the rest', () => {
     const ctx = createContext(
       [
-        createBlock(0, { type: 'form', id: 'form-a', fields: [{ name: 'email', type: 'email', label: 'Email' }] }),
+        createBlock(0, {
+          type: 'form',
+          id: 'form-a',
+          fields: [{ name: 'email', type: 'email', label: 'Email' }],
+        }),
       ],
       {
         'form-a': { type: 'form', fields: ['email', 'phone'] },

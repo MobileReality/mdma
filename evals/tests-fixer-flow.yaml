@@ -294,3 +294,248 @@
       value: feedback-form
     - type: not-icontains
       value: "type: approval-gate"
+
+# ---------------------------------------------------------------------------
+# 5. Employee onboarding pipeline — no history (step 1)
+# ---------------------------------------------------------------------------
+- description: Fixes employee onboarding pipeline to step 1 (personal-info form) only
+  vars:
+    variantKey: flow
+    promptContext: |
+      Employee onboarding workflow.
+      Step 1: personal-info form (full name, email).
+      Step 2: department-form (department, start date).
+      Step 3: onboarding-tasks tasklist.
+      Step 4: welcome-callout.
+      Each step must be in a separate conversation turn.
+    brokenDocument: |
+      # Employee Onboarding
+
+      ```mdma
+      type: form
+      id: personal-info
+      fields:
+        - name: full-name
+          type: text
+          label: Full Name
+          required: true
+        - name: email
+          type: email
+          label: Email
+          required: true
+          sensitive: true
+      onSubmit: department-form
+      ```
+
+      ```mdma
+      type: form
+      id: department-form
+      fields:
+        - name: department
+          type: select
+          label: Department
+          options:
+            - label: Engineering
+              value: engineering
+            - label: Marketing
+              value: marketing
+        - name: start-date
+          type: date
+          label: Start Date
+      onSubmit: onboarding-tasks
+      ```
+
+      ```mdma
+      type: tasklist
+      id: onboarding-tasks
+      items:
+        - id: task-1
+          text: Complete HR paperwork
+        - id: task-2
+          text: Setup workstation
+      onComplete: welcome-callout
+      ```
+
+      ```mdma
+      type: callout
+      id: welcome-callout
+      variant: success
+      content: Welcome aboard!
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: personal-info
+    - type: not-icontains
+      value: "id: department-form"
+    - type: not-icontains
+      value: "id: onboarding-tasks"
+
+# ---------------------------------------------------------------------------
+# 6. Employee onboarding pipeline — step 1 done, show step 2
+# ---------------------------------------------------------------------------
+- description: Fixes to step 2 (department-form) when personal-info was in prior message
+  vars:
+    variantKey: flow
+    promptContext: |
+      Employee onboarding workflow.
+      Step 1: personal-info form.
+      Step 2: department-form (department, start date).
+      Step 3: onboarding-tasks tasklist.
+      Step 4: welcome-callout.
+      Each step must be in a separate conversation turn.
+    conversationHistory:
+      - role: user
+        content: Start the employee onboarding process
+      - role: assistant
+        content: |
+          # Employee Onboarding — Step 1
+
+          ```mdma
+          type: form
+          id: personal-info
+          fields:
+            - name: full-name
+              type: text
+              label: Full Name
+              required: true
+            - name: email
+              type: email
+              label: Email
+              required: true
+              sensitive: true
+          onSubmit: step-1-complete
+          ```
+
+          ```mdma
+          type: callout
+          id: step-1-complete
+          variant: success
+          content: Personal info saved!
+          ```
+      - role: user
+        content: I've submitted the form. What's next?
+    brokenDocument: |
+      # Employee Onboarding — Step 2
+
+      ```mdma
+      type: form
+      id: department-form
+      fields:
+        - name: department
+          type: select
+          label: Department
+          options:
+            - label: Engineering
+              value: engineering
+            - label: Marketing
+              value: marketing
+        - name: start-date
+          type: date
+          label: Start Date
+      onSubmit: onboarding-tasks
+      ```
+
+      ```mdma
+      type: tasklist
+      id: onboarding-tasks
+      items:
+        - id: task-1
+          text: Complete HR paperwork
+        - id: task-2
+          text: Setup workstation
+      onComplete: welcome-callout
+      ```
+
+      ```mdma
+      type: callout
+      id: welcome-callout
+      variant: success
+      content: Welcome aboard!
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: department-form
+    - type: not-icontains
+      value: "id: personal-info"
+    - type: not-icontains
+      value: "id: onboarding-tasks"
+
+# ---------------------------------------------------------------------------
+# 7. Expense approval pipeline — no history (step 1)
+# ---------------------------------------------------------------------------
+- description: Fixes 3-step expense approval pipeline to step 1 (expense-form) only
+  vars:
+    variantKey: flow
+    promptContext: |
+      Expense approval workflow.
+      Step 1: expense-form (amount, description).
+      Step 2: manager-approval gate.
+      Step 3: finance-approval gate.
+      Step 4: approved-callout success message.
+      Each step must be in a separate conversation turn.
+    brokenDocument: |
+      # Expense Approval
+
+      ```mdma
+      type: form
+      id: expense-form
+      fields:
+        - name: amount
+          type: number
+          label: Amount
+          required: true
+        - name: description
+          type: textarea
+          label: Description
+      onSubmit: manager-approval
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: manager-approval
+      title: Manager Approval
+      requiredApprovers: 1
+      allowedRoles:
+        - manager
+      onApprove: finance-approval
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: finance-approval
+      title: Finance Approval
+      requiredApprovers: 1
+      allowedRoles:
+        - finance
+      onApprove: approved-callout
+      ```
+
+      ```mdma
+      type: callout
+      id: approved-callout
+      variant: success
+      content: Expense approved!
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: expense-form
+    - type: not-icontains
+      value: "type: approval-gate"
+    - type: not-icontains
+      value: "id: approved-callout"

@@ -79,6 +79,83 @@ Is there anything else I can help you with?`,
     ],
   },
 
+  'job-application': {
+    label: 'Job Application (File Upload)',
+    customPrompt: `You are a recruiting assistant that helps candidates submit job applications with supporting documents.
+
+When a candidate wants to apply:
+1. Present an application form with: Full Name (required), Email (required, sensitive), Resume (required, type: file), Portfolio Samples (type: file), Cover Letter (textarea, min 50 chars).
+2. Add a "Submit Application" button with a confirmation dialog that warns the submission is final.
+3. After submission, show a success callout confirming receipt and mention a 5 business day response window.
+
+Be professional and encouraging. Mark email as sensitive.`,
+    steps: [
+      {
+        userMessage: 'I want to apply for a job — give me an application form',
+        markdown: `# Job Application
+
+Thanks for your interest! Please complete the application below. We review every submission within 5 business days.
+
+\`\`\`mdma
+id: application-form
+type: form
+fields:
+  - name: full_name
+    type: text
+    label: Full Name
+    required: true
+  - name: email
+    type: email
+    label: Email Address
+    required: true
+    sensitive: true
+  - name: resume
+    type: file
+    label: Resume
+    required: true
+  - name: portfolio
+    type: file
+    label: Portfolio Samples
+  - name: cover_letter
+    type: textarea
+    label: Cover Letter
+    validation:
+      min: 50
+      message: Please write at least 50 characters.
+onSubmit: submit-application
+\`\`\`
+
+\`\`\`mdma
+id: submit-btn
+type: button
+text: Submit Application
+variant: primary
+onAction: submit-application
+confirm:
+  title: Submit Application?
+  message: Once submitted, you will not be able to edit your application.
+  confirmText: Submit
+  cancelText: Keep Editing
+\`\`\``,
+      },
+      {
+        userMessage: '[Application submitted]',
+        markdown: `Your application is in — thanks for applying!
+
+\`\`\`mdma
+id: submission-success
+type: callout
+variant: success
+title: Application Received
+content: "We've received your application and attached documents. Our team will review it and respond within 5 business days."
+dismissible: true
+\`\`\`
+
+Is there anything else I can help you with?`,
+      },
+    ],
+  },
+
   'bug-report': {
     label: 'Bug Report',
     customPrompt: `You are an engineering support assistant that helps teams file and triage bug reports.

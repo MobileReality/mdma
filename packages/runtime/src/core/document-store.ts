@@ -2,6 +2,7 @@ import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mobile-realit
 import { createEventBus, type TypedEventBus } from './event-bus.js';
 import { createEventLog, type AppendOnlyEventLog } from './event-log.js';
 import { resolveValue } from './binding-resolver.js';
+import { serializeFiles } from './serialize-files.js';
 import { redactPayload, type RedactionContext } from '../redaction/redactor.js';
 import { PolicyEngine, createDefaultPolicy } from '../policy/policy-engine.js';
 import type { AttachableRegistry, ComponentState } from '../attachable/registry.js';
@@ -113,7 +114,7 @@ export function createDocumentStore(
       INTEGRATION_CALLED: 'integration_called',
     };
 
-    const payload = { ...action } as Record<string, unknown>;
+    const payload = serializeFiles({ ...action }) as Record<string, unknown>;
     payload.type = undefined;
     payload.componentId = undefined;
 

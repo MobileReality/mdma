@@ -108,9 +108,27 @@ describe('thinking-block rule', () => {
 
   it('flags all extra thinking blocks when there are three', () => {
     const ctx = createContext([
-      createBlock(0, { type: 'thinking', id: 't-1', content: 'First', status: 'done', collapsed: true }),
-      createBlock(1, { type: 'thinking', id: 't-2', content: 'Second', status: 'done', collapsed: true }),
-      createBlock(2, { type: 'thinking', id: 't-3', content: 'Third', status: 'done', collapsed: true }),
+      createBlock(0, {
+        type: 'thinking',
+        id: 't-1',
+        content: 'First',
+        status: 'done',
+        collapsed: true,
+      }),
+      createBlock(1, {
+        type: 'thinking',
+        id: 't-2',
+        content: 'Second',
+        status: 'done',
+        collapsed: true,
+      }),
+      createBlock(2, {
+        type: 'thinking',
+        id: 't-3',
+        content: 'Third',
+        status: 'done',
+        collapsed: true,
+      }),
     ]);
     thinkingBlockRule.validate(ctx);
     const dupes = ctx.issues.filter((i) => i.message.includes('Duplicate'));

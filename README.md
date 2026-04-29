@@ -58,7 +58,7 @@ onAction: submit
 
 | Component | Type key | Description |
 |-----------|----------|-------------|
-| **Form** | `form` | Multi-field forms with text, email, number, select, textarea, checkbox, and datetime fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
+| **Form** | `form` | Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
 | **Button** | `button` | Action buttons with `primary`, `secondary`, and `danger` variants. |
 | **Tasklist** | `tasklist` | Interactive checkbox task items with labels. |
 | **Table** | `table` | Data tables with typed columns and row data. |
@@ -506,7 +506,7 @@ pnpm eval:view
 - [x] Added MCP
 - [x] Added Skills for Agentic usage
 - [x] Improved error messages in parser
-- [ ] File upload field type for forms
+- [x] File upload field type for forms
 
 ### v0.3 — AI & Generation
 - [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)

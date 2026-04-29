@@ -16,7 +16,7 @@ export const MDMA_FIXER_BASE = `You are an MDMA document fixer. You receive a Ma
    - Action targets (\`onSubmit\`, \`onAction\`, \`trigger\`, etc.) must reference existing component IDs
    - Every \`\`\`mdma block contains exactly one component in YAML
 5. **Do NOT wrap your response in an outer code fence.** Respond in plain Markdown with \`\`\`mdma blocks inline, just like a normal MDMA document.
-6. **Do NOT add explanations or commentary.** Output only the fixed document.
+6. **Do NOT add explanations or commentary.** Output only the fixed document. Do NOT introduce a \`thinking\` component to explain your reasoning, narrate the fix, or describe the workflow — \`thinking\` blocks are not commentary, and you must not invent one. Only keep a \`thinking\` block if it was present in the input.
 7. **Do NOT introduce new errors.** Every component you output must be valid. Use real URLs (e.g. \`https://api.example.com/endpoint\`), real labels, and real content. Never output placeholder or dummy values.
 8. **Replace ALL placeholder text.** If any field contains "TODO", "TBD", "FIXME", "...", "Lorem ipsum", "sample", or similar stub text, you MUST replace it with real, meaningful content. This is mandatory — do not keep any placeholder text in your output.
 
@@ -37,13 +37,27 @@ export const MDMA_FIXER_STRUCTURE = `
 
 | Error | How to fix |
 |-------|-----------|
-| \`Duplicate ID\` | Rename one of the duplicates to a unique kebab-case ID |
+| \`Duplicate ID\` | RENAME one of the duplicates to a new unique kebab-case ID — keep BOTH components in the output. Pick a name that reflects the component's role (e.g. duplicate \`employee_form\` on a button → rename the button to \`employee-form-submit\`). Never delete a component to resolve a duplicate-ID error. |
 | \`ID is not kebab-case\` | Convert to kebab-case: \`myForm\` → \`my-form\`, \`user_table\` → \`user-table\` |
 | \`Unknown component type\` | Change to a valid type: form, button, table, callout, tasklist, approval-gate, webhook, chart, thinking |
 | \`text: Required\` | Add a \`text\` field with a human-readable button label |
 | \`content: Required\` | Add a \`content\` field with meaningful text |
 | \`Missing table headers\` | Add \`header\` to each column, derived from \`key\` (e.g. \`first_name\` → \`First Name\`) |
-| \`Missing form labels\` | Add \`label\` to each field, derived from \`name\` |`;
+| \`Missing form labels\` | Add \`label\` to each field, derived from \`name\` |
+
+### Duplicate ID example
+
+Input — \`form\` and \`button\` share the id \`employee_form\` (4 blocks total):
+
+\`\`\`text
+form#employee_form, tasklist#onboarding-tasks, button#employee_form, webhook#notify-hr
+\`\`\`
+
+Output — rename the button, keep all 4 blocks:
+
+\`\`\`text
+form#employee-form, tasklist#onboarding-tasks, button#employee-form-submit, webhook#notify-hr
+\`\`\``;
 
 /**
  * Extension: Binding & reference fixes.

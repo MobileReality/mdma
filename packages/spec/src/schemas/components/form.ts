@@ -4,7 +4,7 @@ import { BindingExpressionSchema } from '../binding.js';
 
 export const FormFieldSchema = z.object({
   name: z.string().min(1),
-  type: z.enum(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea']),
+  type: z.enum(['text', 'number', 'email', 'date', 'select', 'checkbox', 'textarea', 'file']),
   label: z.string(),
   required: z.boolean().default(false),
   sensitive: z.boolean().default(false),

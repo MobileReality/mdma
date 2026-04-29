@@ -7,6 +7,7 @@ import {
   type FormSelectElementProps,
   type FormCheckboxElementProps,
   type FormTextareaElementProps,
+  type FormFileElementProps,
   type FormSubmitElementProps,
 } from '../context/ElementOverridesContext.js';
 
@@ -86,6 +87,34 @@ function DefaultTextarea({ id, value, onChange, required, sensitive }: FormTexta
   );
 }
 
+function DefaultFile({ id, value, onChange, required, sensitive }: FormFileElementProps) {
+  return (
+    <span
+      className={`mdma-input-wrapper mdma-input--file ${sensitive ? 'mdma-input--sensitive' : ''}`}
+    >
+      <input
+        id={id}
+        type="file"
+        required={required}
+        onChange={(e) => {
+          const files = e.target.files ? Array.from(e.target.files) : [];
+          onChange(files);
+        }}
+      />
+      {value.length > 0 && (
+        <ul className="mdma-file-list">
+          {value.map((file) => (
+            <li key={`${file.name}-${file.lastModified}-${file.size}`}>
+              {sensitive ? '•••' : file.name}{' '}
+              <span className="mdma-file-size">({file.size} B)</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </span>
+  );
+}
+
 function DefaultSubmitButton({ onClick, label }: FormSubmitElementProps) {
   return (
     <button type="button" className="mdma-form-submit" onClick={onClick}>
@@ -109,6 +138,7 @@ export const FormRenderer = memo(function FormRenderer({
     useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
   const Textarea =
     useElementOverride<FormTextareaElementProps>('form', 'textarea') ?? DefaultTextarea;
+  const FileInput = useElementOverride<FormFileElementProps>('form', 'file') ?? DefaultFile;
   const SubmitButton =
     useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
 
@@ -128,6 +158,13 @@ export const FormRenderer = memo(function FormRenderer({
             componentId: component.id,
             field: field.name,
             value: checked,
+          });
+        const handleFiles = (files: File[]) =>
+          dispatch({
+            type: 'FIELD_CHANGED',
+            componentId: component.id,
+            field: field.name,
+            value: files,
           });
 
         return (
@@ -171,6 +208,20 @@ export const FormRenderer = memo(function FormRenderer({
                 label={field.label}
                 value={fieldValue}
                 onChange={handleChange}
+                required={field.required}
+                sensitive={field.sensitive}
+              />
+            ) : field.type === 'file' ? (
+              <FileInput
+                id={fieldId}
+                name={field.name}
+                label={field.label}
+                value={
+                  Array.isArray(componentState?.values[field.name])
+                    ? (componentState.values[field.name] as File[])
+                    : []
+                }
+                onChange={handleFiles}
                 required={field.required}
                 sensitive={field.sensitive}
               />

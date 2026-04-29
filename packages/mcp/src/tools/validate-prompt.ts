@@ -5,11 +5,13 @@ const KNOWN_TYPES = new Set(COMPONENT_TYPES as readonly string[]);
 const ANTI_PATTERNS = [
   {
     pattern: /wrap.*(?:markdown|code).*fence|```markdown/i,
-    warning: 'Prompt instructs wrapping output in markdown fences — MDMA output should be plain markdown with ```mdma blocks inline',
+    warning:
+      'Prompt instructs wrapping output in markdown fences — MDMA output should be plain markdown with ```mdma blocks inline',
   },
   {
     pattern: /skip.*thinking|no thinking|without thinking/i,
-    warning: 'Prompt instructs skipping thinking blocks — every MDMA response should start with a thinking block',
+    warning:
+      'Prompt instructs skipping thinking blocks — every MDMA response should start with a thinking block',
   },
   {
     pattern: /use JSON|output.*JSON|JSON format/i,
@@ -74,7 +76,9 @@ export function validatePrompt(prompt: string): PromptValidationResult {
     const blocks = prompt.match(/```mdma[\s\S]*?```/g) ?? [];
     for (const block of blocks) {
       if (block.includes('"type":') || block.includes('{"')) {
-        warnings.push('A ```mdma example in the prompt uses JSON syntax — MDMA blocks must use YAML');
+        warnings.push(
+          'A ```mdma example in the prompt uses JSON syntax — MDMA blocks must use YAML',
+        );
       }
     }
   } else {
@@ -96,13 +100,13 @@ export function validatePrompt(prompt: string): PromptValidationResult {
     thinkingStatuses: ['thinking', 'done'],
     webhookMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
     fieldNames: {
-      'allowedRoles': 'use "allowedRoles" not "roles"',
-      'requiredApprovers': 'use "requiredApprovers" not "approvers"',
-      'onSubmit': 'use "onSubmit" not "submit" or "onClick"',
-      'onAction': 'use "onAction" not "onClick" or "action"',
-      'onComplete': 'use "onComplete" not "onDone" or "onFinish"',
-      'onApprove': 'use "onApprove" not "onAccept"',
-      'onDeny': 'use "onDeny" not "onReject" or "onDecline"',
+      allowedRoles: 'use "allowedRoles" not "roles"',
+      requiredApprovers: 'use "requiredApprovers" not "approvers"',
+      onSubmit: 'use "onSubmit" not "submit" or "onClick"',
+      onAction: 'use "onAction" not "onClick" or "action"',
+      onComplete: 'use "onComplete" not "onDone" or "onFinish"',
+      onApprove: 'use "onApprove" not "onAccept"',
+      onDeny: 'use "onDeny" not "onReject" or "onDecline"',
     },
     requiredComponentFields: {
       form: ['id', 'fields (min 1)'],
