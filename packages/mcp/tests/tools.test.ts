@@ -285,7 +285,9 @@ describe('get-doc', () => {
   });
 
   it('returns an error on network failure', async () => {
-    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('ENETUNREACH'));
+    (globalThis.fetch as unknown as ReturnType<typeof vi.fn>).mockRejectedValue(
+      new Error('ENETUNREACH'),
+    );
     const result = await getDoc('README.md');
     expect('error' in result).toBe(true);
     if ('error' in result) {

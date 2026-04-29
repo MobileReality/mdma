@@ -80,7 +80,11 @@ describe('schema-conformance rule', () => {
 
   it('includes custom schema types in valid types list', () => {
     const { z } = require('zod');
-    const customSchema = z.object({ type: z.literal('progress'), id: z.string(), value: z.number() });
+    const customSchema = z.object({
+      type: z.literal('progress'),
+      id: z.string(),
+      value: z.number(),
+    });
     const ctx: ValidationRuleContext = {
       blocks: [createBlock(0, { type: 'foobar', id: 'x' })],
       idMap: new Map([['x', 0]]),

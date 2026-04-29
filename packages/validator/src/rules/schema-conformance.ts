@@ -82,10 +82,7 @@ export const schemaConformanceRule: ValidationRule = {
       }
 
       if (!schema) {
-        const allValid = [
-          ...COMPONENT_TYPES,
-          ...Object.keys(context.options.customSchemas ?? {}),
-        ];
+        const allValid = [...COMPONENT_TYPES, ...Object.keys(context.options.customSchemas ?? {})];
         const suggestion = suggestType(type, allValid);
         context.issues.push({
           ruleId: 'schema-conformance',

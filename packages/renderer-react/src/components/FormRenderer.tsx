@@ -89,7 +89,9 @@ function DefaultTextarea({ id, value, onChange, required, sensitive }: FormTexta
 
 function DefaultFile({ id, value, onChange, required, sensitive }: FormFileElementProps) {
   return (
-    <span className={`mdma-input-wrapper mdma-input--file ${sensitive ? 'mdma-input--sensitive' : ''}`}>
+    <span
+      className={`mdma-input-wrapper mdma-input--file ${sensitive ? 'mdma-input--sensitive' : ''}`}
+    >
       <input
         id={id}
         type="file"
@@ -103,7 +105,8 @@ function DefaultFile({ id, value, onChange, required, sensitive }: FormFileEleme
         <ul className="mdma-file-list">
           {value.map((file) => (
             <li key={`${file.name}-${file.lastModified}-${file.size}`}>
-              {sensitive ? '•••' : file.name} <span className="mdma-file-size">({file.size} B)</span>
+              {sensitive ? '•••' : file.name}{' '}
+              <span className="mdma-file-size">({file.size} B)</span>
             </li>
           ))}
         </ul>

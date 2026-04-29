@@ -38,7 +38,9 @@ describe('parseYaml', () => {
   });
 
   it('does not touch values inside block scalars', () => {
-    const result = parseYaml('type: callout\nid: notice\ncontent: |\n  Line 1: has colon\n  Line 2: also colon');
+    const result = parseYaml(
+      'type: callout\nid: notice\ncontent: |\n  Line 1: has colon\n  Line 2: also colon',
+    );
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.data.content).toContain('Line 1: has colon');

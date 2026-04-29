@@ -27,7 +27,13 @@ function createFixContext(blocks: ParsedBlock[], issues: ValidationIssue[] = [])
 describe('fixThinkingBlock', () => {
   it('does nothing with a single thinking block', () => {
     const ctx = createFixContext([
-      createBlock(0, { type: 'thinking', id: 't1', content: 'Reasoning...', status: 'done', collapsed: true }),
+      createBlock(0, {
+        type: 'thinking',
+        id: 't1',
+        content: 'Reasoning...',
+        status: 'done',
+        collapsed: true,
+      }),
       createBlock(1, { type: 'form', id: 'f1', fields: [] }),
     ]);
     fixThinkingBlock(ctx);
@@ -38,9 +44,21 @@ describe('fixThinkingBlock', () => {
 
   it('merges two thinking blocks into one', () => {
     const ctx = createFixContext([
-      createBlock(0, { type: 'thinking', id: 't1', content: 'First reasoning', status: 'done', collapsed: true }),
+      createBlock(0, {
+        type: 'thinking',
+        id: 't1',
+        content: 'First reasoning',
+        status: 'done',
+        collapsed: true,
+      }),
       createBlock(1, { type: 'form', id: 'f1', fields: [] }),
-      createBlock(2, { type: 'thinking', id: 't2', content: 'Second reasoning', status: 'done', collapsed: true }),
+      createBlock(2, {
+        type: 'thinking',
+        id: 't2',
+        content: 'Second reasoning',
+        status: 'done',
+        collapsed: true,
+      }),
     ]);
     fixThinkingBlock(ctx);
     const thinkingBlocks = ctx.blocks.filter((b) => b.data?.type === 'thinking');
@@ -63,8 +81,20 @@ describe('fixThinkingBlock', () => {
   it('moves merged thinking block to the top', () => {
     const ctx = createFixContext([
       createBlock(0, { type: 'form', id: 'f1', fields: [] }),
-      createBlock(1, { type: 'thinking', id: 't1', content: 'First', status: 'done', collapsed: true }),
-      createBlock(2, { type: 'thinking', id: 't2', content: 'Second', status: 'done', collapsed: true }),
+      createBlock(1, {
+        type: 'thinking',
+        id: 't1',
+        content: 'First',
+        status: 'done',
+        collapsed: true,
+      }),
+      createBlock(2, {
+        type: 'thinking',
+        id: 't2',
+        content: 'Second',
+        status: 'done',
+        collapsed: true,
+      }),
     ]);
     fixThinkingBlock(ctx);
     // First parsed block should now be thinking
@@ -86,9 +116,21 @@ describe('fixThinkingBlock', () => {
     ];
     const ctx = createFixContext(
       [
-        createBlock(0, { type: 'thinking', id: 't1', content: 'A', status: 'done', collapsed: true }),
+        createBlock(0, {
+          type: 'thinking',
+          id: 't1',
+          content: 'A',
+          status: 'done',
+          collapsed: true,
+        }),
         createBlock(1, { type: 'form', id: 'f1', fields: [] }),
-        createBlock(2, { type: 'thinking', id: 't2', content: 'B', status: 'done', collapsed: true }),
+        createBlock(2, {
+          type: 'thinking',
+          id: 't2',
+          content: 'B',
+          status: 'done',
+          collapsed: true,
+        }),
       ],
       issues,
     );
