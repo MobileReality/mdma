@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-attachables-core",
   "version": "0.2.1",
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "state-handlers", "runtime"],
   "type": "module",
   "exports": {
     ".": {

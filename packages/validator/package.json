@@ -1,6 +1,7 @@
 {
   "name": "@mobile-reality/mdma-validator",
   "version": "0.2.2",
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "validator", "linter", "static-analysis"],
   "type": "module",
   "exports": {
     ".": {
