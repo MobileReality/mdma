@@ -11,6 +11,7 @@ export {
   resolveValue,
   parseBindingExpression,
 } from './core/binding-resolver.js';
+export { serializeFiles } from './core/serialize-files.js';
 export { redactPayload, type RedactionContext } from './redaction/redactor.js';
 export { hashValue } from './redaction/hash.js';
 export {
