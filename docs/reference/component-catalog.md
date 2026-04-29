@@ -35,7 +35,7 @@ Collects structured user input through typed fields with validation.
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
 | `name` | `string` | *required* | Field identifier. Min length 1. |
-| `type` | `enum` | *required* | One of: `text`, `number`, `email`, `date`, `select`, `checkbox`, `textarea`. |
+| `type` | `enum` | *required* | One of: `text`, `number`, `email`, `date`, `select`, `checkbox`, `textarea`, `file`. |
 | `label` | `string` | *required* | Display label. |
 | `required` | `boolean` | `false` | Whether the field must have a value. |
 | `sensitive` | `boolean` | `false` | If true, this field's value is redacted in event logs. |
