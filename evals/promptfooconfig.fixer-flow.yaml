@@ -12,7 +12,8 @@ prompts:
   - file://prompt-fixer.mjs
 
 providers:
-  - openai:gpt-4.1
+  # Override per run with EVAL_PROVIDER (see promptfooconfig.yaml for examples).
+  - "{{ env.EVAL_PROVIDER or 'openai:gpt-4.1' }}"
 
 defaultTest:
   assert:

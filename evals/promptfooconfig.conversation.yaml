@@ -15,6 +15,7 @@ prompts:
   - file://prompt-conversation.mjs
 
 providers:
-  - openai:gpt-4.1-mini
+  # Override per run with EVAL_PROVIDER (see promptfooconfig.yaml for examples).
+  - "{{ env.EVAL_PROVIDER or 'openai:gpt-4.1-mini' }}"
 
 tests: tests-conversation.yaml

@@ -12,7 +12,12 @@ prompts:
   - file://prompt.mjs
 
 providers:
-  - openai:gpt-4.1-mini
+  # Override per run with EVAL_PROVIDER, e.g.:
+  #   EVAL_PROVIDER=openai:gpt-4o pnpm eval                                        # uses OPENAI_API_KEY
+  #   EVAL_PROVIDER=openrouter:anthropic/claude-sonnet-4 pnpm eval                 # uses OPENROUTER_API_KEY
+  #   EVAL_PROVIDER=openrouter:google/gemini-2.5-pro pnpm eval
+  #   EVAL_PROVIDER=openrouter:meta-llama/llama-3.3-70b-instruct pnpm eval
+  - "{{ env.EVAL_PROVIDER or 'openai:gpt-4.1-mini' }}"
 
 defaultTest:
   assert:

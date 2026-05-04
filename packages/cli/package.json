@@ -24,6 +24,11 @@
       "import": "./dist/prompts/master-prompt.js",
       "types": "./dist/prompts/master-prompt.d.ts",
       "default": "./dist/prompts/master-prompt.js"
+    },
+    "./prompts/*": {
+      "import": "./dist/prompts/*.js",
+      "types": "./dist/prompts/*.d.ts",
+      "default": "./dist/prompts/*.js"
     }
   },
   "scripts": {
