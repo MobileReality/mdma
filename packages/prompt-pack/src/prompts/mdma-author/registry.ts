@@ -12,6 +12,7 @@ import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
 import { MDMA_AUTHOR_PROMPT_OPUS } from './anthropic/opus.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5 } from './openai/gpt-5.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_MINI } from './openai/gpt-5.4-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_NANO } from './openai/gpt-5.4-nano.js';
@@ -54,9 +55,15 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     prompt: MDMA_AUTHOR_PROMPT_OPUS,
   },
   {
+    id: 'openai/gpt-5',
+    label: 'OpenAI — GPT-5',
+    description: 'Flagship-tier framing: <scope_discipline> + <select_options>. No <fence_closing>.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5,
+  },
+  {
     id: 'openai/gpt-5.5',
     label: 'OpenAI — GPT-5.5',
-    description: 'Placeholder for 5.5-specific tuning (currently identical to default).',
+    description: 'Same flagship-tier framing as GPT-5: <scope_discipline> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_5,
   },
   {
