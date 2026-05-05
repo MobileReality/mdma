@@ -13,6 +13,7 @@ import { MDMA_AUTHOR_PROMPT_OPUS } from './anthropic/opus.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
+import { MDMA_AUTHOR_PROMPT_GPT_4_1_MINI } from './openai/gpt-4.1-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5 } from './openai/gpt-5.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_MINI } from './openai/gpt-5-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_NANO } from './openai/gpt-5-nano.js';
@@ -116,8 +117,14 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-4.1',
     label: 'OpenAI — GPT-4.1',
-    description: 'Non-reasoning flagship from the gpt-4.x family — placeholder using canonical default.',
+    description: 'Non-reasoning flagship from the gpt-4.x family — adds <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_4_1,
+  },
+  {
+    id: 'openai/gpt-4.1-mini',
+    label: 'OpenAI — GPT-4.1-mini',
+    description: 'Mini tier of GPT-4.1 — same framing as GPT-5.4-mini: <fence_closing> + <select_options>.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_4_1_MINI,
   },
 ];
 
