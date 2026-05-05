@@ -14,6 +14,7 @@ import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5 } from './openai/gpt-5.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_MINI } from './openai/gpt-5-mini.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_NANO } from './openai/gpt-5-nano.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_1 } from './openai/gpt-5.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_2 } from './openai/gpt-5.2.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
@@ -92,6 +93,12 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'OpenAI — GPT-5-mini',
     description: 'Mini tier of GPT-5 — needs all three: <fence_closing> + <scope_discipline> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_MINI,
+  },
+  {
+    id: 'openai/gpt-5-nano',
+    label: 'OpenAI — GPT-5-nano',
+    description: 'Smallest tier of GPT-5 — same all-three framing as GPT-5.4-nano and GPT-5-mini.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_NANO,
   },
   {
     id: 'openai/gpt-5.4-mini',
