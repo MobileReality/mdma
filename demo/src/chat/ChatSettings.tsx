@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
 import { PROVIDER_PRESETS, type LlmConfig } from '../llm-client.js';
 
 const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
@@ -19,11 +20,6 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'claude-sonnet-4-6', label: 'claude-sonnet-4.6' },
     { value: 'claude-haiku-4-5-20251001', label: 'claude-haiku-4.5' },
     { value: 'claude-sonnet-4-5-20250929', label: 'claude-sonnet-4.5' },
-  ],
-  gemini: [
-    { value: 'gemini-2.5-pro', label: 'gemini-2.5-pro' },
-    { value: 'gemini-2.5-flash', label: 'gemini-2.5-flash' },
-    { value: 'gemini-2.0-flash', label: 'gemini-2.0-flash' },
   ],
   openrouter: [
     { value: 'openai/gpt-5.4', label: 'openai/gpt-5.4' },
@@ -139,6 +135,25 @@ export const ChatSettings = memo(function ChatSettings({
                 />
               )}
             </div>
+            <label className="ai-setting">
+              <span>Optimized System Prompt for:</span>
+              <select
+                aria-label="Optimized System Prompt"
+                value={config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id}
+                onChange={(e) => onUpdate({ systemPromptId: e.target.value })}
+                title={
+                  AUTHOR_PROMPT_VARIANTS.find(
+                    (v) => v.id === (config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id),
+                  )?.description
+                }
+              >
+                {AUTHOR_PROMPT_VARIANTS.map((v) => (
+                  <option key={v.id} value={v.id} title={v.description}>
+                    {v.label}
+                  </option>
+                ))}
+              </select>
+            </label>
           </div>
         </div>
       )}

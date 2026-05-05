@@ -47,11 +47,6 @@ export function FixerSettings({
             <option value="claude-haiku-4-5-20251001">claude-haiku-4.5</option>
             <option value="claude-sonnet-4-5-20250929">claude-sonnet-4.5</option>
           </optgroup>
-          <optgroup label="Google">
-            <option value="gemini-2.5-pro">gemini-2.5-pro</option>
-            <option value="gemini-2.5-flash">gemini-2.5-flash</option>
-            <option value="gemini-2.0-flash">gemini-2.0-flash</option>
-          </optgroup>
           <optgroup label="OpenRouter">
             <option value="openai/gpt-5.4">openai/gpt-5.4</option>
             <option value="openai/gpt-5.4-mini">openai/gpt-5.4-mini</option>
