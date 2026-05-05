@@ -18,6 +18,7 @@ achieves **100 % pass** on the listed eval suite.
 | `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.2` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5` | ✅ | ✅ | ✅ | ✅ |
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
