@@ -17,6 +17,6 @@
     "@mobile-reality/mdma-cli": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
-    "promptfoo": "0.109.0"
+    "promptfoo": "0.121.9"
   }
 }

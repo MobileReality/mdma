@@ -24,6 +24,7 @@ providers:
   - id: "{{ env.EVAL_PROVIDER or 'openai:chat:gpt-4.1' }}"
     config:
       max_tokens: 8192
+      max_completion_tokens: 8192
 
 defaultTest:
   assert:

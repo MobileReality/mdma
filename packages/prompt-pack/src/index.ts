@@ -1,5 +1,5 @@
 export { loadPrompt, listPrompts } from './loader.js';
-export { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author.js';
+export { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 export { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
 export {
   MDMA_FIXER_PROMPT,

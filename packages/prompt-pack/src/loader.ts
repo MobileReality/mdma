@@ -1,4 +1,4 @@
-import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author.js';
+import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 import { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
 import { MDMA_FIXER_PROMPT } from './prompts/mdma-fixer.js';
 
