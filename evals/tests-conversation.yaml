@@ -1,25 +1,31 @@
 # MDMA Conversation Tests
 #
-# Multi-turn tests where Turn 1 prescribes an exact MDMA blueprint via
-# customPrompt and the user request triggers generation. Turn 2+ simulates
-# an end-user interacting with the assistant — asking questions, chatting,
-# discussing the form. The MDMA structure must NEVER be regenerated or
-# modified by end-user messages.
+# Multi-turn tests where Turn 1 generates the MDMA component(s) prescribed
+# by the customPrompt, and later turns simulate end-user follow-up interactions
+# (questions, comments, off-topic chat). The MDMA structure must NEVER be
+# regenerated or modified by end-user messages on follow-up turns.
+#
+# IMPORTANT: Each conversation declares its `customPrompt` ONCE on Turn 1
+# using a YAML anchor (`&convN_prompt`). Subsequent turns reference it via
+# the alias (`*convN_prompt`) — the system prompt stays identical for the
+# entire conversation, mirroring how a real chat client works (one stable
+# system message + accumulating user/assistant turns). The customPrompt
+# anticipates BOTH the initial generation AND the follow-up behavior, so
+# the model has to follow the same coherent instruction on every turn.
 #
 # We verify:
 #   - Follow-ups do NOT regenerate MDMA components
 #   - No raw YAML leaks into visible prose
-#   - The assistant responds conversationally
+#   - The assistant responds conversationally on later turns
 
 # ===================================================================
 # Conversation 1 — User asks about the form they see
 # ===================================================================
 
-# Turn 1: Generate a contact form from blueprint
 - description: "Conv 1/T1: Generate contact form from blueprint"
   vars:
-    customPrompt: |
-      You are a customer support assistant. When asked for a contact form,
+    customPrompt: &conv1_prompt |
+      You are a customer support assistant. When the user asks for a contact form,
       generate exactly this component:
 
       ```mdma
@@ -42,7 +48,9 @@
           required: true
       ```
 
-      Generate only this form. No buttons, callouts, or other components.
+      Generate this form only once when the user first requests it. No buttons,
+      callouts, or other components. For any follow-up questions, respond
+      conversationally in plain text without regenerating the form.
     message: I need a contact form for our support page.
   metadata:
     conversationId: conv-1
@@ -58,36 +66,9 @@
     - type: javascript
       value: file://assertions/no-yaml-leak.mjs
 
-# Turn 2: User asks why email is marked sensitive
 - description: "Conv 1/T2: User asks about sensitive field — no regeneration"
   vars:
-    customPrompt: |
-      You are a customer support assistant. When asked for a contact form,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: contact-form
-      onSubmit: submit-contact-form
-      fields:
-        - name: full-name
-          type: text
-          label: "Full Name"
-          required: true
-        - name: email
-          type: email
-          label: "Email Address"
-          required: true
-          sensitive: true
-        - name: message
-          type: textarea
-          label: "Message"
-          required: true
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv1_prompt
     message: Why is the email field treated differently from the other fields?
   metadata:
     conversationId: conv-1
@@ -101,12 +82,11 @@
 # Conversation 2 — User asks about filling in the form
 # ===================================================================
 
-# Turn 1: Generate an employee form from blueprint
 - description: "Conv 2/T1: Generate employee info form from blueprint"
   vars:
-    customPrompt: |
-      You are an HR assistant. When collecting employee info, generate
-      exactly this component:
+    customPrompt: &conv2_prompt |
+      You are an HR assistant. When the user asks to collect employee info,
+      generate exactly this component:
 
       ```mdma
       type: form
@@ -140,7 +120,9 @@
           required: true
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need to collect info for a new employee joining next week.
   metadata:
     conversationId: conv-2
@@ -156,48 +138,9 @@
     - type: javascript
       value: file://assertions/select-has-options.mjs
 
-# Turn 2: User asks which fields are mandatory
 - description: "Conv 2/T2: User asks about required fields — no regeneration"
   vars:
-    customPrompt: |
-      You are an HR assistant. When collecting employee info, generate
-      exactly this component:
-
-      ```mdma
-      type: form
-      id: employee-info
-      onSubmit: submit-employee-info
-      fields:
-        - name: full-name
-          type: text
-          label: "Full Name"
-          required: true
-        - name: email
-          type: email
-          label: "Work Email"
-          required: true
-          sensitive: true
-        - name: department
-          type: select
-          label: "Department"
-          options:
-            - label: Engineering
-              value: engineering
-            - label: Marketing
-              value: marketing
-            - label: Sales
-              value: sales
-            - label: HR
-              value: hr
-        - name: start-date
-          type: date
-          label: "Start Date"
-          required: true
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv2_prompt
     message: Which fields do I absolutely have to fill in before submitting?
   metadata:
     conversationId: conv-2
@@ -211,12 +154,11 @@
 # Conversation 3 — User discusses registration requirements
 # ===================================================================
 
-# Turn 1: Generate a registration form from blueprint
 - description: "Conv 3/T1: Generate registration form from blueprint"
   vars:
-    customPrompt: |
-      You are an account management assistant. For user registration,
-      generate exactly this component:
+    customPrompt: &conv3_prompt |
+      You are an account management assistant. When the user asks for a
+      registration form, generate exactly this component:
 
       ```mdma
       type: form
@@ -243,7 +185,9 @@
           sensitive: true
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need a registration form for new users.
   metadata:
     conversationId: conv-3
@@ -259,41 +203,9 @@
     - type: javascript
       value: file://assertions/has-sensitive.mjs
 
-# Turn 2: User asks about password requirements
 - description: "Conv 3/T2: User asks about password rules — no regeneration"
   vars:
-    customPrompt: |
-      You are an account management assistant. For user registration,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: registration-form
-      onSubmit: submit-registration-form
-      fields:
-        - name: username
-          type: text
-          label: "Username"
-          required: true
-        - name: email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: password
-          type: text
-          label: "Password"
-          required: true
-          sensitive: true
-        - name: dob
-          type: date
-          label: "Date of Birth"
-          sensitive: true
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv3_prompt
     message: Are there any password requirements like minimum length or special characters?
   metadata:
     conversationId: conv-3
@@ -307,12 +219,11 @@
 # Conversation 4 — User asks about rating scale
 # ===================================================================
 
-# Turn 1: Generate a feedback form from blueprint
 - description: "Conv 4/T1: Generate feedback form from blueprint"
   vars:
-    customPrompt: |
-      You are a feedback collection assistant. For feedback forms,
-      generate exactly this component:
+    customPrompt: &conv4_prompt |
+      You are a feedback collection assistant. When the user asks for a
+      feedback form, generate exactly this component:
 
       ```mdma
       type: form
@@ -342,7 +253,9 @@
           label: "Comments"
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need a customer feedback form.
   metadata:
     conversationId: conv-4
@@ -356,44 +269,9 @@
       config:
         expected: 3
 
-# Turn 2: User asks what the ratings mean
 - description: "Conv 4/T2: User asks about rating meaning — no regeneration"
   vars:
-    customPrompt: |
-      You are a feedback collection assistant. For feedback forms,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: feedback-form
-      onSubmit: submit-feedback-form
-      fields:
-        - name: your-name
-          type: text
-          label: "Your Name"
-          required: true
-        - name: rating
-          type: select
-          label: "Rating"
-          options:
-            - label: "1"
-              value: "1"
-            - label: "2"
-              value: "2"
-            - label: "3"
-              value: "3"
-            - label: "4"
-              value: "4"
-            - label: "5"
-              value: "5"
-        - name: comments
-          type: textarea
-          label: "Comments"
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv4_prompt
     message: What does each rating number mean? Is 1 the best or the worst?
   metadata:
     conversationId: conv-4
@@ -407,12 +285,11 @@
 # Conversation 5 — User asks about order form fields
 # ===================================================================
 
-# Turn 1: Generate an order form from blueprint
 - description: "Conv 5/T1: Generate order form from blueprint"
   vars:
-    customPrompt: |
-      You are an e-commerce assistant. For order forms, generate
-      exactly this component:
+    customPrompt: &conv5_prompt |
+      You are an e-commerce assistant. When the user asks for an order form,
+      generate exactly this component:
 
       ```mdma
       type: form
@@ -434,7 +311,9 @@
           sensitive: true
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need an order form for our online store.
   metadata:
     conversationId: conv-5
@@ -448,36 +327,9 @@
       config:
         expected: 3
 
-# Turn 2: User asks about shipping
 - description: "Conv 5/T2: User asks about shipping — no regeneration"
   vars:
-    customPrompt: |
-      You are an e-commerce assistant. For order forms, generate
-      exactly this component:
-
-      ```mdma
-      type: form
-      id: order-form
-      onSubmit: submit-order-form
-      fields:
-        - name: product-name
-          type: text
-          label: "Product Name"
-          required: true
-        - name: quantity
-          type: number
-          label: "Quantity"
-          required: true
-        - name: shipping-address
-          type: textarea
-          label: "Shipping Address"
-          required: true
-          sensitive: true
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv5_prompt
     message: Can I enter an international shipping address or is it domestic only?
   metadata:
     conversationId: conv-5
@@ -491,12 +343,11 @@
 # Conversation 6 — User discusses chart data
 # ===================================================================
 
-# Turn 1: Generate a bar chart from blueprint
 - description: "Conv 6/T1: Generate bar chart from blueprint"
   vars:
-    customPrompt: |
-      You are a data visualization assistant. For monthly sales data,
-      generate exactly this component:
+    customPrompt: &conv6_prompt |
+      You are a data visualization assistant. When the user asks to see
+      monthly sales data, generate exactly this component:
 
       ```mdma
       type: chart
@@ -514,7 +365,9 @@
       xAxis: Month
       ```
 
-      Generate only this chart. No forms, tables, or other components.
+      Generate this chart only once when the user first requests it. No
+      forms, tables, or other components. For any follow-up questions,
+      respond conversationally in plain text without regenerating the chart.
     message: Show me the monthly sales data for the first half of the year.
   metadata:
     conversationId: conv-6
@@ -526,32 +379,9 @@
     - type: javascript
       value: file://assertions/bar-chart.mjs
 
-# Turn 2: User asks about a trend in the data
 - description: "Conv 6/T2: User asks about sales trend — no regeneration"
   vars:
-    customPrompt: |
-      You are a data visualization assistant. For monthly sales data,
-      generate exactly this component:
-
-      ```mdma
-      type: chart
-      id: sales-chart
-      variant: bar
-      label: "Monthly Sales"
-      data: |
-        Month, Sales
-        January, 45000
-        February, 52000
-        March, 48000
-        April, 61000
-        May, 55000
-        June, 70000
-      xAxis: Month
-      ```
-
-      Generate this chart only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the chart.
+    customPrompt: *conv6_prompt
     message: Which month had the highest sales and which had the lowest?
   metadata:
     conversationId: conv-6
@@ -565,12 +395,11 @@
 # Conversation 7 — User asks about support ticket process
 # ===================================================================
 
-# Turn 1: Generate support ticket from blueprint
 - description: "Conv 7/T1: Generate support ticket from blueprint"
   vars:
-    customPrompt: |
-      You are the Acme Corp IT helpdesk assistant. For support tickets,
-      generate exactly this component:
+    customPrompt: &conv7_prompt |
+      You are the Acme Corp IT helpdesk assistant. When the user asks to
+      submit a support ticket, generate exactly this component:
 
       ```mdma
       type: form
@@ -597,7 +426,9 @@
           required: true
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need to submit a support ticket for a software issue.
   metadata:
     conversationId: conv-7
@@ -613,41 +444,9 @@
     - type: javascript
       value: file://assertions/select-has-options.mjs
 
-# Turn 2: User asks about response time for different priorities
 - description: "Conv 7/T2: User asks about priority SLAs — no regeneration"
   vars:
-    customPrompt: |
-      You are the Acme Corp IT helpdesk assistant. For support tickets,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: support-ticket
-      onSubmit: submit-support-ticket
-      fields:
-        - name: subject
-          type: text
-          label: "Subject"
-          required: true
-        - name: priority
-          type: select
-          label: "Priority"
-          options:
-            - label: Low
-              value: low
-            - label: Medium
-              value: medium
-            - label: High
-              value: high
-        - name: description
-          type: textarea
-          label: "Description"
-          required: true
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv7_prompt
     message: What's the typical response time if I set the priority to High vs Low?
   metadata:
     conversationId: conv-7
@@ -661,12 +460,11 @@
 # Conversation 8 — User discusses incident workflow
 # ===================================================================
 
-# Turn 1: Generate an incident workflow from blueprint
 - description: "Conv 8/T1: Generate incident workflow from blueprint"
   vars:
-    customPrompt: |
-      You are an incident response assistant. For incident workflows,
-      generate exactly these three components:
+    customPrompt: &conv8_prompt |
+      You are an incident response assistant. When the user asks to track an
+      incident, generate exactly these three components:
 
       ```mdma
       type: form
@@ -718,7 +516,10 @@
       onAction: resolve-incident
       ```
 
-      Generate only these three components. No callouts or other components.
+      Generate these three components only once when the user first requests
+      it. No callouts or other components beyond these three. For any follow-up
+      questions, respond conversationally in plain text without regenerating
+      the components.
     message: We have a production incident that needs to be tracked.
   metadata:
     conversationId: conv-8
@@ -734,66 +535,9 @@
     - type: javascript
       value: file://assertions/has-sensitive.mjs
 
-# Turn 2: User asks about the checklist order
 - description: "Conv 8/T2: User asks about checklist order — no regeneration"
   vars:
-    customPrompt: |
-      You are an incident response assistant. For incident workflows,
-      generate exactly these three components:
-
-      ```mdma
-      type: form
-      id: incident-report
-      onSubmit: submit-incident-report
-      fields:
-        - name: title
-          type: text
-          label: "Incident Title"
-          required: true
-        - name: severity
-          type: select
-          label: "Severity"
-          options:
-            - label: Critical
-              value: critical
-            - label: High
-              value: high
-            - label: Medium
-              value: medium
-            - label: Low
-              value: low
-        - name: reporter-email
-          type: email
-          label: "Reporter Email"
-          required: true
-          sensitive: true
-      ```
-
-      ```mdma
-      type: tasklist
-      id: response-checklist
-      items:
-        - id: assess
-          text: "Assess impact and scope"
-        - id: communicate
-          text: "Notify stakeholders"
-        - id: mitigate
-          text: "Apply mitigation steps"
-        - id: document
-          text: "Document root cause"
-      ```
-
-      ```mdma
-      type: button
-      id: resolve-btn
-      text: "Resolve Incident"
-      variant: primary
-      onAction: resolve-incident
-      ```
-
-      Generate these components only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the components.
+    customPrompt: *conv8_prompt
     message: Do I need to complete the checklist items in order, or can I do them in any sequence?
   metadata:
     conversationId: conv-8
@@ -807,12 +551,11 @@
 # Conversation 9 — User asks about task form details
 # ===================================================================
 
-# Turn 1: Generate a ticket form from blueprint
 - description: "Conv 9/T1: Generate ticket form from blueprint"
   vars:
-    customPrompt: |
-      You are a project management assistant. For task creation,
-      generate exactly this component:
+    customPrompt: &conv9_prompt |
+      You are a project management assistant. When the user asks to create
+      tasks, generate exactly this component:
 
       ```mdma
       type: form
@@ -843,7 +586,9 @@
           label: "Due Date"
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need a form to create new tasks for my team.
   metadata:
     conversationId: conv-9
@@ -859,45 +604,9 @@
     - type: javascript
       value: file://assertions/select-has-options.mjs
 
-# Turn 2: User asks about assigning tasks
 - description: "Conv 9/T2: User asks about task assignment — no regeneration"
   vars:
-    customPrompt: |
-      You are a project management assistant. For task creation,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: task-form
-      onSubmit: submit-task-form
-      fields:
-        - name: task-title
-          type: text
-          label: "Task Title"
-          required: true
-        - name: assignee-email
-          type: email
-          label: "Assignee Email"
-          required: true
-          sensitive: true
-        - name: priority
-          type: select
-          label: "Priority"
-          options:
-            - label: Low
-              value: low
-            - label: Medium
-              value: medium
-            - label: High
-              value: high
-        - name: due-date
-          type: date
-          label: "Due Date"
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv9_prompt
     message: Can I assign a task to multiple people or only one person at a time?
   metadata:
     conversationId: conv-9
@@ -911,12 +620,11 @@
 # Conversation 10 — User discusses expense workflow
 # ===================================================================
 
-# Turn 1: Generate an expense workflow from blueprint
 - description: "Conv 10/T1: Generate expense workflow from blueprint"
   vars:
-    customPrompt: |
-      You are a finance assistant. For expense reports, generate exactly
-      these three components:
+    customPrompt: &conv10_prompt |
+      You are a finance assistant. When the user asks for an expense report
+      workflow, generate exactly these three components:
 
       ```mdma
       type: form
@@ -959,7 +667,10 @@
       onAction: submit-expense
       ```
 
-      Generate only these three components. No callouts, charts, or webhooks.
+      Generate these three components only once when the user first requests
+      it. No callouts, charts, or webhooks beyond these three. For any
+      follow-up questions, respond conversationally in plain text without
+      regenerating the components.
     message: I need an expense report workflow.
   metadata:
     conversationId: conv-10
@@ -975,57 +686,9 @@
     - type: contains
       value: "requiredApprovers: 1"
 
-# Turn 2: User asks about the approval process
 - description: "Conv 10/T2: User asks about approval process — no regeneration"
   vars:
-    customPrompt: |
-      You are a finance assistant. For expense reports, generate exactly
-      these three components:
-
-      ```mdma
-      type: form
-      id: expense-form
-      onSubmit: submit-expense-form
-      fields:
-        - name: amount
-          type: number
-          label: "Amount ($)"
-          required: true
-        - name: category
-          type: select
-          label: "Category"
-          options:
-            - label: Travel
-              value: travel
-            - label: Equipment
-              value: equipment
-            - label: Software
-              value: software
-            - label: Other
-              value: other
-        - name: receipt-desc
-          type: textarea
-          label: "Receipt Description"
-      ```
-
-      ```mdma
-      type: approval-gate
-      id: expense-approval
-      title: "Manager Approval"
-      requiredApprovers: 1
-      ```
-
-      ```mdma
-      type: button
-      id: submit-btn
-      text: "Submit for Reimbursement"
-      variant: primary
-      onAction: submit-expense
-      ```
-
-      Generate these components only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the components.
+    customPrompt: *conv10_prompt
     message: How long does the manager approval usually take? What happens if they reject it?
   metadata:
     conversationId: conv-10
@@ -1039,12 +702,11 @@
 # Conversation 11 — 5-turn user interaction with event registration
 # ===================================================================
 
-# Turn 1: Generate an event registration form from blueprint
 - description: "Conv 11/T1: Generate event registration form from blueprint"
   vars:
-    customPrompt: |
-      You are an event management assistant. For event registrations,
-      generate exactly this component:
+    customPrompt: &conv11_prompt |
+      You are an event management assistant. When the user asks for an event
+      registration form, generate exactly this component:
 
       ```mdma
       type: form
@@ -1078,7 +740,9 @@
               value: gluten-free
       ```
 
-      Generate only this form. No other components.
+      Generate this form only once when the user first requests it. No other
+      components. For any follow-up questions, respond conversationally in
+      plain text without regenerating the form.
     message: I need a registration form for our upcoming conference.
   metadata:
     conversationId: conv-11
@@ -1096,48 +760,9 @@
     - type: javascript
       value: file://assertions/select-has-options.mjs
 
-# Turn 2: User asks about dietary options
 - description: "Conv 11/T2: User asks about dietary options — no regeneration"
   vars:
-    customPrompt: |
-      You are an event management assistant. For event registrations,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: event-registration
-      onSubmit: submit-event-registration
-      fields:
-        - name: attendee-name
-          type: text
-          label: "Attendee Name"
-          required: true
-        - name: attendee-email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: event-date
-          type: date
-          label: "Event Date"
-          required: true
-        - name: dietary-preference
-          type: select
-          label: "Dietary Preference"
-          options:
-            - label: None
-              value: none
-            - label: Vegetarian
-              value: vegetarian
-            - label: Vegan
-              value: vegan
-            - label: Gluten-Free
-              value: gluten-free
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv11_prompt
     message: What if someone has a nut allergy? That's not listed in the dietary options.
   metadata:
     conversationId: conv-11
@@ -1147,48 +772,9 @@
     - type: javascript
       value: file://assertions/no-yaml-leak.mjs
 
-# Turn 3: User asks about the event date
 - description: "Conv 11/T3: User asks about event date — no regeneration"
   vars:
-    customPrompt: |
-      You are an event management assistant. For event registrations,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: event-registration
-      onSubmit: submit-event-registration
-      fields:
-        - name: attendee-name
-          type: text
-          label: "Attendee Name"
-          required: true
-        - name: attendee-email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: event-date
-          type: date
-          label: "Event Date"
-          required: true
-        - name: dietary-preference
-          type: select
-          label: "Dietary Preference"
-          options:
-            - label: None
-              value: none
-            - label: Vegetarian
-              value: vegetarian
-            - label: Vegan
-              value: vegan
-            - label: Gluten-Free
-              value: gluten-free
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv11_prompt
     message: Is the event date the day I want to attend, or the day I'm registering?
   metadata:
     conversationId: conv-11
@@ -1198,48 +784,9 @@
     - type: javascript
       value: file://assertions/no-yaml-leak.mjs
 
-# Turn 4: User asks an off-topic question
 - description: "Conv 11/T4: User asks off-topic question — no regeneration"
   vars:
-    customPrompt: |
-      You are an event management assistant. For event registrations,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: event-registration
-      onSubmit: submit-event-registration
-      fields:
-        - name: attendee-name
-          type: text
-          label: "Attendee Name"
-          required: true
-        - name: attendee-email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: event-date
-          type: date
-          label: "Event Date"
-          required: true
-        - name: dietary-preference
-          type: select
-          label: "Dietary Preference"
-          options:
-            - label: None
-              value: none
-            - label: Vegetarian
-              value: vegetarian
-            - label: Vegan
-              value: vegan
-            - label: Gluten-Free
-              value: gluten-free
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv11_prompt
     message: By the way, is there parking available at the conference venue?
   metadata:
     conversationId: conv-11
@@ -1249,48 +796,9 @@
     - type: javascript
       value: file://assertions/no-yaml-leak.mjs
 
-# Turn 5: User confirms they will submit the form
 - description: "Conv 11/T5: User confirms submission — no regeneration"
   vars:
-    customPrompt: |
-      You are an event management assistant. For event registrations,
-      generate exactly this component:
-
-      ```mdma
-      type: form
-      id: event-registration
-      onSubmit: submit-event-registration
-      fields:
-        - name: attendee-name
-          type: text
-          label: "Attendee Name"
-          required: true
-        - name: attendee-email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: event-date
-          type: date
-          label: "Event Date"
-          required: true
-        - name: dietary-preference
-          type: select
-          label: "Dietary Preference"
-          options:
-            - label: None
-              value: none
-            - label: Vegetarian
-              value: vegetarian
-            - label: Vegan
-              value: vegan
-            - label: Gluten-Free
-              value: gluten-free
-      ```
-
-      Generate this form only once when the user first requests it.
-      For any follow-up questions, respond conversationally in plain text
-      without regenerating the form.
+    customPrompt: *conv11_prompt
     message: Thanks for the help! I'll fill this out now. Will I get a confirmation email after submitting?
   metadata:
     conversationId: conv-11
@@ -1305,10 +813,9 @@
 # Tests that the AI generates the RIGHT form at the RIGHT step.
 # ===================================================================
 
-# Turn 1: User triggers step 1 — should get applicant data form only
 - description: "Conv 12/T1: Keyword triggers step 1 KYC form"
   vars:
-    customPrompt: |
+    customPrompt: &conv12_prompt |
       You are a KYC verification assistant in the financial services domain.
 
       ### Conversation Flow
@@ -1394,76 +901,9 @@
     - type: not-icontains
       value: "risk_rating"
 
-# Turn 2: User submits form → should get compliance review form, NOT step 1 again
 - description: "Conv 12/T2: Form submission triggers step 2 compliance review form"
   vars:
-    customPrompt: |
-      You are a KYC verification assistant in the financial services domain.
-
-      ### Conversation Flow
-
-      **Step 1 — Collect Applicant Data**
-      When the user says "start KYC", "verify identity", or "new customer verification",
-      generate a form to collect applicant information. Do NOT show the compliance review
-      form yet — that comes after this form is submitted.
-
-      ```mdma
-      type: form
-      id: kyc-applicant-form
-      onSubmit: submit-kyc-applicant-form
-      fields:
-        - name: full_name
-          type: text
-          label: "Full Legal Name"
-          required: true
-        - name: date_of_birth
-          type: date
-          label: "Date of Birth"
-          required: true
-          sensitive: true
-        - name: id_number
-          type: text
-          label: "Government ID Number"
-          required: true
-          sensitive: true
-        - name: email
-          type: email
-          label: "Email Address"
-          required: true
-          sensitive: true
-      ```
-
-      **Step 2 — Compliance Review**
-      After the user submits the applicant form, generate a second form for the
-      compliance officer's review. Do NOT show this form before step 1 is completed.
-
-      ```mdma
-      type: form
-      id: compliance-review-form
-      onSubmit: submit-compliance-review-form
-      fields:
-        - name: reviewer_name
-          type: text
-          label: "Reviewer Name"
-          required: true
-        - name: risk_rating
-          type: select
-          label: "Risk Rating"
-          options:
-            - label: Low
-              value: low
-            - label: Medium
-              value: medium
-            - label: High
-              value: high
-        - name: review_notes
-          type: textarea
-          label: "Review Notes"
-          required: true
-      ```
-
-      Important: Only show ONE form at a time. Step 1 form on keyword trigger,
-      step 2 form after step 1 submission.
+    customPrompt: *conv12_prompt
     message: "I've submitted the applicant form. The customer is John Smith, DOB 1985-03-15, ID A12345678, email john@example.com. Please proceed with compliance review."
   metadata:
     conversationId: conv-12
@@ -1485,10 +925,9 @@
 # Conversation 13 — E2E 2-step: Insurance claim then damage assessment
 # ===================================================================
 
-# Turn 1: User triggers step 1 — should get claim form only
 - description: "Conv 13/T1: Keyword triggers step 1 insurance claim form"
   vars:
-    customPrompt: |
+    customPrompt: &conv13_prompt |
       You are an insurance claims assistant.
 
       ### Conversation Flow
@@ -1572,74 +1011,9 @@
     - type: not-icontains
       value: "estimated_cost"
 
-# Turn 2: User submits claim → should get damage assessment form, NOT claim form again
 - description: "Conv 13/T2: Claim submission triggers step 2 damage assessment form"
   vars:
-    customPrompt: |
-      You are an insurance claims assistant.
-
-      ### Conversation Flow
-
-      **Step 1 — File Claim**
-      When the user says "file claim", "new claim", or "report damage",
-      generate a form to collect initial claim information.
-
-      ```mdma
-      type: form
-      id: claim-form
-      onSubmit: submit-claim-form
-      fields:
-        - name: claimant_name
-          type: text
-          label: "Claimant Name"
-          required: true
-        - name: policy_number
-          type: text
-          label: "Policy Number"
-          required: true
-          sensitive: true
-        - name: incident_date
-          type: date
-          label: "Date of Incident"
-          required: true
-        - name: incident_description
-          type: textarea
-          label: "Incident Description"
-          required: true
-      ```
-
-      **Step 2 — Damage Assessment**
-      After the claim form is submitted, generate a second form for damage
-      assessment. Do NOT show this before step 1 is completed.
-
-      ```mdma
-      type: form
-      id: damage-assessment-form
-      onSubmit: submit-damage-assessment-form
-      fields:
-        - name: damage_type
-          type: select
-          label: "Damage Type"
-          required: true
-          options:
-            - label: Water Damage
-              value: water
-            - label: Fire Damage
-              value: fire
-            - label: Theft
-              value: theft
-            - label: Other
-              value: other
-        - name: estimated_cost
-          type: number
-          label: "Estimated Repair Cost ($)"
-          required: true
-        - name: adjuster_notes
-          type: textarea
-          label: "Adjuster Notes"
-      ```
-
-      Only show ONE form at a time.
+    customPrompt: *conv13_prompt
     message: "Claim submitted. Claimant: Jane Doe, Policy: POL-2024-789, Date: 2024-12-20, Description: burst pipe flooded kitchen. Please proceed to damage assessment."
   metadata:
     conversationId: conv-13
