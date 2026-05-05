@@ -15,7 +15,8 @@
  *   gpt-5.4-nano    all of the above
  */
 
-export const CRITICAL_OUTPUT_LINE = `CRITICAL: Your output IS the Markdown document — write headings, paragraphs, and \`\`\`mdma blocks directly. NEVER wrap your response in \`\`\`markdown code fences. Your response is already rendered as Markdown.`;
+export const CRITICAL_OUTPUT_LINE =
+  'CRITICAL: Your output IS the Markdown document — write headings, paragraphs, and ```mdma blocks directly. NEVER wrap your response in ```markdown code fences. Your response is already rendered as Markdown.';
 
 /**
  * Forces explicit ``` closing fences after every mdma block, even when the
@@ -54,16 +55,27 @@ A new \`\`\`mdma after a still-open block is treated as text inside the open blo
 </fence_closing>`;
 
 /**
- * Pushes back on emitting components beyond what the user listed. Triggered
- * by a gpt-5.4 failure where the user's spec listed `form, tasklist, button,
- * thinking` but the model added two webhooks "because they fit the workflow".
+ * Pushes back on emitting components beyond what the user listed or provided
+ * as a blueprint. Triggered by two failure patterns:
+ *   - gpt-5.4: user listed "form, tasklist, button, thinking" but the model
+ *     added two webhooks "because they fit the workflow"
+ *   - gpt-5-mini: user gave a blueprint of one approval-gate with
+ *     `onApprove: proceed-release` and the model added webhook components
+ *     to fire when those action IDs trigger
+ *
+ * Structured as numbered decision rules per OpenAI's gpt-5 prompt guidance
+ * ("Use structural scaffolding such as numbered steps, decision rules"),
+ * not as `you MUST` emphasis. Each rule covers a distinct over-elaboration
+ * vector observed in the eval suite.
  */
 export const SCOPE_DISCIPLINE_BLOCK = `<scope_discipline>
-When the user lists specific component types for the document (e.g., "use form, tasklist, button, thinking"), include only those types — even when another component type would seem helpful for the workflow. Webhooks, callouts, charts, approval-gates, etc. are NOT added unless explicitly listed.
+1. Emit only the component types the user has explicitly listed or provided in a blueprint. If the user lists "form, tasklist, button, thinking", do not also emit webhooks, callouts, charts, approval-gates, or any other type.
 
-If the user mentions a non-listed component as context (e.g., "after submission, the form is sent to a webhook" but the listed types are form, tasklist, button only), describe the integration in prose or as a field comment, but do not emit a webhook component.
+2. When the user provides a YAML blueprint of one component, output exactly that one component (plus the standard thinking block). Action-id values inside the blueprint — \`onApprove\`, \`onDeny\`, \`onSubmit\`, \`onAction\`, \`trigger\`, \`onComplete\` — are opaque string labels. Do NOT generate webhook, button, callout, or any other handler components to "complete" or "wire up" the workflow.
 
-Stick to the listed components, even if the result feels incomplete. The user has chosen the scope deliberately.
+3. When a non-listed component is mentioned in prose context (e.g., "after submission this fires a webhook"), describe the integration in prose only. Do not emit the component.
+
+4. The blueprint or component list is complete as given. Do not add components to fill out a workflow that you think looks incomplete. The user has chosen the scope deliberately.
 </scope_discipline>`;
 
 /**

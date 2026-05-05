@@ -13,6 +13,8 @@ import { MDMA_AUTHOR_PROMPT_OPUS } from './anthropic/opus.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5 } from './openai/gpt-5.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_MINI } from './openai/gpt-5-mini.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_1 } from './openai/gpt-5.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_2 } from './openai/gpt-5.2.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_MINI } from './openai/gpt-5.4-mini.js';
@@ -76,8 +78,20 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-5.2',
     label: 'OpenAI — GPT-5.2',
-    description: 'Older base-tier — same framing as GPT-5.4: <scope_discipline> only.',
+    description: 'Older base-tier — <scope_discipline> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_2,
+  },
+  {
+    id: 'openai/gpt-5.1',
+    label: 'OpenAI — GPT-5.1',
+    description: 'Older base-tier — same framing as GPT-5.2: <scope_discipline> + <select_options>.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_1,
+  },
+  {
+    id: 'openai/gpt-5-mini',
+    label: 'OpenAI — GPT-5-mini',
+    description: 'Mini tier of GPT-5 — needs all three: <fence_closing> + <scope_discipline> + <select_options>.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_MINI,
   },
   {
     id: 'openai/gpt-5.4-mini',
