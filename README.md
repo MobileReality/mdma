@@ -6,29 +6,6 @@
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 
-## Supported models (prompts optimized and checked)
-
-Each cell shows whether the model-specialized author variant from
-[`packages/prompt-pack/src/prompts/mdma-author/openai/<model>.ts`](packages/prompt-pack/src/prompts/mdma-author/openai/)
-achieves **100 % pass** on the listed eval suite.
-
-| Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
-| :--- | :---: | :---: | :---: | :---: |
-| `gpt-5.5` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
-| `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
-| `gpt-5.2` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5.1` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5` \[i] | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5-mini` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
-| `gpt-5-nano` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
-| `gpt-4.1` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
-
-\* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
-
-\[i] All GPT-5 family models are reasoning models — they spend tokens "thinking" before responding, which adds noticeable latency (single-turn responses commonly take tens of seconds, and full eval runs measure in minutes).
 
 ## Why MDMA?
 
@@ -75,6 +52,37 @@ variant: primary
 onAction: submit
 ```
 ````
+
+
+## MDMA_AUTHOR prompt matrix
+
+Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt variant on the listed eval suite.
+
+✅ 100% on the suite.
+
+🟡 Scoring between 80–99% on the suite. 
+
+
+| Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
+| :--- | :---: | :---: | :---: | :---: |
+| `gpt-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.2` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.1` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5` \[i] | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5-mini` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5-nano` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-4.1` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-4.1-nano` | 🟡 | ✅ | ✅ \* | ✅ \* |
+
+
+\* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
+
+\[i] All GPT-5 family models are reasoning models — they spend tokens "thinking" before responding, which adds noticeable latency (single-turn responses commonly take tens of seconds, and full eval runs measure in minutes).
+
 
 ## Components
 
