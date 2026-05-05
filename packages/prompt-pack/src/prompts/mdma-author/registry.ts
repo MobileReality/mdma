@@ -14,6 +14,7 @@ import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_MINI } from './openai/gpt-5.4-mini.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_4_NANO } from './openai/gpt-5.4-nano.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_5 } from './openai/gpt-5.5.js';
 
 export interface AuthorPromptVariant {
@@ -69,6 +70,12 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'OpenAI — GPT-5.4-mini',
     description: 'Adds <fence_closing> reminding the model to close ```mdma blocks before the next component.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_4_MINI,
+  },
+  {
+    id: 'openai/gpt-5.4-nano',
+    label: 'OpenAI — GPT-5.4-nano',
+    description: 'Smallest tier — combines <fence_closing> + <scope_discipline> for maximum guidance.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_4_NANO,
   },
 ];
 

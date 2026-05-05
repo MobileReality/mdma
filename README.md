@@ -6,6 +6,21 @@
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 
+## Supported models (prompts optimized and checked)
+
+Each cell shows whether the model-specialized author variant from
+[`packages/prompt-pack/src/prompts/mdma-author/openai/<model>.ts`](packages/prompt-pack/src/prompts/mdma-author/openai/)
+achieves **100 % pass** on the listed eval suite.
+
+| Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
+| :--- | :---: | :---: | :---: | :---: |
+| `gpt-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
+
+\* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
+
 ## Why MDMA?
 
 AI conversations today are plain text — the user reads a response and manually acts on it. MDMA changes that. When an LLM knows the MDMA spec, it can respond with interactive components (forms, tables, approval gates) instead of just text. The conversation becomes actionable: the user fills out a form, approves a step, or reviews structured data — all inline, with a predictable schema that your app already knows how to render and process.

@@ -22,6 +22,7 @@
     "eval:fixer": "pnpm --filter @mobile-reality/mdma-evals eval:fixer",
     "eval:fixer-flow": "pnpm --filter @mobile-reality/mdma-evals eval:fixer-flow",
     "eval:all": "pnpm --filter @mobile-reality/mdma-evals eval:all",
+    "eval:author": "pnpm --filter @mobile-reality/mdma-evals eval:author",
     "eval:view": "pnpm --filter @mobile-reality/mdma-evals eval:view"
   },
   "devDependencies": {
