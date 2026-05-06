@@ -83,6 +83,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-opus-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-sonnet-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
+| **Google** | | | | |
+| `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | ✅ |
 
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.

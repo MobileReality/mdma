@@ -12,6 +12,7 @@ import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_6 } from './anthropic/opus-4.6.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_7 } from './anthropic/opus-4.7.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_MINI } from './openai/gpt-4.1-mini.js';
@@ -67,6 +68,12 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'Anthropic — Claude Opus 4.6',
     description: 'Older Opus tier — same framing as opus-4.7.ts (<scope_discipline> + Anthropic wrapping).',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_4_6,
+  },
+  {
+    id: 'google/gemini-3.1-pro-preview',
+    label: 'Google — Gemini 3.1 Pro (Preview)',
+    description: 'Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google\'s Gemini 3 prompting guide.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW,
   },
   {
     id: 'openai/gpt-5',
