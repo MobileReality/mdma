@@ -12,6 +12,8 @@ import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_6 } from './anthropic/opus-4.6.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_7 } from './anthropic/opus-4.7.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_2_5_PRO } from './google/gemini-2.5-pro.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW } from './google/gemini-3-flash-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/gemini-3.1-pro-preview-customtools.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
@@ -72,6 +74,12 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     prompt: MDMA_AUTHOR_PROMPT_OPUS_4_6,
   },
   {
+    id: 'google/gemini-2.5-pro',
+    label: 'Google — Gemini 2.5 Pro',
+    description: 'Previous-generation Pro — re-exports the Gemini 3.1 Pro variant; same Gemini-native composition until eval data shows divergence.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_PRO,
+  },
+  {
     id: 'google/gemini-3.1-pro-preview',
     label: 'Google — Gemini 3.1 Pro (Preview)',
     description: 'Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google\'s Gemini 3 prompting guide.',
@@ -82,6 +90,12 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'Google — Gemini 3.1 Pro Custom Tools (Preview)',
     description: 'Pro tuning that prefers user-defined tools — re-exports the Pro variant since MDMA authoring does not use tool calling.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
+  },
+  {
+    id: 'google/gemini-3-flash-preview',
+    label: 'Google — Gemini 3 Flash (Preview)',
+    description: 'Mid-tier Gemini — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW,
   },
   {
     id: 'google/gemini-3.1-flash-lite-preview',

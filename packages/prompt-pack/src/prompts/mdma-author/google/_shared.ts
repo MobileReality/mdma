@@ -44,7 +44,7 @@ export const SCOPE_DISCIPLINE_BLOCK = `## Scope Discipline
 
 3. When a non-listed component is mentioned in prose context (e.g., "after submission this fires a webhook"), describe the integration in prose only. Do not emit the component.
 
-4. The blueprint or component list is complete as given. Do not add components to fill out a workflow that you think looks incomplete. The user has chosen the scope deliberately.`;
+4. The blueprint or component list is complete as given. Do not add components to fill out a workflow that you think looks incomplete. The user has chosen the scope deliberately — even when the broader workflow context (e.g., "retrospective", "onboarding", "approval flow", "incident review") might suggest additional components like feedback forms, action-item tasklists, follow-up buttons, or status callouts. If the user listed only display components (callout, chart, table), emit only those — do not add interactive collection components on your own initiative.`;
 
 /**
  * Forces explicit ``` closing fences after every mdma block. Mirrors the
