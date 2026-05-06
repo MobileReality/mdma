@@ -12,6 +12,8 @@ import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_6 } from './anthropic/opus-4.6.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_7 } from './anthropic/opus-4.7.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/gemini-3.1-pro-preview-customtools.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
@@ -74,6 +76,18 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'Google — Gemini 3.1 Pro (Preview)',
     description: 'Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google\'s Gemini 3 prompting guide.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW,
+  },
+  {
+    id: 'google/gemini-3.1-pro-preview-customtools',
+    label: 'Google — Gemini 3.1 Pro Custom Tools (Preview)',
+    description: 'Pro tuning that prefers user-defined tools — re-exports the Pro variant since MDMA authoring does not use tool calling.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
+  },
+  {
+    id: 'google/gemini-3.1-flash-lite-preview',
+    label: 'Google — Gemini 3.1 Flash-Lite (Preview)',
+    description: 'Smaller-tier Gemini — same Markdown framing as Pro plus all three negative-constraint blocks (fence closing + scope + select options).',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW,
   },
   {
     id: 'openai/gpt-5',

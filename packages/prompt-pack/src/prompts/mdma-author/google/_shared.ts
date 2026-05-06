@@ -47,6 +47,44 @@ export const SCOPE_DISCIPLINE_BLOCK = `## Scope Discipline
 4. The blueprint or component list is complete as given. Do not add components to fill out a workflow that you think looks incomplete. The user has chosen the scope deliberately.`;
 
 /**
+ * Forces explicit ``` closing fences after every mdma block. Mirrors the
+ * OpenAI and Anthropic sibling blocks (failure observed first on Sonnet
+ * and gpt-5.4-mini — model opens a ```mdma block but doesn't close it
+ * before the next component, so the validator regex can't recognize the
+ * second block). Pre-emptively included for the smaller-tier Gemini
+ * variants (flash-lite); the flagship Pro variant doesn't need it yet.
+ *
+ * Markdown formatted (`## Fence Closing`) for Gemini consistency.
+ */
+export const FENCE_CLOSING_BLOCK = `## Fence Closing
+
+Every \`\`\`mdma block opens with \`\`\`mdma and closes with three backticks (\`\`\`) alone on a line, before any new content. This is required even when the previous block uses a YAML \`content: |\` block scalar — the block scalar ends when indentation drops, but the closing fence still has to be written explicitly.
+
+Two adjacent components look like this:
+
+\`\`\`mdma
+type: thinking
+id: planning
+status: done
+collapsed: true
+content: |
+  Brief reasoning about the request.
+  The closing three backticks are required on the next line.
+\`\`\`
+
+\`\`\`mdma
+type: form
+id: contact-form
+fields:
+  - name: email
+    type: email
+    label: Email
+    required: true
+\`\`\`
+
+A new \`\`\`mdma after a still-open block is treated as text inside the open block — not as a new component.`;
+
+/**
  * Forces select option `value` fields to be strings. Same rule as the
  * OpenAI and Anthropic sibling blocks — schema requires string values
  * (`z.array(z.object({ label: z.string(), value: z.string() }))`), but
