@@ -9,7 +9,8 @@
  */
 
 import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
-import { MDMA_AUTHOR_PROMPT_OPUS } from './anthropic/opus.js';
+import { MDMA_AUTHOR_PROMPT_OPUS_4_6 } from './anthropic/opus-4.6.js';
+import { MDMA_AUTHOR_PROMPT_OPUS_4_7 } from './anthropic/opus-4.7.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
@@ -56,10 +57,16 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     prompt: MDMA_AUTHOR_PROMPT_SONNET,
   },
   {
-    id: 'anthropic/opus',
-    label: 'Anthropic — Claude Opus',
-    description: 'Same Anthropic-styled framing as Haiku — placeholder for Opus-specific tuning.',
-    prompt: MDMA_AUTHOR_PROMPT_OPUS,
+    id: 'anthropic/opus-4.7',
+    label: 'Anthropic — Claude Opus 4.7',
+    description: 'Flagship Opus — Anthropic-styled framing + <scope_discipline>.',
+    prompt: MDMA_AUTHOR_PROMPT_OPUS_4_7,
+  },
+  {
+    id: 'anthropic/opus-4.6',
+    label: 'Anthropic — Claude Opus 4.6',
+    description: 'Older Opus tier — same framing as opus-4.7.ts (<scope_discipline> + Anthropic wrapping).',
+    prompt: MDMA_AUTHOR_PROMPT_OPUS_4_6,
   },
   {
     id: 'openai/gpt-5',

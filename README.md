@@ -79,6 +79,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-4.1-nano` | 🟡 | ✅ | ✅ \* | ✅ \* |
 | **Anthropic** | | | | |
+| `claude-opus-4.7` | ✅ | ✅ | ✅ | ✅ |
+| `claude-opus-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-sonnet-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 

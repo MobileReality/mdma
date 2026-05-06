@@ -73,3 +73,36 @@ fields:
 
 A new \`\`\`mdma after a still-open block is treated as text inside the open block — not as a new component.
 </fence_closing>`;
+
+/**
+ * Forces select option `value` fields to be strings. Triggered by an
+ * Opus 4.6 flows failure where the model produced `value: 1` (number)
+ * for a "rating 1-5" select instead of `value: "1"` (string). The form
+ * schema (packages/spec/src/schemas/components/form.ts) requires
+ * `z.array(z.object({ label: z.string(), value: z.string() }))`.
+ *
+ * Same content as `openai/_shared.ts:SELECT_OPTIONS_BLOCK` — duplicated
+ * to keep each vendor folder self-contained per the no-cross-vendor-
+ * imports rule.
+ */
+export const SELECT_OPTIONS_BLOCK = `<select_options>
+For \`type: select\` fields, every \`options\` entry has a string \`value\` — even when the user describes options as numbers (e.g., "rating 1-5") or booleans. The schema rejects numeric and boolean values.
+
+Correct:
+
+\`\`\`mdma
+type: form
+id: rating-form
+fields:
+  - name: rating
+    type: select
+    label: Rating
+    options:
+      - label: "1 — Poor"
+        value: "1"
+      - label: "5 — Excellent"
+        value: "5"
+\`\`\`
+
+The label can read naturally to the user; the value is the stable string identifier sent on submit. \`value: 1\` (number) and \`value: true\` (boolean) fail validation.
+</select_options>`;
