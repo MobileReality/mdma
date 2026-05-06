@@ -12,6 +12,8 @@ import { MDMA_AUTHOR_PROMPT_HAIKU } from './anthropic/haiku.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_6 } from './anthropic/opus-4.6.js';
 import { MDMA_AUTHOR_PROMPT_OPUS_4_7 } from './anthropic/opus-4.7.js';
 import { MDMA_AUTHOR_PROMPT_SONNET } from './anthropic/sonnet.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH } from './google/gemini-2.5-flash.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH_LITE } from './google/gemini-2.5-flash-lite.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_2_5_PRO } from './google/gemini-2.5-pro.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW } from './google/gemini-3-flash-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
@@ -76,8 +78,20 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'google/gemini-2.5-pro',
     label: 'Google — Gemini 2.5 Pro',
-    description: 'Previous-generation Pro — re-exports the Gemini 3.1 Pro variant; same Gemini-native composition until eval data shows divergence.',
+    description: 'Previous-generation Pro — same Gemini-native composition as Gemini 3.1 Pro (Markdown framing, end-placed constraints).',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_PRO,
+  },
+  {
+    id: 'google/gemini-2.5-flash',
+    label: 'Google — Gemini 2.5 Flash',
+    description: 'Previous-generation mid-tier Flash — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH,
+  },
+  {
+    id: 'google/gemini-2.5-flash-lite',
+    label: 'Google — Gemini 2.5 Flash-Lite',
+    description: 'Previous-generation smallest-tier Flash-Lite — same defensive composition as 2.5 Flash; reserved its own file in case eval data later requires a divergent tuning.',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH_LITE,
   },
   {
     id: 'google/gemini-3.1-pro-preview',
