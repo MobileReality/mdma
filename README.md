@@ -96,7 +96,19 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | **xAI** | | | | |
 | `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
 | `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
+| **Zhipu (z.ai)** | | | | |
+| `glm-4-plus` | TBD | TBD | TBD | TBD |
+| **Moonshot** | | | | |
+| `kimi-k2` | TBD | TBD | TBD | TBD |
+| **Alibaba** | | | | |
+| `qwen3-max` | TBD | TBD | TBD | TBD |
+| **MiniMax** | | | | |
+| `minimax-m1` | TBD | TBD | TBD | TBD |
+| **Other** | | | | |
+| *model* | — | — | — | — |
 
+
+> **Don't see your model?** Add a prompt variant under `packages/prompt-pack/src/prompts/mdma-author/<vendor>/` and open a PR — we'll run the eval suite and add it to this table.
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
 
@@ -560,7 +572,7 @@ pnpm eval:view
 - [x] File upload field type for forms
 
 ### v0.3 — AI & Generation
-- [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)
+- [x] Multi-model eval coverage (Claude, GPT, Gemini, Grok)
 - [ ] Prompt tuning toolkit — test and compare custom prompts
 - [ ] Agent-friendly SDK — let AI agents fill forms and trigger actions programmatically
 - [ ] Webhook execution engine (real HTTP calls in production environments)
