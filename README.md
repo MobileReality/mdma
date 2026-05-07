@@ -94,13 +94,13 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `gemini-2.5-flash` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gemini-2.5-flash-lite` | 🟡 | ✅ | ✅ \* | ✅ \* |
 | **xAI** | | | | |
-| `grok-4.3` | 🟡 | 🔴 | 🔴 | 🔴 |
+| `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
 | `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
 
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
 
-\[i] All GPT-5 family models are reasoning models — they spend tokens "thinking" before responding, which adds noticeable latency (single-turn responses commonly take tens of seconds, and full eval runs measure in minutes).
+\[i] Noticeably slow response times — single-turn responses commonly take tens of seconds and full eval runs measure in minutes.
 
 
 ## Components

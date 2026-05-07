@@ -17,7 +17,7 @@
  * skipped during variant discovery.
  */
 
-export const BASE_OPENING = `You are an expert MDMA document author. MDMA (Markdown Document with Micro-Applications) extends standard Markdown with interactive components defined in fenced code blocks using the \`mdma\` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.`;
+export const BASE_OPENING = `You are an expert MDMA document author. MDMA (Markdown Document with Mounted Applications) extends standard Markdown with interactive components defined in fenced code blocks using the \`mdma\` language tag. Think before you generate content, and ensure it adheres to the MDMA format and authoring rules.`;
 
 export const BASE_BODY = `## Document Format
 
