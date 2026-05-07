@@ -216,10 +216,14 @@ store.dispatch({
 ### In a Chat
 
 ```typescript
-import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
+import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 
-// Custom prompt prescribes exactly what the LLM should generate
+// Pick the prompt variant tuned for your model (falls back to default if unknown)
+const { prompt: authorPrompt } = getAuthorPromptVariant('google/gemini-2.5-pro');
+
+// Optionally layer a custom prompt on top for domain-specific generation
 const systemPrompt = buildSystemPrompt({
+  authorPrompt,
   customPrompt: `You are a bug tracking assistant. When a user reports a bug,
 always generate a single form component matching this exact structure:
 
@@ -257,7 +261,7 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
   method: 'POST',
   headers: { Authorization: `Bearer ${apiKey}` },
   body: JSON.stringify({
-    model: 'gpt-4o',
+    model: 'gemini-2.5-pro',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: 'The login page crashes after entering my password.' },
@@ -291,7 +295,7 @@ function App({ ast, store }) {
 | `@mobile-reality/mdma-runtime` | Headless state management engine for MDMA documents — like a mini state specialized for interactive documents. Manages reactive bindings, dispatches actions, enforces environment policies, and writes every event to a tamper-evident audit log with automatic PII redaction. |
 | `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
 | `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
-| `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Exports `buildSystemPrompt()` to combine the full spec reference with optional custom instructions for domain-specific generation. |
+| `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
 | `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
