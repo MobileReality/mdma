@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-prompt-pack
 
+## 0.3.0
+
+### Minor Changes
+
+- 4b595c8: Add model-specialised MDMA_AUTHOR prompt variants for OpenAI, Anthropic, Google, and xAI. New getAuthorPromptVariant(modelId) export for selecting the optimized prompt variant per model.
+
 ## 0.2.2
 
 ### Patch Changes
