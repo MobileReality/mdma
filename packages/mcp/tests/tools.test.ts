@@ -5,6 +5,7 @@ import { buildPrompt } from '../src/tools/build-system-prompt.js';
 import { validatePrompt } from '../src/tools/validate-prompt.js';
 import { listPackages } from '../src/tools/list-packages.js';
 import { listDocs, getDoc, isAllowedPath } from '../src/tools/get-doc.js';
+import { listPromptVariants } from '../src/tools/list-prompt-variants.js';
 
 describe('get-spec', () => {
   it('returns spec with all 9 component types', () => {
@@ -47,6 +48,23 @@ describe('get-prompt', () => {
     }
   });
 
+  it('returns model-specific author prompt when variantId is provided', () => {
+    const result = getPrompt('mdma-author', 'google/gemini-2.5-pro');
+    expect('content' in result).toBe(true);
+    if ('content' in result) {
+      expect(result.content).toContain('MDMA');
+    }
+  });
+
+  it('falls back to default author prompt for unknown variantId', () => {
+    const defaultResult = getPrompt('mdma-author');
+    const unknownResult = getPrompt('mdma-author', 'unknown/model');
+    expect('content' in defaultResult && 'content' in unknownResult).toBe(true);
+    if ('content' in defaultResult && 'content' in unknownResult) {
+      expect(unknownResult.content).toBe(defaultResult.content);
+    }
+  });
+
   it('returns reviewer prompt', () => {
     const result = getPrompt('mdma-reviewer');
     expect('content' in result).toBe(true);
@@ -59,6 +77,35 @@ describe('get-prompt', () => {
       expect(result.error).toContain('Unknown prompt');
       expect(result.error).toContain('mdma-author');
     }
+  });
+});
+
+describe('list-prompt-variants', () => {
+  it('returns a non-empty list', () => {
+    const variants = listPromptVariants();
+    expect(variants.length).toBeGreaterThan(0);
+  });
+
+  it('every entry has id, label, description but no prompt', () => {
+    for (const v of listPromptVariants()) {
+      expect(v.id.length).toBeGreaterThan(0);
+      expect(v.label.length).toBeGreaterThan(0);
+      expect(v.description.length).toBeGreaterThan(0);
+      expect('prompt' in v).toBe(false);
+    }
+  });
+
+  it('includes the default variant', () => {
+    const variants = listPromptVariants();
+    expect(variants.some((v) => v.id === 'default')).toBe(true);
+  });
+
+  it('includes known vendor variants', () => {
+    const ids = listPromptVariants().map((v) => v.id);
+    expect(ids).toContain('google/gemini-2.5-pro');
+    expect(ids).toContain('openai/gpt-5');
+    expect(ids).toContain('anthropic/opus-4.7');
+    expect(ids).toContain('x-ai/grok-4.20');
   });
 });
 
