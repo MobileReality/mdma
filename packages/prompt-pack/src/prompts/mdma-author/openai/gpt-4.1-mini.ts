@@ -12,11 +12,7 @@
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
-import {
-  CRITICAL_OUTPUT_LINE,
-  FENCE_CLOSING_BLOCK,
-  SELECT_OPTIONS_BLOCK,
-} from './_shared.js';
+import { CRITICAL_OUTPUT_LINE, FENCE_CLOSING_BLOCK, SELECT_OPTIONS_BLOCK } from './_shared.js';
 
 export const MDMA_AUTHOR_PROMPT_GPT_4_1_MINI = `${BASE_OPENING}
 

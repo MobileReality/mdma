@@ -50,7 +50,8 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'default',
     label: 'Default',
-    description: 'Canonical prompt. Recommended for GPT-4.x and unknown models.',
+    description:
+      'Canonical prompt without any model-specific tuning. A strong generalist, but newer models may benefit from the tuned variants below.',
     prompt: MDMA_AUTHOR_PROMPT,
   },
   {
@@ -74,55 +75,64 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'anthropic/opus-4.6',
     label: 'Anthropic — Claude Opus 4.6',
-    description: 'Older Opus tier — same framing as opus-4.7.ts (<scope_discipline> + Anthropic wrapping).',
+    description:
+      'Older Opus tier — same framing as opus-4.7.ts (<scope_discipline> + Anthropic wrapping).',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_4_6,
   },
   {
     id: 'google/gemini-2.5-pro',
     label: 'Google — Gemini 2.5 Pro',
-    description: 'Previous-generation Pro — same Gemini-native composition as Gemini 3.1 Pro (Markdown framing, end-placed constraints).',
+    description:
+      'Previous-generation Pro — same Gemini-native composition as Gemini 3.1 Pro (Markdown framing, end-placed constraints).',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_PRO,
   },
   {
     id: 'google/gemini-2.5-flash',
     label: 'Google — Gemini 2.5 Flash',
-    description: 'Previous-generation mid-tier Flash — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
+    description:
+      'Previous-generation mid-tier Flash — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH,
   },
   {
     id: 'google/gemini-2.5-flash-lite',
     label: 'Google — Gemini 2.5 Flash-Lite',
-    description: 'Previous-generation smallest-tier Flash-Lite — same defensive composition as 2.5 Flash; reserved its own file in case eval data later requires a divergent tuning.',
+    description:
+      'Previous-generation smallest-tier Flash-Lite — same defensive composition as 2.5 Flash; reserved its own file in case eval data later requires a divergent tuning.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH_LITE,
   },
   {
     id: 'google/gemini-3.1-pro-preview',
     label: 'Google — Gemini 3.1 Pro (Preview)',
-    description: 'Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google\'s Gemini 3 prompting guide.',
+    description:
+      "Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google's Gemini 3 prompting guide.",
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW,
   },
   {
     id: 'google/gemini-3.1-pro-preview-customtools',
     label: 'Google — Gemini 3.1 Pro Custom Tools (Preview)',
-    description: 'Pro tuning that prefers user-defined tools — re-exports the Pro variant since MDMA authoring does not use tool calling.',
+    description:
+      'Pro tuning that prefers user-defined tools — re-exports the Pro variant since MDMA authoring does not use tool calling.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
   },
   {
     id: 'google/gemini-3-flash-preview',
     label: 'Google — Gemini 3 Flash (Preview)',
-    description: 'Mid-tier Gemini — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
+    description:
+      'Mid-tier Gemini — all three negative-constraint blocks (fence closing + scope + select options) as defensive default.',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW,
   },
   {
     id: 'google/gemini-3.1-flash-lite-preview',
     label: 'Google — Gemini 3.1 Flash-Lite (Preview)',
-    description: 'Smaller-tier Gemini — same Markdown framing as Pro plus all three negative-constraint blocks (fence closing + scope + select options).',
+    description:
+      'Smaller-tier Gemini — same Markdown framing as Pro plus all three negative-constraint blocks (fence closing + scope + select options).',
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW,
   },
   {
     id: 'openai/gpt-5',
     label: 'OpenAI — GPT-5',
-    description: 'Flagship-tier framing: <scope_discipline> + <select_options>. No <fence_closing>.',
+    description:
+      'Flagship-tier framing: <scope_discipline> + <select_options>. No <fence_closing>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5,
   },
   {
@@ -134,7 +144,8 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-5.4',
     label: 'OpenAI — GPT-5.4',
-    description: 'Adds <scope_discipline> to push back on adding components beyond what the user listed.',
+    description:
+      'Adds <scope_discipline> to push back on adding components beyond what the user listed.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_4,
   },
   {
@@ -146,13 +157,15 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-5.1',
     label: 'OpenAI — GPT-5.1',
-    description: 'Older base-tier — same framing as GPT-5.2: <scope_discipline> + <select_options>.',
+    description:
+      'Older base-tier — same framing as GPT-5.2: <scope_discipline> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_1,
   },
   {
     id: 'openai/gpt-5-mini',
     label: 'OpenAI — GPT-5-mini',
-    description: 'Mini tier of GPT-5 — needs all three: <fence_closing> + <scope_discipline> + <select_options>.',
+    description:
+      'Mini tier of GPT-5 — needs all three: <fence_closing> + <scope_discipline> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_MINI,
   },
   {
@@ -164,13 +177,15 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-5.4-mini',
     label: 'OpenAI — GPT-5.4-mini',
-    description: 'Adds <fence_closing> reminding the model to close ```mdma blocks before the next component.',
+    description:
+      'Adds <fence_closing> reminding the model to close ```mdma blocks before the next component.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_4_MINI,
   },
   {
     id: 'openai/gpt-5.4-nano',
     label: 'OpenAI — GPT-5.4-nano',
-    description: 'Smallest tier — combines <fence_closing> + <scope_discipline> for maximum guidance.',
+    description:
+      'Smallest tier — combines <fence_closing> + <scope_discipline> for maximum guidance.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5_4_NANO,
   },
   {
@@ -182,7 +197,8 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'openai/gpt-4.1-mini',
     label: 'OpenAI — GPT-4.1-mini',
-    description: 'Mini tier of GPT-4.1 — same framing as GPT-5.4-mini: <fence_closing> + <select_options>.',
+    description:
+      'Mini tier of GPT-4.1 — same framing as GPT-5.4-mini: <fence_closing> + <select_options>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_4_1_MINI,
   },
   {
@@ -194,13 +210,15 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'x-ai/grok-4.3',
     label: 'xAI — Grok 4.3',
-    description: 'Minimal composition — scope_discipline + select_options only. Empirically, every additional framing block regresses Grok (see grok-4.3.ts docblock).',
+    description:
+      'Minimal composition — scope_discipline + select_options only. Empirically, every additional framing block regresses Grok (see grok-4.3.ts docblock).',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_3,
   },
   {
     id: 'x-ai/grok-4.20',
     label: 'xAI — Grok 4.20',
-    description: 'Same minimal composition as Grok 4.3 — same family, no eval-driven reason to diverge yet.',
+    description:
+      'Same minimal composition as Grok 4.3 — same family, no eval-driven reason to diverge yet.',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_20,
   },
 ];

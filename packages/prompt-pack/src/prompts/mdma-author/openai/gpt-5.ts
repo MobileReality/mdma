@@ -19,11 +19,7 @@
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
-import {
-  CRITICAL_OUTPUT_LINE,
-  SCOPE_DISCIPLINE_BLOCK,
-  SELECT_OPTIONS_BLOCK,
-} from './_shared.js';
+import { CRITICAL_OUTPUT_LINE, SCOPE_DISCIPLINE_BLOCK, SELECT_OPTIONS_BLOCK } from './_shared.js';
 
 export const MDMA_AUTHOR_PROMPT_GPT_5 = `${BASE_OPENING}
 

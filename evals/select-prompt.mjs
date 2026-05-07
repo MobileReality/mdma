@@ -74,7 +74,8 @@ async function selectVariant({ provider, promptsDir, packagePath, exportPrefix, 
   if (!provider) return { prompt: defaultPrompt, source: 'default (no EVAL_PROVIDER)' };
 
   const parsed = parseProvider(provider);
-  if (!parsed) return { prompt: defaultPrompt, source: `default (unrecognized provider: ${provider})` };
+  if (!parsed)
+    return { prompt: defaultPrompt, source: `default (unrecognized provider: ${provider})` };
 
   const variants = discoverVariants(promptsDir, parsed.family);
   const modelLower = parsed.model.toLowerCase();
@@ -82,7 +83,11 @@ async function selectVariant({ provider, promptsDir, packagePath, exportPrefix, 
     .filter((v) => modelLower.includes(v.toLowerCase()))
     .sort((a, b) => b.length - a.length)[0];
 
-  if (!match) return { prompt: defaultPrompt, source: `default (no ${parsed.family}/<*>.ts matched ${parsed.model})` };
+  if (!match)
+    return {
+      prompt: defaultPrompt,
+      source: `default (no ${parsed.family}/<*>.ts matched ${parsed.model})`,
+    };
 
   const modSpec = `${packagePath}/${parsed.family}/${match}`;
   const mod = await import(modSpec);
