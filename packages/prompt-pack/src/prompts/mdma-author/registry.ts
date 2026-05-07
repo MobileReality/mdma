@@ -32,6 +32,8 @@ import { MDMA_AUTHOR_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_MINI } from './openai/gpt-5.4-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_4_NANO } from './openai/gpt-5.4-nano.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_5 } from './openai/gpt-5.5.js';
+import { MDMA_AUTHOR_PROMPT_GROK_4_3 } from './x-ai/grok-4.3.js';
+import { MDMA_AUTHOR_PROMPT_GROK_4_20 } from './x-ai/grok-4.20.js';
 
 export interface AuthorPromptVariant {
   /** Stable id, persisted in user settings (e.g. "default", "anthropic/haiku"). */
@@ -188,6 +190,18 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     label: 'OpenAI — GPT-4.1-nano',
     description: 'Smallest tier of GPT-4.1 — all three framing blocks for maximum guidance.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_4_1_NANO,
+  },
+  {
+    id: 'x-ai/grok-4.3',
+    label: 'xAI — Grok 4.3',
+    description: 'Minimal composition — scope_discipline + select_options only. Empirically, every additional framing block regresses Grok (see grok-4.3.ts docblock).',
+    prompt: MDMA_AUTHOR_PROMPT_GROK_4_3,
+  },
+  {
+    id: 'x-ai/grok-4.20',
+    label: 'xAI — Grok 4.20',
+    description: 'Same minimal composition as Grok 4.3 — same family, no eval-driven reason to diverge yet.',
+    prompt: MDMA_AUTHOR_PROMPT_GROK_4_20,
   },
 ];
 
