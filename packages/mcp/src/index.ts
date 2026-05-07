@@ -6,6 +6,7 @@ import { buildPrompt } from './tools/build-system-prompt.js';
 import { validatePrompt } from './tools/validate-prompt.js';
 import { listPackages } from './tools/list-packages.js';
 import { listDocs, getDoc } from './tools/get-doc.js';
+import { listPromptVariants } from './tools/list-prompt-variants.js';
 
 export function createMdmaMcpServer(): McpServer {
   const server = new McpServer({
@@ -24,15 +25,32 @@ export function createMdmaMcpServer(): McpServer {
 
   server.tool(
     'get-prompt',
-    'Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer)',
-    { name: z.string().describe('Prompt name: mdma-author, mdma-reviewer, or mdma-fixer') },
-    async ({ name }) => {
-      const result = getPrompt(name);
+    'Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer). For mdma-author, pass an optional variantId (e.g. "google/gemini-2.5-pro") to get the model-optimised variant — use list-prompt-variants to see all available ids.',
+    {
+      name: z.string().describe('Prompt name: mdma-author, mdma-reviewer, or mdma-fixer'),
+      variantId: z
+        .string()
+        .optional()
+        .describe(
+          'Model-specific variant id for mdma-author (e.g. "google/gemini-2.5-pro", "openai/gpt-5"). Falls back to the default variant if omitted or unknown.',
+        ),
+    },
+    async ({ name, variantId }) => {
+      const result = getPrompt(name, variantId);
       if ('error' in result) {
         return { content: [{ type: 'text', text: result.error }], isError: true };
       }
       return { content: [{ type: 'text', text: result.content }] };
     },
+  );
+
+  server.tool(
+    'list-prompt-variants',
+    'Returns all available MDMA_AUTHOR prompt variants with their id, label, and description. Pass the id to get-prompt as variantId to retrieve the model-optimised prompt.',
+    {},
+    async () => ({
+      content: [{ type: 'text', text: JSON.stringify(listPromptVariants(), null, 2) }],
+    }),
   );
 
   server.tool(
@@ -156,3 +174,4 @@ export {
   type GetDocSuccess,
   type GetDocError,
 } from './tools/get-doc.js';
+export { listPromptVariants, type PromptVariantInfo } from './tools/list-prompt-variants.js';
