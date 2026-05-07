@@ -16,7 +16,15 @@ prompts:
   - file://prompt-builder.mjs
 
 providers:
-  - openai:chat:gpt-4.1
+  # Override per run with EVAL_PROVIDER (see promptfooconfig.yaml for examples).
+  # max_tokens is bumped above the default 1024 because the prompt-builder
+  # output is itself a long custom prompt — at 1024 tokens the model gets
+  # truncated mid-mdma-block and the form-fields-match assertion fails with
+  # "Expected N form block(s) but found none" even though generation was on track.
+  - id: "{{ env.EVAL_PROVIDER or 'openai:chat:gpt-4.1' }}"
+    config:
+      max_tokens: 8192
+      max_completion_tokens: 8192
 
 defaultTest:
   assert:

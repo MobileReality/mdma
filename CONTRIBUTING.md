@@ -74,6 +74,22 @@ pnpm eval:all
 pnpm eval:view
 ```
 
+### Switching the model under test
+
+Every config defaults to `openai:gpt-4.1-mini` (`openai:gpt-4.1` for the fixer-flow / prompt-builder suites). Override the provider for a single run via `EVAL_PROVIDER`:
+
+```bash
+# OpenAI models — uses OPENAI_API_KEY
+EVAL_PROVIDER=openai:gpt-4o pnpm eval
+
+# Anthropic / Google / Meta via OpenRouter — uses OPENROUTER_API_KEY
+EVAL_PROVIDER=openrouter:anthropic/claude-sonnet-4 pnpm eval
+EVAL_PROVIDER=openrouter:google/gemini-2.5-pro pnpm eval
+EVAL_PROVIDER=openrouter:meta-llama/llama-3.3-70b-instruct pnpm eval
+```
+
+Add `OPENROUTER_API_KEY=...` to `evals/.env` alongside `OPENAI_API_KEY` to enable the OpenRouter route. You can also pin a default provider in `evals/.env` (e.g. `EVAL_PROVIDER=openrouter:anthropic/claude-sonnet-4`); inline `EVAL_PROVIDER=... pnpm eval` still overrides it for one-off runs.
+
 ## Adding a New Component Type
 
 ### 1. Define the schema in `@mobile-reality/mdma-spec`

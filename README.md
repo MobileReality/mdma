@@ -6,6 +6,7 @@
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 
+
 ## Why MDMA?
 
 AI conversations today are plain text — the user reads a response and manually acts on it. MDMA changes that. When an LLM knows the MDMA spec, it can respond with interactive components (forms, tables, approval gates) instead of just text. The conversation becomes actionable: the user fills out a form, approves a step, or reviews structured data — all inline, with a predictable schema that your app already knows how to render and process.
@@ -51,6 +52,68 @@ variant: primary
 onAction: submit
 ```
 ````
+
+
+## MDMA_AUTHOR prompt matrix
+
+Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt variant on the listed eval suite.
+
+✅ 100% on the suite.
+
+🟡 Scoring between 80–99% on the suite.
+
+🔴 Scoring below 80% on the suite.
+
+
+| Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
+| :--- | :---: | :---: | :---: | :---: |
+| **OpenAI** | | | | |
+| `gpt-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5.2` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.1` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5` \[i] | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5-mini` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-5-nano` \[i] | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-4.1` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gpt-4.1-nano` | 🟡 | ✅ | ✅ \* | ✅ \* |
+| **Anthropic** | | | | |
+| `claude-opus-4.7` | ✅ | ✅ | ✅ | ✅ |
+| `claude-opus-4.6` | ✅ | ✅ | ✅ | ✅ |
+| `claude-sonnet-4.6` | ✅ | ✅ | ✅ | ✅ |
+| `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
+| **Google** | | | | |
+| `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.1-flash-lite-preview` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gemini-3-flash-preview` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gemini-2.5-pro` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-2.5-flash` | ✅ | ✅ | ✅ \* | ✅ \* |
+| `gemini-2.5-flash-lite` | 🟡 | ✅ | ✅ \* | ✅ \* |
+| **xAI** | | | | |
+| `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
+| `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
+| **Zhipu (z.ai)** | | | | |
+| `glm-4-plus` | TBD | TBD | TBD | TBD |
+| **Moonshot** | | | | |
+| `kimi-k2` | TBD | TBD | TBD | TBD |
+| **Alibaba** | | | | |
+| `qwen3-max` | TBD | TBD | TBD | TBD |
+| **MiniMax** | | | | |
+| `minimax-m1` | TBD | TBD | TBD | TBD |
+| **Other** | | | | |
+| *model* | — | — | — | — |
+
+
+> **Don't see your model?** Add a prompt variant under `packages/prompt-pack/src/prompts/mdma-author/<vendor>/` and open a PR — we'll run the eval suite and add it to this table.
+
+\* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
+
+\[i] Noticeably slow response times — single-turn responses commonly take tens of seconds and full eval runs measure in minutes.
+
 
 ## Components
 
@@ -509,7 +572,7 @@ pnpm eval:view
 - [x] File upload field type for forms
 
 ### v0.3 — AI & Generation
-- [ ] Multi-model eval coverage (Claude, GPT-4o, Gemini, Llama)
+- [x] Multi-model eval coverage (Claude, GPT, Gemini, Grok)
 - [ ] Prompt tuning toolkit — test and compare custom prompts
 - [ ] Agent-friendly SDK — let AI agents fill forms and trigger actions programmatically
 - [ ] Webhook execution engine (real HTTP calls in production environments)

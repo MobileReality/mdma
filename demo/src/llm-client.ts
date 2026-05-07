@@ -12,6 +12,12 @@ export interface LlmConfig {
   apiKey: string;
   /** Model identifier (e.g. "gpt-4o", "claude-sonnet-4-5-20250929", "llama3") */
   model: string;
+  /**
+   * Id of the MDMA Author Prompt variant to use as the system prompt base.
+   * Looked up against `AUTHOR_PROMPT_VARIANTS` from the prompt-pack. Falls
+   * back to the default variant when unset or unknown.
+   */
+  systemPromptId?: string;
 }
 
 export interface ChatMessage {
@@ -36,17 +42,34 @@ export const PROVIDER_PRESETS: Record<string, LlmConfig> = {
     apiKey: '',
     model: 'claude-sonnet-4-6',
   },
-  gemini: {
-    baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-    apiKey: '',
-    model: 'gemini-2.5-flash',
-  },
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
     apiKey: '',
     model: 'openai/gpt-5.4-mini',
   },
 };
+
+/**
+ * Build standard headers for an OpenAI-compatible chat completion request.
+ *
+ * Anthropic's compat endpoint blocks browser CORS by default. Setting
+ * `anthropic-dangerous-direct-browser-access: true` opts in to their
+ * browser-direct mode (intended for demos and prototypes — production
+ * traffic should still proxy through a backend so the API key isn't
+ * exposed to end users).
+ */
+function buildHeaders(config: LlmConfig): Record<string, string> {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+  if (config.apiKey) {
+    headers.Authorization = `Bearer ${config.apiKey}`;
+  }
+  if (/api\.anthropic\.com/.test(config.baseUrl)) {
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+  }
+  return headers;
+}
 
 /**
  * Stream a chat completion from any OpenAI-compatible endpoint.
@@ -59,12 +82,7 @@ export async function* streamChatCompletion(
 ): AsyncGenerator<string> {
   const url = `${config.baseUrl.replace(/\/+$/, '')}/chat/completions`;
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (config.apiKey) {
-    headers.Authorization = `Bearer ${config.apiKey}`;
-  }
+  const headers = buildHeaders(config);
 
   const response = await fetch(url, {
     method: 'POST',
@@ -123,12 +141,7 @@ export async function chatCompletion(
 ): Promise<string> {
   const url = `${config.baseUrl.replace(/\/+$/, '')}/chat/completions`;
 
-  const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
-  };
-  if (config.apiKey) {
-    headers.Authorization = `Bearer ${config.apiKey}`;
-  }
+  const headers = buildHeaders(config);
 
   const response = await fetch(url, {
     method: 'POST',

@@ -17,6 +17,11 @@
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./prompts/*": {
+      "import": "./dist/prompts/*.js",
+      "types": "./dist/prompts/*.d.ts",
+      "default": "./dist/prompts/*.js"
     }
   },
   "scripts": {
@@ -32,9 +37,7 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "publishConfig": {
     "access": "public"
   },

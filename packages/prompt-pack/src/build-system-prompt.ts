@@ -1,8 +1,14 @@
-import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author.js';
+import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 
 export interface BuildSystemPromptOptions {
   /** Custom system prompt to merge with MDMA instructions. */
   customPrompt?: string;
+  /**
+   * Override the base MDMA author prompt. Defaults to the canonical
+   * `MDMA_AUTHOR_PROMPT`. Use to swap in a model-specialized variant
+   * (e.g. `MDMA_AUTHOR_PROMPT_HAIKU` from `./prompts/mdma-author/anthropic/haiku.js`).
+   */
+  authorPrompt?: string;
 }
 
 /**
@@ -15,13 +21,14 @@ export interface BuildSystemPromptOptions {
  * when providing their own system prompt.
  */
 export function buildSystemPrompt(options: BuildSystemPromptOptions = {}): string {
-  const { customPrompt } = options;
+  const { customPrompt, authorPrompt } = options;
+  const author = authorPrompt ?? MDMA_AUTHOR_PROMPT;
 
   if (!customPrompt) {
-    return MDMA_AUTHOR_PROMPT;
+    return author;
   }
 
-  return `${MDMA_AUTHOR_PROMPT}
+  return `${author}
 
 ---
 

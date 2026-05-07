@@ -12,7 +12,24 @@ prompts:
   - file://prompt.mjs
 
 providers:
-  - openai:gpt-4.1-mini
+  # Override per run with EVAL_PROVIDER, e.g.:
+  #   EVAL_PROVIDER=openai:gpt-4o pnpm eval                                        # uses OPENAI_API_KEY
+  #   EVAL_PROVIDER=openrouter:anthropic/claude-sonnet-4 pnpm eval                 # uses OPENROUTER_API_KEY
+  #   EVAL_PROVIDER=openrouter:google/gemini-2.5-pro pnpm eval
+  #   EVAL_PROVIDER=openrouter:meta-llama/llama-3.3-70b-instruct pnpm eval
+  #
+  # max_tokens lifted above the default 1024 because some test cases ask for
+  # multi-component documents (HR onboarding, KYC review) where 1024 tokens
+  # truncates mid-component and trips component-count assertions.
+  #
+  # Both `max_tokens` (legacy chat models, Anthropic via OpenRouter) and
+  # `max_completion_tokens` (OpenAI gpt-5 / o1 / o3 reasoning models) are set
+  # so the cap applies regardless of which family the provider routes to.
+  # Promptfoo strips the param the model doesn't accept.
+  - id: "{{ env.EVAL_PROVIDER or 'openai:gpt-4.1-mini' }}"
+    config:
+      max_tokens: 8192
+      max_completion_tokens: 8192
 
 defaultTest:
   assert:

@@ -1,15 +1,7 @@
 {
   "name": "@mobile-reality/mdma-cli",
   "version": "0.2.3",
-  "keywords": [
-    "mdma",
-    "markdown",
-    "ai",
-    "llm",
-    "interactive-document",
-    "cli",
-    "prompt-builder"
-  ],
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "cli", "prompt-builder"],
   "type": "module",
   "bin": {
     "mdma": "./dist/bin/mdma.js"
@@ -24,6 +16,11 @@
       "import": "./dist/prompts/master-prompt.js",
       "types": "./dist/prompts/master-prompt.d.ts",
       "default": "./dist/prompts/master-prompt.js"
+    },
+    "./prompts/*": {
+      "import": "./dist/prompts/*.js",
+      "types": "./dist/prompts/*.d.ts",
+      "default": "./dist/prompts/*.js"
     }
   },
   "scripts": {
@@ -63,10 +60,7 @@
     "vite": "^6.0.0",
     "vitest": "^3.2.0"
   },
-  "files": [
-    "dist",
-    "app-dist"
-  ],
+  "files": ["dist", "app-dist"],
   "publishConfig": {
     "access": "public"
   },

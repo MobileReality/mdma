@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
+import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 import {
   streamChatCompletion,
   chatCompletion,
@@ -91,11 +91,30 @@ export function useChat(options?: UseChatOptions) {
 
   // Stable refs for options that shouldn't trigger re-renders
   const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
-  const defaultSystemPrompt = useRef(
-    buildSystemPrompt({ customPrompt: options?.systemPrompt }),
-  ).current;
+  // Active flow state for multi-step example flows. Declared up front so the
+  // system-prompt sync effect below can guard on it.
+  const flowRef = useRef<{
+    steps: { userMessage: string; markdown: string }[];
+    currentStep: number;
+  } | null>(null);
+  // Default system prompt rebuilds when the chosen variant changes so the
+  // LLM Settings dropdown takes effect on the next message without reloading.
+  // The chosen variant always provides the base author prompt; any
+  // customPrompt (hook option or flow override) layers on top of it.
+  const defaultSystemPrompt = useMemo(
+    () =>
+      buildSystemPrompt({
+        authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+        customPrompt: options?.systemPrompt,
+      }),
+    [config.systemPromptId, options?.systemPrompt],
+  );
   // Active system prompt — can be overridden by a flow's customPrompt
   const systemPromptRef = useRef(defaultSystemPrompt);
+  // Keep the ref in sync when the variant changes and no flow override is active.
+  useEffect(() => {
+    if (!flowRef.current) systemPromptRef.current = defaultSystemPrompt;
+  }, [defaultSystemPrompt]);
   const stableUserSuffix = useRef(
     options?.userSuffix !== undefined ? options.userSuffix : DEFAULT_USER_SUFFIX,
   ).current;
@@ -320,12 +339,6 @@ export function useChat(options?: UseChatOptions) {
     [reparseLastAssistant],
   );
 
-  // Active flow state for multi-step example flows
-  const flowRef = useRef<{
-    steps: { userMessage: string; markdown: string }[];
-    currentStep: number;
-  } | null>(null);
-
   /** Inject a single user+assistant message pair and parse the markdown. */
   const injectStep = useCallback(async (userMessage: string, markdown: string) => {
     const userMsg: ChatMsg = {
@@ -357,15 +370,19 @@ export function useChat(options?: UseChatOptions) {
   const startFlow = useCallback(
     async (steps: { userMessage: string; markdown: string }[], customPrompt?: string) => {
       if (steps.length === 0) return;
-      // Override system prompt if a flow-specific custom prompt is provided
+      // Override system prompt if a flow-specific custom prompt is provided.
+      // The flow's customPrompt layers on top of the chosen author variant.
       systemPromptRef.current = customPrompt
-        ? buildSystemPrompt({ customPrompt })
+        ? buildSystemPrompt({
+            authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+            customPrompt,
+          })
         : defaultSystemPrompt;
       flowRef.current = { steps, currentStep: 0 };
       await injectStep(steps[0].userMessage, steps[0].markdown);
       flowRef.current!.currentStep = 1;
     },
-    [injectStep, defaultSystemPrompt],
+    [injectStep, defaultSystemPrompt, config.systemPromptId],
   );
 
   /** Advance the active flow to the next step (if any). */
