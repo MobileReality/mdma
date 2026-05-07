@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-mcp
 
+## 0.2.8
+
+### Patch Changes
+
+- d22b408: Expose model-optimised MDMA_AUTHOR prompt variants via MCP: new list-prompt-variants tool and optional variantId parameter on get-prompt.
+
 ## 0.2.7
 
 ### Patch Changes
