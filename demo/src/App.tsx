@@ -2,28 +2,28 @@ import { useState, useEffect, useRef } from 'react';
 import { AgentChatView } from './AgentChatView.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
+import { HomeView } from './HomeView.js';
 import { ValidatorView } from './ValidatorView.js';
 
 // ── Routing ──────────────────────────────────────────────────────────────────
 
 function usePathname() {
-  const [pathname, setPathname] = useState(() => window.location.pathname);
+  const [hash, setHash] = useState(() => window.location.hash.slice(1) || '/');
   useEffect(() => {
-    const sync = () => setPathname(window.location.pathname);
-    window.addEventListener('popstate', sync);
-    return () => window.removeEventListener('popstate', sync);
+    const sync = () => setHash(window.location.hash.slice(1) || '/');
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
   }, []);
-  return pathname;
+  return hash;
 }
 
 function navigate(to: string) {
-  window.history.pushState(null, '', to);
-  window.dispatchEvent(new PopStateEvent('popstate'));
+  window.location.hash = to;
 }
 
 // ── Nav config ───────────────────────────────────────────────────────────────
 
-type Route = '/chat' | '/author' | '/custom' | '/validator';
+type Route = '/' | '/chat' | '/author' | '/custom' | '/validator';
 
 interface NavItem {
   path: Route;
@@ -70,11 +70,7 @@ function labelForPath(path: string): string {
 export function App() {
   const pathname = usePathname();
 
-  useEffect(() => {
-    if (pathname === '/') navigate('/chat');
-  }, [pathname]);
-
-  const route: Route = (pathname as Route) || '/chat';
+  const route: Route = (pathname as Route) || '/';
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -93,58 +89,64 @@ export function App() {
     <div className="demo-layout">
       <header className="demo-header">
         <div className="demo-header-left">
-          <h1 className="demo-title">MDMA</h1>
+          <button type="button" className="demo-title-link" onClick={() => navigate('/')}>
+            <h1 className="demo-title">MDMA</h1>
+          </button>
           <span className="demo-subtitle">Interactive Document Demo</span>
         </div>
-        <div className="demo-header-right">
-          <div className="demo-nav" ref={dropdownRef}>
-            <button
-              type="button"
-              className="demo-nav-trigger"
-              onClick={() => setDropdownOpen((v) => !v)}
-            >
-              {labelForPath(route)}
-              <svg
-                width="12"
-                height="12"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                aria-hidden="true"
+        {route !== '/' && (
+          <div className="demo-header-right">
+            <div className="demo-nav" ref={dropdownRef}>
+              <button
+                type="button"
+                className="demo-nav-trigger"
+                onClick={() => setDropdownOpen((v) => !v)}
               >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-            {dropdownOpen && (
-              <div className="demo-nav-dropdown">
-                {NAV_GROUPS.map((group) => (
-                  <div key={group.label} className="demo-nav-group">
-                    <div className="demo-nav-group-label">{group.label}</div>
-                    {group.items.map((item) => (
-                      <a
-                        key={item.path}
-                        href={item.path}
-                        className={`demo-nav-item ${route === item.path ? 'demo-nav-item--active' : ''}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigate(item.path);
-                          setDropdownOpen(false);
-                        }}
-                      >
-                        <span className="demo-nav-item-icon">{item.icon}</span>
-                        {item.label}
-                      </a>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
+                {labelForPath(route)}
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  aria-hidden="true"
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              {dropdownOpen && (
+                <div className="demo-nav-dropdown">
+                  {NAV_GROUPS.map((group) => (
+                    <div key={group.label} className="demo-nav-group">
+                      <div className="demo-nav-group-label">{group.label}</div>
+                      {group.items.map((item) => (
+                        <a
+                          key={item.path}
+                          href={`#${item.path}`}
+                          className={`demo-nav-item ${route === item.path ? 'demo-nav-item--active' : ''}`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            navigate(item.path);
+                            setDropdownOpen(false);
+                          }}
+                        >
+                          <span className="demo-nav-item-icon">{item.icon}</span>
+                          {item.label}
+                        </a>
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        )}
       </header>
 
-      {route === '/validator' ? (
+      {route === '/' ? (
+        <HomeView />
+      ) : route === '/validator' ? (
         <ValidatorView />
       ) : route === '/custom' ? (
         <CustomChatView />
