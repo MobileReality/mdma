@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import type { ReactNode } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
+import { customizations } from '../custom-components.js';
 import type { AgentDisplayTurn, AssistantTurn, ThinkingBlock, TextBlock, ToolUseBlock } from './types.js';
 
 // ── Inline markdown renderer ──────────────────────────────────────────────────
@@ -137,7 +138,7 @@ function ToolUseBlockView({ block }: { block: ToolUseBlock }) {
             <span className="agent-tool-loading-bar" />
           </div>
         ) : block.ast && block.store ? (
-          <MdmaDocument ast={block.ast} store={block.store} />
+          <MdmaDocument ast={block.ast} store={block.store} customizations={customizations} />
         ) : block.document ? (
           <pre className="chat-msg-source">{block.document}</pre>
         ) : null}

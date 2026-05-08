@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { memo, useState } from 'react';
+import { memo, useState, useRef } from 'react';
 import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
 import { ChartRenderer } from './chart-components.js';
 import type {
@@ -8,6 +8,7 @@ import type {
   FormSelectElementProps,
   FormCheckboxElementProps,
   FormTextareaElementProps,
+  FormFileElementProps,
   FormSubmitElementProps,
 } from '@mobile-reality/mdma-renderer-react';
 import type { MdmaCustomizations } from './ChatView.js';
@@ -228,29 +229,66 @@ function GlassInput({
 
   return (
     <div className={`ce-editable-field ${sensitive ? 'ce-field--sensitive' : ''}`}>
-      <input
-        id={id}
-        type={displayType}
-        value={value}
-        required={required}
-        className={`ce-glass-input ${sensitive ? 'ce-glass-input--sensitive' : ''}`}
-        placeholder={`Enter ${type}...`}
-        onChange={(e) => {
-          onChange(e.target.value);
-          if (sensitive && masked) setMasked(false);
-        }}
-      />
-      {sensitive && value && (
-        <button
-          type="button"
-          className="mdma-sensitive-toggle"
-          onClick={() => setMasked(!masked)}
-          title={masked ? 'Reveal value' : 'Mask value'}
-        >
-          {masked ? '👁' : '👁‍🗨'}
-        </button>
-      )}
+      <span className="mdma-input-wrapper">
+        <input
+          id={id}
+          type={displayType}
+          value={value}
+          required={required}
+          className={`ce-glass-input ${sensitive ? 'ce-glass-input--sensitive' : ''}`}
+          placeholder={`Enter ${type}...`}
+          onChange={(e) => {
+            onChange(e.target.value);
+            if (sensitive && masked) setMasked(false);
+          }}
+        />
+        {sensitive && value && (
+          <button
+            type="button"
+            className="mdma-sensitive-toggle"
+            onClick={() => setMasked(!masked)}
+            title={masked ? 'Reveal value' : 'Mask value'}
+          >
+            {masked ? '👁' : '🔒'}
+          </button>
+        )}
+      </span>
       {edit && <FieldTypeSelector currentType={type} componentId={componentId} fieldName={name} />}
+    </div>
+  );
+}
+
+function GlassFile({ id, value, onChange, required, sensitive }: FormFileElementProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  return (
+    <div className={`ce-file-zone ${sensitive ? 'ce-field--sensitive' : ''}`}>
+      <input
+        ref={inputRef}
+        id={id}
+        type="file"
+        required={required}
+        style={{ display: 'none' }}
+        onChange={(e) => onChange(e.target.files ? Array.from(e.target.files) : [])}
+      />
+      <button
+        type="button"
+        className="ce-file-trigger"
+        onClick={() => inputRef.current?.click()}
+      >
+        <span className="ce-file-trigger-icon">↑</span>
+        {value.length === 0 ? 'Choose file' : 'Replace file'}
+      </button>
+      {value.length > 0 && (
+        <ul className="ce-file-list">
+          {value.map((file) => (
+            <li key={`${file.name}-${file.lastModified}`}>
+              <span className="ce-file-name">{sensitive ? '•••' : file.name}</span>
+              <span className="ce-file-size">{(file.size / 1024).toFixed(1)} KB</span>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -293,7 +331,7 @@ function GlassSelect({
   );
 }
 
-function ToggleCheckbox({ id, checked, onChange, label, name }: FormCheckboxElementProps) {
+function ToggleCheckbox({ id, checked, onChange, name }: FormCheckboxElementProps) {
   const edit = useEditableField();
   const componentId = extractComponentId(id, name);
 
@@ -591,6 +629,7 @@ export const customizations: MdmaCustomizations = {
         select: GlassSelect,
         checkbox: ToggleCheckbox,
         textarea: GlassTextarea,
+        file: GlassFile,
         submitButton: GradientSubmitButton,
       },
     },

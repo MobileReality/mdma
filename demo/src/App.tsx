@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { AgentChatView } from './AgentChatView.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
-import { PlaygroundView } from './PlaygroundView.js';
 import { ValidatorView } from './ValidatorView.js';
 
 // ── Routing ──────────────────────────────────────────────────────────────────
@@ -24,11 +23,12 @@ function navigate(to: string) {
 
 // ── Nav config ───────────────────────────────────────────────────────────────
 
-type Route = '/chat' | '/author' | '/custom' | '/playground' | '/validator';
+type Route = '/chat' | '/author' | '/custom' | '/validator';
 
 interface NavItem {
   path: Route;
   label: string;
+  icon: string;
 }
 
 interface NavGroup {
@@ -38,17 +38,21 @@ interface NavGroup {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'AI',
+    label: 'Agentic',
     items: [
-      { path: '/chat', label: 'Agent Chat' },
-      { path: '/author', label: 'MDMA Chat' },
-      { path: '/custom', label: 'Custom Components' },
-      { path: '/playground', label: 'Playground' },
+      { path: '/chat', label: 'Agent Chat', icon: '⚡' },
+    ],
+  },
+  {
+    label: 'Completions',
+    items: [
+      { path: '/author', label: 'MDMA Chat', icon: '✍️' },
+      { path: '/custom', label: 'Custom Components', icon: '🎨' },
     ],
   },
   {
     label: 'Tools',
-    items: [{ path: '/validator', label: 'Validator' }],
+    items: [{ path: '/validator', label: 'Validator', icon: '🔍' }],
   },
 ];
 
@@ -128,6 +132,7 @@ export function App() {
                           setDropdownOpen(false);
                         }}
                       >
+                        <span className="demo-nav-item-icon">{item.icon}</span>
                         {item.label}
                       </a>
                     ))}
@@ -141,8 +146,6 @@ export function App() {
 
       {route === '/validator' ? (
         <ValidatorView />
-      ) : route === '/playground' ? (
-        <PlaygroundView />
       ) : route === '/custom' ? (
         <CustomChatView />
       ) : route === '/author' ? (
