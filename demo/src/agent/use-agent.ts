@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 import {
@@ -57,6 +57,46 @@ function loadConfig(): AnthropicConfig {
 
 function saveConfig(c: AnthropicConfig) {
   localStorage.setItem(CONFIG_KEY, JSON.stringify(c));
+}
+
+// ── History persistence ───────────────────────────────────────────────────────
+
+const HISTORY_KEY = 'mdma-agent-history';
+
+interface StoredAgentHistory {
+  turns: AgentDisplayTurn[];
+  apiHistory: ApiMessage[];
+  maxId: number;
+}
+
+function saveAgentHistory(turns: AgentDisplayTurn[], apiHistory: ApiMessage[]) {
+  try {
+    const stripped = turns.map((turn) => {
+      if (turn.role === 'user') return turn;
+      return {
+        ...turn,
+        blocks: (turn as AssistantTurn).blocks.map((block) =>
+          block.type === 'tool_use'
+            ? { ...block, ast: null, store: null, isStreaming: false }
+            : { ...block, isStreaming: false },
+        ),
+      };
+    });
+    const maxId = turns.reduce((max, t) => Math.max(max, Number.parseInt(t.id, 10) || 0), 0);
+    localStorage.setItem(HISTORY_KEY, JSON.stringify({ turns: stripped, apiHistory, maxId }));
+  } catch { /* ignore */ }
+}
+
+function loadAgentHistory(): StoredAgentHistory | null {
+  try {
+    const s = localStorage.getItem(HISTORY_KEY);
+    if (s) return JSON.parse(s) as StoredAgentHistory;
+  } catch { /* ignore */ }
+  return null;
+}
+
+function clearAgentHistory() {
+  localStorage.removeItem(HISTORY_KEY);
 }
 
 // ── Per-block streaming metadata ─────────────────────────────────────────────
@@ -247,18 +287,46 @@ function patchBlock(
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useAgent() {
-  const [turns, setTurns] = useState<AgentDisplayTurn[]>([]);
+  const storedRef = useRef(loadAgentHistory());
+  const stored = storedRef.current;
+
+  const [turns, setTurns] = useState<AgentDisplayTurn[]>(stored?.turns ?? []);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [input, setInput] = useState('');
   const [config, setConfig] = useState<AnthropicConfig>(loadConfig);
 
   const abortRef = useRef<AbortController | null>(null);
-  const idRef = useRef(0);
+  const idRef = useRef(stored?.maxId ?? 0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const apiHistoryRef = useRef<ApiMessage[]>([]);
+  const apiHistoryRef = useRef<ApiMessage[]>(stored?.apiHistory ?? []);
 
   const nextId = useCallback(() => String(++idRef.current), []);
+
+  // Re-parse tool_use documents after restoring from storage
+  useEffect(() => {
+    const s = storedRef.current;
+    if (!s) return;
+    for (const turn of s.turns) {
+      if (turn.role !== 'assistant') continue;
+      for (const block of (turn as AssistantTurn).blocks) {
+        if (block.type === 'tool_use' && block.document) {
+          const { id: blockId, document } = block;
+          const turnId = turn.id;
+          parseMarkdown(document)
+            .then(({ ast, store }) => setTurns((prev) => patchBlock(prev, turnId, blockId, { ast, store })))
+            .catch(() => null);
+        }
+      }
+    }
+  }, []);
+
+  // Save history after each completed generation; clear when empty
+  useEffect(() => {
+    if (isGenerating) return;
+    if (turns.length === 0) { clearAgentHistory(); return; }
+    saveAgentHistory(turns, apiHistoryRef.current);
+  }, [turns, isGenerating]);
 
   const updateConfig = useCallback((patch: Partial<AnthropicConfig>) => {
     setConfig((prev) => {

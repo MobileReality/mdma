@@ -23,10 +23,15 @@ function parseInline(text: string): ReactNode {
   return parts.length === 1 ? parts[0] : <>{parts}</>;
 }
 
+function parseTableRow(line: string): string[] {
+  return line.split('|').slice(1, -1).map((c) => c.trim());
+}
+
 function MarkdownText({ text }: { text: string }) {
   const result: ReactNode[] = [];
   let key = 0;
   let listItems: ReactNode[] = [];
+  let tableRows: string[][] = [];
 
   const flushList = () => {
     if (listItems.length === 0) return;
@@ -34,17 +39,51 @@ function MarkdownText({ text }: { text: string }) {
     listItems = [];
   };
 
+  const flushTable = () => {
+    if (tableRows.length === 0) return;
+    const [header, ...body] = tableRows;
+    result.push(
+      <table key={key++} className="agent-text-table">
+        <thead>
+          <tr>{header.map((cell, i) => <th key={i}>{parseInline(cell)}</th>)}</tr>
+        </thead>
+        <tbody>
+          {body.map((row, i) => (
+            <tr key={i}>{row.map((cell, j) => <td key={j}>{parseInline(cell)}</td>)}</tr>
+          ))}
+        </tbody>
+      </table>,
+    );
+    tableRows = [];
+  };
+
   for (const line of text.split('\n')) {
-    if (/^[-*] /.test(line)) {
+    const trimmed = line.trim();
+    const headingMatch = line.match(/^(#{1,3}) (.+)/);
+    if (headingMatch) {
+      flushList(); flushTable();
+      const level = headingMatch[1].length as 1 | 2 | 3;
+      const Tag = `h${level}` as const;
+      result.push(<Tag key={key++} className={`agent-text-h${level}`}>{parseInline(headingMatch[2])}</Tag>);
+    } else if (trimmed.startsWith('|') && trimmed.endsWith('|')) {
+      flushList();
+      if (!/^\|[-| :]+\|$/.test(trimmed)) {
+        tableRows.push(parseTableRow(trimmed));
+      }
+    } else if (/^[-*] /.test(line)) {
+      flushTable();
       listItems.push(<li key={listItems.length}>{parseInline(line.slice(2))}</li>);
-    } else if (line.trim() === '') {
-      flushList();
+    } else if (/^-{3,}$/.test(trimmed)) {
+      flushList(); flushTable();
+      result.push(<hr key={key++} className="agent-text-hr" />);
+    } else if (trimmed === '') {
+      flushList(); flushTable();
     } else {
-      flushList();
+      flushList(); flushTable();
       result.push(<p key={key++}>{parseInline(line)}</p>);
     }
   }
-  flushList();
+  flushList(); flushTable();
 
   return <div className="agent-text-content">{result}</div>;
 }

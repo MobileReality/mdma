@@ -88,6 +88,7 @@ export function useChat(options?: UseChatOptions) {
   const [input, setInput] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isGeneratingRef = useRef(false);
 
   // Stable refs for options that shouldn't trigger re-renders
   const stableStorageKey = useRef(options?.storageKey ?? 'chat').current;
@@ -132,6 +133,7 @@ export function useChat(options?: UseChatOptions) {
   const msgIdRef = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const restoredRef = useRef(false);
+  useEffect(() => { isGeneratingRef.current = isGenerating; }, [isGenerating]);
 
   // Generation counter to discard stale parse results
   const parseGenRef = useRef(0);
@@ -233,11 +235,8 @@ export function useChat(options?: UseChatOptions) {
     [config.apiKey],
   );
 
-  const send = useCallback(async () => {
-    const text = input.trim();
-    if (!text || isGenerating) return;
-
-    setInput('');
+  const _sendText = useCallback(async (text: string) => {
+    if (!text || isGeneratingRef.current) return;
     setError(null);
 
     const userMsg: ChatMsg = {
@@ -247,7 +246,6 @@ export function useChat(options?: UseChatOptions) {
       ast: null,
       store: null,
     };
-
     const assistantMsg: ChatMsg = {
       id: ++msgIdRef.current,
       role: 'assistant',
@@ -259,14 +257,10 @@ export function useChat(options?: UseChatOptions) {
     setMessages((prev) => [...prev, userMsg, assistantMsg]);
     setIsGenerating(true);
 
-    // Build conversation history for the LLM
     const history: LlmMessage[] = [{ role: 'system', content: systemPromptRef.current }];
-
-    for (const m of [...messages, userMsg]) {
+    for (const m of [...messagesRef.current, userMsg]) {
       history.push({ role: m.role, content: m.content });
     }
-
-    // Append instruction suffix for this turn (if configured)
     if (stableUserSuffix) {
       history[history.length - 1] = {
         role: 'user',
@@ -300,8 +294,6 @@ export function useChat(options?: UseChatOptions) {
           prev.map((m) => (m.id === asstId ? { ...m, content: fullOutput } : m)),
         );
       }
-
-      // Final parse with complete content
       await reparseLastAssistant(fullOutput, asstId);
     } catch (err) {
       if (!(err instanceof DOMException && err.name === 'AbortError')) {
@@ -312,7 +304,14 @@ export function useChat(options?: UseChatOptions) {
       abortRef.current = null;
       inputRef.current?.focus();
     }
-  }, [input, config, isGenerating, messages, reparseLastAssistant]);
+  }, [config, reparseLastAssistant, stableUserSuffix]);
+
+  const send = useCallback(async () => {
+    const text = input.trim();
+    if (!text) return;
+    setInput('');
+    await _sendText(text);
+  }, [input, _sendText]);
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
@@ -366,33 +365,30 @@ export function useChat(options?: UseChatOptions) {
     }
   }, []);
 
-  /** Start a multi-step example flow. Loads the first step immediately. */
+  /** Start a multi-step example flow. Sends the first step to the LLM. */
   const startFlow = useCallback(
     async (steps: { userMessage: string; markdown: string }[], customPrompt?: string) => {
       if (steps.length === 0) return;
-      // Override system prompt if a flow-specific custom prompt is provided.
-      // The flow's customPrompt layers on top of the chosen author variant.
       systemPromptRef.current = customPrompt
         ? buildSystemPrompt({
             authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
             customPrompt,
           })
         : defaultSystemPrompt;
-      flowRef.current = { steps, currentStep: 0 };
-      await injectStep(steps[0].userMessage, steps[0].markdown);
-      flowRef.current!.currentStep = 1;
+      flowRef.current = { steps, currentStep: 1 };
+      await _sendText(steps[0].userMessage);
     },
-    [injectStep, defaultSystemPrompt, config.systemPromptId],
+    [_sendText, defaultSystemPrompt, config.systemPromptId],
   );
 
-  /** Advance the active flow to the next step (if any). */
+  /** Advance the active flow to the next step by sending the step message to the LLM. */
   const advanceFlow = useCallback(async () => {
     const flow = flowRef.current;
     if (!flow || flow.currentStep >= flow.steps.length) return;
     const step = flow.steps[flow.currentStep];
     flow.currentStep++;
-    await injectStep(step.userMessage, step.markdown);
-  }, [injectStep]);
+    await _sendText(step.userMessage);
+  }, [_sendText]);
 
   /** Inject a pre-built markdown document as a user+assistant message pair. */
   const injectDocument = useCallback(

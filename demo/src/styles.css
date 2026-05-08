@@ -4257,6 +4257,49 @@ body {
   margin: 0;
 }
 
+.agent-text-h1,
+.agent-text-h2,
+.agent-text-h3 {
+  margin: 0;
+  color: #1a1a2e;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.agent-text-h1 { font-size: 18px; }
+.agent-text-h2 { font-size: 15px; }
+.agent-text-h3 { font-size: 14px; }
+
+.agent-text-hr {
+  border: none;
+  border-top: 1px solid #e8e6f0;
+  margin: 4px 0;
+}
+
+.agent-text-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.agent-text-table th,
+.agent-text-table td {
+  padding: 6px 10px;
+  text-align: left;
+  border: 1px solid #e2dff0;
+  color: #1a1a2e;
+  line-height: 1.5;
+}
+
+.agent-text-table thead th {
+  background: #f5f3ff;
+  font-weight: 600;
+}
+
+.agent-text-table tbody tr:nth-child(even) td {
+  background: #faf9ff;
+}
+
 .agent-text-list {
   margin: 0;
   padding-left: 20px;
