@@ -1,0 +1,143 @@
+# MDMA Agent Guidance — Eval Test Cases
+#
+# Each test sends a natural-language user request (as a real agent user would)
+# and asserts whether the model calls the `generate_mdma` tool.
+
+# ---------------------------------------------------------------------------
+# Document creation — should call generate_mdma
+# ---------------------------------------------------------------------------
+
+- description: Contact form request calls generate_mdma
+  vars:
+    request: "Create a contact form with fields for full name, email address, and a message."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: Onboarding flow request calls generate_mdma
+  vars:
+    request: >
+      Build an employee onboarding flow with three steps: personal information,
+      IT equipment setup, and policy acknowledgment.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: Bug report form calls generate_mdma
+  vars:
+    request: >
+      I need a bug report form for my engineering team. It should capture the
+      title, severity, steps to reproduce, and an optional file attachment.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: Customer satisfaction survey calls generate_mdma
+  vars:
+    request: >
+      Create a customer satisfaction survey with rating questions for product
+      quality, support experience, and likelihood to recommend.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: Expense approval workflow calls generate_mdma
+  vars:
+    request: >
+      Make an expense reimbursement approval workflow: the employee submits
+      amount and category, then a manager approves or rejects with a comment.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: Sales dashboard request calls generate_mdma
+  vars:
+    request: >
+      Build a sales pipeline dashboard showing deals grouped by stage with
+      a bar chart of revenue by month.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: File upload form calls generate_mdma
+  vars:
+    request: "Create a document upload form for medical records with patient name, date of birth, and a file upload field."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+- description: KYC verification form calls generate_mdma
+  vars:
+    request: >
+      I need a KYC form that collects full name, date of birth, national ID
+      number, residential address, and a document upload for ID verification.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+
+# ---------------------------------------------------------------------------
+# Conversational / informational — should NOT call generate_mdma
+# ---------------------------------------------------------------------------
+
+- description: Informational question does not call generate_mdma
+  vars:
+    request: "What kind of interactive documents can MDMA format represent?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Follow-up clarification does not call generate_mdma
+  vars:
+    request: "Can you explain the difference between a form and a steps component in MDMA?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: User acknowledgement does not call generate_mdma
+  vars:
+    request: "Thank you, the form looks great!"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: MDMA capability question does not call generate_mdma
+  vars:
+    request: "How many components can I put in a single MDMA document?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Follow-up about previous document does not call generate_mdma
+  vars:
+    request: "Can you remind me what fields were in the last form you created?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: General question about MDMA spec does not call generate_mdma
+  vars:
+    request: "Does MDMA support conditional field visibility based on other field values?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Greeting does not call generate_mdma
+  vars:
+    request: "Hi, what can you help me with?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false

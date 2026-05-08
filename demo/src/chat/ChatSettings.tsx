@@ -4,11 +4,11 @@ import { PROVIDER_PRESETS, type LlmConfig } from '../llm-client.js';
 
 const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
   openai: [
+    { value: 'gpt-5.5', label: 'gpt-5.5' },
+    { value: 'gpt-5.5-pro', label: 'gpt-5.5-pro' },
     { value: 'gpt-5.4', label: 'gpt-5.4' },
     { value: 'gpt-5.4-mini', label: 'gpt-5.4-mini' },
     { value: 'gpt-5.4-nano', label: 'gpt-5.4-nano' },
-    { value: 'gpt-5.3-codex', label: 'gpt-5.3-codex' },
-    { value: 'gpt-5-mini', label: 'gpt-5-mini' },
     { value: 'o3', label: 'o3' },
     { value: 'o3-pro', label: 'o3-pro' },
     { value: 'o4-mini', label: 'o4-mini' },

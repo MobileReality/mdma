@@ -6,9 +6,13 @@
  */
 
 export interface AnthropicConfig {
+  provider?: 'anthropic' | 'openai';
+  /** Anthropic API key */
   apiKey: string;
+  /** OpenAI API key — stored separately so switching providers doesn't clear it */
+  openaiApiKey?: string;
   model: string;
-  /** Token budget for extended thinking. Defaults to 8000. */
+  /** Token budget for extended thinking. Only used when provider is 'anthropic'. */
   thinkingBudget?: number;
   systemPromptId?: string;
 }

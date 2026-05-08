@@ -23,3 +23,8 @@ export {
   type FixerMessageOptions,
 } from './prompts/mdma-fixer.js';
 export { buildSystemPrompt, type BuildSystemPromptOptions } from './build-system-prompt.js';
+export {
+  AGENT_TOOL_PROMPT_VARIANTS,
+  getAgentToolPromptVariant,
+  type AgentToolPromptVariant,
+} from './prompts/mdma-agent/registry.js';
