@@ -1,12 +1,16 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { useAgent } from './agent/use-agent.js';
+import { useAgentActionLog } from './agent/use-agent-action-log.js';
 import { AgentMessage } from './agent/AgentMessage.js';
 import { AgentSettings } from './agent/AgentSettings.js';
+import { ChatActionLog } from './chat/ChatActionLog.js';
 import { ChatInput } from './chat/ChatInput.js';
 
 export function AgentChatView() {
   const { turns, isGenerating, error, input, setInput, config, updateConfig, send, stop, clear, inputRef } =
     useAgent();
+
+  const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useAgentActionLog(turns);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(turns.length);
@@ -20,10 +24,11 @@ export function AgentChatView() {
 
   const handleClear = useCallback(() => {
     clear();
-  }, [clear]);
+    clearEvents();
+  }, [clear, clearEvents]);
 
   return (
-    <div className="chat-layout">
+    <div className={`chat-layout${logOpen ? ' chat-layout--with-log' : ''}`}>
       <div className="chat-main">
         <AgentSettings config={config} onUpdate={updateConfig} />
 
@@ -58,6 +63,12 @@ export function AgentChatView() {
           inputRef={inputRef}
         />
       </div>
+
+      <ChatActionLog
+        events={events}
+        isOpen={logOpen}
+        onToggle={() => setLogOpen((v) => !v)}
+      />
     </div>
   );
 }

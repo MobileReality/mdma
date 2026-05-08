@@ -13,6 +13,7 @@ import {
   type OpenAIAssistantMessage,
 } from './openai-agent-client.js';
 import { parseMarkdown } from '../chat/parse-markdown.js';
+import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import type { AgentDisplayTurn, AssistantTurn, AgentBlock } from './types.js';
 
 // ── Tool definition ──────────────────────────────────────────────────────────
@@ -50,11 +51,15 @@ const DEFAULT_CONFIG: AnthropicConfig = {
 function loadConfig(): AnthropicConfig {
   try {
     const s = localStorage.getItem(CONFIG_KEY);
-    if (s) return { ...DEFAULT_CONFIG, ...JSON.parse(s) };
+    if (s) {
+      const config: AnthropicConfig = { ...DEFAULT_CONFIG, ...JSON.parse(s) };
+      if (!config.systemPromptId) config.systemPromptId = getDefaultPromptVariantForModel(config.model);
+      return config;
+    }
   } catch {
     /* ignore */
   }
-  return DEFAULT_CONFIG;
+  return { ...DEFAULT_CONFIG, systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model) };
 }
 
 function saveConfig(c: AnthropicConfig) {
@@ -252,6 +257,19 @@ async function runAgentLoop(
 
 // ── OpenAI agentic loop ───────────────────────────────────────────────────────
 
+const OPENAI_COMPAT_BASE_URLS: Partial<Record<NonNullable<AnthropicConfig['provider']>, string>> = {
+  openai: 'https://api.openai.com/v1',
+  openrouter: 'https://openrouter.ai/api/v1',
+};
+
+function getApiKeyForProvider(config: AnthropicConfig): string {
+  switch (config.provider) {
+    case 'openai': return config.openaiApiKey ?? '';
+    case 'openrouter': return config.openrouterApiKey ?? '';
+    default: return config.apiKey;
+  }
+}
+
 async function runOpenAIAgentLoop(
   config: AnthropicConfig,
   systemPrompt: string,
@@ -262,6 +280,8 @@ async function runOpenAIAgentLoop(
   onError: (msg: string) => void,
   nextId: () => string,
 ): Promise<void> {
+  const baseUrl = OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const apiKey = getApiKeyForProvider(config);
   let continueLoop = true;
 
   while (continueLoop && !signal.aborted) {
@@ -272,7 +292,7 @@ async function runOpenAIAgentLoop(
     const finishedToolCalls: Array<{ id: string; name: string; arguments: string }> = [];
 
     for await (const ev of streamOpenAIAgentMessages(
-      config.openaiApiKey ?? '', config.model, systemPrompt, history, [GENERATE_MDMA_TOOL], signal,
+      apiKey, config.model, systemPrompt, history, [GENERATE_MDMA_TOOL], signal, baseUrl,
     )) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
@@ -467,14 +487,14 @@ export function useAgent() {
     const provider = config.provider ?? 'anthropic';
 
     try {
-      if (provider === 'openai') {
-        const history = [...openaiHistoryRef.current, { role: 'user' as const, content: text }];
-        await runOpenAIAgentLoop(config, systemPrompt, history, assistantTurnId, abortRef.current.signal, setTurns, setError, nextId);
-        openaiHistoryRef.current = history;
-      } else {
+      if (provider === 'anthropic') {
         const history: ApiMessage[] = [...apiHistoryRef.current, { role: 'user', content: text }];
         await runAgentLoop(config, systemPrompt, history, assistantTurnId, abortRef.current.signal, setTurns, setError, nextId);
         apiHistoryRef.current = history;
+      } else {
+        const history = [...openaiHistoryRef.current, { role: 'user' as const, content: text }];
+        await runOpenAIAgentLoop(config, systemPrompt, history, assistantTurnId, abortRef.current.signal, setTurns, setError, nextId);
+        openaiHistoryRef.current = history;
       }
     } catch (err) {
       if (!(err instanceof DOMException && err.name === 'AbortError')) {

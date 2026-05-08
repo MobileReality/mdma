@@ -47,7 +47,7 @@ function DefaultInput({ id, type, value, onChange, required, sensitive }: FormIn
           onClick={() => setMasked(!masked)}
           title={masked ? 'Reveal value' : 'Mask value'}
         >
-          {masked ? '👁' : '👁‍🗨'}
+          {masked ? '👁' : '🔒'}
         </button>
       )}
     </span>

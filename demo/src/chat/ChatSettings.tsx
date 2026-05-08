@@ -1,33 +1,46 @@
 import { memo, useState } from 'react';
 import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
+import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import { PROVIDER_PRESETS, type LlmConfig } from '../llm-client.js';
 
 const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
   openai: [
     { value: 'gpt-5.5', label: 'gpt-5.5' },
     { value: 'gpt-5.5-pro', label: 'gpt-5.5-pro' },
+    { value: 'gpt-5', label: 'gpt-5' },
     { value: 'gpt-5.4', label: 'gpt-5.4' },
     { value: 'gpt-5.4-mini', label: 'gpt-5.4-mini' },
     { value: 'gpt-5.4-nano', label: 'gpt-5.4-nano' },
+    { value: 'gpt-5.2', label: 'gpt-5.2' },
+    { value: 'gpt-5.1', label: 'gpt-5.1' },
+    { value: 'gpt-5-mini', label: 'gpt-5-mini' },
     { value: 'o3', label: 'o3' },
     { value: 'o3-pro', label: 'o3-pro' },
     { value: 'o4-mini', label: 'o4-mini' },
     { value: 'gpt-4.1', label: 'gpt-4.1' },
     { value: 'gpt-4.1-mini', label: 'gpt-4.1-mini' },
+    { value: 'gpt-4.1-nano', label: 'gpt-4.1-nano' },
   ],
   anthropic: [
+    { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
     { value: 'claude-opus-4-6', label: 'claude-opus-4.6' },
     { value: 'claude-sonnet-4-6', label: 'claude-sonnet-4.6' },
     { value: 'claude-haiku-4-5-20251001', label: 'claude-haiku-4.5' },
     { value: 'claude-sonnet-4-5-20250929', label: 'claude-sonnet-4.5' },
   ],
   openrouter: [
+    { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
+    { value: 'google/gemini-3.1-flash-lite-preview', label: 'google/gemini-3.1-flash-lite-preview' },
+    { value: 'google/gemini-3-flash-preview', label: 'google/gemini-3-flash-preview' },
+    { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
+    { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
+    { value: 'google/gemini-2.5-flash-lite', label: 'google/gemini-2.5-flash-lite' },
+    { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
+    { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
     { value: 'openai/gpt-5.4', label: 'openai/gpt-5.4' },
     { value: 'openai/gpt-5.4-mini', label: 'openai/gpt-5.4-mini' },
     { value: 'anthropic/claude-opus-4-6', label: 'anthropic/claude-opus-4.6' },
     { value: 'anthropic/claude-sonnet-4-6', label: 'anthropic/claude-sonnet-4.6' },
-    { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
-    { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
     { value: 'meta-llama/llama-4-scout', label: 'meta-llama/llama-4-scout' },
     { value: 'deepseek/deepseek-r1', label: 'deepseek/deepseek-r1' },
     { value: 'qwen/qwen3-235b', label: 'qwen/qwen3-235b' },
@@ -107,7 +120,7 @@ export const ChatSettings = memo(function ChatSettings({
                       if (e.target.value === '__custom__') {
                         onUpdate({ model: '' });
                       } else {
-                        onUpdate({ model: e.target.value });
+                        onUpdate({ model: e.target.value, systemPromptId: getDefaultPromptVariantForModel(e.target.value) });
                       }
                     }}
                   >

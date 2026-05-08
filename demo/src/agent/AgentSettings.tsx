@@ -1,26 +1,71 @@
 import { memo, useState } from 'react';
 import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
+import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import type { AnthropicConfig } from './anthropic-client.js';
 
-const ANTHROPIC_MODELS = [
-  { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
-  { value: 'claude-opus-4-6', label: 'claude-opus-4.6' },
-  { value: 'claude-sonnet-4-6', label: 'claude-sonnet-4.6' },
-];
-
-const OPENAI_MODELS = [
-  { value: 'gpt-5.5', label: 'gpt-5.5' },
-  { value: 'gpt-5.5-pro', label: 'gpt-5.5-pro' },
-  { value: 'gpt-5.4', label: 'gpt-5.4' },
-  { value: 'gpt-5.4-mini', label: 'gpt-5.4-mini' },
-  { value: 'o3', label: 'o3' },
-  { value: 'o4-mini', label: 'o4-mini' },
-];
+const PROVIDER_MODELS: Record<string, Array<{ value: string; label: string }>> = {
+  anthropic: [
+    { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
+    { value: 'claude-opus-4-6', label: 'claude-opus-4.6' },
+    { value: 'claude-sonnet-4-6', label: 'claude-sonnet-4.6' },
+    { value: 'claude-haiku-4-5-20251001', label: 'claude-haiku-4.5' },
+  ],
+  openai: [
+    { value: 'gpt-5.5', label: 'gpt-5.5' },
+    { value: 'gpt-5.5-pro', label: 'gpt-5.5-pro' },
+    { value: 'gpt-5', label: 'gpt-5' },
+    { value: 'gpt-5.4', label: 'gpt-5.4' },
+    { value: 'gpt-5.4-mini', label: 'gpt-5.4-mini' },
+    { value: 'gpt-5.4-nano', label: 'gpt-5.4-nano' },
+    { value: 'gpt-5.2', label: 'gpt-5.2' },
+    { value: 'gpt-5.1', label: 'gpt-5.1' },
+    { value: 'gpt-5-mini', label: 'gpt-5-mini' },
+    { value: 'o3', label: 'o3' },
+    { value: 'o4-mini', label: 'o4-mini' },
+    { value: 'gpt-4.1', label: 'gpt-4.1' },
+    { value: 'gpt-4.1-mini', label: 'gpt-4.1-mini' },
+  ],
+  openrouter: [
+    { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
+    { value: 'google/gemini-3.1-flash-lite-preview', label: 'google/gemini-3.1-flash-lite-preview' },
+    { value: 'google/gemini-3-flash-preview', label: 'google/gemini-3-flash-preview' },
+    { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
+    { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
+    { value: 'google/gemini-2.5-flash-lite', label: 'google/gemini-2.5-flash-lite' },
+    { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
+    { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
+  ],
+};
 
 const DEFAULT_MODELS: Record<string, string> = {
   anthropic: 'claude-sonnet-4-6',
   openai: 'gpt-5.5',
+  openrouter: 'google/gemini-3.1-pro-preview',
 };
+
+const API_KEY_LABELS: Record<string, string> = {
+  anthropic: 'Anthropic API Key',
+  openai: 'OpenAI API Key',
+  openrouter: 'OpenRouter API Key',
+};
+
+const API_KEY_PLACEHOLDERS: Record<string, string> = {
+  anthropic: 'sk-ant-...',
+  openai: 'sk-...',
+  openrouter: 'sk-or-...',
+};
+
+function getApiKey(config: AnthropicConfig, provider: string): string {
+  if (provider === 'openai') return config.openaiApiKey ?? '';
+  if (provider === 'openrouter') return config.openrouterApiKey ?? '';
+  return config.apiKey;
+}
+
+function apiKeyPatch(provider: string, value: string): Partial<AnthropicConfig> {
+  if (provider === 'openai') return { openaiApiKey: value };
+  if (provider === 'openrouter') return { openrouterApiKey: value };
+  return { apiKey: value };
+}
 
 export interface AgentSettingsProps {
   config: AnthropicConfig;
@@ -31,11 +76,12 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
   const [open, setOpen] = useState(false);
 
   const provider = config.provider ?? 'anthropic';
-  const models = provider === 'openai' ? OPENAI_MODELS : ANTHROPIC_MODELS;
+  const models = PROVIDER_MODELS[provider] ?? [];
 
-  function switchProvider(next: 'anthropic' | 'openai') {
+  function switchProvider(next: NonNullable<AnthropicConfig['provider']>) {
     if (next === provider) return;
-    onUpdate({ provider: next, model: DEFAULT_MODELS[next] });
+    const defaultModel = DEFAULT_MODELS[next];
+    onUpdate({ provider: next, model: defaultModel, systemPromptId: getDefaultPromptVariantForModel(defaultModel) });
   }
 
   return (
@@ -51,7 +97,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
       {open && (
         <div className="chat-settings">
           <div className="ai-settings-presets">
-            {(['anthropic', 'openai'] as const).map((p) => (
+            {(Object.keys(PROVIDER_MODELS) as NonNullable<AnthropicConfig['provider']>[]).map((p) => (
               <button
                 key={p}
                 type="button"
@@ -64,16 +110,12 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
           </div>
           <div className="chat-settings-fields">
             <label className="ai-setting">
-              <span>{provider === 'openai' ? 'OpenAI API Key' : 'Anthropic API Key'}</span>
+              <span>{API_KEY_LABELS[provider]}</span>
               <input
                 type="password"
-                value={provider === 'openai' ? (config.openaiApiKey ?? '') : config.apiKey}
-                onChange={(e) =>
-                  provider === 'openai'
-                    ? onUpdate({ openaiApiKey: e.target.value })
-                    : onUpdate({ apiKey: e.target.value })
-                }
-                placeholder={provider === 'openai' ? 'sk-...' : 'sk-ant-...'}
+                value={getApiKey(config, provider)}
+                onChange={(e) => onUpdate(apiKeyPatch(provider, e.target.value))}
+                placeholder={API_KEY_PLACEHOLDERS[provider]}
               />
             </label>
             <div className="ai-setting">
@@ -81,7 +123,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               <select
                 aria-label="Model"
                 value={config.model}
-                onChange={(e) => onUpdate({ model: e.target.value })}
+                onChange={(e) => onUpdate({ model: e.target.value, systemPromptId: getDefaultPromptVariantForModel(e.target.value) })}
               >
                 {models.map((m) => (
                   <option key={m.value} value={m.value}>
@@ -126,7 +168,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
           <p className="agent-settings-note">
             {provider === 'anthropic'
               ? 'Anthropic mode uses extended thinking (Claude 4.x only). Reasoning is visible during generation.'
-              : 'OpenAI mode uses Chat Completions with function calling. Reasoning is internal and not displayed.'}
+              : 'OpenAI-compatible mode uses Chat Completions with function calling. Reasoning is internal and not displayed.'}
           </p>
         </div>
       )}

@@ -6,11 +6,13 @@
  */
 
 export interface AnthropicConfig {
-  provider?: 'anthropic' | 'openai';
+  provider?: 'anthropic' | 'openai' | 'openrouter';
   /** Anthropic API key */
   apiKey: string;
   /** OpenAI API key — stored separately so switching providers doesn't clear it */
   openaiApiKey?: string;
+  /** OpenRouter API key */
+  openrouterApiKey?: string;
   model: string;
   /** Token budget for extended thinking. Only used when provider is 'anthropic'. */
   thinkingBudget?: number;

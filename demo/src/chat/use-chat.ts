@@ -8,6 +8,7 @@ import {
   type LlmConfig,
   type ChatMessage as LlmMessage,
 } from '../llm-client.js';
+import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import { parseMarkdown as defaultParseMarkdown, createParser } from './parse-markdown.js';
 import type { RemarkMdmaOptions } from '@mobile-reality/mdma-parser';
 import type { ChatMsg } from './types.js';
@@ -30,11 +31,15 @@ const CONFIG_KEY = 'mdma-demo-llm-config';
 function loadSavedConfig(): LlmConfig {
   try {
     const saved = localStorage.getItem(CONFIG_KEY);
-    if (saved) return JSON.parse(saved);
+    if (saved) {
+      const config: LlmConfig = JSON.parse(saved);
+      if (!config.systemPromptId) config.systemPromptId = getDefaultPromptVariantForModel(config.model);
+      return config;
+    }
   } catch {
     /* ignore */
   }
-  return DEFAULT_CONFIG;
+  return { ...DEFAULT_CONFIG, systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model) };
 }
 
 function saveConfig(config: LlmConfig) {
@@ -227,7 +232,7 @@ export function useChat(options?: UseChatOptions) {
     (presetName: string) => {
       const preset = PROVIDER_PRESETS[presetName];
       if (preset) {
-        const next = { ...preset, apiKey: config.apiKey };
+        const next = { ...preset, apiKey: config.apiKey, systemPromptId: getDefaultPromptVariantForModel(preset.model) };
         setConfig(next);
         saveConfig(next);
       }

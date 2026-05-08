@@ -36,6 +36,7 @@ export async function* streamOpenAIAgentMessages(
   messages: OpenAIMessage[],
   tools: ToolDefinition[],
   signal?: AbortSignal,
+  baseUrl = 'https://api.openai.com/v1',
 ): AsyncGenerator<AgentStreamEvent> {
   const openAITools = tools.map((t) => ({
     type: 'function' as const,
@@ -44,7 +45,7 @@ export async function* streamOpenAIAgentMessages(
 
   let response: Response;
   try {
-    response = await fetch('https://api.openai.com/v1/chat/completions', {
+    response = await fetch(`${baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
