@@ -31,45 +31,50 @@ export const ChatInput = memo(function ChatInput({
 
   return (
     <div className="chat-input-bar">
-      {hasMessages && (
-        <button
-          type="button"
-          className="chat-clear-btn"
-          onClick={onClear}
-          title="Clear chat history"
-        >
-          Clear
-        </button>
-      )}
-      <textarea
-        ref={inputRef}
-        className="chat-input"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder ?? 'Describe the interactive document you need...'}
-        rows={2}
-        disabled={isDisabled}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            if (!isDisabled) onSend();
-          }
-        }}
-      />
-      {isGenerating ? (
-        <button type="button" className="chat-stop-btn" onClick={onStop}>
-          Stop
-        </button>
-      ) : (
-        <button
-          type="button"
-          className="chat-send-btn"
-          onClick={onSend}
-          disabled={isDisabled || !value.trim()}
-        >
-          Send
-        </button>
-      )}
+      <div className="chat-input-container">
+        <textarea
+          ref={inputRef}
+          className="chat-input"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder={placeholder ?? 'Describe the interactive document you need…'}
+          rows={2}
+          disabled={isDisabled}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              if (!isDisabled) onSend();
+            }
+          }}
+        />
+        <div className="chat-input-actions">
+          {hasMessages && (
+            <button
+              type="button"
+              className="chat-clear-btn"
+              onClick={onClear}
+              title="Clear chat history"
+            >
+              Clear
+            </button>
+          )}
+          <span className="chat-input-hint">Enter to send · Shift+Enter for newline</span>
+          {isGenerating ? (
+            <button type="button" className="chat-stop-btn" onClick={onStop}>
+              Stop
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="chat-send-btn"
+              onClick={onSend}
+              disabled={isDisabled || !value.trim()}
+            >
+              Send
+            </button>
+          )}
+        </div>
+      </div>
     </div>
   );
 });
