@@ -9,6 +9,9 @@
 import { MDMA_AGENT_TOOL_PROMPT } from './default.js';
 import { MDMA_AGENT_TOOL_PROMPT_HAIKU_4_5 } from './anthropic/haiku-4.5.js';
 import { MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
+import { MDMA_AGENT_TOOL_PROMPT_GEMINI_2_5_PRO } from './google/gemini-2.5-pro.js';
+import { MDMA_AGENT_TOOL_PROMPT_GROK_4_20 } from './xai/grok-4.20.js';
+import { MDMA_AGENT_TOOL_PROMPT_GROK_4_3 } from './xai/grok-4.3.js';
 import { MDMA_AGENT_TOOL_PROMPT_GEMINI_3_FLASH_PREVIEW } from './google/gemini-3-flash-preview.js';
 import { MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
 import { MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/gemini-3.1-pro-preview-customtools.js';
@@ -131,6 +134,24 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
     label: 'Google — Gemini 3.1 Flash Lite Preview',
     description: 'Short imperative commands for the Gemini Flash Lite tier — maximally direct to compensate for reduced instruction-following.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW,
+  },
+  {
+    id: 'google/gemini-2.5-pro',
+    label: 'Google — Gemini 2.5 Pro',
+    description: 'Decision-tree framing with Markdown headers, optimised for the Gemini 2.5 Pro flagship model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_2_5_PRO,
+  },
+  {
+    id: 'x-ai/grok-4.20',
+    label: 'xAI — Grok 4.20',
+    description: 'Decision-tree framing with Markdown headers — same format as grok-4.3, reserved for eval-driven divergence.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_20,
+  },
+  {
+    id: 'x-ai/grok-4.3',
+    label: 'xAI — Grok 4.3',
+    description: 'Decision-tree framing with Markdown headers, optimised for the Grok 4.3 flagship model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_3,
   },
   {
     id: 'google/gemini-3-flash-preview',
