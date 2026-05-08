@@ -18,8 +18,8 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
 
   return (
     <div className="chat-settings-bar">
-      <button type="button" className="chat-settings-toggle" onClick={() => setOpen((v) => !v)}>
-        {open ? 'Hide Settings' : 'Agent Settings'}
+      <button type="button" className="chat-settings-toggle" data-open={open ? 'true' : 'false'} onClick={() => setOpen((v) => !v)}>
+        Agent Settings
       </button>
       {open && (
         <div className="chat-settings">

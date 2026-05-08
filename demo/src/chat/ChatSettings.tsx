@@ -61,8 +61,8 @@ export const ChatSettings = memo(function ChatSettings({
 
   return (
     <div className="chat-settings-bar">
-      <button type="button" className="chat-settings-toggle" onClick={() => setOpen(!open)}>
-        {open ? 'Hide Settings' : 'LLM Settings'}
+      <button type="button" className="chat-settings-toggle" data-open={open ? 'true' : 'false'} onClick={() => setOpen(!open)}>
+        LLM Settings
       </button>
       {open && (
         <div className="chat-settings">

@@ -1162,26 +1162,46 @@ body {
 
 /* ===== Chat Settings Bar ===== */
 .chat-settings-bar {
-  border-bottom: 1px solid #ece8f5;
-  background: #faf9fe;
+  border-bottom: 1px solid #e4dfef;
+  background: #f5f3fb;
 }
 
 .chat-settings-toggle {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
-  padding: 9px 24px;
-  font-size: 11.5px;
+  padding: 12px 20px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.3px;
   text-align: left;
   border: none;
   background: transparent;
-  color: #a09bbf;
+  color: #6b5ea8;
   cursor: pointer;
-  transition: color 0.15s;
+  transition: color 0.15s, background 0.15s;
+}
+
+.chat-settings-toggle::after {
+  content: '›';
+  font-size: 18px;
+  line-height: 1;
+  color: #b0a4d8;
+  transition: transform 0.2s, color 0.15s;
+  transform: rotate(90deg);
+}
+
+.chat-settings-toggle[data-open='true']::after {
+  transform: rotate(270deg);
 }
 
 .chat-settings-toggle:hover {
+  color: #5a4bd1;
+  background: #eeebf9;
+}
+
+.chat-settings-toggle:hover::after {
   color: #6c5ce7;
 }
 
@@ -1554,12 +1574,9 @@ body {
 
 /* ===== Chat Input Bar ===== */
 .chat-input-bar {
-  padding: 12px 20px 20px;
+  padding: 12px 24px 20px;
   border-top: 1px solid #ece8f5;
   background: #faf9fe;
-  max-width: 868px;
-  margin: 0 auto;
-  width: 100%;
   box-sizing: border-box;
 }
 
@@ -1572,6 +1589,8 @@ body {
   box-shadow: 0 2px 10px rgba(108, 92, 231, 0.07);
   transition: border-color 0.15s, box-shadow 0.15s;
   overflow: hidden;
+  max-width: 820px;
+  margin: 0 auto;
 }
 
 .chat-input-container:focus-within {
