@@ -21,6 +21,7 @@
     "eval:flows": "pnpm --filter @mobile-reality/mdma-evals eval:flows",
     "eval:fixer": "pnpm --filter @mobile-reality/mdma-evals eval:fixer",
     "eval:fixer-flow": "pnpm --filter @mobile-reality/mdma-evals eval:fixer-flow",
+    "eval:guidance": "pnpm --filter @mobile-reality/mdma-evals eval:guidance",
     "eval:all": "pnpm --filter @mobile-reality/mdma-evals eval:all",
     "eval:author": "pnpm --filter @mobile-reality/mdma-evals eval:author",
     "eval:view": "pnpm --filter @mobile-reality/mdma-evals eval:view"

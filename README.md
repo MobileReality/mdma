@@ -578,8 +578,8 @@ pnpm eval:view
 
 ### v0.3 — AI & Generation
 - [x] Multi-model eval coverage (Claude, GPT, Gemini, Grok)
-- [ ] Prompt tuning toolkit — test and compare custom prompts
-- [ ] Agent-friendly SDK — let AI agents fill forms and trigger actions programmatically
+- [x] Prompt tuning toolkit — test and compare custom prompts
+- [ ] Agent-friendly SDK — let AI agent generate your MDMA
 - [ ] Webhook execution engine (real HTTP calls in production environments)
 
 ### v1.0 — Production Ready

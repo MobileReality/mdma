@@ -1,0 +1,42 @@
+# MDMA Agent Guidance Eval
+#
+# Tests whether the model correctly decides to call the `generate_mdma` tool
+# when a user requests an interactive document — mirroring the Agent Chat flow.
+#
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:guidance
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
+
+description: MDMA Agent Guidance Eval
+
+envPath: .env
+outputPath: results-guidance.json
+
+prompts:
+  - file://prompt-guidance.mjs
+
+providers:
+  - id: "{{ env.EVAL_PROVIDER or 'openai:gpt-4.1-mini' }}"
+    config:
+      max_tokens: 8192
+      max_completion_tokens: 8192
+      # The generate_mdma tool — mirrors the definition in use-agent.ts
+      tools:
+        - type: function
+          function:
+            name: generate_mdma
+            description: >
+              Generate an MDMA Markdown document to present structured
+              interactive content to the user. Use this to create forms,
+              tables, checklists, approval gates, charts, callouts, and any
+              other interactive UI components described in the MDMA spec.
+            parameters:
+              type: object
+              properties:
+                document:
+                  type: string
+                  description: The complete MDMA Markdown document.
+              required:
+                - document
+      tool_choice: auto
+
+tests: tests-guidance.yaml
