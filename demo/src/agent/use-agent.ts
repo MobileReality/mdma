@@ -1,6 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { buildSystemPrompt, getAuthorPromptVariant, getAgentToolPromptVariant } from '@mobile-reality/mdma-prompt-pack';
+import {
+  buildSystemPrompt,
+  getAuthorPromptVariant,
+  getAgentToolPromptVariant,
+} from '@mobile-reality/mdma-prompt-pack';
 import {
   streamAgentMessages,
   type AnthropicConfig,
@@ -36,7 +40,6 @@ const GENERATE_MDMA_TOOL = {
   },
 };
 
-
 // ── Config persistence ───────────────────────────────────────────────────────
 
 const CONFIG_KEY = 'mdma-agent-config';
@@ -53,13 +56,17 @@ function loadConfig(): AnthropicConfig {
     const s = localStorage.getItem(CONFIG_KEY);
     if (s) {
       const config: AnthropicConfig = { ...DEFAULT_CONFIG, ...JSON.parse(s) };
-      if (!config.systemPromptId) config.systemPromptId = getDefaultPromptVariantForModel(config.model);
+      if (!config.systemPromptId)
+        config.systemPromptId = getDefaultPromptVariantForModel(config.model);
       return config;
     }
   } catch {
     /* ignore */
   }
-  return { ...DEFAULT_CONFIG, systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model) };
+  return {
+    ...DEFAULT_CONFIG,
+    systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model),
+  };
 }
 
 function saveConfig(c: AnthropicConfig) {
@@ -145,7 +152,13 @@ async function runAgentLoop(
     const blockMeta = new Map<number, BlockMeta>();
     let stopReason = 'end_turn';
 
-    for await (const ev of streamAgentMessages(config, systemPrompt, history, [GENERATE_MDMA_TOOL], signal)) {
+    for await (const ev of streamAgentMessages(
+      config,
+      systemPrompt,
+      history,
+      [GENERATE_MDMA_TOOL],
+      signal,
+    )) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
         continueLoop = false;
@@ -159,26 +172,49 @@ async function runAgentLoop(
           const apiBlock: ApiAssistantBlock = { type: 'thinking', thinking: '', signature: '' };
           currentApiBlocks.push(apiBlock);
           blockMeta.set(ev.index, { displayId, apiBlock });
-          setTurns((prev) => appendBlock(prev, assistantTurnId, {
-            id: displayId, type: 'thinking', content: '', isStreaming: true,
-          } satisfies AgentBlock));
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'thinking',
+              content: '',
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
         } else if (ev.blockType === 'text') {
           const apiBlock: ApiAssistantBlock = { type: 'text', text: '' };
           currentApiBlocks.push(apiBlock);
           blockMeta.set(ev.index, { displayId, apiBlock });
-          setTurns((prev) => appendBlock(prev, assistantTurnId, {
-            id: displayId, type: 'text', content: '', isStreaming: true,
-          } satisfies AgentBlock));
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'text',
+              content: '',
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
         } else if (ev.blockType === 'tool_use') {
           const toolUseId = ev.toolUseId!;
           const toolName = ev.toolName!;
-          const apiBlock: ApiAssistantBlock = { type: 'tool_use', id: toolUseId, name: toolName, input: {} };
+          const apiBlock: ApiAssistantBlock = {
+            type: 'tool_use',
+            id: toolUseId,
+            name: toolName,
+            input: {},
+          };
           currentApiBlocks.push(apiBlock);
           blockMeta.set(ev.index, { displayId, apiBlock, partialJson: '' });
-          setTurns((prev) => appendBlock(prev, assistantTurnId, {
-            id: displayId, type: 'tool_use', toolUseId, name: toolName,
-            document: '', ast: null, store: null, isStreaming: true,
-          } satisfies AgentBlock));
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'tool_use',
+              toolUseId,
+              name: toolName,
+              document: '',
+              ast: null,
+              store: null,
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
         }
       }
 
@@ -231,9 +267,18 @@ async function runAgentLoop(
           const parsed = await parseMarkdown(document).catch(() => null);
           const ast = parsed?.ast ?? null;
           const store = parsed?.store ?? null;
-          setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, { document, ast, store, isStreaming: false }));
+          setTurns((prev) =>
+            patchBlock(prev, assistantTurnId, meta.displayId, {
+              document,
+              ast,
+              store,
+              isStreaming: false,
+            }),
+          );
         } else {
-          setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, { isStreaming: false }));
+          setTurns((prev) =>
+            patchBlock(prev, assistantTurnId, meta.displayId, { isStreaming: false }),
+          );
         }
       }
 
@@ -247,7 +292,11 @@ async function runAgentLoop(
     if (stopReason === 'tool_use') {
       const toolResults = currentApiBlocks
         .filter((b): b is Extract<ApiAssistantBlock, { type: 'tool_use' }> => b.type === 'tool_use')
-        .map((b) => ({ type: 'tool_result' as const, tool_use_id: b.id, content: 'Document rendered successfully.' }));
+        .map((b) => ({
+          type: 'tool_result' as const,
+          tool_use_id: b.id,
+          content: 'Document rendered successfully.',
+        }));
       if (toolResults.length > 0) history.push({ role: 'user', content: toolResults });
     } else {
       continueLoop = false;
@@ -264,9 +313,12 @@ const OPENAI_COMPAT_BASE_URLS: Partial<Record<NonNullable<AnthropicConfig['provi
 
 function getApiKeyForProvider(config: AnthropicConfig): string {
   switch (config.provider) {
-    case 'openai': return config.openaiApiKey ?? '';
-    case 'openrouter': return config.openrouterApiKey ?? '';
-    default: return config.apiKey;
+    case 'openai':
+      return config.openaiApiKey ?? '';
+    case 'openrouter':
+      return config.openrouterApiKey ?? '';
+    default:
+      return config.apiKey;
   }
 }
 
@@ -280,7 +332,8 @@ async function runOpenAIAgentLoop(
   onError: (msg: string) => void,
   nextId: () => string,
 ): Promise<void> {
-  const baseUrl = OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const baseUrl =
+    OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
   const apiKey = getApiKeyForProvider(config);
   let continueLoop = true;
 
@@ -292,7 +345,13 @@ async function runOpenAIAgentLoop(
     const finishedToolCalls: Array<{ id: string; name: string; arguments: string }> = [];
 
     for await (const ev of streamOpenAIAgentMessages(
-      apiKey, config.model, systemPrompt, history, [GENERATE_MDMA_TOOL], signal, baseUrl,
+      apiKey,
+      config.model,
+      systemPrompt,
+      history,
+      [GENERATE_MDMA_TOOL],
+      signal,
+      baseUrl,
     )) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
@@ -305,18 +364,36 @@ async function runOpenAIAgentLoop(
         if (ev.blockType === 'text') {
           const apiBlock: ApiAssistantBlock = { type: 'text', text: '' };
           blockMeta.set(ev.index, { displayId, apiBlock });
-          setTurns((prev) => appendBlock(prev, assistantTurnId, {
-            id: displayId, type: 'text', content: '', isStreaming: true,
-          } satisfies AgentBlock));
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'text',
+              content: '',
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
         } else if (ev.blockType === 'tool_use') {
           const toolUseId = ev.toolUseId!;
           const toolName = ev.toolName!;
-          const apiBlock: ApiAssistantBlock = { type: 'tool_use', id: toolUseId, name: toolName, input: {} };
+          const apiBlock: ApiAssistantBlock = {
+            type: 'tool_use',
+            id: toolUseId,
+            name: toolName,
+            input: {},
+          };
           blockMeta.set(ev.index, { displayId, apiBlock, partialJson: '' });
-          setTurns((prev) => appendBlock(prev, assistantTurnId, {
-            id: displayId, type: 'tool_use', toolUseId, name: toolName,
-            document: '', ast: null, store: null, isStreaming: true,
-          } satisfies AgentBlock));
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'tool_use',
+              toolUseId,
+              name: toolName,
+              document: '',
+              ast: null,
+              store: null,
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
         }
       }
 
@@ -349,15 +426,26 @@ async function runOpenAIAgentLoop(
           }
           if (meta.apiBlock.type === 'tool_use') {
             meta.apiBlock.input = { document };
-            finishedToolCalls.push({ id: meta.apiBlock.id, name: meta.apiBlock.name, arguments: meta.partialJson });
+            finishedToolCalls.push({
+              id: meta.apiBlock.id,
+              name: meta.apiBlock.name,
+              arguments: meta.partialJson,
+            });
           }
 
           const parsed = await parseMarkdown(document).catch(() => null);
-          setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, {
-            document, ast: parsed?.ast ?? null, store: parsed?.store ?? null, isStreaming: false,
-          }));
+          setTurns((prev) =>
+            patchBlock(prev, assistantTurnId, meta.displayId, {
+              document,
+              ast: parsed?.ast ?? null,
+              store: parsed?.store ?? null,
+              isStreaming: false,
+            }),
+          );
         } else {
-          setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, { isStreaming: false }));
+          setTurns((prev) =>
+            patchBlock(prev, assistantTurnId, meta.displayId, { isStreaming: false }),
+          );
         }
       }
 
@@ -382,7 +470,11 @@ async function runOpenAIAgentLoop(
 
     if (stopReason === 'tool_use') {
       for (const tc of finishedToolCalls) {
-        history.push({ role: 'tool', tool_call_id: tc.id, content: 'Document rendered successfully.' });
+        history.push({
+          role: 'tool',
+          tool_call_id: tc.id,
+          content: 'Document rendered successfully.',
+        });
       }
     } else {
       continueLoop = false;
@@ -392,7 +484,11 @@ async function runOpenAIAgentLoop(
 
 // ── Turn state helpers ────────────────────────────────────────────────────────
 
-function appendBlock(turns: AgentDisplayTurn[], assistantTurnId: string, block: AgentBlock): AgentDisplayTurn[] {
+function appendBlock(
+  turns: AgentDisplayTurn[],
+  assistantTurnId: string,
+  block: AgentBlock,
+): AgentDisplayTurn[] {
   return turns.map((t) =>
     t.id === assistantTurnId ? { ...t, blocks: [...(t as AssistantTurn).blocks, block] } : t,
   );
@@ -406,7 +502,12 @@ function patchBlock(
 ): AgentDisplayTurn[] {
   return turns.map((t) =>
     t.id === assistantTurnId
-      ? { ...t, blocks: (t as AssistantTurn).blocks.map((b) => (b.id === blockId ? { ...b, ...patch } as AgentBlock : b)) }
+      ? {
+          ...t,
+          blocks: (t as AssistantTurn).blocks.map((b) =>
+            b.id === blockId ? ({ ...b, ...patch } as AgentBlock) : b,
+          ),
+        }
       : t,
   );
 }
@@ -442,7 +543,9 @@ export function useAgent() {
           const { id: blockId, document } = block;
           const turnId = turn.id;
           parseMarkdown(document)
-            .then(({ ast, store }) => setTurns((prev) => patchBlock(prev, turnId, blockId, { ast, store })))
+            .then(({ ast, store }) =>
+              setTurns((prev) => patchBlock(prev, turnId, blockId, { ast, store })),
+            )
             .catch(() => null);
         }
       }
@@ -452,7 +555,10 @@ export function useAgent() {
   // Save history after each completed generation; clear when empty
   useEffect(() => {
     if (isGenerating) return;
-    if (turns.length === 0) { clearAgentHistory(); return; }
+    if (turns.length === 0) {
+      clearAgentHistory();
+      return;
+    }
     saveAgentHistory(turns, apiHistoryRef.current, openaiHistoryRef.current);
   }, [turns, isGenerating]);
 
@@ -489,11 +595,29 @@ export function useAgent() {
     try {
       if (provider === 'anthropic') {
         const history: ApiMessage[] = [...apiHistoryRef.current, { role: 'user', content: text }];
-        await runAgentLoop(config, systemPrompt, history, assistantTurnId, abortRef.current.signal, setTurns, setError, nextId);
+        await runAgentLoop(
+          config,
+          systemPrompt,
+          history,
+          assistantTurnId,
+          abortRef.current.signal,
+          setTurns,
+          setError,
+          nextId,
+        );
         apiHistoryRef.current = history;
       } else {
         const history = [...openaiHistoryRef.current, { role: 'user' as const, content: text }];
-        await runOpenAIAgentLoop(config, systemPrompt, history, assistantTurnId, abortRef.current.signal, setTurns, setError, nextId);
+        await runOpenAIAgentLoop(
+          config,
+          systemPrompt,
+          history,
+          assistantTurnId,
+          abortRef.current.signal,
+          setTurns,
+          setError,
+          nextId,
+        );
         openaiHistoryRef.current = history;
       }
     } catch (err) {
@@ -521,5 +645,17 @@ export function useAgent() {
     inputRef.current?.focus();
   }, []);
 
-  return { turns, isGenerating, error, input, setInput, config, updateConfig, send, stop, clear, inputRef };
+  return {
+    turns,
+    isGenerating,
+    error,
+    input,
+    setInput,
+    config,
+    updateConfig,
+    send,
+    stop,
+    clear,
+    inputRef,
+  };
 }

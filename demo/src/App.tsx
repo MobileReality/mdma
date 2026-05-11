@@ -39,9 +39,7 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Agentic',
-    items: [
-      { path: '/chat', label: 'Agent Chat', icon: '⚡' },
-    ],
+    items: [{ path: '/chat', label: 'Agent Chat', icon: '⚡' }],
   },
   {
     label: 'Completions',

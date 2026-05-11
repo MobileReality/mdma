@@ -27,7 +27,10 @@ const PROVIDER_MODELS: Record<string, Array<{ value: string; label: string }>> =
   ],
   openrouter: [
     { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
-    { value: 'google/gemini-3.1-flash-lite-preview', label: 'google/gemini-3.1-flash-lite-preview' },
+    {
+      value: 'google/gemini-3.1-flash-lite-preview',
+      label: 'google/gemini-3.1-flash-lite-preview',
+    },
     { value: 'google/gemini-3-flash-preview', label: 'google/gemini-3-flash-preview' },
     { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
     { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
@@ -81,7 +84,11 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
   function switchProvider(next: NonNullable<AnthropicConfig['provider']>) {
     if (next === provider) return;
     const defaultModel = DEFAULT_MODELS[next];
-    onUpdate({ provider: next, model: defaultModel, systemPromptId: getDefaultPromptVariantForModel(defaultModel) });
+    onUpdate({
+      provider: next,
+      model: defaultModel,
+      systemPromptId: getDefaultPromptVariantForModel(defaultModel),
+    });
   }
 
   return (
@@ -97,16 +104,18 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
       {open && (
         <div className="chat-settings">
           <div className="ai-settings-presets">
-            {(Object.keys(PROVIDER_MODELS) as NonNullable<AnthropicConfig['provider']>[]).map((p) => (
-              <button
-                key={p}
-                type="button"
-                className={`ai-preset-btn ${provider === p ? 'ai-preset-btn--active' : ''}`}
-                onClick={() => switchProvider(p)}
-              >
-                {p}
-              </button>
-            ))}
+            {(Object.keys(PROVIDER_MODELS) as NonNullable<AnthropicConfig['provider']>[]).map(
+              (p) => (
+                <button
+                  key={p}
+                  type="button"
+                  className={`ai-preset-btn ${provider === p ? 'ai-preset-btn--active' : ''}`}
+                  onClick={() => switchProvider(p)}
+                >
+                  {p}
+                </button>
+              ),
+            )}
           </div>
           <div className="chat-settings-fields">
             <label className="ai-setting">
@@ -123,7 +132,12 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               <select
                 aria-label="Model"
                 value={config.model}
-                onChange={(e) => onUpdate({ model: e.target.value, systemPromptId: getDefaultPromptVariantForModel(e.target.value) })}
+                onChange={(e) =>
+                  onUpdate({
+                    model: e.target.value,
+                    systemPromptId: getDefaultPromptVariantForModel(e.target.value),
+                  })
+                }
               >
                 {models.map((m) => (
                   <option key={m.value} value={m.value}>

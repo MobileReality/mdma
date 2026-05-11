@@ -30,7 +30,10 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
   ],
   openrouter: [
     { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
-    { value: 'google/gemini-3.1-flash-lite-preview', label: 'google/gemini-3.1-flash-lite-preview' },
+    {
+      value: 'google/gemini-3.1-flash-lite-preview',
+      label: 'google/gemini-3.1-flash-lite-preview',
+    },
     { value: 'google/gemini-3-flash-preview', label: 'google/gemini-3-flash-preview' },
     { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
     { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
@@ -74,7 +77,12 @@ export const ChatSettings = memo(function ChatSettings({
 
   return (
     <div className="chat-settings-bar">
-      <button type="button" className="chat-settings-toggle" data-open={open ? 'true' : 'false'} onClick={() => setOpen(!open)}>
+      <button
+        type="button"
+        className="chat-settings-toggle"
+        data-open={open ? 'true' : 'false'}
+        onClick={() => setOpen(!open)}
+      >
         LLM Settings
       </button>
       {open && (
@@ -120,7 +128,10 @@ export const ChatSettings = memo(function ChatSettings({
                       if (e.target.value === '__custom__') {
                         onUpdate({ model: '' });
                       } else {
-                        onUpdate({ model: e.target.value, systemPromptId: getDefaultPromptVariantForModel(e.target.value) });
+                        onUpdate({
+                          model: e.target.value,
+                          systemPromptId: getDefaultPromptVariantForModel(e.target.value),
+                        });
                       }
                     }}
                   >

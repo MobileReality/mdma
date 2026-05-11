@@ -54,7 +54,8 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
   {
     id: 'openai/gpt-5',
     label: 'OpenAI — GPT-5',
-    description: 'Flagship non-reasoning tier — same compact prose format as gpt-5.4. Reserved for eval-driven divergence.',
+    description:
+      'Flagship non-reasoning tier — same compact prose format as gpt-5.4. Reserved for eval-driven divergence.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5,
   },
   {
@@ -72,19 +73,22 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
   {
     id: 'openai/gpt-5.4',
     label: 'OpenAI — GPT-5.4',
-    description: 'Numbered-rule format for gpt-5.4 — explicit call/no-call conditions without Markdown headers.',
+    description:
+      'Numbered-rule format for gpt-5.4 — explicit call/no-call conditions without Markdown headers.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_4,
   },
   {
     id: 'openai/gpt-5.4-mini',
     label: 'OpenAI — GPT-5.4-mini',
-    description: 'Short imperative commands for the mini tier — maximally direct to compensate for reduced instruction-following.',
+    description:
+      'Short imperative commands for the mini tier — maximally direct to compensate for reduced instruction-following.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_4_MINI,
   },
   {
     id: 'openai/gpt-5.5',
     label: 'OpenAI — GPT-5.5',
-    description: 'Decision-tree framing with Markdown headers, optimised for the GPT-5.5 reasoning model.',
+    description:
+      'Decision-tree framing with Markdown headers, optimised for the GPT-5.5 reasoning model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_5,
   },
   {
@@ -96,67 +100,78 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
   {
     id: 'anthropic/opus-4.7',
     label: 'Anthropic — Claude Opus 4.7',
-    description: 'Decision-tree framing with Markdown headers, optimised for the Claude Opus 4.7 reasoning model.',
+    description:
+      'Decision-tree framing with Markdown headers, optimised for the Claude Opus 4.7 reasoning model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_OPUS_4_7,
   },
   {
     id: 'anthropic/opus-4.6',
     label: 'Anthropic — Claude Opus 4.6',
-    description: 'Decision-tree framing with Markdown headers — same format as opus-4.7, reserved for eval-driven divergence.',
+    description:
+      'Decision-tree framing with Markdown headers — same format as opus-4.7, reserved for eval-driven divergence.',
     prompt: MDMA_AGENT_TOOL_PROMPT_OPUS_4_6,
   },
   {
     id: 'anthropic/sonnet-4.6',
     label: 'Anthropic — Claude Sonnet 4.6',
-    description: 'Decision-tree framing with Markdown headers for the Claude Sonnet 4.6 mid-tier model.',
+    description:
+      'Decision-tree framing with Markdown headers for the Claude Sonnet 4.6 mid-tier model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_SONNET_4_6,
   },
   {
     id: 'anthropic/haiku-4.5',
     label: 'Anthropic — Claude Haiku 4.5',
-    description: 'Short imperative commands for the Claude Haiku lite tier — maximally direct to compensate for reduced instruction-following.',
+    description:
+      'Short imperative commands for the Claude Haiku lite tier — maximally direct to compensate for reduced instruction-following.',
     prompt: MDMA_AGENT_TOOL_PROMPT_HAIKU_4_5,
   },
   {
     id: 'google/gemini-3.1-pro-preview',
     label: 'Google — Gemini 3.1 Pro Preview',
-    description: 'Decision-tree framing with Markdown headers, optimised for the Gemini 3.1 Pro Preview flagship model.',
+    description:
+      'Decision-tree framing with Markdown headers, optimised for the Gemini 3.1 Pro Preview flagship model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_PRO_PREVIEW,
   },
   {
     id: 'google/gemini-3.1-pro-preview-customtools',
     label: 'Google — Gemini 3.1 Pro Preview (custom tools)',
-    description: 'Same decision-tree format as gemini-3.1-pro-preview — reserved for eval-driven divergence in the custom-tools configuration.',
+    description:
+      'Same decision-tree format as gemini-3.1-pro-preview — reserved for eval-driven divergence in the custom-tools configuration.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS,
   },
   {
     id: 'google/gemini-3.1-flash-lite-preview',
     label: 'Google — Gemini 3.1 Flash Lite Preview',
-    description: 'Short imperative commands for the Gemini Flash Lite tier — maximally direct to compensate for reduced instruction-following.',
+    description:
+      'Short imperative commands for the Gemini Flash Lite tier — maximally direct to compensate for reduced instruction-following.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW,
   },
   {
     id: 'google/gemini-2.5-pro',
     label: 'Google — Gemini 2.5 Pro',
-    description: 'Decision-tree framing with Markdown headers, optimised for the Gemini 2.5 Pro flagship model.',
+    description:
+      'Decision-tree framing with Markdown headers, optimised for the Gemini 2.5 Pro flagship model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_2_5_PRO,
   },
   {
     id: 'x-ai/grok-4.20',
     label: 'xAI — Grok 4.20',
-    description: 'Decision-tree framing with Markdown headers — same format as grok-4.3, reserved for eval-driven divergence.',
+    description:
+      'Decision-tree framing with Markdown headers — same format as grok-4.3, reserved for eval-driven divergence.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_20,
   },
   {
     id: 'x-ai/grok-4.3',
     label: 'xAI — Grok 4.3',
-    description: 'Decision-tree framing with Markdown headers, optimised for the Grok 4.3 flagship model.',
+    description:
+      'Decision-tree framing with Markdown headers, optimised for the Grok 4.3 flagship model.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_3,
   },
   {
     id: 'google/gemini-3-flash-preview',
     label: 'Google — Gemini 3 Flash Preview',
-    description: 'Short imperative commands for the Gemini 3 Flash tier — reserved for eval-driven divergence from the 3.1 flash variants.',
+    description:
+      'Short imperative commands for the Gemini 3 Flash tier — reserved for eval-driven divergence from the 3.1 flash variants.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_FLASH_PREVIEW,
   },
 ];
@@ -165,7 +180,9 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
  * Derive the agent tool prompt variant from the author prompt variant id.
  * Matches most-specific first (exact id), then family prefix, then default.
  */
-export function getAgentToolPromptVariant(authorVariantId: string | undefined): AgentToolPromptVariant {
+export function getAgentToolPromptVariant(
+  authorVariantId: string | undefined,
+): AgentToolPromptVariant {
   if (!authorVariantId) return AGENT_TOOL_PROMPT_VARIANTS[0];
   const exact = AGENT_TOOL_PROMPT_VARIANTS.find((v) => v.id === authorVariantId);
   if (exact) return exact;

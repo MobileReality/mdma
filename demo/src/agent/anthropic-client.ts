@@ -62,7 +62,13 @@ export interface ApiMessage {
 // ── Stream events emitted by streamAgentMessages ─────────────────────────────
 
 export type AgentStreamEvent =
-  | { type: 'block_start'; index: number; blockType: 'thinking' | 'text' | 'tool_use'; toolUseId?: string; toolName?: string }
+  | {
+      type: 'block_start';
+      index: number;
+      blockType: 'thinking' | 'text' | 'tool_use';
+      toolUseId?: string;
+      toolName?: string;
+    }
   | { type: 'thinking_delta'; index: number; thinking: string }
   | { type: 'signature_delta'; index: number; signature: string }
   | { type: 'text_delta'; index: number; text: string }
@@ -171,7 +177,11 @@ export async function* streamAgentMessages(
           } else if (dt === 'text_delta') {
             yield { type: 'text_delta', index, text: (delta.text as string) ?? '' };
           } else if (dt === 'input_json_delta') {
-            yield { type: 'input_json_delta', index, partial_json: (delta.partial_json as string) ?? '' };
+            yield {
+              type: 'input_json_delta',
+              index,
+              partial_json: (delta.partial_json as string) ?? '',
+            };
           }
         } else if (t === 'content_block_stop') {
           yield { type: 'block_stop', index: parsed.index as number };

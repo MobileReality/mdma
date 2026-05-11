@@ -7,8 +7,19 @@ import { ChatActionLog } from './chat/ChatActionLog.js';
 import { ChatInput } from './chat/ChatInput.js';
 
 export function AgentChatView() {
-  const { turns, isGenerating, error, input, setInput, config, updateConfig, send, stop, clear, inputRef } =
-    useAgent();
+  const {
+    turns,
+    isGenerating,
+    error,
+    input,
+    setInput,
+    config,
+    updateConfig,
+    send,
+    stop,
+    clear,
+    inputRef,
+  } = useAgent();
 
   const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useAgentActionLog(turns);
 
@@ -37,8 +48,8 @@ export function AgentChatView() {
             <div className="chat-empty">
               <p className="chat-empty-title">MDMA Agent</p>
               <p className="chat-empty-hint">
-                Describe the interactive document you need. The agent will think through it, then call{' '}
-                <code>generate_mdma</code> to render it for you.
+                Describe the interactive document you need. The agent will think through it, then
+                call <code>generate_mdma</code> to render it for you.
               </p>
             </div>
           )}
@@ -64,11 +75,7 @@ export function AgentChatView() {
         />
       </div>
 
-      <ChatActionLog
-        events={events}
-        isOpen={logOpen}
-        onToggle={() => setLogOpen((v) => !v)}
-      />
+      <ChatActionLog events={events} isOpen={logOpen} onToggle={() => setLogOpen((v) => !v)} />
     </div>
   );
 }

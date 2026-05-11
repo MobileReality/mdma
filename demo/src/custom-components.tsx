@@ -271,11 +271,7 @@ function GlassFile({ id, value, onChange, required, sensitive }: FormFileElement
         style={{ display: 'none' }}
         onChange={(e) => onChange(e.target.files ? Array.from(e.target.files) : [])}
       />
-      <button
-        type="button"
-        className="ce-file-trigger"
-        onClick={() => inputRef.current?.click()}
-      >
+      <button type="button" className="ce-file-trigger" onClick={() => inputRef.current?.click()}>
         <span className="ce-file-trigger-icon">↑</span>
         {value.length === 0 ? 'Choose file' : 'Replace file'}
       </button>

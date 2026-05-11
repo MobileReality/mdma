@@ -12,8 +12,4 @@
 
 import { CALL_RULES_BLOCK, WHEN_NOT_TO_CALL_CASES, WHEN_TO_CALL_CASES } from './_shared.js';
 
-export const MDMA_AGENT_TOOL_PROMPT_GPT_5_4_MINI =
-  `You have a \`generate_mdma\` function. ` +
-  `Call it when the user wants a document (${WHEN_TO_CALL_CASES}). ` +
-  `Do not call it for ${WHEN_NOT_TO_CALL_CASES}. ` +
-  CALL_RULES_BLOCK;
+export const MDMA_AGENT_TOOL_PROMPT_GPT_5_4_MINI = `You have a \`generate_mdma\` function. Call it when the user wants a document (${WHEN_TO_CALL_CASES}). Do not call it for ${WHEN_NOT_TO_CALL_CASES}. ${CALL_RULES_BLOCK}`;

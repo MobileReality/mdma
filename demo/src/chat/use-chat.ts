@@ -33,13 +33,17 @@ function loadSavedConfig(): LlmConfig {
     const saved = localStorage.getItem(CONFIG_KEY);
     if (saved) {
       const config: LlmConfig = JSON.parse(saved);
-      if (!config.systemPromptId) config.systemPromptId = getDefaultPromptVariantForModel(config.model);
+      if (!config.systemPromptId)
+        config.systemPromptId = getDefaultPromptVariantForModel(config.model);
       return config;
     }
   } catch {
     /* ignore */
   }
-  return { ...DEFAULT_CONFIG, systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model) };
+  return {
+    ...DEFAULT_CONFIG,
+    systemPromptId: getDefaultPromptVariantForModel(DEFAULT_CONFIG.model),
+  };
 }
 
 function saveConfig(config: LlmConfig) {
@@ -138,7 +142,9 @@ export function useChat(options?: UseChatOptions) {
   const msgIdRef = useRef(0);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const restoredRef = useRef(false);
-  useEffect(() => { isGeneratingRef.current = isGenerating; }, [isGenerating]);
+  useEffect(() => {
+    isGeneratingRef.current = isGenerating;
+  }, [isGenerating]);
 
   // Generation counter to discard stale parse results
   const parseGenRef = useRef(0);
@@ -232,7 +238,11 @@ export function useChat(options?: UseChatOptions) {
     (presetName: string) => {
       const preset = PROVIDER_PRESETS[presetName];
       if (preset) {
-        const next = { ...preset, apiKey: config.apiKey, systemPromptId: getDefaultPromptVariantForModel(preset.model) };
+        const next = {
+          ...preset,
+          apiKey: config.apiKey,
+          systemPromptId: getDefaultPromptVariantForModel(preset.model),
+        };
         setConfig(next);
         saveConfig(next);
       }
@@ -240,76 +250,83 @@ export function useChat(options?: UseChatOptions) {
     [config.apiKey],
   );
 
-  const _sendText = useCallback(async (text: string) => {
-    if (!text || isGeneratingRef.current) return;
-    setError(null);
+  const _sendText = useCallback(
+    async (text: string) => {
+      if (!text || isGeneratingRef.current) return;
+      setError(null);
 
-    const userMsg: ChatMsg = {
-      id: ++msgIdRef.current,
-      role: 'user',
-      content: text,
-      ast: null,
-      store: null,
-    };
-    const assistantMsg: ChatMsg = {
-      id: ++msgIdRef.current,
-      role: 'assistant',
-      content: '',
-      ast: null,
-      store: null,
-    };
-
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    setIsGenerating(true);
-
-    const history: LlmMessage[] = [{ role: 'system', content: systemPromptRef.current }];
-    for (const m of [...messagesRef.current, userMsg]) {
-      history.push({ role: m.role, content: m.content });
-    }
-    if (stableUserSuffix) {
-      history[history.length - 1] = {
+      const userMsg: ChatMsg = {
+        id: ++msgIdRef.current,
         role: 'user',
-        content: `${text}${stableUserSuffix}`,
+        content: text,
+        ast: null,
+        store: null,
       };
-    }
+      const assistantMsg: ChatMsg = {
+        id: ++msgIdRef.current,
+        role: 'assistant',
+        content: '',
+        ast: null,
+        store: null,
+      };
 
-    abortRef.current = new AbortController();
-    const asstId = assistantMsg.id;
-    let lastParseTime = 0;
+      setMessages((prev) => [...prev, userMsg, assistantMsg]);
+      setIsGenerating(true);
 
-    try {
-      let fullOutput = '';
+      const history: LlmMessage[] = [{ role: 'system', content: systemPromptRef.current }];
+      for (const m of [...messagesRef.current, userMsg]) {
+        history.push({ role: m.role, content: m.content });
+      }
+      if (stableUserSuffix) {
+        history[history.length - 1] = {
+          role: 'user',
+          content: `${text}${stableUserSuffix}`,
+        };
+      }
+
+      abortRef.current = new AbortController();
+      const asstId = assistantMsg.id;
+      let lastParseTime = 0;
+
       try {
-        for await (const chunk of streamChatCompletion(config, history, abortRef.current.signal)) {
-          fullOutput += chunk;
-          const snapshot = fullOutput;
-          setMessages((prev) =>
-            prev.map((m) => (m.id === asstId ? { ...m, content: snapshot } : m)),
-          );
-          const now = Date.now();
-          if (now - lastParseTime >= PARSE_INTERVAL) {
-            lastParseTime = now;
-            reparseLastAssistant(snapshot, asstId);
+        let fullOutput = '';
+        try {
+          for await (const chunk of streamChatCompletion(
+            config,
+            history,
+            abortRef.current.signal,
+          )) {
+            fullOutput += chunk;
+            const snapshot = fullOutput;
+            setMessages((prev) =>
+              prev.map((m) => (m.id === asstId ? { ...m, content: snapshot } : m)),
+            );
+            const now = Date.now();
+            if (now - lastParseTime >= PARSE_INTERVAL) {
+              lastParseTime = now;
+              reparseLastAssistant(snapshot, asstId);
+            }
           }
+        } catch (streamErr) {
+          if (abortRef.current.signal.aborted) throw streamErr;
+          fullOutput = await chatCompletion(config, history, abortRef.current.signal);
+          setMessages((prev) =>
+            prev.map((m) => (m.id === asstId ? { ...m, content: fullOutput } : m)),
+          );
         }
-      } catch (streamErr) {
-        if (abortRef.current.signal.aborted) throw streamErr;
-        fullOutput = await chatCompletion(config, history, abortRef.current.signal);
-        setMessages((prev) =>
-          prev.map((m) => (m.id === asstId ? { ...m, content: fullOutput } : m)),
-        );
+        await reparseLastAssistant(fullOutput, asstId);
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      } finally {
+        setIsGenerating(false);
+        abortRef.current = null;
+        inputRef.current?.focus();
       }
-      await reparseLastAssistant(fullOutput, asstId);
-    } catch (err) {
-      if (!(err instanceof DOMException && err.name === 'AbortError')) {
-        setError(err instanceof Error ? err.message : String(err));
-      }
-    } finally {
-      setIsGenerating(false);
-      abortRef.current = null;
-      inputRef.current?.focus();
-    }
-  }, [config, reparseLastAssistant, stableUserSuffix]);
+    },
+    [config, reparseLastAssistant, stableUserSuffix],
+  );
 
   const send = useCallback(async () => {
     const text = input.trim();

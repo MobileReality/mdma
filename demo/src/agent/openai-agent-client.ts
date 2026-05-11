@@ -140,7 +140,11 @@ export async function* streamOpenAIAgentMessages(
             }
 
             if (fn?.arguments) {
-              yield { type: 'input_json_delta', index: virtualIdx, partial_json: fn.arguments as string };
+              yield {
+                type: 'input_json_delta',
+                index: virtualIdx,
+                partial_json: fn.arguments as string,
+              };
             }
           }
         }
@@ -154,5 +158,8 @@ export async function* streamOpenAIAgentMessages(
   for (const tcIdx of Array.from(startedBlocks).filter((i) => i >= TOOL_IDX_OFFSET)) {
     yield { type: 'block_stop', index: tcIdx };
   }
-  yield { type: 'message_stop', stop_reason: finishReason === 'tool_calls' ? 'tool_use' : 'end_turn' };
+  yield {
+    type: 'message_stop',
+    stop_reason: finishReason === 'tool_calls' ? 'tool_use' : 'end_turn',
+  };
 }

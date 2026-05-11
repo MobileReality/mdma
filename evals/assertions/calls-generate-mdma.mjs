@@ -21,7 +21,11 @@ export default function (output, context) {
     ].map((v) => {
       if (v == null) return '';
       if (typeof v === 'string') return v;
-      try { return JSON.stringify(v); } catch { return ''; }
+      try {
+        return JSON.stringify(v);
+      } catch {
+        return '';
+      }
     });
 
     const combined = parts.join('\n');

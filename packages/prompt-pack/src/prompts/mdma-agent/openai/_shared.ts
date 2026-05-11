@@ -29,9 +29,10 @@ export const CALL_RULES_BLOCK =
  * Generic OpenAI variant — prose format, works across the GPT family.
  * Reasoning models (gpt-5.5+) get a dedicated variant with Markdown headers.
  */
-export const MDMA_AGENT_TOOL_PROMPT_OPENAI =
-  `${TOOL_INTRO_BLOCK}\n\n` +
-  `Call \`generate_mdma\` when the user asks to create, build, design, or update any ` +
-  `interactive component — ${WHEN_TO_CALL_CASES}.\n\n` +
-  `Do NOT call \`generate_mdma\` for: ${WHEN_NOT_TO_CALL_CASES}.\n\n` +
-  CALL_RULES_BLOCK;
+export const MDMA_AGENT_TOOL_PROMPT_OPENAI = `${TOOL_INTRO_BLOCK}
+
+Call \`generate_mdma\` when the user asks to create, build, design, or update any interactive component — ${WHEN_TO_CALL_CASES}.
+
+Do NOT call \`generate_mdma\` for: ${WHEN_NOT_TO_CALL_CASES}.
+
+${CALL_RULES_BLOCK}`;

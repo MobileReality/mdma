@@ -3,22 +3,45 @@ const SECTIONS = [
     label: 'Agentic',
     description: 'Agent with tool use',
     items: [
-      { path: '/chat', label: 'Agent Chat', icon: '⚡', description: 'Autonomous agent that thinks, plans, and generates interactive MDMA documents via tool calls.' },
+      {
+        path: '/chat',
+        label: 'Agent Chat',
+        icon: '⚡',
+        description:
+          'Autonomous agent that thinks, plans, and generates interactive MDMA documents via tool calls.',
+      },
     ],
   },
   {
     label: 'Completions',
     description: 'Direct LLM-to-document generation',
     items: [
-      { path: '/author', label: 'MDMA Chat', icon: '✍️', description: 'Chat directly with an LLM that outputs MDMA documents in a single completion.' },
-      { path: '/custom', label: 'Custom Components', icon: '🎨', description: 'Same as MDMA Chat but with custom-styled form elements, charts, and extended component types.' },
+      {
+        path: '/author',
+        label: 'MDMA Chat',
+        icon: '✍️',
+        description:
+          'Chat directly with an LLM that outputs MDMA documents in a single completion.',
+      },
+      {
+        path: '/custom',
+        label: 'Custom Components',
+        icon: '🎨',
+        description:
+          'Same as MDMA Chat but with custom-styled form elements, charts, and extended component types.',
+      },
     ],
   },
   {
     label: 'Tools',
     description: 'Development utilities',
     items: [
-      { path: '/validator', label: 'Validator', icon: '🔍', description: 'Validates generated MDMA format against the spec schema in real time.' },
+      {
+        path: '/validator',
+        label: 'Validator',
+        icon: '🔍',
+        description: 'Validates generated MDMA format against the spec schema in real time.',
+      },
     ],
   },
 ];
