@@ -1,7 +1,15 @@
 {
   "name": "@mobile-reality/mdma-cli",
-  "version": "0.2.4",
-  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "cli", "prompt-builder"],
+  "version": "0.2.5",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "cli",
+    "prompt-builder"
+  ],
   "type": "module",
   "bin": {
     "mdma": "./dist/bin/mdma.js"
@@ -60,7 +68,10 @@
     "vite": "^6.0.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist", "app-dist"],
+  "files": [
+    "dist",
+    "app-dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

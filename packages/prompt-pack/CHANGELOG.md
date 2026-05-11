@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-prompt-pack
 
+## 0.3.1
+
+### Patch Changes
+
+- d23b52c: Added AGENT_TOOL_PROMPT_VARIANTS registry with model-specific agent tool prompt variants for Anthropic, OpenAI, Google, and xAI models; changed sensitive input toggle to use 👁/🔒 icons
+
 ## 0.3.0
 
 ### Minor Changes
