@@ -1452,6 +1452,32 @@ body {
   color: #6c5ce7;
 }
 
+.chat-settings-toggle[data-alert="true"] {
+  color: #dc2626;
+  background: #fff1f1;
+  border-left: 3px solid #dc2626;
+}
+
+.chat-settings-toggle[data-alert="true"]:hover {
+  color: #b91c1c;
+  background: #ffe4e4;
+}
+
+.chat-settings-toggle[data-alert="true"]::after {
+  color: #dc2626;
+}
+
+.settings-missing-key {
+  font-size: 11px;
+  font-weight: 600;
+  color: #dc2626;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+  border-radius: 4px;
+  padding: 1px 6px;
+  margin-left: 10px;
+}
+
 .chat-settings {
   padding: 0 24px 12px;
 }
@@ -1488,12 +1514,19 @@ body {
 .ai-preset-btn:hover {
   border-color: #6c5ce7;
   color: #6c5ce7;
+  background: #f5f3ff;
 }
 
-.ai-preset-btn--active {
+.ai-preset-btn--active,
+.ai-preset-btn--active:hover {
   background: #6c5ce7;
-  border-color: #6c5ce7;
+  border-color: #5b4bd5;
   color: #fff;
+  cursor: default;
+}
+
+.ai-preset-btn--active:hover {
+  background: #5b4bd5;
 }
 
 .ai-setting {

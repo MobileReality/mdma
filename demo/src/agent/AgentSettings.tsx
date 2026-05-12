@@ -80,6 +80,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
 
   const provider = config.provider ?? 'anthropic';
   const models = PROVIDER_MODELS[provider] ?? [];
+  const missingKey = !getApiKey(config, provider);
 
   function switchProvider(next: NonNullable<AnthropicConfig['provider']>) {
     if (next === provider) return;
@@ -97,9 +98,11 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
         type="button"
         className="chat-settings-toggle"
         data-open={open ? 'true' : 'false'}
+        data-alert={missingKey ? 'true' : undefined}
         onClick={() => setOpen((v) => !v)}
       >
         Agent Settings
+        {missingKey && <span className="settings-missing-key">API key required</span>}
       </button>
       {open && (
         <div className="chat-settings">
