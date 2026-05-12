@@ -69,7 +69,10 @@ export function RuntimeDemo() {
             <button
               type="button"
               className="docs-runtime-demo-clear"
-              onClick={() => { setEvents([]); idRef.current = 0; }}
+              onClick={() => {
+                setEvents([]);
+                idRef.current = 0;
+              }}
             >
               Clear
             </button>

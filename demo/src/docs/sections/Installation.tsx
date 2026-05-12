@@ -18,7 +18,9 @@ npm install @mobile-reality/mdma-validator
 
 # CLI — interactive prompt builder + document validation
 npx @mobile-reality/mdma-cli`}</Code>
-      <p>All packages are published under the <code>@mobile-reality</code> npm org.</p>
+      <p>
+        All packages are published under the <code>@mobile-reality</code> npm org.
+      </p>
     </>
   );
 }

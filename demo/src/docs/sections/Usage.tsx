@@ -66,7 +66,11 @@ import '@mobile-reality/mdma-renderer-react/styles.css'; // default styles
 function App({ ast, store }) {
   return <MdmaDocument ast={ast} store={store} />;
 }`}</Code>
-      <p className="docs-note">The <code>styles.css</code> import provides default styling for all MDMA components. It's optional — you can write your own styles targeting the <code>.mdma-*</code> CSS classes instead.</p>
+      <p className="docs-note">
+        The <code>styles.css</code> import provides default styling for all MDMA components. It's
+        optional — you can write your own styles targeting the <code>.mdma-*</code> CSS classes
+        instead.
+      </p>
 
       <h2>Agentic Workflow</h2>
       <p>
@@ -140,7 +144,9 @@ generate_mdma tool to render the appropriate UI component.
   \`.trim(),
 });`}</Code>
 
-      <h3>3. Handle <code>generate_mdma</code> calls in the loop</h3>
+      <h3>
+        3. Handle <code>generate_mdma</code> calls in the loop
+      </h3>
       <p>
         The loop dispatches each tool call to the right handler. MDMA documents are parsed and
         rendered; your other tools run as usual. Both return a <code>tool_result</code> so the model

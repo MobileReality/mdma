@@ -21,7 +21,8 @@ export const COMPONENTS: ComponentEntry[] = [
   {
     type: 'form',
     label: 'Form',
-    description: 'Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags.',
+    description:
+      'Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags.',
     example: `\`\`\`mdma
 type: form
 id: demo-form
@@ -109,7 +110,8 @@ data:
   {
     type: 'chart',
     label: 'Chart',
-    description: 'Table fallback by default — renders chart data as a simple HTML table. Override with your own renderer via customizations.components.chart.',
+    description:
+      'Table fallback by default — renders chart data as a simple HTML table. Override with your own renderer via customizations.components.chart.',
     example: `\`\`\`mdma
 type: chart
 id: demo-chart
@@ -130,7 +132,8 @@ data: |
   {
     type: 'callout',
     label: 'Callout',
-    description: 'Alert banners with info, warning, error, and success variants. Supports optional title and dismiss button.',
+    description:
+      'Alert banners with info, warning, error, and success variants. Supports optional title and dismiss button.',
     example: `\`\`\`mdma
 type: callout
 id: demo-callout
@@ -186,7 +189,9 @@ export function ComponentPreview({ entry }: { entry: ComponentEntry }) {
     parseMarkdown(entry.example).then((result) => {
       if (!cancelRef.current) setParsed(result);
     });
-    return () => { cancelRef.current = true; };
+    return () => {
+      cancelRef.current = true;
+    };
   }, [entry.example]);
 
   return (
@@ -198,9 +203,11 @@ export function ComponentPreview({ entry }: { entry: ComponentEntry }) {
       <div className="docs-preview-panel-body">
         <p className="docs-preview-panel-desc">{entry.description}</p>
         <div className="docs-preview-panel-render">
-          {parsed
-            ? <MdmaDocument ast={parsed.ast} store={parsed.store} customizations={CUSTOMIZATIONS} />
-            : <span className="docs-preview-panel-loading">Loading…</span>}
+          {parsed ? (
+            <MdmaDocument ast={parsed.ast} store={parsed.store} customizations={CUSTOMIZATIONS} />
+          ) : (
+            <span className="docs-preview-panel-loading">Loading…</span>
+          )}
         </div>
       </div>
     </>
@@ -216,7 +223,10 @@ export function Components({ selected, onSelect }: ComponentsProps) {
   return (
     <>
       <h2>Components</h2>
-      <p>9 built-in component types, rendered out of the box by <code>@mobile-reality/mdma-renderer-react</code>. Click a row to preview.</p>
+      <p>
+        9 built-in component types, rendered out of the box by{' '}
+        <code>@mobile-reality/mdma-renderer-react</code>. Click a row to preview.
+      </p>
 
       <div className="docs-table-wrap">
         <table className="docs-table">
@@ -235,7 +245,9 @@ export function Components({ selected, onSelect }: ComponentsProps) {
                 onClick={() => onSelect(c.type)}
               >
                 <td>{c.label}</td>
-                <td><code>{c.type}</code></td>
+                <td>
+                  <code>{c.type}</code>
+                </td>
                 <td>{c.description}</td>
               </tr>
             ))}
@@ -244,7 +256,10 @@ export function Components({ selected, onSelect }: ComponentsProps) {
       </div>
 
       <h2>Custom Chart Renderer</h2>
-      <p>The built-in chart renderer renders data as a plain table so the library stays lightweight. To get actual charts, register a custom renderer:</p>
+      <p>
+        The built-in chart renderer renders data as a plain table so the library stays lightweight.
+        To get actual charts, register a custom renderer:
+      </p>
       <Code lang="tsx">{`import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import { MyRechartsRenderer } from './MyRechartsRenderer';
 
@@ -261,7 +276,10 @@ function App({ ast, store }) {
     />
   );
 }`}</Code>
-      <p>This pattern works for overriding any built-in component — pass a custom React component under <code>customizations.components.&lt;type&gt;</code>.</p>
+      <p>
+        This pattern works for overriding any built-in component — pass a custom React component
+        under <code>customizations.components.&lt;type&gt;</code>.
+      </p>
     </>
   );
 }

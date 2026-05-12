@@ -36,8 +36,12 @@ export function DocsView() {
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
-  const activePackageSlug = active.startsWith('packages/') ? active.slice('packages/'.length) : null;
-  const activePackage = activePackageSlug ? PACKAGES.find((p) => p.slug === activePackageSlug) : null;
+  const activePackageSlug = active.startsWith('packages/')
+    ? active.slice('packages/'.length)
+    : null;
+  const activePackage = activePackageSlug
+    ? PACKAGES.find((p) => p.slug === activePackageSlug)
+    : null;
 
   const section = SECTIONS.find((s) => s.slug === active);
   const SectionContent = section?.component ?? null;
@@ -90,9 +94,7 @@ export function DocsView() {
         ))}
       </nav>
 
-      <main className="docs-content">
-        {renderContent()}
-      </main>
+      <main className="docs-content">{renderContent()}</main>
 
       {showPreview && (
         <aside className="docs-preview-panel">

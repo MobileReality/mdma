@@ -20,7 +20,8 @@ export const PACKAGES: PackageInfo[] = [
     label: 'mdma-spec',
     npm: '@mobile-reality/mdma-spec',
     dir: 'spec',
-    tagline: 'Format specification — Zod schemas, TypeScript types, and AST node definitions for all 9 component types.',
+    tagline:
+      'Format specification — Zod schemas, TypeScript types, and AST node definitions for all 9 component types.',
     purpose:
       'Everything in the MDMA stack depends on this package. It defines the TypeScript interfaces and Zod validation schemas for every node type in the MDMA AST. Import from mdma-spec when building custom parsers, renderers, or validators that need to work with typed MDMA nodes directly.',
   },
@@ -118,7 +119,7 @@ const ast = await processor.run(tree) as MdmaRoot;`}</Code>
     dir: 'attachables-core',
     tagline: 'Stateful handlers for the 7 interactive MDMA component types.',
     purpose:
-      'Bridges the runtime\'s action dispatcher and each component\'s specific state shape. Covers form, button, tasklist, table, callout, approval-gate, and webhook — the components that manage state. Rendering layers such as mdma-renderer-react use these handlers to wire UI events to the runtime without re-implementing interaction logic per renderer.',
+      "Bridges the runtime's action dispatcher and each component's specific state shape. Covers form, button, tasklist, table, callout, approval-gate, and webhook — the components that manage state. Rendering layers such as mdma-renderer-react use these handlers to wire UI events to the runtime without re-implementing interaction logic per renderer.",
   },
   {
     slug: 'renderer-react',
@@ -173,7 +174,9 @@ const ast = await processor.run(tree) as MdmaRoot;`}</Code>
     extra: (
       <>
         <h3>Setup</h3>
-        <p>Add to your MCP client config (Claude Desktop, Cursor, etc.) — no separate install needed:</p>
+        <p>
+          Add to your MCP client config (Claude Desktop, Cursor, etc.) — no separate install needed:
+        </p>
         <Code lang="json">{`{
   "mcpServers": {
     "mdma": {
