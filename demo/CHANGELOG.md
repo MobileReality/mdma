@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.7
+
+### Patch Changes
+
+- fcaf933: Add SVG logo with gradient hexagon symbol and vector MDMA text; integrate logo into top nav header and favicon; update README with new logo, mdma-3.gif, and Docs link alongside Live Demo
+
 ## 0.0.6
 
 ### Patch Changes
