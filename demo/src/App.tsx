@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import logoUrl from '../../assets/logo.svg';
 import { AgentChatView } from './AgentChatView.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
+import { DocsView } from './DocsView.js';
 import { HomeView } from './HomeView.js';
 import { ValidatorView } from './ValidatorView.js';
 
@@ -23,7 +25,7 @@ function navigate(to: string) {
 
 // ── Nav config ───────────────────────────────────────────────────────────────
 
-type Route = '/' | '/chat' | '/author' | '/custom' | '/validator';
+type Route = '/' | '/chat' | '/author' | '/custom' | '/validator' | '/docs';
 
 interface NavItem {
   path: Route;
@@ -50,7 +52,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Tools',
-    items: [{ path: '/validator', label: 'Validator', icon: '🔍' }],
+    items: [
+      { path: '/validator', label: 'Validator', icon: '🔍' },
+      { path: '/docs', label: 'Docs', icon: '📖' },
+    ],
   },
 ];
 
@@ -88,9 +93,9 @@ export function App() {
       <header className="demo-header">
         <div className="demo-header-left">
           <button type="button" className="demo-title-link" onClick={() => navigate('/')}>
-            <h1 className="demo-title">MDMA</h1>
+            <img src={logoUrl} alt="MDMA" className="demo-logo" />
           </button>
-          <span className="demo-subtitle">Interactive Document Demo</span>
+          <span className="demo-subtitle">The open standard for AI-generated interactive UI</span>
         </div>
         {route !== '/' && (
           <div className="demo-header-right">
@@ -144,6 +149,8 @@ export function App() {
 
       {route === '/' ? (
         <HomeView />
+      ) : route === '/docs' ? (
+        <DocsView />
       ) : route === '/validator' ? (
         <ValidatorView />
       ) : route === '/custom' ? (
