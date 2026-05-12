@@ -60,9 +60,10 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 function labelForPath(path: string): string {
+  const normalized = path.startsWith('/docs') ? '/docs' : path;
   for (const group of NAV_GROUPS) {
     for (const item of group.items) {
-      if (item.path === path) return item.label;
+      if (item.path === normalized) return item.label;
     }
   }
   return path.slice(1);
@@ -175,7 +176,7 @@ export function App() {
 
       {route === '/' ? (
         <HomeView />
-      ) : route === '/docs' ? (
+      ) : route.startsWith('/docs') ? (
         <DocsView />
       ) : route === '/validator' ? (
         <ValidatorView />

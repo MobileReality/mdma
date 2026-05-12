@@ -4851,6 +4851,15 @@ body {
   line-height: 1.5;
 }
 
+.agent-settings-note--storage {
+  color: #6b7280;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 10px;
+}
+
 /* ===== Docs View ===== */
 .docs-layout {
   display: flex;

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Cli } from './sections/Cli.js';
 import { COMPONENTS, ComponentPreview, Components } from './sections/Components.js';
 import { Installation } from './sections/Installation.js';
@@ -35,9 +35,32 @@ const SECTIONS: Section[] = [
   { slug: 'prompt-matrix', label: 'Prompt Matrix', component: PromptMatrix },
 ];
 
+function getDocsSlug(): string {
+  const hash = window.location.hash.slice(1); // e.g. /docs/packages/runtime
+  const sub = hash.startsWith('/docs/') ? hash.slice('/docs/'.length) : '';
+  return sub || 'introduction';
+}
+
+function navigateDocs(slug: string) {
+  window.location.hash = `/docs/${slug}`;
+}
+
 export function DocsView() {
-  const [active, setActive] = useState('introduction');
+  const [active, setActiveState] = useState(getDocsSlug);
   const [selectedComponent, setSelectedComponent] = useState('form');
+
+  useEffect(() => {
+    function sync() {
+      setActiveState(getDocsSlug());
+    }
+    window.addEventListener('hashchange', sync);
+    return () => window.removeEventListener('hashchange', sync);
+  }, []);
+
+  function setActive(slug: string) {
+    navigateDocs(slug);
+    setActiveState(slug);
+  }
 
   const showPreview = active === 'components';
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
@@ -63,6 +86,11 @@ export function DocsView() {
     return null;
   }
 
+  const isNavActive = (s: Section) =>
+    s.slug === active ||
+    (s.slug === 'packages' && isPackagesActive) ||
+    (s.slug === 'integrations' && isIntegrationsActive);
+
   return (
     <div className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}`}>
       <nav className="docs-nav">
@@ -71,7 +99,7 @@ export function DocsView() {
           <div key={s.slug}>
             <button
               type="button"
-              className={`docs-nav-item${s.slug === active || (s.slug === 'packages' && isPackagesActive) || (s.slug === 'integrations' && isIntegrationsActive) ? ' docs-nav-item--active' : ''}`}
+              className={`docs-nav-item${isNavActive(s) ? ' docs-nav-item--active' : ''}`}
               onClick={() => setActive(s.slug)}
             >
               {s.label}
