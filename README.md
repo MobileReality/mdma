@@ -5,7 +5,7 @@
 <h1 align="center">MDMA</h1>
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
-<p align="center"><a href="https://mobilereality.github.io/mdma/" target="_blank">🚀 Live Demo</a></p>
+<p align="center"><a href="https://mobilereality.github.io/mdma/">🚀 Live Demo</a></p>
 
 
 ## Why MDMA?
