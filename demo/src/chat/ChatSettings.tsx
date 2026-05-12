@@ -74,6 +74,7 @@ export const ChatSettings = memo(function ChatSettings({
   const models = provider ? MODEL_OPTIONS[provider] : null;
   const isKnownModel = models?.some((m) => m.value === config.model);
   const isCustom = !models || !isKnownModel;
+  const missingKey = !config.apiKey;
 
   return (
     <div className="chat-settings-bar">
@@ -81,9 +82,11 @@ export const ChatSettings = memo(function ChatSettings({
         type="button"
         className="chat-settings-toggle"
         data-open={open ? 'true' : 'false'}
+        data-alert={missingKey ? 'true' : undefined}
         onClick={() => setOpen(!open)}
       >
         LLM Settings
+        {missingKey && <span className="settings-missing-key">API key required</span>}
       </button>
       {open && (
         <div className="chat-settings">
