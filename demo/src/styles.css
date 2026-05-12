@@ -172,7 +172,7 @@ body {
 
 .demo-header-left {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
 }
 
@@ -188,6 +188,12 @@ body {
   font-size: 20px;
   font-weight: 700;
   letter-spacing: 1.5px;
+}
+
+.demo-logo {
+  height: 80px;
+  width: auto;
+  display: block;
 }
 
 .demo-subtitle {

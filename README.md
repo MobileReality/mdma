@@ -1,11 +1,15 @@
 <p align="center">
-  <img src="assets/logo.png" alt="MDMA Logo" width="600" />
+  <img src="assets/logo.svg" alt="MDMA Logo" width="160" />
 </p>
 
 <h1 align="center">MDMA</h1>
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
-<p align="center"><a href="https://mobilereality.github.io/mdma/">🚀 Live Demo</a></p>
+<p align="center">
+  <a href="https://mobilereality.github.io/mdma/">🚀 Live Demo</a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://mobilereality.github.io/mdma/#/docs">📖 Docs</a>
+</p>
 
 
 ## Why MDMA?
@@ -15,7 +19,7 @@ AI conversations today are plain text — the user reads a response and manually
 No custom UI per use case. No parsing free-form text. The AI generates structured, validated components and your frontend renders them instantly.
 
 <p align="center">
-  <img src="assets/mdma-2.gif" alt="MDMA Demo" width="800" />
+  <img src="assets/mdma-3.gif" alt="MDMA Demo" width="800" />
 </p>
 
 ## What is MDMA?

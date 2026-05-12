@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import logoUrl from '../../assets/logo.svg';
 import { AgentChatView } from './AgentChatView.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
@@ -92,9 +93,9 @@ export function App() {
       <header className="demo-header">
         <div className="demo-header-left">
           <button type="button" className="demo-title-link" onClick={() => navigate('/')}>
-            <h1 className="demo-title">MDMA</h1>
+            <img src={logoUrl} alt="MDMA" className="demo-logo" />
           </button>
-          <span className="demo-subtitle">Interactive Document Demo</span>
+          <span className="demo-subtitle">The open standard for AI-generated interactive UI</span>
         </div>
         {route !== '/' && (
           <div className="demo-header-right">
