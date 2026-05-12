@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-mcp
 
+## 0.2.9
+
+### Patch Changes
+
+- Updated dependencies [d23b52c]
+  - @mobile-reality/mdma-prompt-pack@0.3.1
+
 ## 0.2.8
 
 ### Patch Changes
