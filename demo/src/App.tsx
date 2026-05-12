@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { AgentChatView } from './AgentChatView.js';
 import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
+import { DocsView } from './DocsView.js';
 import { HomeView } from './HomeView.js';
 import { ValidatorView } from './ValidatorView.js';
 
@@ -23,7 +24,7 @@ function navigate(to: string) {
 
 // ── Nav config ───────────────────────────────────────────────────────────────
 
-type Route = '/' | '/chat' | '/author' | '/custom' | '/validator';
+type Route = '/' | '/chat' | '/author' | '/custom' | '/validator' | '/docs';
 
 interface NavItem {
   path: Route;
@@ -50,7 +51,10 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: 'Tools',
-    items: [{ path: '/validator', label: 'Validator', icon: '🔍' }],
+    items: [
+      { path: '/validator', label: 'Validator', icon: '🔍' },
+      { path: '/docs', label: 'Docs', icon: '📖' },
+    ],
   },
 ];
 
@@ -144,6 +148,8 @@ export function App() {
 
       {route === '/' ? (
         <HomeView />
+      ) : route === '/docs' ? (
+        <DocsView />
       ) : route === '/validator' ? (
         <ValidatorView />
       ) : route === '/custom' ? (
