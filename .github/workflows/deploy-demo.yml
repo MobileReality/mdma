@@ -34,11 +34,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build packages
-        run: pnpm --filter @mobile-reality/mdma-spec build && pnpm --filter @mobile-reality/mdma-runtime build && pnpm --filter @mobile-reality/mdma-prompt-pack build && pnpm --filter @mobile-reality/mdma-renderer-react build
-
-      - name: Build demo
-        run: pnpm --filter @mobile-reality/mdma-demo build
+      - name: Build packages and demo
+        run: pnpm --filter @mobile-reality/mdma-demo... build
 
       - uses: actions/upload-pages-artifact@v3
         with:
