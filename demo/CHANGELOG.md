@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.8
+
+### Patch Changes
+
+- b2930b6: updated seo, patch fixes in demo app
+
 ## 0.0.7
 
 ### Patch Changes
