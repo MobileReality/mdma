@@ -68,6 +68,19 @@ function labelForPath(path: string): string {
   return path.slice(1);
 }
 
+// ── GitHub star count ─────────────────────────────────────────────────────────
+
+function useGitHubStars(repo: string) {
+  const [stars, setStars] = useState<number | null>(null);
+  useEffect(() => {
+    fetch(`https://api.github.com/repos/${repo}`)
+      .then((r) => r.json())
+      .then((data) => setStars(data.stargazers_count ?? null))
+      .catch(() => {});
+  }, [repo]);
+  return stars;
+}
+
 // ── App ───────────────────────────────────────────────────────────────────────
 
 export function App() {
@@ -77,6 +90,7 @@ export function App() {
 
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const stars = useGitHubStars('MobileReality/mdma');
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -97,8 +111,20 @@ export function App() {
           </button>
           <span className="demo-subtitle">The open standard for AI-generated interactive UI</span>
         </div>
-        {route !== '/' && (
-          <div className="demo-header-right">
+        <div className="demo-header-right">
+          <a
+            className="demo-star-btn"
+            href="https://github.com/MobileReality/mdma"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+            Star
+            {stars !== null && <span className="demo-star-count">{stars.toLocaleString()}</span>}
+          </a>
+          {route !== '/' && (
             <div className="demo-nav" ref={dropdownRef}>
               <button
                 type="button"
@@ -143,8 +169,8 @@ export function App() {
                 </div>
               )}
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </header>
 
       {route === '/' ? (

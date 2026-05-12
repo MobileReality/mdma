@@ -207,6 +207,42 @@ body {
   gap: 12px;
 }
 
+.demo-star-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a1a2e;
+  background: #f5f3fb;
+  border: 1px solid #d1c9f0;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.demo-star-btn:hover {
+  background: #ede9fe;
+  border-color: #6c5ce7;
+}
+
+.demo-star-btn svg {
+  width: 14px;
+  height: 14px;
+  color: #f59e0b;
+  flex-shrink: 0;
+}
+
+.demo-star-count {
+  padding: 1px 7px;
+  font-size: 12px;
+  background: #e9e4f9;
+  border-radius: 10px;
+  color: #5a4bd1;
+}
+
 .demo-nav {
   position: relative;
 }
