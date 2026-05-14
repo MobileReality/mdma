@@ -8,6 +8,7 @@ fields:
     type: text
     label: Title
     required: true
+onSubmit: submit-btn
 ```
 
 ```mdma

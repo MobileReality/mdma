@@ -161,6 +161,7 @@ fields:
     label: null
   - name: phone_number
     type: text
+onSubmit: contact-form
 \`\`\`
 `;
     const result = validate(md);
@@ -325,6 +326,7 @@ fields:
     type: email
     label: Email
     bind: other-form.email
+onSubmit: my-form
 \`\`\`
 `;
     const result = validate(md);
@@ -459,6 +461,7 @@ fields:
   - name: email
     type: email
     label: Email
+onSubmit: submit-action
 \`\`\`
 `;
       const result = validate(md);
@@ -518,6 +521,7 @@ fields:
   - name: email
     type: email
     label: Email
+onSubmit: submit-action
 \`\`\`
 `;
       const result = validate(md, {
@@ -542,6 +546,7 @@ fields:
   - name: email
     type: email
     label: Email
+onSubmit: my-btn
 \`\`\`
 
 \`\`\`mdma

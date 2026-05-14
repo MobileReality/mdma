@@ -21,6 +21,8 @@ import { placeholderContentRule } from './placeholder-content.js';
 // import { unreferencedComponentsRule } from './unreferenced-components.js';
 import { flowOrderingRule } from './flow-ordering.js';
 import { expectedComponentsRule } from './expected-components.js';
+import { formSubmitActionRule } from './form-submit-action.js';
+import { singleInteractiveComponentRule } from './single-interactive-component.js';
 
 /**
  * Ordered list of all validation rules.
@@ -50,6 +52,8 @@ export const ALL_RULES: readonly ValidationRule[] = [
   // unreferencedComponentsRule,
   flowOrderingRule,
   expectedComponentsRule,
+  formSubmitActionRule,
+  singleInteractiveComponentRule,
 ];
 
 export function getRulesExcluding(exclude: ValidationRuleId[]): ValidationRule[] {

@@ -17,6 +17,7 @@ fields:
   - name: notes
     type: textarea
     label: Notes
+onSubmit: submit-action
 ```
 
 ```mdma

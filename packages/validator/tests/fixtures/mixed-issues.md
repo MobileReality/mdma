@@ -11,6 +11,7 @@ fields:
   - name: phone
     type: text
     label: Phone Number
+onSubmit: submitBtn
 ```
 
 ```mdma

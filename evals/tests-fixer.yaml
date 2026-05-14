@@ -198,9 +198,9 @@
               sensitive: true
 
 # ---------------------------------------------------------------------------
-# 6. Missing webhook trigger + invalid onSubmit target
+# 6. Form with broken onSubmit reference
 # ---------------------------------------------------------------------------
-- description: Fixes missing webhook trigger and broken action references
+- description: Fixes form with broken onSubmit reference to point to existing callout
   vars:
     brokenDocument: |
       # Order Submission
@@ -220,13 +220,6 @@
       ```
 
       ```mdma
-      type: webhook
-      id: order-webhook
-      url: https://api.example.com/orders
-      method: POST
-      ```
-
-      ```mdma
       type: callout
       id: order-status
       variant: success
@@ -238,25 +231,14 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 3
-    - type: icontains
-      value: trigger
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: webhook
-          id: order-webhook
-          url: https://api.example.com/orders
-          method: POST
-          trigger: order-form
+        min: 2
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
         expected: |
           type: form
           id: order-form
-          onSubmit: order-webhook
+          onSubmit: order-status
 
 # ---------------------------------------------------------------------------
 # 7. Unknown component type + missing required button text
@@ -304,9 +286,9 @@
           - text
 
 # ---------------------------------------------------------------------------
-# 8. Missing webhook trigger + unknown type + missing button text
+# 8. Form missing onSubmit
 # ---------------------------------------------------------------------------
-- description: Fixes missing webhook trigger with multiple broken components
+- description: Fixes form that is missing onSubmit by connecting it to the success callout
   vars:
     brokenDocument: |
       # User Profile
@@ -326,20 +308,13 @@
         - name: bio
           type: textarea
           label: Bio
-      onSubmit: save-profile
       ```
 
       ```mdma
-      type: webhook
-      id: profile-webhook
-      url: https://api.example.com/profile
-      method: POST
-      ```
-
-      ```mdma
-      type: button
-      id: save-profile
-      variant: primary
+      type: callout
+      id: profile-saved
+      variant: success
+      content: Your profile has been saved.
       ```
   assert:
     - type: javascript
@@ -347,59 +322,23 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 3
-    - type: icontains
-      value: trigger
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: webhook
-          id: profile-webhook
-          url: https://api.example.com/profile
-          method: POST
-          trigger: save-profile
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: button
-          id: save-profile
-        hasFields:
-          - text
+        min: 2
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
         expected: |
           type: form
           id: profile-form
-          onSubmit: save-profile
+        hasFields:
+          - onSubmit
 
 # ---------------------------------------------------------------------------
-# 9. Select fields without options + field name typos
+# 9. Approval-gate field name typos
 # ---------------------------------------------------------------------------
-- description: Fixes select without options and field name typos on approval-gate
+- description: Fixes field name typos on approval-gate (roles→allowedRoles, approvers→requiredApprovers)
   vars:
     brokenDocument: |
       # Leave Request
-
-      ```mdma
-      type: form
-      id: leave-form
-      fields:
-        - name: leave-type
-          type: select
-          label: Leave Type
-          required: true
-        - name: start-date
-          type: date
-          label: Start Date
-          required: true
-        - name: reason
-          type: textarea
-          label: Reason
-      onSubmit: leave-approval
-      ```
 
       ```mdma
       type: approval-gate
@@ -424,9 +363,7 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 3
-    - type: icontains
-      value: options
+        min: 2
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -439,13 +376,6 @@
             - manager
             - hr
           onApprove: leave-confirmed
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: form
-          id: leave-form
-          onSubmit: leave-approval
 
 # ---------------------------------------------------------------------------
 # 10. Table data key mismatch + chart axis mismatch
@@ -532,9 +462,9 @@
               units: 85
 
 # ---------------------------------------------------------------------------
-# 11. Missing sensitive flags + missing required fields
+# 11. Missing sensitive flags on form and table
 # ---------------------------------------------------------------------------
-- description: Fixes missing PII sensitivity and missing required schema fields
+- description: Fixes missing PII sensitive flags on form fields and table columns
   vars:
     brokenDocument: |
       # Patient Registration
@@ -559,6 +489,7 @@
         - name: address
           type: textarea
           label: Home Address
+      onSubmit: registration-complete
       ```
 
       ```mdma
@@ -581,9 +512,10 @@
       ```
 
       ```mdma
-      type: button
-      id: submit-registration
-      variant: primary
+      type: callout
+      id: registration-complete
+      variant: success
+      content: Registration submitted successfully!
       ```
   assert:
     - type: javascript
@@ -594,14 +526,6 @@
         min: 3
     - type: javascript
       value: file://assertions/has-sensitive.mjs
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: button
-          id: submit-registration
-        hasFields:
-          - text
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -629,6 +553,7 @@
               type: textarea
               label: Home Address
               sensitive: true
+          onSubmit: registration-complete
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -650,9 +575,9 @@
               sensitive: true
 
 # ---------------------------------------------------------------------------
-# 12. Mixed issues — kitchen sink
+# 12. Mixed issues — single form kitchen sink
 # ---------------------------------------------------------------------------
-- description: Fixes a document with many different issue types
+- description: Fixes many issues on a single form (ID format, placeholder, PII, select, onSubmit)
   vars:
     brokenDocument: |
       # Employee Onboarding
@@ -677,30 +602,10 @@
       ```
 
       ```mdma
-      type: tasklist
-      id: onboarding-tasks
-      items:
-        - id: task-1
-          text: Complete HR paperwork
-        - id: task-2
-          text: Set up workstation
-        - id: task-3
-          text: Meet team lead
-      onComplete: nonexistent-webhook
-      ```
-
-      ```mdma
-      type: button
-      id: employee_form
-      variant: primary
-      onClick: onboarding-tasks
-      ```
-
-      ```mdma
-      type: webhook
-      id: notify-hr
-      url: https://api.example.com/hr
-      method: POST
+      type: callout
+      id: onboarding-complete
+      variant: success
+      content: Welcome to the team!
       ```
   assert:
     - type: javascript
@@ -708,25 +613,11 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 4
+        min: 2
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
     - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: webhook
-          id: notify-hr
-          url: https://api.example.com/hr
-          method: POST
-          trigger: onboarding-tasks
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: tasklist
-          id: onboarding-tasks
-          onComplete: notify-hr
+      value: file://assertions/no-placeholder-content.mjs
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -735,86 +626,9 @@
           id: employee-form
         hasFields:
           - onSubmit
-    - type: icontains
-      value: "onAction: onboarding-tasks"
 
 # ---------------------------------------------------------------------------
-# 13. Webhook with broken references + form missing onSubmit target
-# ---------------------------------------------------------------------------
-- description: Fixes webhook trigger and form onSubmit pointing to missing components
-  vars:
-    brokenDocument: |
-      # Support Ticket
-
-      ```mdma
-      type: form
-      id: ticket-form
-      fields:
-        - name: subject
-          type: text
-          label: Subject
-          required: true
-        - name: priority
-          type: select
-          label: Priority
-          options:
-            - label: Low
-              value: low
-            - label: Medium
-              value: medium
-            - label: High
-              value: high
-        - name: description
-          type: textarea
-          label: Description
-      onSubmit: submit-ticket
-      ```
-
-      ```mdma
-      type: webhook
-      id: ticket-webhook
-      url: https://api.example.com/tickets
-      method: POST
-      body:
-        subject: "{{ticket-form.subject}}"
-        priority: "{{ticket-form.priority}}"
-      ```
-
-      ```mdma
-      type: callout
-      id: ticket-success
-      variant: success
-      content: Ticket submitted successfully!
-      ```
-  assert:
-    - type: javascript
-      value: file://assertions/fixer-resolves-errors.mjs
-    - type: javascript
-      value: file://assertions/fixer-preserves-components.mjs
-      config:
-        min: 3
-    - type: icontains
-      value: trigger
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: webhook
-          id: ticket-webhook
-          url: https://api.example.com/tickets
-          method: POST
-          trigger: ticket-form
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: form
-          id: ticket-form
-        hasFields:
-          - onSubmit
-
-# ---------------------------------------------------------------------------
-# 14. Placeholder content throughout
+# 13. Placeholder content throughout
 # ---------------------------------------------------------------------------
 - description: Fixes placeholder content in labels and fields
   vars:

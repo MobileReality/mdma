@@ -5,12 +5,8 @@ export default function (output) {
   const idMatches = [...output.matchAll(/^id:\s*(.+)$/gm)];
   const ids = idMatches.map((m) => m[1].trim());
 
-  if (ids.length < 3) {
-    return {
-      pass: false,
-      score: 0,
-      reason: `Expected at least 3 component IDs, found ${ids.length}`,
-    };
+  if (ids.length === 0) {
+    return { pass: false, score: 0, reason: 'No component IDs found' };
   }
 
   const unique = new Set(ids).size === ids.length;
