@@ -73,8 +73,11 @@
 - description: "Generates prescribed onboarding form and checklist"
   vars:
     customPrompt: |
-      You are an HR onboarding assistant. For every new hire, generate
-      exactly these two components:
+      You are an HR onboarding assistant. The onboarding workflow has two
+      turns:
+
+      Turn 1 — In the initial response, generate this form to collect new
+      hire details:
 
       ```mdma
       type: form
@@ -110,6 +113,9 @@
       onSubmit: onboarding-checklist
       ```
 
+      Turn 2 — After the new hire submits the form, the next assistant
+      message will show this onboarding checklist:
+
       ```mdma
       type: tasklist
       id: onboarding-checklist
@@ -126,7 +132,9 @@
           text: "Meet your team lead"
       ```
 
-      Generate only these two components. No buttons, callouts, or others.
+      For the initial response, generate only the form. The tasklist is
+      a follow-up step and appears in the next turn — do not include it
+      now. No buttons, callouts, or other components.
     request: We have a new hire starting in the Design department next Monday.
   assert:
     - type: javascript
@@ -224,8 +232,11 @@
 - description: "Generates exact expense workflow from MDMA blueprint"
   vars:
     customPrompt: |
-      You are a finance assistant. When a user submits an expense, always
-      generate exactly these three components in this order:
+      You are a finance assistant. The expense submission workflow has three
+      turns:
+
+      Turn 1 — In the initial response, generate this form to collect the
+      expense details:
 
       ```mdma
       type: form
@@ -262,6 +273,9 @@
       onSubmit: approve-expense
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will present this approval gate for manager sign-off:
+
       ```mdma
       type: approval-gate
       id: expense-approval
@@ -269,6 +283,9 @@
       description: "Expenses over $100 require manager sign-off."
       requiredApprovers: 1
       ```
+
+      Turn 3 — Once the approval is in, the final assistant message will
+      offer this submit button:
 
       ```mdma
       type: button
@@ -278,7 +295,9 @@
       onAction: approve-expense
       ```
 
-      Generate only these three components. No callouts, tables, charts, or webhooks.
+      For the initial response, generate only the form. The approval gate
+      and button are follow-up steps and appear in later turns — do not
+      include them now. No callouts, tables, charts, or webhooks.
     request: I need to expense a $250 flight for the NYC conference.
   assert:
     - type: javascript
@@ -298,8 +317,11 @@
 - description: "Generates IT ticket form with webhook integration"
   vars:
     customPrompt: |
-      You are an IT helpdesk assistant. When a user reports an issue,
-      always generate exactly these two components:
+      You are an IT helpdesk assistant. The ticket submission workflow has
+      two turns:
+
+      Turn 1 — In the initial response, generate this form to collect the
+      issue details:
 
       ```mdma
       type: form
@@ -343,6 +365,9 @@
       onSubmit: submit-ticket
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will fire this webhook to register the ticket with the IT API:
+
       ```mdma
       type: webhook
       id: ticket-webhook
@@ -351,7 +376,9 @@
       trigger: submit-ticket
       ```
 
-      Generate only these two components. No buttons, callouts, or tables.
+      For the initial response, generate only the form. The webhook is a
+      follow-up step and appears in the next turn — do not include it
+      now. No buttons, callouts, or tables.
     request: My monitor stopped working this morning and I can't do any visual design work.
   assert:
     - type: javascript
@@ -537,8 +564,11 @@
 - description: "Generates exact contract review workflow"
   vars:
     customPrompt: |
-      You are a legal operations assistant. For contract reviews, always
-      generate exactly these three components:
+      You are a legal operations assistant. The contract review workflow has
+      three turns:
+
+      Turn 1 — In the initial response, generate this form to capture the
+      contract summary:
 
       ```mdma
       type: form
@@ -577,6 +607,9 @@
       onSubmit: review-checklist
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will show this review checklist:
+
       ```mdma
       type: tasklist
       id: review-checklist
@@ -595,6 +628,9 @@
           text: "Attach signed copy"
       ```
 
+      Turn 3 — Once the checklist is complete, the final assistant message
+      will request legal sign-off via this approval gate:
+
       ```mdma
       type: approval-gate
       id: legal-sign-off
@@ -606,7 +642,9 @@
       requireReason: true
       ```
 
-      Generate only these three components. No buttons, callouts, or charts.
+      For the initial response, generate only the form. The checklist and
+      approval gate are follow-up steps and appear in later turns — do
+      not include them now. No buttons, callouts, or charts.
     request: We need to review the new SoW from Acme Corp worth $500k.
   assert:
     - type: javascript

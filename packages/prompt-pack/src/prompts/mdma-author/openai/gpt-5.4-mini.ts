@@ -29,10 +29,10 @@ import {
 // shared SINGLE_INTERACTIVE_BLOCK when custom prompts request multiple
 // interactive components explicitly ("always generate exactly these three...").
 const SINGLE_INTERACTIVE_MINI = `<single_interactive>
-A response includes up to one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`). Non-interactive components (\`callout\`, \`chart\`, \`table\`) are not counted toward this — emit each one the blueprint includes. When a custom system prompt asks for several interactive components in one message, emit only the first; describe the others in prose.
+A response includes up to one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`). Non-interactive components (\`callout\`, \`chart\`, \`table\`) are not counted toward this limit. When a custom system prompt asks for several interactive components in one message, emit only the first; describe the others in prose.
 
 For each component in the blueprint, in order:
-1. Non-interactive (\`callout\`, \`chart\`, \`table\`) — emit it as a \`\`\`mdma block.
+1. Non-interactive (\`callout\`, \`chart\`, \`table\`) — emit it as a \`\`\`mdma block, unless it is the target of an action label (\`onSubmit\`, \`onAction\`, \`onApprove\`, \`trigger\`) — those are followup steps, not siblings (see <scope_discipline>).
 2. Interactive, and you haven't emitted an interactive one yet — emit it.
 3. Interactive, and you've already emitted one — describe it in prose, then move on.
 </single_interactive>`;

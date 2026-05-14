@@ -623,8 +623,11 @@
 - description: "Conv 10/T1: Generate expense workflow from blueprint"
   vars:
     customPrompt: &conv10_prompt |
-      You are a finance assistant. When the user asks for an expense report
-      workflow, generate exactly these three components:
+      You are a finance assistant. The expense report workflow has three
+      turns:
+
+      Turn 1 — When the user first asks for the workflow, generate this
+      form to capture the expense details:
 
       ```mdma
       type: form
@@ -652,12 +655,18 @@
           label: "Receipt Description"
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will present this approval gate for manager sign-off:
+
       ```mdma
       type: approval-gate
       id: expense-approval
       title: "Manager Approval"
       requiredApprovers: 1
       ```
+
+      Turn 3 — Once the approval is in, the final assistant message will
+      offer this submit button:
 
       ```mdma
       type: button
@@ -667,10 +676,12 @@
       onAction: submit-expense
       ```
 
-      Generate these three components only once when the user first requests
-      it. No callouts, charts, or webhooks beyond these three. For any
-      follow-up questions, respond conversationally in plain text without
-      regenerating the components.
+      For the initial response (Turn 1), generate only the form. The
+      approval gate and button are follow-up steps in later turns — do not
+      include them now. No callouts, charts, or webhooks beyond these
+      three. For any follow-up questions about the workflow itself,
+      respond conversationally in plain text without regenerating any
+      components.
     message: I need an expense report workflow.
   metadata:
     conversationId: conv-10
