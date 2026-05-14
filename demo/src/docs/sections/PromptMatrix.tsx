@@ -13,7 +13,7 @@ export function PromptMatrix() {
         headers={['Variant', 'one-shot', 'one-shot custom', 'conversation', 'specific flow']}
         rows={[
           ['gpt-5.5', '✅', '✅', '✅', '✅'],
-          ['gpt-5.4', '✅', '✅', '✅', '✅'],
+          ['gpt-5.4', '✅', '🟡 †', '🟡 †', '🟡 †'],
           ['gpt-5.4-mini', '✅', '✅', '✅ *', '✅ *'],
           ['gpt-5.4-nano', '✅', '✅', '✅ *', '✅ *'],
           ['gpt-5.2', '✅', '✅', '✅', '✅'],
@@ -45,6 +45,21 @@ export function PromptMatrix() {
       </p>
       <p className="docs-note">
         [i] Noticeably slow response times — single-turn responses commonly take tens of seconds.
+      </p>
+      <p className="docs-note">
+        † <strong>gpt-5.4 intermittent duplication bug</strong> — passes one-shot evals reliably
+        but shows non-deterministic output duplication in multi-turn, custom-prompt, and flow evals
+        (~7–15% of runs). The model generates a correct response then immediately re-emits it
+        verbatim, causing <code>[duplicate-ids]</code> validation errors. This is a known
+        model-level issue unrelated to the prompt variant.{' '}
+        <a
+          href="https://community.openai.com/t/seeing-intermittent-duplicate-strings-in-gpt-5-4-responses/1376651"
+          target="_blank"
+          rel="noreferrer"
+        >
+          See OpenAI community thread.
+        </a>{' '}
+        Prefer <code>gpt-5.5</code> or <code>gpt-5.2</code> for production use.
       </p>
 
       <h2>MDMA_AGENT Prompt Matrix</h2>

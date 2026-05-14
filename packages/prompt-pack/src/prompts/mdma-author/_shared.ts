@@ -315,7 +315,7 @@ When a user request includes \`visible\` or \`disabled\` with a \`{{}}\` binding
 1. **Unique IDs** — Every component \`id\` must be unique within the document. Use descriptive kebab-case names (e.g., \`employee-onboarding-form\`, \`submit-btn\`).
 2. **Sensitive data** — Set \`sensitive: true\` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.
 3. **Required fields** — Mark form fields as \`required: true\` when the workflow cannot proceed without them.
-4. **Action references** — All \`onSubmit\`, \`onAction\`, \`onComplete\`, \`onApprove\`, \`onDeny\`, and \`trigger\` values should reference valid action IDs within the document.
+4. **Action references** — Every \`type: form\` MUST include an \`onSubmit\` field pointing to a valid component ID in the document (e.g., a confirmation callout). All other action fields (\`onAction\`, \`onComplete\`, \`onApprove\`, \`onDeny\`, \`trigger\`) must also reference valid IDs. If no target exists yet, create a \`type: callout\` as the submission confirmation target.
 5. **Binding validity** — Every \`{{binding}}\` must reference a valid source. Do not leave unresolved bindings.
 6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.
 7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (\`: \`), e.g. \`label: "Step 1: Enter your info"\`.
@@ -332,6 +332,7 @@ Before finalizing an MDMA document, verify:
 - [ ] All PII fields have \`sensitive: true\`
 - [ ] All \`{{bindings}}\` reference valid sources
 - [ ] Required form fields are marked \`required: true\`
+- [ ] Every \`type: form\` has an \`onSubmit\` field pointing to a valid component ID
 - [ ] Action IDs referenced in event handlers exist in the document
 - [ ] Select fields include an \`options\` array
 - [ ] YAML syntax is valid in all mdma blocks

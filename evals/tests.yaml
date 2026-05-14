@@ -29,6 +29,7 @@
           type: textarea
           label: "Message"
           required: true
+      onSubmit: contact-submitted
       ```
   assert:
     - type: javascript
@@ -72,6 +73,7 @@
           label: "Social Security Number"
           required: true
           sensitive: true
+      onSubmit: employee-pii-submitted
       ```
   assert:
     - type: javascript
@@ -157,6 +159,7 @@
               value: au
             - label: "Germany"
               value: de
+      onSubmit: country-form-submitted
       ```
   assert:
     - type: javascript
@@ -261,10 +264,10 @@
 # ---------------------------------------------------------------------------
 # 9. Multi-component incident triage workflow
 # ---------------------------------------------------------------------------
-- description: Generates a multi-component incident triage workflow
+- description: Generates an incident triage severity form
   vars:
     request: |
-      Create an incident triage workflow with these exact components:
+      Create an incident triage form matching this exact structure:
 
       ```mdma
       type: form
@@ -292,37 +295,13 @@
               value: medium
             - label: Low
               value: low
-      ```
-
-      ```mdma
-      type: tasklist
-      id: response-checklist
-      items:
-        - id: identify
-          text: "Identify affected systems"
-        - id: assess
-          text: "Assess blast radius"
-        - id: communicate
-          text: "Notify stakeholders"
-        - id: mitigate
-          text: "Apply mitigation steps"
-        - id: document
-          text: "Document root cause"
-      onComplete: checklist-done
-      ```
-
-      ```mdma
-      type: button
-      id: notify-team-btn
-      text: "Notify Team"
-      variant: primary
-      onAction: notify-team
+      onSubmit: triage-submitted
       ```
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, tasklist, button]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
@@ -336,58 +315,29 @@
 - description: All component IDs are unique and kebab-case
   vars:
     request: |
-      Create three separate forms matching these exact structures:
+      Create a user settings workflow with these exact components:
 
       ```mdma
       type: form
-      id: login-form
-      fields:
-        - name: email
-          type: email
-          label: "Email"
-          required: true
-          sensitive: true
-        - name: password
-          type: text
-          label: "Password"
-          required: true
-          sensitive: true
-      ```
-
-      ```mdma
-      type: form
-      id: feedback-form
-      fields:
-        - name: rating
-          type: select
-          label: "Rating"
-          options:
-            - label: "1"
-              value: "1"
-            - label: "2"
-              value: "2"
-            - label: "3"
-              value: "3"
-            - label: "4"
-              value: "4"
-            - label: "5"
-              value: "5"
-        - name: comment
-          type: textarea
-          label: "Comment"
-      ```
-
-      ```mdma
-      type: form
-      id: profile-form
+      id: settings-form
       fields:
         - name: display-name
           type: text
           label: "Display Name"
           required: true
-        - name: bio
-          type: textarea
-          label: "Bio"
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+      onSubmit: settings-saved
+      ```
+
+      ```mdma
+      type: callout
+      id: settings-saved
+      variant: success
+      content: "Your settings have been saved successfully."
       ```
   assert:
     - type: javascript
@@ -395,7 +345,7 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form]
+        allowed: [form, callout]
     - type: javascript
       value: file://assertions/component-count.mjs
       config:
@@ -541,10 +491,10 @@
 # ---------------------------------------------------------------------------
 # 16. Webhook component
 # ---------------------------------------------------------------------------
-- description: Generates a form with webhook matching blueprint
+- description: Generates a support ticket form with submission confirmation
   vars:
     request: |
-      Create a support ticket form with a webhook matching these exact structures:
+      Create a support ticket form matching these exact structures:
 
       ```mdma
       type: form
@@ -558,28 +508,24 @@
           type: textarea
           label: "Description"
           required: true
-      onSubmit: submit-ticket
+      onSubmit: ticket-submitted
       ```
 
       ```mdma
-      type: webhook
-      id: ticket-webhook
-      url: "https://api.example.com/tickets"
-      method: POST
-      headers:
-        Content-Type: application/json
-      body:
-        subject: "{{ticket-form.subject}}"
-        description: "{{ticket-form.description}}"
-      trigger: submit-ticket
+      type: callout
+      id: ticket-submitted
+      variant: success
+      content: "Your support ticket has been submitted. We'll get back to you shortly."
       ```
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, webhook]
+        allowed: [form, callout]
     - type: javascript
-      value: file://assertions/has-webhook.mjs
+      value: file://assertions/component-count.mjs
+      config:
+        min: 3
 
 # ---------------------------------------------------------------------------
 # 17. Table with sortable and filterable features
@@ -658,6 +604,7 @@
           label: "Billing Address"
           required: true
           sensitive: true
+      onSubmit: payment-submitted
       ```
   assert:
     - type: javascript
@@ -700,6 +647,7 @@
         - name: bio
           type: textarea
           label: "Bio"
+      onSubmit: registration-submitted
       ```
   assert:
     - type: javascript
@@ -767,6 +715,7 @@
         - name: notifications-enabled
           type: checkbox
           label: "Enable Notifications"
+      onSubmit: notification-info
       ```
 
       ```mdma
@@ -788,10 +737,10 @@
 # ---------------------------------------------------------------------------
 # 22. Complex multi-component — HR onboarding workflow
 # ---------------------------------------------------------------------------
-- description: Generates a large multi-component HR onboarding document
+- description: Generates a large multi-field HR personal info form with sensitive data
   vars:
     request: |
-      Create an HR onboarding workflow with these exact components:
+      Create the first step of an HR onboarding workflow with these exact components:
 
       ```mdma
       type: callout
@@ -827,66 +776,24 @@
           label: "Social Security Number"
           required: true
           sensitive: true
+      onSubmit: info-submitted
       ```
 
       ```mdma
-      type: form
-      id: equipment-form
-      fields:
-        - name: laptop
-          type: select
-          label: "Laptop Model"
-          required: true
-          options:
-            - label: "MacBook Pro"
-              value: macbook-pro
-            - label: "ThinkPad X1"
-              value: thinkpad
-            - label: "Dell XPS 15"
-              value: dell-xps
-      ```
-
-      ```mdma
-      type: tasklist
-      id: onboarding-tasks
-      items:
-        - id: badge-photo
-          text: "Upload badge photo"
-        - id: parking-pass
-          text: "Request parking pass"
-        - id: nda-signed
-          text: "Sign NDA"
-          required: true
-        - id: orientation
-          text: "Attend orientation session"
-          required: true
-      ```
-
-      ```mdma
-      type: approval-gate
-      id: manager-approval
-      title: "Manager Approval"
-      requiredApprovers: 1
-      ```
-
-      ```mdma
-      type: button
-      id: complete-onboarding-btn
-      text: "Complete Onboarding"
-      variant: primary
-      onAction: finish-onboarding
+      type: callout
+      id: info-submitted
+      variant: success
+      content: "Personal information submitted. We'll continue with equipment selection next."
       ```
   assert:
     - type: javascript
       value: file://assertions/component-count.mjs
       config:
-        min: 7
+        min: 3
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
     - type: javascript
       value: file://assertions/has-sensitive.mjs
-    - type: contains
-      value: "type: approval-gate"
 
 # ---------------------------------------------------------------------------
 # 23. Approval gate with role restrictions
@@ -961,6 +868,7 @@
           type: textarea
           label: "Known Allergies"
           sensitive: true
+      onSubmit: patient-intake-submitted
       ```
   assert:
     - type: javascript
@@ -1063,6 +971,7 @@
           type: file
           label: "Resume"
           required: true
+      onSubmit: resume-submitted
       ```
   assert:
     - type: javascript
@@ -1098,6 +1007,7 @@
           label: "Passport Scan"
           required: true
           sensitive: true
+      onSubmit: kyc-submitted
       ```
   assert:
     - type: javascript

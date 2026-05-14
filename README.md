@@ -74,7 +74,7 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | :--- | :---: | :---: | :---: | :---: |
 | **OpenAI** | | | | |
 | `gpt-5.5` | ✅ | ✅ | ✅ | ✅ |
-| `gpt-5.4` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-5.4` | ✅ | 🟡 † | 🟡 † | 🟡 † |
 | `gpt-5.4-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-5.4-nano` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-5.2` | ✅ | ✅ | ✅ | ✅ |
@@ -114,6 +114,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 
 
 > **Don't see your model?** Add a prompt variant under `packages/prompt-pack/src/prompts/mdma-author/<vendor>/` and open a PR — we'll run the eval suite and add it to this table.
+
+† **gpt-5.4 intermittent duplication bug** — `gpt-5.4` passes one-shot evals reliably but shows a non-deterministic output duplication in multi-turn, custom-prompt, and flow evals (~7–15% of runs). The model generates a complete, correct response and then immediately re-emits the entire output verbatim, causing `[duplicate-ids]` validation errors. This is a known model-level issue unrelated to the prompt variant. See the [OpenAI community thread](https://community.openai.com/t/seeing-intermittent-duplicate-strings-in-gpt-5-4-responses/1376651) for details. If this affects your use case, prefer `gpt-5.5` or `gpt-5.2`.
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
 

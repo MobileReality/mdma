@@ -44,6 +44,7 @@
         - name: actual
           type: textarea
           label: "Actual Behavior"
+      onSubmit: bug-submitted
       ```
 
       Generate only this form. No buttons, callouts, or other components.
@@ -106,6 +107,7 @@
           type: date
           label: "Start Date"
           required: true
+      onSubmit: onboarding-checklist
       ```
 
       ```mdma
@@ -130,7 +132,7 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, tasklist]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
@@ -143,8 +145,6 @@
       value: file://assertions/has-required-fields.mjs
       config:
         min: 3
-    - type: contains
-      value: "type: tasklist"
 
 # ---------------------------------------------------------------------------
 # 3. Customer feedback — form + pie chart MDMA blueprint
@@ -183,6 +183,7 @@
         - name: feedback
           type: textarea
           label: "Comments"
+      onSubmit: feedback-submitted
       ```
 
       ```mdma
@@ -283,19 +284,13 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, approval-gate, button]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 5
     - type: javascript
       value: file://assertions/select-has-options.mjs
-    - type: contains
-      value: "type: approval-gate"
-    - type: contains
-      value: "requiredApprovers: 1"
-    - type: contains
-      value: "type: button"
 
 # ---------------------------------------------------------------------------
 # 5. IT ticket — form + webhook MDMA blueprint
@@ -362,13 +357,11 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, webhook]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 4
-    - type: javascript
-      value: file://assertions/has-webhook.mjs
     - type: javascript
       value: file://assertions/has-sensitive.mjs
     - type: javascript
@@ -479,6 +472,7 @@
           type: textarea
           label: "Chief Complaint"
           required: true
+      onSubmit: patient-registered
       ```
 
       Generate only this form. No other components.
@@ -580,6 +574,7 @@
               value: amendment
             - label: Renewal
               value: renewal
+      onSubmit: review-checklist
       ```
 
       ```mdma
@@ -617,7 +612,7 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, tasklist, approval-gate]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
@@ -628,10 +623,6 @@
       value: file://assertions/has-required-fields.mjs
       config:
         min: 4
-    - type: contains
-      value: "requiredApprovers: 2"
-    - type: contains
-      value: "allowedRoles:"
 
 # ---------------------------------------------------------------------------
 # 10b. Recruiting — job application with file uploads (resume + portfolio)
@@ -666,6 +657,7 @@
         - name: cover-letter
           type: textarea
           label: "Cover Letter"
+      onSubmit: application-submitted
       ```
 
       Mark only the email as sensitive. Generate only this form — no
@@ -719,6 +711,7 @@
           label: "Proof of Address (utility bill or bank statement)"
           required: true
           sensitive: true
+      onSubmit: kyc-identity-verified
       ```
 
       Every field in this form is PII and MUST have `sensitive: true`.

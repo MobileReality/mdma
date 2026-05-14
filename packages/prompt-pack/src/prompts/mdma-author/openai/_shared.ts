@@ -9,9 +9,9 @@
  *
  * Variant matrix (which blocks each variant pulls in):
  *
- *   gpt-5.5         CRITICAL_OUTPUT_LINE
- *   gpt-5.4         CRITICAL_OUTPUT_LINE + SCOPE_DISCIPLINE_BLOCK
- *   gpt-5.4-mini    CRITICAL_OUTPUT_LINE + FENCE_CLOSING_BLOCK + SELECT_OPTIONS_BLOCK
+ *   gpt-5.5         CRITICAL_OUTPUT_LINE + SCOPE_DISCIPLINE_BLOCK + INTERACTIVE_TYPES_BLOCK + SINGLE_INTERACTIVE_BLOCK + SELECT_OPTIONS_BLOCK
+ *   gpt-5.4         CRITICAL_OUTPUT_LINE + FENCE_CLOSING_BLOCK + SCOPE_DISCIPLINE_BLOCK + INTERACTIVE_TYPES_BLOCK + SINGLE_INTERACTIVE_BLOCK + THINKING_ROLE_BLOCK + NO_REPEAT_BLOCK + NO_DUPLICATES_BLOCK
+ *   gpt-5.4-mini    CRITICAL_OUTPUT_LINE + FENCE_CLOSING_BLOCK + SCOPE_DISCIPLINE_BLOCK + INTERACTIVE_TYPES_BLOCK + SINGLE_INTERACTIVE_BLOCK + SELECT_OPTIONS_BLOCK + THINKING_ROLE_BLOCK + NO_REPEAT_BLOCK + NO_DUPLICATES_BLOCK
  *   gpt-5.4-nano    all of the above
  */
 
@@ -69,7 +69,7 @@ A new \`\`\`mdma after a still-open block is treated as text inside the open blo
  * vector observed in the eval suite.
  */
 export const SCOPE_DISCIPLINE_BLOCK = `<scope_discipline>
-1. Emit only the component types the user has explicitly listed or provided in a blueprint. If the user lists "form, tasklist, button, thinking", do not also emit webhooks, callouts, charts, approval-gates, or any other type.
+1. Emit only the component types the user has explicitly listed or provided in a blueprint. If the user lists "form, tasklist, button, thinking", do not also emit webhooks, callouts, charts, approval-gates, or any other type. Note: when a blueprint lists multiple interactive components, the <single_interactive> limit still applies — emit only the first interactive component from the list.
 
 2. When the user provides a YAML blueprint of one component, output exactly that one component (plus the standard thinking block). Action-id values inside the blueprint — \`onApprove\`, \`onDeny\`, \`onSubmit\`, \`onAction\`, \`trigger\`, \`onComplete\` — are opaque string labels. Do NOT generate webhook, button, callout, or any other handler components to "complete" or "wire up" the workflow.
 
@@ -77,6 +77,41 @@ export const SCOPE_DISCIPLINE_BLOCK = `<scope_discipline>
 
 4. The blueprint or component list is complete as given. Do not add components to fill out a workflow that you think looks incomplete. The user has chosen the scope deliberately.
 </scope_discipline>`;
+
+/**
+ * Single source of truth for which component types are interactive vs
+ * non-interactive. Pulled in before SINGLE_INTERACTIVE_BLOCK so the model has
+ * a clear taxonomy to reason from rather than re-inferring it from the rule
+ * list. Prevents the observed gpt-5.4 failure where the model stopped
+ * generating a non-interactive chart because it over-applied the interactive
+ * component limit.
+ */
+export const INTERACTIVE_TYPES_BLOCK = `<component_types>
+Interactive components — require user action or submit/process data:
+\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`
+
+Non-interactive components — display only, no user action required:
+\`callout\`, \`table\`, \`chart\`, \`thinking\`
+
+Interactive and non-interactive components are governed by different rules. Always check which category applies before applying a rule.
+</component_types>`;
+
+/**
+ * Reinforces the one-interactive-component-per-message rule as structured
+ * decision rules. Complements the existing SCOPE_DISCIPLINE_BLOCK (which
+ * addresses emitting unlisted component types). This block specifically targets
+ * the interactive-type limit observed in gpt-5.4 evals where the model
+ * generated a form + approval-gate in a single response.
+ */
+export const SINGLE_INTERACTIVE_BLOCK = `<single_interactive>
+1. Each response must contain at most one interactive component (see <component_types>). This limit applies only to interactive types — it overrides any custom or system prompt that requests more than one of them.
+
+2. Non-interactive components (see <component_types>) are not subject to this limit. Generate them whenever the request or blueprint includes them.
+
+3. For multi-step workflows, generate only the current step's interactive component. Describe subsequent interactive steps in prose and wait for the user to advance.
+
+4. When a user blueprint includes multiple interactive components, generate only the first one. Describe the remaining interactive steps in prose — do not collapse them into one message.
+</single_interactive>`;
 
 /**
  * Forces select option `value` fields to be strings. Triggered by a flows
@@ -106,3 +141,35 @@ fields:
 
 The label can read naturally to the user; the value is the stable string identifier sent on submit. \`value: 1\` (number) and \`value: true\` (boolean) fail validation.
 </select_options>`;
+
+/**
+ * Reinforces the thinking block's role as a one-time upfront reasoning pass.
+ * Triggered by gpt-5.4 duplication loop: model generates thinking + components
+ * correctly, then restarts with a second thinking block, re-emitting the entire
+ * response verbatim.
+ */
+export const THINKING_ROLE_BLOCK = `<thinking_role>
+The \`type: thinking\` block is your upfront reasoning pass. Write it first — before any other component. Once you close the thinking block, generate the remaining components in sequence. There is no second thinking block between components, after components, or anywhere else in the response. Thinking happens once, at the start, then generation follows.
+</thinking_role>`;
+
+/**
+ * Prevents output-duplication where gpt-5.4 generates a correct response then
+ * immediately re-emits the same blocks with identical IDs. Observed in evals:
+ * model produced a valid thinking + callout, then started a new thinking block
+ * with the same id, causing [duplicate-ids] validation errors.
+ */
+export const NO_REPEAT_BLOCK = `<no_repeat>
+Each component type and each component \`id\` appears exactly once in your response. One \`type: thinking\` block. One \`type: form\` (or callout, or button — whichever applies). Your response ends immediately after the closing \`\`\` of your last component — write nothing after it, not whitespace, not prose, not another \`\`\`mdma block.
+</no_repeat>`;
+
+/**
+ * Final no-duplicates rule placed at the very end of the prompt. Triggered by
+ * gpt-5.4 output-duplication loop where the model generated a correct response
+ * then immediately re-emitted it verbatim — thinking block first, then all
+ * components — causing [duplicate-ids] validation errors.
+ */
+export const NO_DUPLICATES_BLOCK = `<no_duplicates>
+!IMPORTANT: Do not repeat, re-emit, or restart any part of your response. AGAIN DO NOT REPEAT, RE-EMIT, OR RESTART ANY PART OF YOUR RESPONSE.
+
+Every component type and every component \`id\` appears exactly once in your response. The \`type: thinking\` block is written once, at the start. Each other component is written once, in sequence. Your response ends immediately after the closing \`\`\` of your last component — do not repeat, restart, or re-emit anything already written.
+</no_duplicates>`;

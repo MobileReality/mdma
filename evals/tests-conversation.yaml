@@ -678,13 +678,11 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, approval-gate, button]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 3
-    - type: contains
-      value: "requiredApprovers: 1"
 
 - description: "Conv 10/T2: User asks about approval process — no regeneration"
   vars:
