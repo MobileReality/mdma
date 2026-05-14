@@ -5,7 +5,200 @@
 # issues to the LLM. Assertions verify the output is a valid MDMA document.
 
 # ---------------------------------------------------------------------------
-# 1. Missing webhook trigger + invalid onSubmit target
+# 1. Button missing required text
+# ---------------------------------------------------------------------------
+- description: Fixes button missing required text field
+  vars:
+    brokenDocument: |
+      # Quick Action
+
+      ```mdma
+      type: button
+      id: action-btn
+      variant: primary
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: button
+          id: action-btn
+          variant: primary
+        hasFields:
+          - text
+
+# ---------------------------------------------------------------------------
+# 2. Callout missing required content
+# ---------------------------------------------------------------------------
+- description: Fixes callout missing required content field
+  vars:
+    brokenDocument: |
+      # Status Update
+
+      ```mdma
+      type: callout
+      id: status-notice
+      variant: info
+      title: System Status
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: callout
+          id: status-notice
+          variant: info
+          title: System Status
+        hasFields:
+          - content
+
+# ---------------------------------------------------------------------------
+# 3. Select field missing options
+# ---------------------------------------------------------------------------
+- description: Fixes select field missing required options array
+  vars:
+    brokenDocument: |
+      # Contact Form
+
+      ```mdma
+      type: form
+      id: contact-form
+      fields:
+        - name: contact-type
+          type: select
+          label: Contact Type
+          required: true
+        - name: message
+          type: textarea
+          label: Message
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: contact-form
+          fields:
+            - name: contact-type
+              type: select
+              label: Contact Type
+              required: true
+            - name: message
+              type: textarea
+              label: Message
+
+# ---------------------------------------------------------------------------
+# 4. Placeholder content in callout
+# ---------------------------------------------------------------------------
+- description: Fixes placeholder title and content in callout
+  vars:
+    brokenDocument: |
+      # Welcome Screen
+
+      ```mdma
+      type: callout
+      id: welcome-callout
+      variant: info
+      title: TODO
+      content: Lorem ipsum dolor sit amet
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/no-placeholder-content.mjs
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: callout
+          id: welcome-callout
+          variant: info
+        hasFields:
+          - title
+          - content
+
+# ---------------------------------------------------------------------------
+# 5. PII fields without sensitive flag
+# ---------------------------------------------------------------------------
+- description: Fixes email and phone fields missing sensitive flag
+  vars:
+    brokenDocument: |
+      # Contact Details
+
+      ```mdma
+      type: form
+      id: contact-details
+      fields:
+        - name: full-name
+          type: text
+          label: Full Name
+          required: true
+        - name: email
+          type: email
+          label: Email Address
+          required: true
+        - name: phone
+          type: text
+          label: Phone Number
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: contact-details
+          fields:
+            - name: full-name
+              type: text
+              label: Full Name
+              required: true
+            - name: email
+              type: email
+              label: Email Address
+              required: true
+              sensitive: true
+            - name: phone
+              type: text
+              label: Phone Number
+              sensitive: true
+
+# ---------------------------------------------------------------------------
+# 6. Missing webhook trigger + invalid onSubmit target
 # ---------------------------------------------------------------------------
 - description: Fixes missing webhook trigger and broken action references
   vars:
@@ -48,9 +241,25 @@
         min: 3
     - type: icontains
       value: trigger
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: webhook
+          id: order-webhook
+          url: https://api.example.com/orders
+          method: POST
+          trigger: order-form
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: order-form
+          onSubmit: order-webhook
 
 # ---------------------------------------------------------------------------
-# 2. Unknown component type + missing required button text
+# 7. Unknown component type + missing required button text
 # ---------------------------------------------------------------------------
 - description: Fixes unknown component type and missing button text
   vars:
@@ -84,9 +293,18 @@
       value: file://assertions/fixer-preserves-components.mjs
       config:
         min: 2
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: button
+          id: refresh-btn
+          onAction: stats-card
+        hasFields:
+          - text
 
 # ---------------------------------------------------------------------------
-# 3. Missing webhook trigger + unknown type + missing button text
+# 8. Missing webhook trigger + unknown type + missing button text
 # ---------------------------------------------------------------------------
 - description: Fixes missing webhook trigger with multiple broken components
   vars:
@@ -132,9 +350,33 @@
         min: 3
     - type: icontains
       value: trigger
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: webhook
+          id: profile-webhook
+          url: https://api.example.com/profile
+          method: POST
+          trigger: save-profile
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: button
+          id: save-profile
+        hasFields:
+          - text
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: profile-form
+          onSubmit: save-profile
 
 # ---------------------------------------------------------------------------
-# 4. Select fields without options + field name typos
+# 9. Select fields without options + field name typos
 # ---------------------------------------------------------------------------
 - description: Fixes select without options and field name typos on approval-gate
   vars:
@@ -185,9 +427,28 @@
         min: 3
     - type: icontains
       value: options
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: approval-gate
+          id: leave-approval
+          title: Manager Approval
+          requiredApprovers: 2
+          allowedRoles:
+            - manager
+            - hr
+          onApprove: leave-confirmed
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: leave-form
+          onSubmit: leave-approval
 
 # ---------------------------------------------------------------------------
-# 5. Table data key mismatch + chart axis mismatch
+# 10. Table data key mismatch + chart axis mismatch
 # ---------------------------------------------------------------------------
 - description: Fixes table data key mismatch and chart axis errors
   vars:
@@ -234,9 +495,44 @@
       value: file://assertions/fixer-preserves-components.mjs
       config:
         min: 2
+    - type: icontains
+      value: "xAxis: Month"
+    - type: icontains
+      value: "product:"
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: chart
+          id: sales-chart
+          variant: bar
+          xAxis: Month
+          yAxis:
+            - Revenue
+            - Costs
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: table
+          id: sales-table
+          columns:
+            - key: product
+              header: Product
+            - key: revenue
+              header: Revenue
+            - key: units
+              header: Units Sold
+          data:
+            - product: Widget A
+              revenue: 50000
+              units: 120
+            - product: Widget B
+              revenue: 32000
+              units: 85
 
 # ---------------------------------------------------------------------------
-# 6. Missing sensitive flags + missing required fields
+# 11. Missing sensitive flags + missing required fields
 # ---------------------------------------------------------------------------
 - description: Fixes missing PII sensitivity and missing required schema fields
   vars:
@@ -298,54 +594,63 @@
         min: 3
     - type: javascript
       value: file://assertions/has-sensitive.mjs
-
-# ---------------------------------------------------------------------------
-# 7. Circular action references + backward flow
-# ---------------------------------------------------------------------------
-- description: Fixes circular and backward action references
-  vars:
-    brokenDocument: |
-      # Feedback Loop
-
-      ```mdma
-      type: form
-      id: feedback-form
-      fields:
-        - name: rating
-          type: number
-          label: Rating
-          required: true
-        - name: comment
-          type: textarea
-          label: Comment
-      onSubmit: review-gate
-      ```
-
-      ```mdma
-      type: approval-gate
-      id: review-gate
-      title: Review Feedback
-      requiredApprovers: 1
-      onApprove: feedback-form
-      onDeny: rejection-notice
-      ```
-
-      ```mdma
-      type: callout
-      id: rejection-notice
-      variant: error
-      content: Your feedback was not accepted. Please revise.
-      ```
-  assert:
     - type: javascript
-      value: file://assertions/fixer-resolves-errors.mjs
-    - type: javascript
-      value: file://assertions/fixer-preserves-components.mjs
+      value: file://assertions/fixer-contains-component.mjs
       config:
-        min: 1
+        expected: |
+          type: button
+          id: submit-registration
+        hasFields:
+          - text
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: patient-form
+          fields:
+            - name: full-name
+              type: text
+              label: Full Name
+              required: true
+            - name: email
+              type: email
+              label: Email Address
+              sensitive: true
+            - name: phone
+              type: text
+              label: Phone Number
+              sensitive: true
+            - name: ssn
+              type: text
+              label: Social Security Number
+              sensitive: true
+            - name: address
+              type: textarea
+              label: Home Address
+              sensitive: true
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: table
+          id: patient-records
+          columns:
+            - key: name
+              header: Patient Name
+              sensitive: true
+            - key: email
+              header: Email
+              sensitive: true
+            - key: phone
+              header: Phone
+              sensitive: true
+            - key: dob
+              header: Date of Birth
+              sensitive: true
 
 # ---------------------------------------------------------------------------
-# 8. Mixed issues — kitchen sink
+# 12. Mixed issues — kitchen sink
 # ---------------------------------------------------------------------------
 - description: Fixes a document with many different issue types
   vars:
@@ -406,9 +711,35 @@
         min: 4
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: webhook
+          id: notify-hr
+          url: https://api.example.com/hr
+          method: POST
+          trigger: onboarding-tasks
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: tasklist
+          id: onboarding-tasks
+          onComplete: notify-hr
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: employee-form
+        hasFields:
+          - onSubmit
+    - type: icontains
+      value: "onAction: onboarding-tasks"
 
 # ---------------------------------------------------------------------------
-# 9. Webhook with broken references + form missing onSubmit target
+# 13. Webhook with broken references + form missing onSubmit target
 # ---------------------------------------------------------------------------
 - description: Fixes webhook trigger and form onSubmit pointing to missing components
   vars:
@@ -464,9 +795,26 @@
         min: 3
     - type: icontains
       value: trigger
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: webhook
+          id: ticket-webhook
+          url: https://api.example.com/tickets
+          method: POST
+          trigger: ticket-form
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: form
+          id: ticket-form
+        hasFields:
+          - onSubmit
 
 # ---------------------------------------------------------------------------
-# 10. Placeholder content throughout
+# 14. Placeholder content throughout
 # ---------------------------------------------------------------------------
 - description: Fixes placeholder content in labels and fields
   vars:

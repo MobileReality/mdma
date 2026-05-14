@@ -25,7 +25,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { MASTER_PROMPT } from '@mobile-reality/mdma-cli/prompts';
-import { MDMA_AUTHOR_PROMPT } from '@mobile-reality/mdma-prompt-pack';
+import { MDMA_AUTHOR_PROMPT, MDMA_FIXER_PROMPT } from '@mobile-reality/mdma-prompt-pack';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = path.resolve(__dirname, '..');
@@ -117,5 +117,15 @@ export async function selectAuthorPrompt(provider = process.env.EVAL_PROVIDER) {
     packagePath: '@mobile-reality/mdma-prompt-pack/prompts/mdma-author',
     exportPrefix: 'MDMA_AUTHOR_PROMPT',
     defaultPrompt: MDMA_AUTHOR_PROMPT,
+  });
+}
+
+export async function selectFixerPrompt(provider = process.env.EVAL_PROVIDER) {
+  return selectVariant({
+    provider,
+    promptsDir: path.join(REPO_ROOT, 'packages/prompt-pack/src/prompts/mdma-fixer'),
+    packagePath: '@mobile-reality/mdma-prompt-pack/prompts/mdma-fixer',
+    exportPrefix: 'MDMA_FIXER_PROMPT',
+    defaultPrompt: MDMA_FIXER_PROMPT,
   });
 }

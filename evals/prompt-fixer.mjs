@@ -4,6 +4,7 @@ import {
   buildSystemPrompt,
 } from '@mobile-reality/mdma-prompt-pack';
 import { validate } from '@mobile-reality/mdma-validator';
+import { selectFixerPrompt } from './select-prompt.mjs';
 
 /**
  * Promptfoo prompt function for fixer eval tests.
@@ -19,19 +20,25 @@ import { validate } from '@mobile-reality/mdma-validator';
  * 2. Collects remaining unfixed issues
  * 3. Sends the fixer system prompt (with variant-specific extensions) + user message
  */
-export default function ({ vars }) {
+export default async function ({ vars }) {
   const exclude = ['thinking-block'];
   if (vars.variantKey !== 'flow') exclude.push('flow-ordering');
 
   const result = validate(vars.brokenDocument, { exclude });
-  const unfixed = result.issues.filter(
-    (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
+  const allIssues = result.issues.filter(
+    (i) => i.severity === 'error' || i.severity === 'warning',
   );
 
-  const fixerPrompt = buildFixerPrompt(vars.variantKey ?? undefined);
+  const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt();
+  const fixerPrompt = fixerSource.startsWith('default')
+    ? buildFixerPrompt(vars.variantKey ?? undefined)
+    : variantPrompt;
   const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${fixerPrompt}`;
 
-  const userMessage = buildFixerMessage(result.output, unfixed, {
+  // Pass the original broken document (not auto-fixed output) so the model
+  // sees every issue in full context, including ones the auto-fixer silently
+  // stripped (e.g. removing onSubmit instead of repairing the broken target).
+  const userMessage = buildFixerMessage(vars.brokenDocument, allIssues, {
     conversationHistory: vars.conversationHistory ?? undefined,
     promptContext: vars.promptContext ?? undefined,
   });

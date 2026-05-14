@@ -6,8 +6,8 @@ export {
   type AuthorPromptVariant,
 } from './prompts/mdma-author/registry.js';
 export { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
+export { MDMA_FIXER_PROMPT } from './prompts/mdma-fixer/default.js';
 export {
-  MDMA_FIXER_PROMPT,
   MDMA_FIXER_BASE,
   MDMA_FIXER_STRUCTURE,
   MDMA_FIXER_BINDINGS,
@@ -21,7 +21,7 @@ export {
   buildFixerMessage,
   type FixerIssue,
   type FixerMessageOptions,
-} from './prompts/mdma-fixer.js';
+} from './prompts/mdma-fixer/_shared.js';
 export { buildSystemPrompt, type BuildSystemPromptOptions } from './build-system-prompt.js';
 export {
   AGENT_TOOL_PROMPT_VARIANTS,

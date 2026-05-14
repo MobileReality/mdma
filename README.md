@@ -586,6 +586,7 @@ pnpm eval:view
 - [x] Prompt tuning toolkit — test and compare custom prompts
 - [x] Agent-friendly SDK — let AI agent generate your MDMA
 - [ ] Validator evals
+- [ ] Integrations
 - [ ] Webhook execution engine (real HTTP calls in production environments)
 
 ### v1.0 — Production Ready

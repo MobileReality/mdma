@@ -539,3 +539,51 @@
       value: "type: approval-gate"
     - type: not-icontains
       value: "id: approved-callout"
+
+# ---------------------------------------------------------------------------
+# 8. Circular action reference — approval-gate loops back to form
+# ---------------------------------------------------------------------------
+- description: Fixes circular flow where approval-gate onApprove points back to the form
+  vars:
+    variantKey: flow
+    brokenDocument: |
+      # Feedback Loop
+
+      ```mdma
+      type: form
+      id: feedback-form
+      fields:
+        - name: rating
+          type: number
+          label: Rating
+          required: true
+        - name: comment
+          type: textarea
+          label: Comment
+      onSubmit: review-gate
+      ```
+
+      ```mdma
+      type: approval-gate
+      id: review-gate
+      title: Review Feedback
+      requiredApprovers: 1
+      onApprove: feedback-form
+      onDeny: rejection-notice
+      ```
+
+      ```mdma
+      type: callout
+      id: rejection-notice
+      variant: error
+      content: Your feedback was not accepted. Please revise.
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/no-multi-step-flow.mjs
+    - type: icontains
+      value: feedback-form
+    - type: not-icontains
+      value: "type: approval-gate"
