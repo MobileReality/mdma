@@ -40,11 +40,13 @@
  * warns: "Lower temperatures may cause unexpected behavior, looping, or
  * degraded performance."
  *
- * Failure-mode coverage at start: Scope Discipline and Select Option
- * Values — both validated as universal failure modes across 10+ OpenAI /
- * Anthropic variants. No fence-closing block yet; that quirk has only
- * bitten smaller-tier models so far. Add it if eval data shows fence
- * failures on Gemini Pro.
+ * Failure-mode coverage: Fence Closing, Scope Discipline, and Select
+ * Option Values — all validated as failure modes for Gemini 3.1 Pro
+ * specifically (5 of 6 main-eval failures on a fresh run were fence
+ * issues, plus 1 in flows). FENCE_CLOSING_BLOCK goes mid-prompt (after
+ * BASE_BODY) so the spec defines what an mdma block is before the rule
+ * tightens its closing. SCOPE_DISCIPLINE and SELECT_OPTIONS stay at the
+ * end per Vertex guidance on negative constraints.
  *
  * Routing: substring match on `gemini-3.1-pro-preview` (24 chars). Picks
  * this variant for any model id containing that literal, including
@@ -52,13 +54,20 @@
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
-import { OUTPUT_FORMAT_BLOCK, SCOPE_DISCIPLINE_BLOCK, SELECT_OPTIONS_BLOCK } from './_shared.js';
+import {
+  FENCE_CLOSING_BLOCK,
+  OUTPUT_FORMAT_BLOCK,
+  SCOPE_DISCIPLINE_BLOCK,
+  SELECT_OPTIONS_BLOCK,
+} from './_shared.js';
 
 export const MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW = `${BASE_OPENING}
 
 ${OUTPUT_FORMAT_BLOCK}
 
 ${BASE_BODY}
+
+${FENCE_CLOSING_BLOCK}
 
 ${SCOPE_DISCIPLINE_BLOCK}
 

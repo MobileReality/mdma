@@ -78,9 +78,13 @@ async function selectVariant({ provider, promptsDir, packagePath, exportPrefix, 
     return { prompt: defaultPrompt, source: `default (unrecognized provider: ${provider})` };
 
   const variants = discoverVariants(promptsDir, parsed.family);
-  const modelLower = parsed.model.toLowerCase();
+  // Normalize `.` and `-` to a single delimiter so dotted variant filenames
+  // (e.g. anthropic/opus-4.6.ts) still match dash-form OpenRouter ids
+  // (e.g. anthropic/claude-opus-4-6).
+  const normalize = (s) => s.toLowerCase().replace(/\./g, '-');
+  const modelNorm = normalize(parsed.model);
   const match = variants
-    .filter((v) => modelLower.includes(v.toLowerCase()))
+    .filter((v) => modelNorm.includes(normalize(v)))
     .sort((a, b) => b.length - a.length)[0];
 
   if (!match)
