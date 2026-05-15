@@ -53,6 +53,21 @@ const FENCE_IN_CONTENT_BLOCK = `## No Fence Characters in Content Fields
 
 **Never write the literal characters \`\`\`mdma or \`\`\` (triple backticks) inside any block's \`content:\` field.** The Markdown parser walks the document looking for fence pairs; phantom fences inside a YAML block scalar break the open/close count and the document fails validation. When reasoning inside a \`thinking\` block about MDMA structure, refer to blocks in plain prose ("the form below", "the next component", "this block") — never quote fence syntax verbatim.`;
 
+// Scoped to gemini-2.5-flash-lite only. Triggered by a conversation-eval
+// failure on Conv 11/T2: after generating an event registration form in
+// T1, the user's T2 message was "What if someone has a nut allergy?
+// That's not listed in the dietary options." The model interpreted this
+// as a request to UPDATE the form and re-emitted the entire form with
+// "nut-allergy" added to the dietary-preference options, instead of
+// responding in plain prose. The custom prompt's "respond conversationally
+// without regenerating" instruction is being overridden by Flash-Lite's
+// strong "be helpful, fix the gap" instinct.
+const NO_REGENERATION_BLOCK = `## Follow-Up Conversations
+
+When the user asks a question about a component that you already emitted in an earlier turn of the conversation, respond in conversational prose only. Do NOT re-emit, update, append fields to, or otherwise regenerate any \`\`\`mdma block from a previous turn — even when the user points out a missing option, suggests an improvement, or asks a clarifying question.
+
+The component you emitted earlier is still visible to the user. Modifying it requires its own dedicated turn where the user explicitly asks for the change ("please add a nut-allergy option" — explicit request, regenerate); a passive question ("what if someone has a nut allergy?" — answer in prose) does not.`;
+
 export const MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH_LITE = `${BASE_OPENING}
 
 ${OUTPUT_FORMAT_BLOCK}
@@ -66,6 +81,8 @@ ${FENCE_IN_CONTENT_BLOCK}
 ${SCOPE_DISCIPLINE_BLOCK}
 
 ${SELECT_OPTIONS_BLOCK}
+
+${NO_REGENERATION_BLOCK}
 
 ${BASE_CHECKLIST}
 `;
