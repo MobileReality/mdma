@@ -1,0 +1,41 @@
+# Isolated test cases — failures observed during prompt iteration.
+#
+# Use this file to iterate quickly on a specific failure without running
+# the full eval suite. Each test mirrors its counterpart in tests.yaml /
+# tests-custom-prompt.yaml / tests-flows.yaml so once the prompt change
+# eliminates the failure here, run the full suite to confirm no regression.
+
+# ---------------------------------------------------------------------------
+# gpt-5.2: invents a confirmation callout to back the form's onSubmit
+# Mirror of "Preserves a specific component id requested by the user"
+# in tests.yaml.
+# ---------------------------------------------------------------------------
+- description: Preserves a specific component id requested by the user
+  vars:
+    request: |
+      Create a conference registration form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: devcon-2026-registration
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+      onSubmit: devcon-registration-submitted
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: devcon-2026-registration"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

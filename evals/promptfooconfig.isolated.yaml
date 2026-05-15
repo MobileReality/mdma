@@ -1,0 +1,28 @@
+# Isolated failure runner — iterate on a single failure without running
+# the full eval suite. See tests-isolated.yaml for the test cases.
+#
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:isolated
+#       EVAL_PROVIDER=openai:gpt-5.2 pnpm --filter @mobile-reality/mdma-evals eval:isolated
+
+description: MDMA Author Prompt — Isolated Failures
+
+envPath: .env
+outputPath: results-isolated.json
+
+prompts:
+  - file://prompt.mjs
+
+providers:
+  - id: "{{ env.EVAL_PROVIDER or 'openai:gpt-5.2' }}"
+    config:
+      max_tokens: 8192
+      max_completion_tokens: 8192
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
+tests: tests-isolated.yaml

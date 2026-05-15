@@ -738,15 +738,7 @@
 - description: Generates a large multi-field HR personal info form with sensitive data
   vars:
     request: |
-      Create the first step of an HR onboarding workflow with these exact components:
-
-      ```mdma
-      type: callout
-      id: welcome-banner
-      variant: success
-      title: "Welcome to Acme Corp!"
-      content: "We're excited to have you on board. Please complete the steps below to get started."
-      ```
+      Create an HR personal info form matching this exact structure:
 
       ```mdma
       type: form
@@ -776,18 +768,11 @@
           sensitive: true
       onSubmit: info-submitted
       ```
-
-      ```mdma
-      type: callout
-      id: info-submitted
-      variant: success
-      content: "Personal information submitted. We'll continue with equipment selection next."
-      ```
   assert:
     - type: javascript
-      value: file://assertions/component-count.mjs
+      value: file://assertions/only-components.mjs
       config:
-        min: 3
+        allowed: [form]
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
     - type: javascript
