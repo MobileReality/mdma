@@ -91,7 +91,7 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-sonnet-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | **Google** | | | | |
-| `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.1-pro-preview` | 🟡  | 🟡  | 🟡  | 🟡  |
 | `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.1-flash-lite-preview` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gemini-3-flash-preview` | ✅ | ✅ | ✅ \* | ✅ \* |

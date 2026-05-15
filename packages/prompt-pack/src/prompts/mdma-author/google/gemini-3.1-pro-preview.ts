@@ -61,6 +61,27 @@ import {
   SELECT_OPTIONS_BLOCK,
 } from './_shared.js';
 
+// Scope and uniqueness rule for the thinking block. Adapted from
+// OpenAI's THINKING_ROLE_BLOCK + NO_REPEAT_BLOCK, which already address
+// the same failure mode in gpt-5.4 (correct response then verbatim
+// re-emission with duplicate ids). On gemini-3.1-pro the failure surfaces
+// slightly differently — the model writes its reasoning in visible prose
+// before the thinking block ("Thinking: **Building Table Component**\n\n
+// I'm currently focused on…"), then duplicates the thinking + component
+// pair after emitting them. This block addresses both the prose leak and
+// the duplication by anchoring thinking to a single position.
+//
+// Placed mid-prompt (after FENCE_CLOSING_BLOCK, before SCOPE_DISCIPLINE)
+// because gemini-3.1-pro previously regressed when an imperative
+// directive sat at the LITERAL final line — the model re-read it as a
+// fresh action prompt and looped. Mid-position avoids that re-read
+// trigger.
+const THINKING_DISCIPLINE_BLOCK = `## Thinking Block
+
+The first three characters of your response are \`\`\`\` \`\`\` \`\`\`\` (three backticks) followed by \`mdma\`, opening a thinking block. Nothing precedes it — no greeting, no Markdown heading, no prose starting with "Thinking:" or "**Building X**" or "I'm currently…". All planning (what to build, which fields to include, why certain values are chosen) belongs inside that single thinking block.
+
+After the thinking block's closing \`\`\`\` \`\`\` \`\`\`\`, generate the requested components in sequence. Each component — including the thinking block itself — appears exactly once. Every \`id\` is unique within your response. The response ends immediately after the closing \`\`\`\` \`\`\` \`\`\`\` of the last component; do not re-emit, re-explain, or restart any part of your output.`;
+
 export const MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW = `${BASE_OPENING}
 
 ${OUTPUT_FORMAT_BLOCK}
@@ -68,6 +89,8 @@ ${OUTPUT_FORMAT_BLOCK}
 ${BASE_BODY}
 
 ${FENCE_CLOSING_BLOCK}
+
+${THINKING_DISCIPLINE_BLOCK}
 
 ${SCOPE_DISCIPLINE_BLOCK}
 
