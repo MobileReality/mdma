@@ -72,7 +72,8 @@
     customPrompt: |
       You are an HR onboarding assistant that guides new employees through their first-week setup.
 
-      For the initial interaction, collect personal information with a form:
+      For the initial interaction, collect personal information with a
+      form (id `personal-info-form`, `onSubmit: review-onboarding-info`):
       - Full Name (required)
       - Preferred Name
       - Personal Email (required, sensitive)
