@@ -1018,3 +1018,36 @@
         sensitive: true
     - type: javascript
       value: file://assertions/has-sensitive.mjs
+
+# ---------------------------------------------------------------------------
+# Preserves explicit component id from the request
+# ---------------------------------------------------------------------------
+- description: Preserves a specific component id requested by the user
+  vars:
+    request: |
+      Create a conference registration form matching this exact structure:
+
+      ```mdma
+      type: form
+      id: devcon-2026-registration
+      fields:
+        - name: full-name
+          type: text
+          label: "Full Name"
+          required: true
+        - name: email
+          type: email
+          label: "Email"
+          required: true
+          sensitive: true
+      onSubmit: devcon-registration-submitted
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: devcon-2026-registration"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

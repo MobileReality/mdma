@@ -5374,3 +5374,50 @@ body {
   border-radius: 0 6px 6px 0;
   margin: 8px 0 16px !important;
 }
+
+.docs-do-dont {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 12px 0 24px;
+}
+
+@media (max-width: 900px) {
+  .docs-do-dont {
+    grid-template-columns: 1fr;
+  }
+}
+
+.docs-do,
+.docs-dont {
+  border-radius: 8px;
+  padding: 14px 16px;
+  border: 1px solid;
+}
+
+.docs-do {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.docs-dont {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.docs-do h4,
+.docs-dont h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.docs-do h4 {
+  color: #15803d;
+}
+
+.docs-dont h4 {
+  color: #b91c1c;
+}

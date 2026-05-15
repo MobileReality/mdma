@@ -816,3 +816,30 @@
       value: "type: table"
     - type: not-contains
       value: "type: callout"
+
+# ---------------------------------------------------------------------------
+# 12. Specific component id requested by the custom prompt
+# ---------------------------------------------------------------------------
+- description: "Custom prompt with specific component id is preserved in output"
+  vars:
+    customPrompt: |
+      You are a vendor onboarding assistant. When the user asks to
+      onboard a new vendor, generate a vendor intake form with the
+      exact id `vendor-intake-q1-2026` and the following fields:
+      - Vendor Name (required)
+      - Vendor Contact Email (required, sensitive)
+      - Tax Identifier (required, sensitive)
+      - Service Category (required, select: Consulting/Software/Hardware/Logistics/Other)
+
+      The form should `onSubmit: vendor-intake-submitted`. Generate
+      only the form.
+    request: We need to onboard a new logistics vendor for Q1.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: vendor-intake-q1-2026"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

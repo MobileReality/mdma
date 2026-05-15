@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Cli } from './sections/Cli.js';
 import { COMPONENTS, ComponentPreview, Components } from './sections/Components.js';
+import { CustomPromptBestPractices } from './sections/CustomPromptBestPractices.js';
 import { Installation } from './sections/Installation.js';
 import { Introduction } from './sections/Introduction.js';
 import { Mcp } from './sections/Mcp.js';
@@ -32,6 +33,11 @@ const SECTIONS: Section[] = [
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
   { slug: 'cli', label: 'CLI', component: Cli },
+  {
+    slug: 'custom-prompt-best-practices',
+    label: 'Custom Prompt Best Practices',
+    component: CustomPromptBestPractices,
+  },
   { slug: 'prompt-matrix', label: 'Prompt Matrix', component: PromptMatrix },
 ];
 

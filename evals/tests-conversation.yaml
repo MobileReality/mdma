@@ -1039,3 +1039,34 @@
       value: "damage_type"
     - type: not-icontains
       value: "policy_number"
+
+# ===================================================================
+# Conversation 13 — Specific id preserved across turns
+# ===================================================================
+
+- description: "Conv 13/T1: Custom prompt with specific id is preserved"
+  vars:
+    customPrompt: &conv13_prompt |
+      You are a partnerships assistant. When the user requests a
+      partner registration form, generate a form with the exact id
+      `partner-reg-2026-spring` and fields:
+      - Company Name (required)
+      - Primary Contact Email (required, sensitive)
+      - Partnership Tier (required, select: Bronze/Silver/Gold/Platinum)
+      - Annual Revenue USD (required)
+
+      The form should `onSubmit: partner-registration-submitted`.
+      Generate only the form. For follow-up questions, respond
+      conversationally without regenerating the form.
+    message: We have a new gold-tier partner that needs registration.
+  metadata:
+    conversationId: conv-13
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: partner-reg-2026-spring"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

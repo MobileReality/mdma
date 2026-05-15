@@ -11,7 +11,7 @@
     customPrompt: |
       You are a website assistant that helps visitors get in touch with the company.
 
-      When a user wants to contact the company, present a contact form with fields:
+      When a user wants to contact the company, present a contact form (id `contact-form`, `onSubmit: contact-submitted`) with fields:
       - Full Name (required)
       - Email Address (required, sensitive)
       - Message (required, min 10 chars)
@@ -105,7 +105,7 @@
 
       For the initial interaction, generate:
       1. A warning callout stating that requests over $5,000 require director-level approval.
-      2. A budget request form with fields: Requester Name (required), Requester Email (required, sensitive), Department (required, select: Engineering/Marketing/Operations/Finance), Requested Amount USD (required), Business Justification (required, textarea).
+      2. A budget request form (id `budget-request-form`, `onSubmit: route-budget-request`) with fields: Requester Name (required), Requester Email (required, sensitive), Department (required, select: Engineering/Marketing/Operations/Finance), Requested Amount USD (required), Business Justification (required, textarea).
 
       Generate only the warning callout and the form. Prerequisites checklist and approval gate come in later steps after submission.
     request: I need to request $12,000 for new development servers.
@@ -131,7 +131,7 @@
     customPrompt: |
       You are a customer experience assistant that collects post-support feedback.
 
-      Present a survey form with fields:
+      Present a survey form (id `support-survey-form`, `onSubmit: survey-submitted`) with fields:
       - Support Ticket ID (required)
       - Overall Satisfaction (required, select: 1-5)
       - Response Time Rating (required, select: 1-5)
@@ -190,7 +190,8 @@
     customPrompt: |
       You are an incident response assistant that helps engineering teams triage production incidents.
 
-      For the initial interaction, collect incident details with a form:
+      For the initial interaction, collect incident details with a
+      form (id `incident-intake-form`, `onSubmit: triage-incident`):
       - Incident Title (required)
       - Reporter Email (required, sensitive)
       - Severity: P1-P4 (required, select)
@@ -221,7 +222,7 @@
 
       For the initial interaction, generate:
       1. An info callout explaining the 5-day review process.
-      2. A feature request form with fields: Feature Title (required), Requester Name (required), Requesting Team (required, select: Engineering/Sales/CS/Marketing/Product), Priority (required, select: Critical/High/Medium/Low), Description (required, textarea), Primary Use Case (required, textarea).
+      2. A feature request form (id `feature-request-form`, `onSubmit: evaluate-feature-request`) with fields: Feature Title (required), Requester Name (required), Requesting Team (required, select: Engineering/Sales/CS/Marketing/Product), Priority (required, select: Critical/High/Medium/Low), Description (required, textarea), Primary Use Case (required, textarea).
 
       Generate only the callout and form. Evaluation checklist and approval gate come in later steps.
     request: We need a bulk export feature for our enterprise customers — they've been asking for months.
@@ -297,11 +298,11 @@
     customPrompt: |
       You are a release management assistant for SOX/ISO compliance.
 
-      For the initial interaction, generate:
-      1. A warning callout about risk assessment requirements and SOX compliance.
-      2. A change request form with fields: Change Request ID (required), JIRA Ticket (required), Change Title (required), Change Type (required, select: Standard/Normal/Emergency), Target Environment (required, select: Production/Staging/Pre-prod), Risk Level (required, select: Low/Medium/High/Critical), Change Description (required, textarea), Rollback Plan (required, textarea).
+      For the initial interaction, always generate BOTH of the following:
+      1. A warning callout (variant: warning) about risk assessment requirements and SOX compliance. This callout precedes the form and is required in every initial response.
+      2. A change request form (id `change-request-form`, `onSubmit: review-change-request`) with fields: Change Request ID (required), JIRA Ticket (required), Change Title (required), Change Type (required, select: Standard/Normal/Emergency), Target Environment (required, select: Production/Staging/Pre-prod), Risk Level (required, select: Low/Medium/High/Critical), Change Description (required, textarea), Rollback Plan (required, textarea).
 
-      Generate only the warning callout and form. Pre-deployment checklist and dual approvals come in later steps.
+      Generate the warning callout and the form in that order. Pre-deployment checklist and dual approvals come in later steps.
     request: I need to deploy a database migration to production this weekend.
   assert:
     - type: javascript
@@ -331,7 +332,7 @@
 
       For the initial interaction, generate:
       1. A warning callout about SLA compliance requirements.
-      2. An escalation form with fields: Case ID (required), Customer Name (required), Customer Email (required, sensitive), Account ID (required, sensitive), Priority (required, select: P1-P4), Category (required, select), Customer Sentiment (required, select), Escalation Reason (required, textarea).
+      2. An escalation form (id `escalation-intake-form`, `onSubmit: route-escalation`) with fields: Case ID (required), Customer Name (required), Customer Email (required, sensitive), Account ID (required, sensitive), Priority (required, select: P1-P4), Category (required, select), Customer Sentiment (required, select), Escalation Reason (required, textarea).
 
       Generate only the callout and form. Resolution steps and escalation buttons come in later steps.
     request: A major enterprise customer is threatening to cancel — their billing has been wrong for 3 months.
@@ -361,7 +362,7 @@
 
       For the initial interaction, generate:
       1. A critical safety callout (error variant) about patient safety review requirements.
-      2. A procedure form with fields: Procedure Title (required), Change Type (required, select: New/Major Revision/Minor Revision/Retirement), Department (required, select), Author Credentials (required), Risk Category (required, select: Low/Medium/High/Critical), Clinical Summary (required, textarea), Contraindications (required, textarea).
+      2. A procedure form (id `procedure-submission-form`, `onSubmit: review-procedure`) with fields: Procedure Title (required), Change Type (required, select: New/Major Revision/Minor Revision/Retirement), Department (required, select), Author Credentials (required), Risk Category (required, select: Low/Medium/High/Critical), Clinical Summary (required, textarea), Contraindications (required, textarea).
 
       Generate only the callout and form. Review checklist and approval gates come in later steps.
     request: I need to submit a new surgical procedure for the radiology department.
@@ -394,7 +395,7 @@
       - Customer Type (required, select: Individual/Business/Trust)
       - Full Legal Name (required, sensitive)
       - Date of Birth (required, sensitive)
-      - SSN / Tax ID (required, sensitive)
+      - Tax Identifier (required, sensitive)
       - Email (required, sensitive)
       - Source of Funds (required, select: Employment/Business/Investment/Inheritance/Other)
       - Risk Rating (required, select: Low/Medium/High/Prohibited)
@@ -408,6 +409,42 @@
         allowed: [form, callout]
     - type: javascript
       value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# ---------------------------------------------------------------------------
+# Flow with a specific component id requested by the custom prompt
+# ---------------------------------------------------------------------------
+- description: "Flow generates form with the exact id requested by the prompt"
+  vars:
+    customPrompt: |
+      You are an employee benefits enrollment assistant.
+
+      For the initial interaction, generate:
+      1. An info callout reminding the employee that the enrollment
+         window closes on March 31, 2026.
+      2. A benefits enrollment form with the exact id
+         `benefits-enroll-2026-spring` (with `onSubmit: review-benefits-selection`)
+         and fields: Employee ID (required), Health Plan (required,
+         select: HMO/PPO/HDHP/Waive), Dental Plan (required, select:
+         Basic/Premium/Waive), Vision Plan (required, select:
+         Standard/Premium/Waive), Dependents Count (required, number),
+         HSA Contribution USD (required, number).
+
+      Generate only the callout and form. The review checklist and
+      approval gate come in later steps after submission.
+    request: I want to enroll in this year's health benefits.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, callout]
+    - type: contains
+      value: "id: benefits-enroll-2026-spring"
     - type: javascript
       value: file://assertions/select-has-options.mjs
     - type: javascript
