@@ -6,6 +6,8 @@
  *   BASE_OPENING (role)
  *     + ## Output Format          (behavioral directive, top — anchor)
  *     + BASE_BODY (the spec)
+ *     + ## Fence Closing          (structural rule — mid)
+ *     + ## Thinking Block         (uniqueness + no-duplicate — mid)
  *     + ## Scope Discipline       (negative constraint — end)
  *     + ## Select Option Values   (negative constraint — end)
  *     + BASE_CHECKLIST            (## Self-Check Checklist — end)
@@ -40,13 +42,25 @@
  * warns: "Lower temperatures may cause unexpected behavior, looping, or
  * degraded performance."
  *
- * Failure-mode coverage: Fence Closing, Scope Discipline, and Select
- * Option Values — all validated as failure modes for Gemini 3.1 Pro
- * specifically (5 of 6 main-eval failures on a fresh run were fence
- * issues, plus 1 in flows). FENCE_CLOSING_BLOCK goes mid-prompt (after
- * BASE_BODY) so the spec defines what an mdma block is before the rule
- * tightens its closing. SCOPE_DISCIPLINE and SELECT_OPTIONS stay at the
+ * Failure-mode coverage: Fence Closing, Thinking Block discipline,
+ * Scope Discipline, and Select Option Values — all validated as failure
+ * modes for Gemini 3.1 Pro specifically. FENCE_CLOSING_BLOCK and
+ * THINKING_DISCIPLINE_BLOCK go mid-prompt (after BASE_BODY) so the spec
+ * defines what an mdma block is before the rules tighten emission;
+ * THINKING_DISCIPLINE addresses gpt-5.4-style duplicate-emission that
+ * surfaced on Gemini Pro (correct response then verbatim re-emission
+ * with duplicate ids). SCOPE_DISCIPLINE and SELECT_OPTIONS stay at the
  * end per Vertex guidance on negative constraints.
+ *
+ * Stochastic loop floor: even after the above, gemini-3.1-pro-preview
+ * still loops on ~7–15% of flow runs — the model emits Markdown prose
+ * preamble ("**Investigating Production Errors**" × 3-5) instead of
+ * opening a \`\`\`mdma block. Per Google's prompt guide, this is
+ * temperature-driven model behavior — no prompt-level fix reduced the
+ * count below this floor (tested: literal first-byte example, positive
+ * scope reframe, no-loop block, no-duplicates tail — all shifted which
+ * test loops, none reduced the count). Documented as 🟡 ‡ in the
+ * Prompt Matrix similar to gpt-5.4's documented duplication bug.
  *
  * Routing: substring match on `gemini-3.1-pro-preview` (24 chars). Picks
  * this variant for any model id containing that literal, including
@@ -80,7 +94,7 @@ const THINKING_DISCIPLINE_BLOCK = `## Thinking Block
 
 The first three characters of your response are \`\`\`\` \`\`\` \`\`\`\` (three backticks) followed by \`mdma\`, opening a thinking block. Nothing precedes it — no greeting, no Markdown heading, no prose starting with "Thinking:" or "**Building X**" or "I'm currently…". All planning (what to build, which fields to include, why certain values are chosen) belongs inside that single thinking block.
 
-After the thinking block's closing \`\`\`\` \`\`\` \`\`\`\`, generate the requested components in sequence. Each component — including the thinking block itself — appears exactly once. Every \`id\` is unique within your response. The response ends immediately after the closing \`\`\`\` \`\`\` \`\`\`\` of the last component; do not re-emit, re-explain, or restart any part of your output.`;
+After the thinking block's closing \`\`\`\` \`\`\` \`\`\`\`, generate the requested components in sequence. Each component — including the thinking block itself — appears exactly once. Every \`id\` is unique within your response and uses lowercase-kebab-case (no date prefixes, no underscores, no uppercase). The response ends immediately after the closing \`\`\`\` \`\`\` \`\`\`\` of the last component; do not re-emit, re-explain, or restart any part of your output.`;
 
 export const MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW = `${BASE_OPENING}
 

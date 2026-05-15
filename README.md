@@ -91,7 +91,7 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-sonnet-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | **Google** | | | | |
-| `gemini-3.1-pro-preview` | 🟡  | 🟡  | 🟡  | 🟡  |
+| `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | 🟡 ‡ |
 | `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.1-flash-lite-preview` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gemini-3-flash-preview` | ✅ | ✅ | ✅ \* | ✅ \* |
@@ -116,6 +116,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 > **Don't see your model?** Add a prompt variant under `packages/prompt-pack/src/prompts/mdma-author/<vendor>/` and open a PR — we'll run the eval suite and add it to this table.
 
 † **gpt-5.4 intermittent duplication bug** — `gpt-5.4` passes one-shot evals reliably but shows a non-deterministic output duplication in multi-turn, custom-prompt, and flow evals (~7–15% of runs). The model generates a complete, correct response and then immediately re-emits the entire output verbatim, causing `[duplicate-ids]` validation errors. This is a known model-level issue unrelated to the prompt variant. See the [OpenAI community thread](https://community.openai.com/t/seeing-intermittent-duplicate-strings-in-gpt-5-4-responses/1376651) for details. If this affects your use case, prefer `gpt-5.5` or `gpt-5.2`.
+
+‡ **gemini-3.1-pro-preview stochastic preamble loop** — on ~7–15% of flow-eval runs, the model emits a chain-of-thought as visible Markdown prose (e.g. `**Investigating Production Errors**` repeated 3–5 times) instead of opening a ```` ```mdma ```` block, producing either `[yaml-correctness: outside fenced block]` or `[duplicate-ids]` errors. Per Google's official Gemini 3 prompting guide, this is a model-level behavior driven by temperature/sampling — prompt-level fixes shift which test loops rather than eliminating the loops. If deterministic flow output matters, prefer `gemini-2.5-pro` for production multi-step flows.
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
 

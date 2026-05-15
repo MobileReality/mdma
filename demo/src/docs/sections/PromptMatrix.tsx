@@ -27,7 +27,7 @@ export function PromptMatrix() {
           ['claude-opus-4.6', '✅', '✅', '✅', '✅'],
           ['claude-sonnet-4.6', '✅', '✅', '✅', '✅'],
           ['claude-haiku-4.5', '✅', '✅', '✅ *', '✅ *'],
-          ['gemini-3.1-pro-preview', '✅', '✅', '✅', '✅'],
+          ['gemini-3.1-pro-preview', '✅', '✅', '✅', '🟡 ‡'],
           ['gemini-3.1-pro-preview-customtools', '✅', '✅', '✅', '✅'],
           ['gemini-3.1-flash-lite-preview', '✅', '✅', '✅ *', '✅ *'],
           ['gemini-3-flash-preview', '✅', '✅', '✅ *', '✅ *'],
@@ -60,6 +60,17 @@ export function PromptMatrix() {
           See OpenAI community thread.
         </a>{' '}
         Prefer <code>gpt-5.5</code> or <code>gpt-5.2</code> for production use.
+      </p>
+      <p className="docs-note">
+        ‡ <strong>gemini-3.1-pro-preview stochastic preamble loop</strong> — on ~7–15% of flow-eval
+        runs, the model emits a chain-of-thought as visible Markdown prose ("
+        <code>**Investigating Production Errors**</code>" repeated 3–5 times) instead of opening a{' '}
+        <code>```mdma</code> block, producing either{' '}
+        <code>[yaml-correctness: outside fenced block]</code> or{' '}
+        <code>[duplicate-ids]</code> errors. Per Google's official Gemini 3 prompting guide, this
+        is a model-level behavior driven by temperature/sampling choices — prompt-level fixes shift
+        which test loops rather than eliminating the loops. Prefer <code>gemini-2.5-pro</code> for
+        production multi-step flows requiring deterministic output.
       </p>
 
       <h2>MDMA_AGENT Prompt Matrix</h2>

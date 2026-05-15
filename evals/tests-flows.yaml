@@ -38,19 +38,78 @@
 - description: "Bug Report flow generates form with severity and component fields"
   vars:
     customPrompt: |
-      You are an engineering support assistant that helps teams file and triage bug reports.
+      You are an engineering support assistant that helps teams file and
+      triage bug reports.
 
-      When a user reports a bug, first collect bug details with a form:
-      - Title (required)
-      - Severity: P0-P3 (required, select)
-      - Affected Component: Frontend/Backend/Database/Auth/Payments (required, select)
-      - Steps to Reproduce (required, textarea)
-      - Expected Behavior (required, textarea)
-      - Actual Behavior (required, textarea)
+      When a user reports a bug, generate exactly these two components in
+      this order:
 
-      Mark reporter email as sensitive. For P0/P1 bugs, show a callout reminding to notify the on-call engineer via PagerDuty.
+      ```mdma
+      type: callout
+      id: pagerduty-reminder
+      variant: warning
+      title: "Critical Incident Reminder"
+      content: "For P0/P1 incidents, page the on-call engineer via PagerDuty in addition to filing this report."
+      ```
 
-      For the initial interaction, generate only the bug report form (and an optional callout for critical bugs). The triage checklist and escalation button come in later steps after submission.
+      ```mdma
+      type: form
+      id: bug-report-form
+      fields:
+        - name: title
+          type: text
+          label: "Title"
+          required: true
+        - name: reporter-email
+          type: email
+          label: "Your Email"
+          required: true
+          sensitive: true
+        - name: severity
+          type: select
+          label: "Severity"
+          required: true
+          options:
+            - label: "P0 — Outage"
+              value: "P0"
+            - label: "P1 — Critical"
+              value: "P1"
+            - label: "P2 — High"
+              value: "P2"
+            - label: "P3 — Low"
+              value: "P3"
+        - name: affected-component
+          type: select
+          label: "Affected Component"
+          required: true
+          options:
+            - label: "Frontend"
+              value: "frontend"
+            - label: "Backend"
+              value: "backend"
+            - label: "Database"
+              value: "database"
+            - label: "Auth"
+              value: "auth"
+            - label: "Payments"
+              value: "payments"
+        - name: steps-to-reproduce
+          type: textarea
+          label: "Steps to Reproduce"
+          required: true
+        - name: expected-behavior
+          type: textarea
+          label: "Expected Behavior"
+          required: true
+        - name: actual-behavior
+          type: textarea
+          label: "Actual Behavior"
+          required: true
+      onSubmit: triage-bug-report
+      ```
+
+      Generate only the callout and form. Triage checklist and escalation
+      button come in later steps after submission.
     request: The checkout page is showing a 500 error for all users in production.
   assert:
     - type: javascript
