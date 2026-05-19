@@ -8,7 +8,15 @@ import { bindingSyntaxRule } from './binding-syntax.js';
 // Disabled: binding-resolution checks intra-message bindings but components
 // and their bindings are never generated in the same message.
 // import { bindingResolutionRule } from './binding-resolution.js';
-import { actionReferencesRule } from './action-references.js';
+// Disabled: action-references checks that onSubmit/onAction/etc. resolve to
+// component IDs in the same message — but the spec now treats action labels
+// as opaque external handlers the host application wires up at runtime.
+// With one interactive component per message, action labels naturally point
+// to follow-up handlers in later messages (or external code), not in-document
+// targets. The rule was firing on every valid form's onSubmit, producing
+// noise warnings on otherwise-passing outputs. Same family as the two
+// disabled rules above (intra-message refs that don't apply to multi-turn).
+// import { actionReferencesRule } from './action-references.js';
 import { sensitiveFlagsRule } from './sensitive-flags.js';
 import { requiredMarkersRule } from './required-markers.js';
 import { thinkingBlockRule } from './thinking-block.js';
@@ -41,7 +49,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   idFormatRule,
   bindingSyntaxRule,
   // bindingResolutionRule,
-  actionReferencesRule,
+  // actionReferencesRule,
   sensitiveFlagsRule,
   requiredMarkersRule,
   thinkingBlockRule,

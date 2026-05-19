@@ -29,7 +29,7 @@ export const FormFieldSchema = z.object({
 export const FormComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('form'),
   fields: z.array(FormFieldSchema).min(1),
-  onSubmit: z.string().describe('Action ID to trigger on submit'),
+  onSubmit: z.string().describe('Action ID dispatched on submit'),
 });
 
 export type FormField = z.infer<typeof FormFieldSchema>;
