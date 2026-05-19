@@ -21,8 +21,13 @@ import { selectFixerPrompt } from './select-prompt.mjs';
  * 3. Sends the fixer system prompt (with variant-specific extensions) + user message
  */
 export default async function ({ vars }) {
+  // Default to single-block scope unless the test explicitly opts into
+  // multi-step (variantKey: 'flow'). For single-block tests we also drop
+  // the flow-ordering rule from validate() since by design each test has
+  // exactly one mdma block — no multi-step ordering to check.
+  const variantKey = vars.variantKey ?? 'single-block';
   const exclude = ['thinking-block'];
-  if (vars.variantKey !== 'flow') exclude.push('flow-ordering');
+  if (variantKey !== 'flow') exclude.push('flow-ordering');
 
   const result = validate(vars.brokenDocument, { exclude });
   const allIssues = result.issues.filter(
@@ -31,7 +36,7 @@ export default async function ({ vars }) {
 
   const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt();
   const fixerPrompt = fixerSource.startsWith('default')
-    ? buildFixerPrompt(vars.variantKey ?? undefined)
+    ? buildFixerPrompt(variantKey)
     : variantPrompt;
   const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${fixerPrompt}`;
 

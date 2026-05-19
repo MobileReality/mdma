@@ -388,6 +388,18 @@ export const FIXER_EXTENSIONS: Record<string, string[]> = {
     MDMA_FIXER_FLOW,
     MDMA_FIXER_APPROVAL,
   ],
+  // Single-block focus: every per-component fix, no multi-step workflow logic.
+  // Use this preset for callers that validate one MDMA block at a time via
+  // `validate()` — there is no conversation history to reason about, so the
+  // multi-step FLOW extension would only confuse the model.
+  'single-block': [
+    MDMA_FIXER_STRUCTURE,
+    MDMA_FIXER_BINDINGS,
+    MDMA_FIXER_PII,
+    MDMA_FIXER_FORMS,
+    MDMA_FIXER_TABLES_CHARTS,
+    MDMA_FIXER_APPROVAL,
+  ],
   structure: [MDMA_FIXER_STRUCTURE],
   bindings: [MDMA_FIXER_BINDINGS],
   pii: [MDMA_FIXER_PII],

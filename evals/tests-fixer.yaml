@@ -10,8 +10,6 @@
 - description: Fixes button missing required text field
   vars:
     brokenDocument: |
-      # Quick Action
-
       ```mdma
       type: button
       id: action-btn
@@ -40,8 +38,6 @@
 - description: Fixes callout missing required content field
   vars:
     brokenDocument: |
-      # Status Update
-
       ```mdma
       type: callout
       id: status-notice
@@ -72,8 +68,6 @@
 - description: Fixes select field missing required options array
   vars:
     brokenDocument: |
-      # Contact Form
-
       ```mdma
       type: form
       id: contact-form
@@ -116,8 +110,6 @@
 - description: Fixes placeholder title and content in callout
   vars:
     brokenDocument: |
-      # Welcome Screen
-
       ```mdma
       type: callout
       id: welcome-callout
@@ -151,8 +143,6 @@
 - description: Fixes email and phone fields missing sensitive flag
   vars:
     brokenDocument: |
-      # Contact Details
-
       ```mdma
       type: form
       id: contact-details
@@ -198,75 +188,16 @@
               sensitive: true
 
 # ---------------------------------------------------------------------------
-# 6. Form with broken onSubmit reference
+# 6. Button missing required text (with opaque onAction handler)
 # ---------------------------------------------------------------------------
-- description: Fixes form with broken onSubmit reference to point to existing callout
+- description: Fixes button missing required text field (preserves opaque onAction label)
   vars:
     brokenDocument: |
-      # Order Submission
-
-      ```mdma
-      type: form
-      id: order-form
-      fields:
-        - name: product
-          type: text
-          label: Product Name
-          required: true
-        - name: quantity
-          type: number
-          label: Quantity
-      onSubmit: nonexistent-handler
-      ```
-
-      ```mdma
-      type: callout
-      id: order-status
-      variant: success
-      content: Your order has been submitted!
-      ```
-  assert:
-    - type: javascript
-      value: file://assertions/fixer-resolves-errors.mjs
-    - type: javascript
-      value: file://assertions/fixer-preserves-components.mjs
-      config:
-        min: 2
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: form
-          id: order-form
-          onSubmit: order-status
-
-# ---------------------------------------------------------------------------
-# 7. Unknown component type + missing required button text
-# ---------------------------------------------------------------------------
-- description: Fixes unknown component type and missing button text
-  vars:
-    brokenDocument: |
-      # Dashboard
-
-      ```mdma
-      type: card
-      id: stats-card
-      title: Monthly Stats
-      value: 42
-      ```
-
       ```mdma
       type: button
       id: refresh-btn
       variant: primary
-      onAction: stats-card
-      ```
-
-      ```mdma
-      type: callout
-      id: dashboard-info
-      variant: info
-      content: Welcome to your dashboard
+      onAction: refresh-stats
       ```
   assert:
     - type: javascript
@@ -274,25 +205,23 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
+        min: 1
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
         expected: |
           type: button
           id: refresh-btn
-          onAction: stats-card
+          onAction: refresh-stats
         hasFields:
           - text
 
 # ---------------------------------------------------------------------------
 # 8. Form missing onSubmit
 # ---------------------------------------------------------------------------
-- description: Fixes form that is missing onSubmit by connecting it to the success callout
+- description: Fixes form missing required onSubmit field
   vars:
     brokenDocument: |
-      # User Profile
-
       ```mdma
       type: form
       id: profile-form
@@ -309,20 +238,13 @@
           type: textarea
           label: Bio
       ```
-
-      ```mdma
-      type: callout
-      id: profile-saved
-      variant: success
-      content: Your profile has been saved.
-      ```
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
+        min: 1
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -338,8 +260,6 @@
 - description: Fixes field name typos on approval-gate (roles→allowedRoles, approvers→requiredApprovers)
   vars:
     brokenDocument: |
-      # Leave Request
-
       ```mdma
       type: approval-gate
       id: leave-approval
@@ -350,20 +270,13 @@
       approvers: 2
       onApprove: leave-confirmed
       ```
-
-      ```mdma
-      type: callout
-      id: leave-confirmed
-      variant: success
-      content: Your leave request has been approved!
-      ```
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
+        min: 1
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -378,13 +291,11 @@
           onApprove: leave-confirmed
 
 # ---------------------------------------------------------------------------
-# 10. Table data key mismatch + chart axis mismatch
+# 10. Table data key mismatch
 # ---------------------------------------------------------------------------
-- description: Fixes table data key mismatch and chart axis errors
+- description: Fixes table data key mismatch (data keys don't match column keys)
   vars:
     brokenDocument: |
-      # Sales Report
-
       ```mdma
       type: table
       id: sales-table
@@ -403,43 +314,15 @@
           total_revenue: 32000
           quantity: 85
       ```
-
-      ```mdma
-      type: chart
-      id: sales-chart
-      variant: bar
-      data: |
-        Month,Revenue,Costs
-        Jan,10000,8000
-        Feb,12000,9000
-        Mar,15000,11000
-      xAxis: Date
-      yAxis:
-        - Profit
-        - Expenses
-      ```
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
-    - type: icontains
-      value: "xAxis: Month"
+        min: 1
     - type: icontains
       value: "product:"
-    - type: javascript
-      value: file://assertions/fixer-contains-component.mjs
-      config:
-        expected: |
-          type: chart
-          id: sales-chart
-          variant: bar
-          xAxis: Month
-          yAxis:
-            - Revenue
-            - Costs
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -462,13 +345,52 @@
               units: 85
 
 # ---------------------------------------------------------------------------
-# 11. Missing sensitive flags on form and table
+# 10b. Chart axis mismatch
 # ---------------------------------------------------------------------------
-- description: Fixes missing PII sensitive flags on form fields and table columns
+- description: Fixes chart axis mismatch (axes don't match data columns)
   vars:
     brokenDocument: |
-      # Patient Registration
+      ```mdma
+      type: chart
+      id: sales-chart
+      variant: bar
+      data: |
+        Month,Revenue,Costs
+        Jan,10000,8000
+        Feb,12000,9000
+        Mar,15000,11000
+      xAxis: Date
+      yAxis:
+        - Profit
+        - Expenses
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: icontains
+      value: "xAxis: Month"
+    - type: javascript
+      value: file://assertions/fixer-contains-component.mjs
+      config:
+        expected: |
+          type: chart
+          id: sales-chart
+          variant: bar
+          xAxis: Month
+          yAxis:
+            - Revenue
+            - Costs
 
+# ---------------------------------------------------------------------------
+# 11. Missing sensitive flags on form fields
+# ---------------------------------------------------------------------------
+- description: Fixes missing PII sensitive flags on form fields
+  vars:
+    brokenDocument: |
       ```mdma
       type: form
       id: patient-form
@@ -491,39 +413,13 @@
           label: Home Address
       onSubmit: registration-complete
       ```
-
-      ```mdma
-      type: table
-      id: patient-records
-      columns:
-        - key: name
-          header: Patient Name
-        - key: email
-          header: Email
-        - key: phone
-          header: Phone
-        - key: dob
-          header: Date of Birth
-      data:
-        - name: Jane Doe
-          email: jane@example.com
-          phone: 555-0101
-          dob: 1990-01-15
-      ```
-
-      ```mdma
-      type: callout
-      id: registration-complete
-      variant: success
-      content: Registration submitted successfully!
-      ```
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 3
+        min: 1
     - type: javascript
       value: file://assertions/has-sensitive.mjs
     - type: javascript
@@ -554,6 +450,40 @@
               label: Home Address
               sensitive: true
           onSubmit: registration-complete
+
+# ---------------------------------------------------------------------------
+# 11b. Missing sensitive flags on table columns
+# ---------------------------------------------------------------------------
+- description: Fixes missing PII sensitive flags on table columns
+  vars:
+    brokenDocument: |
+      ```mdma
+      type: table
+      id: patient-records
+      columns:
+        - key: name
+          header: Patient Name
+        - key: email
+          header: Email
+        - key: phone
+          header: Phone
+        - key: dob
+          header: Date of Birth
+      data:
+        - name: Jane Doe
+          email: jane@example.com
+          phone: 555-0101
+          dob: 1990-01-15
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
     - type: javascript
       value: file://assertions/fixer-contains-component.mjs
       config:
@@ -577,11 +507,9 @@
 # ---------------------------------------------------------------------------
 # 12. Mixed issues — single form kitchen sink
 # ---------------------------------------------------------------------------
-- description: Fixes many issues on a single form (ID format, placeholder, PII, select, onSubmit)
+- description: Fixes many issues on a single form (ID format, placeholder, PII, select)
   vars:
     brokenDocument: |
-      # Employee Onboarding
-
       ```mdma
       type: form
       id: employee_form
@@ -600,20 +528,13 @@
           label: Start Date
       onSubmit: missing-handler
       ```
-
-      ```mdma
-      type: callout
-      id: onboarding-complete
-      variant: success
-      content: Welcome to the team!
-      ```
   assert:
     - type: javascript
       value: file://assertions/fixer-resolves-errors.mjs
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
+        min: 1
     - type: javascript
       value: file://assertions/unique-kebab-ids.mjs
     - type: javascript
@@ -628,13 +549,11 @@
           - onSubmit
 
 # ---------------------------------------------------------------------------
-# 13. Placeholder content throughout
+# 13. Placeholder content in form labels
 # ---------------------------------------------------------------------------
-- description: Fixes placeholder content in labels and fields
+- description: Fixes placeholder content in form field labels
   vars:
     brokenDocument: |
-      # Project Setup
-
       ```mdma
       type: form
       id: project-form
@@ -651,7 +570,22 @@
           label: FIXME
       onSubmit: project-summary
       ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/no-placeholder-content.mjs
 
+# ---------------------------------------------------------------------------
+# 13b. Placeholder content in callout
+# ---------------------------------------------------------------------------
+- description: Fixes placeholder content in callout title and content
+  vars:
+    brokenDocument: |
       ```mdma
       type: callout
       id: project-summary
@@ -665,6 +599,6 @@
     - type: javascript
       value: file://assertions/fixer-preserves-components.mjs
       config:
-        min: 2
+        min: 1
     - type: javascript
       value: file://assertions/no-placeholder-content.mjs

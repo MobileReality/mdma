@@ -1,15 +1,15 @@
-import type { FlowStepDefinition, FlowValidationResult } from '@mobile-reality/mdma-validator';
+import type { ConversationStep, ValidateConversationResult } from '@mobile-reality/mdma-validator';
 
 interface FlowProgressPanelProps {
-  steps: FlowStepDefinition[];
-  result: FlowValidationResult | null;
+  steps: ConversationStep[];
+  result: ValidateConversationResult | null;
 }
 
 type StepStatus = 'pending' | 'done' | 'error';
 
 function getStepStatus(
-  result: FlowValidationResult | null,
-  step: FlowStepDefinition,
+  result: ValidateConversationResult | null,
+  step: ConversationStep,
   stepIndex: number,
 ): StepStatus {
   if (!result) return 'pending';

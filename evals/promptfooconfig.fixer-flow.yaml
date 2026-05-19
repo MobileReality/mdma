@@ -32,5 +32,7 @@ defaultTest:
       value: file://assertions/fixer-preserves-components.mjs
       config:
         min: 1
+    - type: javascript
+      value: file://assertions/fixer-no-prose.mjs
 
 tests: tests-fixer-flow.yaml

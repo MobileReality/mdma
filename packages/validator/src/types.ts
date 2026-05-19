@@ -5,7 +5,6 @@ export type ValidationRuleId =
   | 'duplicate-ids'
   | 'binding-syntax'
   | 'binding-resolution'
-  | 'action-references'
   | 'sensitive-flags'
   | 'required-markers'
   | 'id-format'
