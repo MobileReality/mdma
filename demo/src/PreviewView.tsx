@@ -6,6 +6,7 @@ import { ChatInput } from './chat/ChatInput.js';
 import { PreviewPanel } from './preview/PreviewPanel.js';
 import { INSURANCE_FLOW_PROMPT } from './preview/insurance-flow-prompt.js';
 import { useInsuranceFlow } from './preview/use-insurance-flow.js';
+import { usePreviewValidation } from './preview/use-preview-validation.js';
 
 export function PreviewView() {
   const {
@@ -24,6 +25,11 @@ export function PreviewView() {
   } = useAgent({ flowPrompt: INSURANCE_FLOW_PROMPT });
 
   useInsuranceFlow({ turns, sendHidden, isGenerating });
+
+  const previewState = usePreviewValidation({
+    turns,
+    agentConfig: config,
+  });
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(turns.length);
@@ -77,7 +83,7 @@ export function PreviewView() {
         />
       </div>
 
-      <PreviewPanel turns={turns} />
+      <PreviewPanel state={previewState} />
     </div>
   );
 }

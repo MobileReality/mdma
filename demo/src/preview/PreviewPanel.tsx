@@ -1,78 +1,83 @@
-import { useMemo } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import { customizations } from '../custom-components.js';
-import type { AgentDisplayTurn, AssistantTurn, ToolUseBlock } from '../agent/types.js';
+import type { PreviewState } from './use-preview-validation.js';
 
 interface PreviewPanelProps {
-  turns: AgentDisplayTurn[];
+  state: PreviewState;
 }
 
-interface LatestMdma {
-  block: ToolUseBlock;
-  turnId: string;
-}
+const STATUS_LABELS: Record<PreviewState['status'], string> = {
+  idle: 'idle',
+  validating: 'validating',
+  fixing: 'fixing',
+  ready: 'ready',
+  invalid: 'invalid',
+};
 
-function findLatestMdmaBlock(turns: AgentDisplayTurn[]): LatestMdma | null {
-  for (let i = turns.length - 1; i >= 0; i--) {
-    const turn = turns[i];
-    if (turn.role !== 'assistant') continue;
-    const blocks = (turn as AssistantTurn).blocks;
-    for (let j = blocks.length - 1; j >= 0; j--) {
-      const block = blocks[j];
-      if (block.type === 'tool_use') return { block, turnId: turn.id };
-    }
-  }
-  return null;
-}
+const STATUS_CLASS: Record<PreviewState['status'], string> = {
+  idle: 'preview-pane-status--idle',
+  validating: 'preview-pane-status--validating',
+  fixing: 'preview-pane-status--fixing',
+  ready: 'preview-pane-status--ready',
+  invalid: 'preview-pane-status--invalid',
+};
 
-export function PreviewPanel({ turns }: PreviewPanelProps) {
-  const latest = useMemo(() => findLatestMdmaBlock(turns), [turns]);
-
-  const status: 'idle' | 'streaming' | 'ready' = !latest
-    ? 'idle'
-    : latest.block.isStreaming
-      ? 'streaming'
-      : latest.block.ast && latest.block.store
-        ? 'ready'
-        : 'streaming';
-
-  const statusLabel =
-    status === 'idle' ? 'idle' : status === 'streaming' ? 'generating' : 'ready';
-  const statusClass =
-    status === 'idle'
-      ? 'preview-pane-status--idle'
-      : status === 'streaming'
-        ? 'preview-pane-status--validating'
-        : 'preview-pane-status--ready';
+export function PreviewPanel({ state }: PreviewPanelProps) {
+  const { status, ast, store, unresolvedIssues, wasFixed } = state;
+  const showRender = ast !== null && store !== null;
 
   return (
     <div className="preview-pane">
       <div className="preview-pane-header">
         <span className="preview-pane-title">Live MDMA Preview</span>
-        <span className={`preview-pane-status ${statusClass}`}>{statusLabel}</span>
+        <span className={`preview-pane-status ${STATUS_CLASS[status]}`}>
+          {STATUS_LABELS[status]}
+        </span>
       </div>
       <div className="preview-pane-body">
-        {!latest ? (
+        {status === 'idle' && !showRender ? (
           <div className="preview-pane-empty">
             <p className="preview-pane-empty-title">Insurance claim flow</p>
             <p className="preview-pane-empty-hint">
-              Start the chat on the left. As the agent emits MDMA blocks, they'll be rendered here.
+              Start the chat on the left. As the agent emits MDMA blocks, they'll be validated,
+              auto-fixed if needed, and rendered here.
             </p>
           </div>
-        ) : latest.block.isStreaming || !latest.block.ast || !latest.block.store ? (
+        ) : status === 'validating' || (status === 'fixing' && !showRender) ? (
           <div className="preview-pane-empty">
-            <p className="preview-pane-empty-title">Generating…</p>
+            <p className="preview-pane-empty-title">
+              {status === 'validating' ? 'Validating…' : 'Fixing with LLM…'}
+            </p>
             <p className="preview-pane-empty-hint">
-              The agent is still emitting this step. The rendered output will appear when the block
-              is complete.
+              {status === 'validating'
+                ? "Checking the agent's MDMA against the spec."
+                : "Calling the LLM fixer to repair the agent's output before rendering."}
             </p>
           </div>
         ) : (
-          <MdmaDocument
-            ast={latest.block.ast}
-            store={latest.block.store}
-            customizations={customizations}
-          />
+          <>
+            {wasFixed && status === 'ready' && (
+              <div className="preview-pane-note preview-pane-note--fixed">
+                Auto-fixed before render.
+              </div>
+            )}
+            {status === 'invalid' && unresolvedIssues.length > 0 && (
+              <div className="preview-pane-note preview-pane-note--invalid">
+                <strong>{unresolvedIssues.length} unresolved issue(s):</strong>
+                <ul>
+                  {unresolvedIssues.slice(0, 3).map((i, idx) => (
+                    <li key={idx}>
+                      <code>{i.ruleId}</code> — {i.message}
+                    </li>
+                  ))}
+                  {unresolvedIssues.length > 3 && <li>…and {unresolvedIssues.length - 3} more</li>}
+                </ul>
+              </div>
+            )}
+            {showRender && (
+              <MdmaDocument ast={ast} store={store} customizations={customizations} />
+            )}
+          </>
         )}
       </div>
     </div>
