@@ -5,6 +5,7 @@ import { ChatView } from './ChatView.js';
 import { CustomChatView } from './CustomChatView.js';
 import { DocsView } from './DocsView.js';
 import { HomeView } from './HomeView.js';
+import { PreviewView } from './PreviewView.js';
 import { ValidatorView } from './ValidatorView.js';
 
 // ── Routing ──────────────────────────────────────────────────────────────────
@@ -25,7 +26,7 @@ function navigate(to: string) {
 
 // ── Nav config ───────────────────────────────────────────────────────────────
 
-type Route = '/' | '/chat' | '/author' | '/custom' | '/validator' | '/docs';
+type Route = '/' | '/chat' | '/preview' | '/author' | '/custom' | '/validator' | '/docs';
 
 interface NavItem {
   path: Route;
@@ -41,7 +42,10 @@ interface NavGroup {
 const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Agentic',
-    items: [{ path: '/chat', label: 'Agent Chat', icon: '⚡' }],
+    items: [
+      { path: '/chat', label: 'Agent Chat', icon: '⚡' },
+      { path: '/preview', label: 'Insurance Preview', icon: '🛡️' },
+    ],
   },
   {
     label: 'Completions',
@@ -184,6 +188,8 @@ export function App() {
         <CustomChatView />
       ) : route === '/author' ? (
         <ChatView />
+      ) : route === '/preview' ? (
+        <PreviewView />
       ) : (
         <AgentChatView />
       )}

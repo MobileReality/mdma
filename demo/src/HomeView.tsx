@@ -18,6 +18,13 @@ const SECTIONS = [
         description:
           'Autonomous agent that thinks, plans, and generates interactive MDMA documents via tool calls.',
       },
+      {
+        path: '/preview',
+        label: 'Insurance Preview',
+        icon: '🛡️',
+        description:
+          'Multi-step insurance claim flow demo — chat on the left, live MDMA preview with auto-validation and fixer on the right.',
+      },
     ],
   },
   {

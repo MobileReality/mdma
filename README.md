@@ -589,7 +589,7 @@ pnpm eval:view
 - [x] Multi-model eval coverage (Claude, GPT, Gemini, Grok)
 - [x] Prompt tuning toolkit — test and compare custom prompts
 - [x] Agent-friendly SDK — let AI agent generate your MDMA
-- [ ] Validator evals
+- [x] Validator tests & Fixer evals
 - [ ] Integrations
 - [ ] Webhook execution engine (real HTTP calls in production environments)
 

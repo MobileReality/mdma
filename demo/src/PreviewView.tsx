@@ -1,0 +1,83 @@
+import { useRef, useEffect, useCallback } from 'react';
+import { useAgent } from './agent/use-agent.js';
+import { AgentMessage } from './agent/AgentMessage.js';
+import { AgentSettings } from './agent/AgentSettings.js';
+import { ChatInput } from './chat/ChatInput.js';
+import { PreviewPanel } from './preview/PreviewPanel.js';
+import { INSURANCE_FLOW_PROMPT } from './preview/insurance-flow-prompt.js';
+import { useInsuranceFlow } from './preview/use-insurance-flow.js';
+
+export function PreviewView() {
+  const {
+    turns,
+    isGenerating,
+    error,
+    input,
+    setInput,
+    config,
+    updateConfig,
+    send,
+    sendHidden,
+    stop,
+    clear,
+    inputRef,
+  } = useAgent({ flowPrompt: INSURANCE_FLOW_PROMPT });
+
+  useInsuranceFlow({ turns, sendHidden, isGenerating });
+
+  const chatEndRef = useRef<HTMLDivElement>(null);
+  const prevCountRef = useRef(turns.length);
+
+  useEffect(() => {
+    if (turns.length > prevCountRef.current) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+    prevCountRef.current = turns.length;
+  }, [turns]);
+
+  const handleClear = useCallback(() => {
+    clear();
+  }, [clear]);
+
+  return (
+    <div className="preview-layout">
+      <div className="preview-chat">
+        <AgentSettings config={config} onUpdate={updateConfig} />
+
+        <div className="chat-messages">
+          {turns.length === 0 && (
+            <div className="chat-empty">
+              <p className="chat-empty-title">Insurance Claim Demo</p>
+              <p className="chat-empty-hint">
+                Ask the agent to start a new insurance claim. It will walk you through name &amp;
+                birthday, claim details, bank account, and a final confirmation — each step
+                rendered live in the preview pane on the right.
+              </p>
+            </div>
+          )}
+
+          {turns.map((turn) => (
+            <AgentMessage key={turn.id} turn={turn} compactToolUse />
+          ))}
+
+          {error && <div className="chat-error">{error}</div>}
+
+          <div ref={chatEndRef} />
+        </div>
+
+        <ChatInput
+          value={input}
+          onChange={setInput}
+          onSend={send}
+          onStop={stop}
+          onClear={handleClear}
+          isGenerating={isGenerating}
+          hasMessages={turns.length > 0}
+          inputRef={inputRef}
+        />
+      </div>
+
+      <PreviewPanel turns={turns} />
+    </div>
+  );
+}

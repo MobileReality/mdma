@@ -514,7 +514,16 @@ function patchBlock(
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
-export function useAgent() {
+export interface UseAgentOptions {
+  /**
+   * Extra flow-definition text appended to the agent's customPrompt. Used by
+   * the Insurance Preview to lock the conversation to a specific 4-step
+   * flow. When omitted, the agent behaves like the regular Agent Chat.
+   */
+  flowPrompt?: string;
+}
+
+export function useAgent(options: UseAgentOptions = {}) {
   const storedRef = useRef(loadAgentHistory());
   const stored = storedRef.current;
 
@@ -570,66 +579,88 @@ export function useAgent() {
     });
   }, []);
 
+  const runTurn = useCallback(
+    async (text: string, hidden: boolean) => {
+      if (!text || isGenerating) return;
+      setError(null);
+      setIsGenerating(true);
+
+      const assistantTurnId = nextId();
+      setTurns((prev) => [
+        ...prev,
+        { id: nextId(), role: 'user', content: text, hidden },
+        { id: assistantTurnId, role: 'assistant', blocks: [] },
+      ]);
+
+      abortRef.current = new AbortController();
+      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
+      const customPrompt = options.flowPrompt
+        ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+        : toolPrompt;
+      const systemPrompt = buildSystemPrompt({
+        authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+        customPrompt,
+      });
+
+      const provider = config.provider ?? 'anthropic';
+
+      try {
+        if (provider === 'anthropic') {
+          const history: ApiMessage[] = [
+            ...apiHistoryRef.current,
+            { role: 'user', content: text },
+          ];
+          await runAgentLoop(
+            config,
+            systemPrompt,
+            history,
+            assistantTurnId,
+            abortRef.current.signal,
+            setTurns,
+            setError,
+            nextId,
+          );
+          apiHistoryRef.current = history;
+        } else {
+          const history = [...openaiHistoryRef.current, { role: 'user' as const, content: text }];
+          await runOpenAIAgentLoop(
+            config,
+            systemPrompt,
+            history,
+            assistantTurnId,
+            abortRef.current.signal,
+            setTurns,
+            setError,
+            nextId,
+          );
+          openaiHistoryRef.current = history;
+        }
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+          setError(err instanceof Error ? err.message : String(err));
+        }
+      } finally {
+        setIsGenerating(false);
+        abortRef.current = null;
+        inputRef.current?.focus();
+      }
+    },
+    [config, isGenerating, nextId, options.flowPrompt],
+  );
+
   const send = useCallback(async () => {
     const text = input.trim();
-    if (!text || isGenerating) return;
-    setError(null);
-    setIsGenerating(true);
+    if (!text) return;
     setInput('');
+    await runTurn(text, false);
+  }, [input, runTurn]);
 
-    const assistantTurnId = nextId();
-    setTurns((prev) => [
-      ...prev,
-      { id: nextId(), role: 'user', content: text },
-      { id: assistantTurnId, role: 'assistant', blocks: [] },
-    ]);
-
-    abortRef.current = new AbortController();
-    const systemPrompt = buildSystemPrompt({
-      authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-      customPrompt: getAgentToolPromptVariant(config.systemPromptId).prompt,
-    });
-
-    const provider = config.provider ?? 'anthropic';
-
-    try {
-      if (provider === 'anthropic') {
-        const history: ApiMessage[] = [...apiHistoryRef.current, { role: 'user', content: text }];
-        await runAgentLoop(
-          config,
-          systemPrompt,
-          history,
-          assistantTurnId,
-          abortRef.current.signal,
-          setTurns,
-          setError,
-          nextId,
-        );
-        apiHistoryRef.current = history;
-      } else {
-        const history = [...openaiHistoryRef.current, { role: 'user' as const, content: text }];
-        await runOpenAIAgentLoop(
-          config,
-          systemPrompt,
-          history,
-          assistantTurnId,
-          abortRef.current.signal,
-          setTurns,
-          setError,
-          nextId,
-        );
-        openaiHistoryRef.current = history;
-      }
-    } catch (err) {
-      if (!(err instanceof DOMException && err.name === 'AbortError')) {
-        setError(err instanceof Error ? err.message : String(err));
-      }
-    } finally {
-      setIsGenerating(false);
-      abortRef.current = null;
-      inputRef.current?.focus();
-    }
-  }, [config, input, isGenerating, nextId]);
+  const sendHidden = useCallback(
+    async (text: string) => {
+      await runTurn(text, true);
+    },
+    [runTurn],
+  );
 
   const stop = useCallback(() => {
     abortRef.current?.abort();
@@ -654,6 +685,7 @@ export function useAgent() {
     config,
     updateConfig,
     send,
+    sendHidden,
     stop,
     clear,
     inputRef,

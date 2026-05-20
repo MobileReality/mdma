@@ -5421,3 +5421,144 @@ body {
 .docs-dont h4 {
   color: #b91c1c;
 }
+
+/* ===== Preview Layout (insurance claim demo) ===== */
+/* All rules below are scoped to .preview-layout to keep them isolated
+   from the other routes (Agent Chat, Author Chat, Validator, Docs). */
+
+.preview-layout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.preview-layout .preview-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid #e5e7eb;
+}
+
+.preview-layout .preview-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.preview-layout .preview-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.preview-layout .preview-pane-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.preview-layout .preview-pane-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.preview-layout .preview-pane-status--idle {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.preview-layout .preview-pane-status--validating,
+.preview-layout .preview-pane-status--fixing {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.preview-layout .preview-pane-status--ready {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.preview-layout .preview-pane-status--invalid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.preview-layout .preview-pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.preview-layout .preview-pane-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.preview-layout .preview-pane-empty-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-layout .preview-pane-empty-hint {
+  margin: 0;
+  max-width: 360px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* Compact tool_use chip — used by AgentMessage when compactToolUse is true.
+   Suppresses the inline MDMA preview in the chat so the right-side pane is
+   the single source of truth for the live render. */
+.preview-layout .agent-tool-call--compact {
+  padding: 6px 10px;
+}
+.preview-layout .agent-tool-call--compact .agent-tool-call-header {
+  margin-bottom: 0;
+}
+.preview-layout .agent-tool-call--compact .agent-tool-call-body {
+  display: none;
+}
+
+/* Stack vertically on narrow screens so the preview pane stays usable. */
+@media (max-width: 900px) {
+  .preview-layout {
+    flex-direction: column;
+  }
+  .preview-layout .preview-chat {
+    flex: 1 1 50%;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .preview-layout .preview-pane {
+    flex: 1 1 50%;
+  }
+}
