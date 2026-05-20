@@ -44,7 +44,7 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Agentic',
     items: [
       { path: '/chat', label: 'Agent Chat', icon: '⚡' },
-      { path: '/preview', label: 'Insurance Preview', icon: '🛡️' },
+      { path: '/preview', label: 'Preview', icon: '🛡️' },
     ],
   },
   {

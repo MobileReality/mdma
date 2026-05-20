@@ -5564,41 +5564,84 @@ body {
   font-size: 11px;
 }
 
-/* Backend log pane — collapsible "Backend log" beneath the rendered MDMA. */
-.preview-layout .preview-log {
-  margin-top: 24px;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  background: #fff;
+/* Backend log — floating toggle (bottom-right) + slide-out drawer.
+   Drawer overlays the right edge of the layout so the log is accessible
+   from any sub-view of the Preview page without sharing space with the
+   rendered MDMA preview. */
+.preview-layout .preview-log-toggle {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
   font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-.preview-layout .preview-log-summary {
+.preview-layout .preview-log-toggle:hover {
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+.preview-layout .preview-log-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  background: #6c5ce7;
+  color: #fff;
+}
+
+.preview-layout .preview-log-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 23, 42, 0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.preview-layout .preview-log-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  width: min(440px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+}
+
+.preview-layout .preview-log-drawer-header {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 14px;
-  cursor: pointer;
-  list-style: none;
-  user-select: none;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
 }
-.preview-layout .preview-log-summary::-webkit-details-marker {
-  display: none;
-}
-.preview-layout .preview-log-summary::before {
-  content: '▸';
-  display: inline-block;
-  font-size: 10px;
-  color: #6b7280;
-  transition: transform 0.15s ease;
-}
-.preview-layout .preview-log[open] .preview-log-summary::before {
-  transform: rotate(90deg);
-}
-.preview-layout .preview-log-title {
+.preview-layout .preview-log-drawer-title {
+  font-size: 14px;
   font-weight: 600;
   color: #111827;
 }
-.preview-layout .preview-log-count {
+.preview-layout .preview-log-drawer-count {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -5606,8 +5649,8 @@ body {
   height: 18px;
   padding: 0 6px;
   border-radius: 999px;
-  background: #f3f4f6;
-  color: #374151;
+  background: #eef2ff;
+  color: #3730a3;
   font-size: 11px;
   font-weight: 600;
 }
@@ -5625,16 +5668,33 @@ body {
 .preview-layout .preview-log-clear:hover {
   background: #f9fafb;
 }
+.preview-layout .preview-log-drawer-close {
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+}
+.preview-layout .preview-log-drawer-close:hover {
+  color: #111827;
+}
+.preview-layout .preview-log-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
 .preview-layout .preview-log-empty {
   margin: 0;
-  padding: 0 14px 14px;
   color: #6b7280;
   font-size: 12px;
   line-height: 1.5;
 }
 .preview-layout .preview-log-list {
   margin: 0;
-  padding: 0 14px 14px;
+  padding: 0;
   list-style: none;
   display: flex;
   flex-direction: column;

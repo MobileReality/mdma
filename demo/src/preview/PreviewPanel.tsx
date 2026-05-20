@@ -1,8 +1,6 @@
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import { customizations } from '../custom-components.js';
-import { BackendLogPane } from './BackendLogPane.js';
 import type { PreviewState } from './use-preview-validation.js';
-import { useSubmissionLog } from './use-submission-log.js';
 
 interface PreviewPanelProps {
   state: PreviewState;
@@ -27,7 +25,6 @@ const STATUS_CLASS: Record<PreviewState['status'], string> = {
 export function PreviewPanel({ state }: PreviewPanelProps) {
   const { status, ast, store, unresolvedIssues, wasFixed } = state;
   const showRender = ast !== null && store !== null;
-  const submissionLog = useSubmissionLog();
 
   return (
     <div className="preview-pane">
@@ -82,8 +79,6 @@ export function PreviewPanel({ state }: PreviewPanelProps) {
             )}
           </>
         )}
-
-        <BackendLogPane entries={submissionLog} />
       </div>
     </div>
   );

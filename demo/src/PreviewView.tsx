@@ -3,6 +3,7 @@ import { useAgent } from './agent/use-agent.js';
 import { AgentMessage } from './agent/AgentMessage.js';
 import { AgentSettings } from './agent/AgentSettings.js';
 import { ChatInput } from './chat/ChatInput.js';
+import { BackendLogDrawer } from './preview/BackendLogPane.js';
 import { PreviewPanel } from './preview/PreviewPanel.js';
 import { INSURANCE_FLOW_PROMPT } from './preview/insurance-flow-prompt.js';
 import { useInsuranceFlow } from './preview/use-insurance-flow.js';
@@ -88,6 +89,8 @@ export function PreviewView() {
       </div>
 
       <PreviewPanel state={previewState} />
+
+      <BackendLogDrawer />
     </div>
   );
 }

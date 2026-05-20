@@ -20,10 +20,10 @@ const SECTIONS = [
       },
       {
         path: '/preview',
-        label: 'Insurance Preview',
+        label: 'Preview',
         icon: '🛡️',
         description:
-          'Multi-step insurance claim flow demo — chat on the left, live MDMA preview with auto-validation and fixer on the right.',
+          'Multi-step flow demo (insurance claim) — chat on the left, live MDMA preview with auto-validation and fixer on the right.',
       },
     ],
   },
