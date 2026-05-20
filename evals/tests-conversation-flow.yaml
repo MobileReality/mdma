@@ -1,0 +1,297 @@
+# MDMA Conversation Flow Judge — Eval Test Cases
+#
+# Each test provides:
+#   - customPrompt — free-form flow definition (LLM judge's input)
+#   - conversation — chronological user/assistant turns; assistant
+#     content may contain ```mdma blocks
+#   - expectedJudgment — 'valid' or 'invalid'
+#   - steps — structured flow definition for the deterministic
+#     validateConversation() cross-check
+#   - (per-test, optional) expectedRules — when expectedJudgment is
+#     'invalid', the rule names the LLM judge MUST flag
+#
+# Two layers of validation per test:
+#   1. The LLM judge (MDMA_FIXER_CONVERSATION_JUDGE) reads customPrompt +
+#      conversation and outputs a JSON { valid, issues[] }.
+#   2. The assertion ALSO runs validateConversation(assistantMessages,
+#      { steps }) — deterministic code — and verifies it agrees with
+#      both expectedJudgment AND the LLM judgment.
+# Both must agree for the test to pass.
+
+# ---------------------------------------------------------------------------
+# 1. VALID — two-step registration flow, correct order
+# ---------------------------------------------------------------------------
+- description: VALID — registration → approval in two messages, correct order
+  vars:
+    customPrompt: |
+      User registration workflow. Two steps, one per assistant message.
+      Step 1: a form with id `registration-form` (type: form) collecting full name + email.
+      Step 2: an approval gate with id `approval-gate` (type: approval-gate) for manager review.
+    steps:
+      - { label: "Registration", type: "form", id: "registration-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "approval-gate" }
+    conversation:
+      - role: user
+        content: Create the user registration workflow.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: full-name
+              type: text
+              label: "Full Name"
+              required: true
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+      - role: user
+        content: Continue to the approval step.
+      - role: assistant
+        content: |
+          ```mdma
+          type: approval-gate
+          id: approval-gate
+          title: "Manager Approval"
+          requiredApprovers: 1
+          ```
+    expectedJudgment: valid
+
+# ---------------------------------------------------------------------------
+# 2. INVALID — regeneration (assistant re-emits step 1's form on step 2's turn)
+# ---------------------------------------------------------------------------
+- description: INVALID — assistant regenerated `registration-form` instead of advancing
+  vars:
+    customPrompt: |
+      Registration workflow. Step 1: `registration-form` (form). Step 2: `approval-gate` (approval-gate).
+    steps:
+      - { label: "Registration", type: "form", id: "registration-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "approval-gate" }
+    conversation:
+      - role: user
+        content: Create the registration workflow.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+      - role: user
+        content: Continue.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+    expectedJudgment: invalid
+  assert:
+    - type: javascript
+      value: file://assertions/judge-matches-expected.mjs
+      config:
+        expectedRules: [no-regeneration]
+
+# ---------------------------------------------------------------------------
+# 3. INVALID — multiple interactive components in a single message
+# ---------------------------------------------------------------------------
+- description: INVALID — assistant crammed form + approval-gate into one message
+  vars:
+    customPrompt: |
+      Registration workflow. Step 1: `registration-form` (form). Step 2: `approval-gate` (approval-gate). One step per message.
+    steps:
+      - { label: "Registration", type: "form", id: "registration-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "approval-gate" }
+    conversation:
+      - role: user
+        content: Create the registration workflow.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+
+          ```mdma
+          type: approval-gate
+          id: approval-gate
+          title: "Manager Approval"
+          requiredApprovers: 1
+          ```
+    expectedJudgment: invalid
+  assert:
+    - type: javascript
+      value: file://assertions/judge-matches-expected.mjs
+      config:
+        expectedRules: [one-interactive-per-message]
+
+# ---------------------------------------------------------------------------
+# 4. INVALID — wrong order (approval before form)
+# ---------------------------------------------------------------------------
+- description: INVALID — assistant emitted approval-gate before the registration form
+  vars:
+    customPrompt: |
+      Registration workflow. Step 1: `registration-form` (form). Step 2: `approval-gate` (approval-gate).
+    steps:
+      - { label: "Registration", type: "form", id: "registration-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "approval-gate" }
+    conversation:
+      - role: user
+        content: Begin the registration workflow.
+      - role: assistant
+        content: |
+          ```mdma
+          type: approval-gate
+          id: approval-gate
+          title: "Manager Approval"
+          requiredApprovers: 1
+          ```
+      - role: user
+        content: Continue.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+    expectedJudgment: invalid
+  assert:
+    - type: javascript
+      value: file://assertions/judge-matches-expected.mjs
+      config:
+        expectedRules: [step-order]
+
+# ---------------------------------------------------------------------------
+# 5. INVALID — skipped a step (3-step flow, middle step missing)
+# ---------------------------------------------------------------------------
+- description: INVALID — assistant skipped the approval step (form then webhook)
+  vars:
+    customPrompt: |
+      Registration workflow. Step 1: `registration-form` (form). Step 2: `approval-gate` (approval-gate). Step 3: `notify-webhook` (webhook).
+    steps:
+      - { label: "Registration", type: "form", id: "registration-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "approval-gate" }
+      - { label: "Notification", type: "webhook", id: "notify-webhook" }
+    conversation:
+      - role: user
+        content: Create the registration workflow.
+      - role: assistant
+        content: |
+          ```mdma
+          type: form
+          id: registration-form
+          fields:
+            - name: email
+              type: email
+              label: "Email"
+              required: true
+              sensitive: true
+          onSubmit: registration-submitted
+          ```
+      - role: user
+        content: Next step.
+      - role: assistant
+        content: |
+          ```mdma
+          type: webhook
+          id: notify-webhook
+          url: https://api.example.com/notify
+          method: POST
+          trigger: registration-complete
+          ```
+    expectedJudgment: invalid
+  assert:
+    - type: javascript
+      value: file://assertions/judge-matches-expected.mjs
+      config:
+        expectedRules: [step-order]
+
+# ---------------------------------------------------------------------------
+# 6. VALID — three-step flow with non-interactive callout alongside form
+# ---------------------------------------------------------------------------
+- description: VALID — three-step expense flow; step 1 has a warning callout + form (non-interactive allowed)
+  vars:
+    customPrompt: |
+      Expense approval workflow.
+      Step 1: `expense-form` (form) — may be preceded by a warning callout in the same message.
+      Step 2: `expense-approval` (approval-gate).
+      Step 3: `submit-expense` (button).
+    steps:
+      - { label: "Expense Form", type: "form", id: "expense-form" }
+      - { label: "Manager Approval", type: "approval-gate", id: "expense-approval" }
+      - { label: "Submit", type: "button", id: "submit-expense" }
+    conversation:
+      - role: user
+        content: I need to submit an expense.
+      - role: assistant
+        content: |
+          ```mdma
+          type: callout
+          id: expense-warning
+          variant: warning
+          content: "Expenses over $100 require manager approval."
+          ```
+
+          ```mdma
+          type: form
+          id: expense-form
+          fields:
+            - name: amount
+              type: number
+              label: "Amount"
+              required: true
+          onSubmit: approve-expense
+          ```
+      - role: user
+        content: Continue.
+      - role: assistant
+        content: |
+          ```mdma
+          type: approval-gate
+          id: expense-approval
+          title: "Manager Approval"
+          requiredApprovers: 1
+          ```
+      - role: user
+        content: Continue.
+      - role: assistant
+        content: |
+          ```mdma
+          type: button
+          id: submit-expense
+          text: "Submit"
+          variant: primary
+          ```
+    expectedJudgment: valid

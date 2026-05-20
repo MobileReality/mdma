@@ -22,6 +22,7 @@ export {
   type FixerIssue,
   type FixerMessageOptions,
 } from './prompts/mdma-fixer/_shared.js';
+export { MDMA_CONVERSATION_JUDGE } from './prompts/mdma-conversation-judge.js';
 export { buildSystemPrompt, type BuildSystemPromptOptions } from './build-system-prompt.js';
 export {
   AGENT_TOOL_PROMPT_VARIANTS,

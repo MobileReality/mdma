@@ -1,0 +1,34 @@
+/**
+ * MDMA Fixer Prompt — OpenAI GPT-5.2 variant.
+ *
+ * Adds PRESERVE_INPUT_STRUCTURE_BLOCK on top of the base — gpt-5.2
+ * prepends a leading `---\\n\\n` horizontal rule before the first ```mdma
+ * fence (same pattern originally seen on gpt-5.5).
+ */
+
+import {
+  MDMA_FIXER_APPROVAL,
+  MDMA_FIXER_BASE,
+  MDMA_FIXER_BINDINGS,
+  MDMA_FIXER_EXAMPLES,
+  MDMA_FIXER_FLOW,
+  MDMA_FIXER_FORMS,
+  MDMA_FIXER_PII,
+  MDMA_FIXER_STRUCTURE,
+  MDMA_FIXER_TABLES_CHARTS,
+} from '../_shared.js';
+import { CRITICAL_OUTPUT_LINE, PRESERVE_INPUT_STRUCTURE_BLOCK } from './_shared.js';
+
+export const MDMA_FIXER_PROMPT_GPT_5_2 = `${MDMA_FIXER_BASE}
+
+${CRITICAL_OUTPUT_LINE}
+${MDMA_FIXER_STRUCTURE}
+${MDMA_FIXER_BINDINGS}
+${MDMA_FIXER_PII}
+${MDMA_FIXER_FORMS}
+${MDMA_FIXER_TABLES_CHARTS}
+${MDMA_FIXER_FLOW}
+${MDMA_FIXER_APPROVAL}
+${MDMA_FIXER_EXAMPLES}
+
+${PRESERVE_INPUT_STRUCTURE_BLOCK}`;
