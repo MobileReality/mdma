@@ -24,11 +24,15 @@ export function PreviewView() {
     inputRef,
   } = useAgent({ flowPrompt: INSURANCE_FLOW_PROMPT });
 
-  useInsuranceFlow({ turns, sendHidden, isGenerating });
-
   const previewState = usePreviewValidation({
     turns,
     agentConfig: config,
+  });
+
+  useInsuranceFlow({
+    currentStore: previewState.store,
+    sendHidden,
+    isGenerating,
   });
 
   const chatEndRef = useRef<HTMLDivElement>(null);

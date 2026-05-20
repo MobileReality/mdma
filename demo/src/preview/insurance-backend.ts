@@ -22,7 +22,18 @@ export interface SubmissionLogEntry {
   summary: string;
 }
 
-const submissionLog: SubmissionLogEntry[] = [];
+let submissionLog: SubmissionLogEntry[] = [];
+const listeners = new Set<() => void>();
+function notify() {
+  for (const fn of listeners) fn();
+}
+
+export function subscribeSubmissionLog(listener: () => void): () => void {
+  listeners.add(listener);
+  return () => {
+    listeners.delete(listener);
+  };
+}
 
 export interface PersonalInfoPayload {
   'full-name': string;
@@ -59,12 +70,16 @@ export const insuranceBackend = {
   async collectPersonalInfo(payload: PersonalInfoPayload): Promise<PersonalInfoResult> {
     await delay(700);
     const claimId = makeClaimId();
-    submissionLog.push({
-      step: 'personal-info',
-      at: new Date(),
-      claimId,
-      summary: `${payload['full-name']} (DOB ${payload.birthday})`,
-    });
+    submissionLog = [
+      ...submissionLog,
+      {
+        step: 'personal-info',
+        at: new Date(),
+        claimId,
+        summary: `${payload['full-name']} (DOB ${payload.birthday})`,
+      },
+    ];
+    notify();
     return { claimId, accepted: true };
   },
 
@@ -72,23 +87,31 @@ export const insuranceBackend = {
     await delay(800);
     const desc = payload['claim-description'];
     const preview = desc.length > 60 ? `${desc.slice(0, 60)}…` : desc;
-    submissionLog.push({
-      step: 'claim',
-      at: new Date(),
-      claimId,
-      summary: `"${preview}"`,
-    });
+    submissionLog = [
+      ...submissionLog,
+      {
+        step: 'claim',
+        at: new Date(),
+        claimId,
+        summary: `"${preview}"`,
+      },
+    ];
+    notify();
     return { accepted: true };
   },
 
   async collectBank(claimId: string, payload: BankPayload): Promise<BankResult> {
     await delay(700);
-    submissionLog.push({
-      step: 'bank',
-      at: new Date(),
-      claimId,
-      summary: `IBAN ${maskIban(payload.iban)}`,
-    });
+    submissionLog = [
+      ...submissionLog,
+      {
+        step: 'bank',
+        at: new Date(),
+        claimId,
+        summary: `IBAN ${maskIban(payload.iban)}`,
+      },
+    ];
+    notify();
     return { accepted: true, etaDays: 5 };
   },
 };
@@ -98,5 +121,6 @@ export function getSubmissionLog(): readonly SubmissionLogEntry[] {
 }
 
 export function clearSubmissionLog(): void {
-  submissionLog.length = 0;
+  submissionLog = [];
+  notify();
 }

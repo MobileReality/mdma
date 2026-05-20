@@ -5564,6 +5564,137 @@ body {
   font-size: 11px;
 }
 
+/* Backend log pane — collapsible "Backend log" beneath the rendered MDMA. */
+.preview-layout .preview-log {
+  margin-top: 24px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+}
+.preview-layout .preview-log-summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+.preview-layout .preview-log-summary::-webkit-details-marker {
+  display: none;
+}
+.preview-layout .preview-log-summary::before {
+  content: '▸';
+  display: inline-block;
+  font-size: 10px;
+  color: #6b7280;
+  transition: transform 0.15s ease;
+}
+.preview-layout .preview-log[open] .preview-log-summary::before {
+  transform: rotate(90deg);
+}
+.preview-layout .preview-log-title {
+  font-weight: 600;
+  color: #111827;
+}
+.preview-layout .preview-log-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 600;
+}
+.preview-layout .preview-log-clear {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.preview-layout .preview-log-clear:hover {
+  background: #f9fafb;
+}
+.preview-layout .preview-log-empty {
+  margin: 0;
+  padding: 0 14px 14px;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.preview-layout .preview-log-list {
+  margin: 0;
+  padding: 0 14px 14px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.preview-layout .preview-log-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+.preview-layout .preview-log-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.preview-layout .preview-log-item-method {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #1f2937;
+}
+.preview-layout .preview-log-item-status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.preview-layout .preview-log-item-time {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 11px;
+}
+.preview-layout .preview-log-item-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.preview-layout .preview-log-item-claim {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.preview-layout .preview-log-item-summary {
+  color: #374151;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* Compact tool_use chip — used by AgentMessage when compactToolUse is true.
    Suppresses the inline MDMA preview in the chat so the right-side pane is
    the single source of truth for the live render. */
