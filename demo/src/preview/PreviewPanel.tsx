@@ -87,11 +87,7 @@ export function PreviewPanel({ state }: PreviewPanelProps) {
             )}
             {showRender && (
               <div className={submitted ? 'preview-pane-locked' : undefined}>
-                <MdmaDocument
-                  ast={ast}
-                  store={store}
-                  customizations={previewCustomizations}
-                />
+                <MdmaDocument ast={ast} store={store} customizations={previewCustomizations} />
               </div>
             )}
           </>

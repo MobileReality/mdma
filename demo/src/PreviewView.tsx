@@ -85,8 +85,8 @@ export function PreviewView() {
               <p className="chat-empty-title">Insurance Claim Demo</p>
               <p className="chat-empty-hint">
                 Ask the agent to start a new insurance claim. It will walk you through name &amp;
-                birthday, claim details, bank account, and a final confirmation — each step
-                rendered live in the preview pane on the right.
+                birthday, claim details, bank account, and a final confirmation — each step rendered
+                live in the preview pane on the right.
               </p>
             </div>
           )}

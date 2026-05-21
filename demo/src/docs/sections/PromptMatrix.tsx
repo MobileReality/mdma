@@ -47,8 +47,8 @@ export function PromptMatrix() {
         [i] Noticeably slow response times — single-turn responses commonly take tens of seconds.
       </p>
       <p className="docs-note">
-        † <strong>gpt-5.4 intermittent duplication bug</strong> — passes one-shot evals reliably
-        but shows non-deterministic output duplication in multi-turn, custom-prompt, and flow evals
+        † <strong>gpt-5.4 intermittent duplication bug</strong> — passes one-shot evals reliably but
+        shows non-deterministic output duplication in multi-turn, custom-prompt, and flow evals
         (~7–15% of runs). The model generates a correct response then immediately re-emits it
         verbatim, causing <code>[duplicate-ids]</code> validation errors. This is a known
         model-level issue unrelated to the prompt variant.{' '}
@@ -66,11 +66,11 @@ export function PromptMatrix() {
         runs, the model emits a chain-of-thought as visible Markdown prose ("
         <code>**Investigating Production Errors**</code>" repeated 3–5 times) instead of opening a{' '}
         <code>```mdma</code> block, producing either{' '}
-        <code>[yaml-correctness: outside fenced block]</code> or{' '}
-        <code>[duplicate-ids]</code> errors. Per Google's official Gemini 3 prompting guide, this
-        is a model-level behavior driven by temperature/sampling choices — prompt-level fixes shift
-        which test loops rather than eliminating the loops. Prefer <code>gemini-2.5-pro</code> for
-        production multi-step flows requiring deterministic output.
+        <code>[yaml-correctness: outside fenced block]</code> or <code>[duplicate-ids]</code>{' '}
+        errors. Per Google's official Gemini 3 prompting guide, this is a model-level behavior
+        driven by temperature/sampling choices — prompt-level fixes shift which test loops rather
+        than eliminating the loops. Prefer <code>gemini-2.5-pro</code> for production multi-step
+        flows requiring deterministic output.
       </p>
 
       <h2>MDMA_AGENT Prompt Matrix</h2>

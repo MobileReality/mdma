@@ -30,9 +30,7 @@ export default async function ({ vars }) {
   if (variantKey !== 'flow') exclude.push('flow-ordering');
 
   const result = validate(vars.brokenDocument, { exclude });
-  const allIssues = result.issues.filter(
-    (i) => i.severity === 'error' || i.severity === 'warning',
-  );
+  const allIssues = result.issues.filter((i) => i.severity === 'error' || i.severity === 'warning');
 
   const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt();
   const fixerPrompt = fixerSource.startsWith('default')

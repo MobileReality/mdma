@@ -48,7 +48,7 @@ const GENERATE_MDMA_TOOL_BRIEF = {
   description:
     'Request the MDMA Author (a specialised sub-agent) to generate an interactive MDMA component ' +
     'for the user. Provide a clear brief describing what to generate — component type, id, fields, ' +
-    "labels, action labels (onSubmit etc.), and any constraints. Do NOT write MDMA Markdown yourself; " +
+    'labels, action labels (onSubmit etc.), and any constraints. Do NOT write MDMA Markdown yourself; ' +
     'the author will produce the final document and render it on the user’s screen.',
   input_schema: {
     type: 'object' as const,
@@ -267,13 +267,7 @@ async function runAgentLoop(
     const blockMeta = new Map<number, BlockMeta>();
     let stopReason = 'end_turn';
 
-    for await (const ev of streamAgentMessages(
-      config,
-      systemPrompt,
-      history,
-      [tool],
-      signal,
-    )) {
+    for await (const ev of streamAgentMessages(config, systemPrompt, history, [tool], signal)) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
         continueLoop = false;
@@ -775,10 +769,7 @@ export function useAgent(options: UseAgentOptions = {}) {
 
       try {
         if (provider === 'anthropic') {
-          const history: ApiMessage[] = [
-            ...apiHistoryRef.current,
-            { role: 'user', content: text },
-          ];
+          const history: ApiMessage[] = [...apiHistoryRef.current, { role: 'user', content: text }];
           await runAgentLoop(
             config,
             systemPrompt,

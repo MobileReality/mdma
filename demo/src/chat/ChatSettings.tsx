@@ -183,7 +183,8 @@ export const ChatSettings = memo(function ChatSettings({
             </label>
           </div>
           <p className="agent-settings-note agent-settings-note--storage">
-            🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to any server other than the AI provider you select.
+            🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to
+            any server other than the AI provider you select.
           </p>
         </div>
       )}

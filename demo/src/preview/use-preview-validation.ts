@@ -173,9 +173,7 @@ function buildState(
   return { status, ast, store, unresolvedIssues, wasFixed, blockId, submitted };
 }
 
-async function tryParse(
-  markdown: string,
-): Promise<{ ast: MdmaRoot; store: DocumentStore } | null> {
+async function tryParse(markdown: string): Promise<{ ast: MdmaRoot; store: DocumentStore } | null> {
   try {
     return await parseMarkdown(markdown);
   } catch {

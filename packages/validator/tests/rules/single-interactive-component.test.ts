@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { validate } from '../../src/index.js';
 
-const doc = (...blocks: string[]) =>
-  blocks.map((b) => `\`\`\`mdma\n${b}\`\`\``).join('\n\n');
+const doc = (...blocks: string[]) => blocks.map((b) => `\`\`\`mdma\n${b}\`\`\``).join('\n\n');
 
 describe('single-interactive-component rule', () => {
   it('passes for a single form', () => {
     const result = validate(
-      doc('type: form\nid: f\nfields:\n  - name: x\n    type: text\n    label: X\nonSubmit: done\n'),
+      doc(
+        'type: form\nid: f\nfields:\n  - name: x\n    type: text\n    label: X\nonSubmit: done\n',
+      ),
     );
     const issues = result.issues.filter((i) => i.ruleId === 'single-interactive-component');
     expect(issues).toHaveLength(0);

@@ -5,14 +5,18 @@ export function IntegrationLangchain() {
     <>
       <h2>LangChain.js</h2>
       <p>
-        MDMA is framework-agnostic — it doesn't care how you call the LLM. LangChain.js works out
-        of the box: use <code>mdma-prompt-pack</code> for the system prompt and{' '}
-        <code>remarkMdma</code> from <code>mdma-parser</code> with a standard{' '}
-        <code>unified</code> pipeline to process the output.
+        MDMA is framework-agnostic — it doesn't care how you call the LLM. LangChain.js works out of
+        the box: use <code>mdma-prompt-pack</code> for the system prompt and <code>remarkMdma</code>{' '}
+        from <code>mdma-parser</code> with a standard <code>unified</code> pipeline to process the
+        output.
       </p>
 
       <h3>Install</h3>
-      <Code lang="bash">{'npm install @langchain/anthropic @langchain/core unified remark-parse @mobile-reality/mdma-prompt-pack @mobile-reality/mdma-parser'}</Code>
+      <Code lang="bash">
+        {
+          'npm install @langchain/anthropic @langchain/core unified remark-parse @mobile-reality/mdma-prompt-pack @mobile-reality/mdma-parser'
+        }
+      </Code>
 
       <h3>Simple completion (MDMA_AUTHOR)</h3>
       <Code lang="ts">{`import { ChatAnthropic } from '@langchain/anthropic';
@@ -97,9 +101,9 @@ const result = await executor.invoke({ input: 'I need a project status report fo
 
       <h3>Python LangChain</h3>
       <p>
-        The prompt-pack is a TypeScript package. For Python, copy the prompt string from the
-        package source or expose it via a small JS service, then use it as the system message in
-        any Python LangChain chain.
+        The prompt-pack is a TypeScript package. For Python, copy the prompt string from the package
+        source or expose it via a small JS service, then use it as the system message in any Python
+        LangChain chain.
       </p>
       <Code lang="python">{`from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import SystemMessage, HumanMessage
@@ -116,7 +120,6 @@ response = model.invoke([
 
 # response.content is an MDMA markdown string
 # pass it to your frontend or a JS service running mdma-parser`}</Code>
-
     </>
   );
 }

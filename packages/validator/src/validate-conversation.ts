@@ -132,11 +132,7 @@ export function validateConversation(
   const expectedTypes = new Set(steps.map((s) => s.type));
 
   for (let msgIdx = 0; msgIdx < assistantMessages.length; msgIdx++) {
-    const components = extractStepComponents(
-      assistantMessages[msgIdx],
-      expectedIds,
-      expectedTypes,
-    );
+    const components = extractStepComponents(assistantMessages[msgIdx], expectedIds, expectedTypes);
 
     if (components.length === 0) continue; // pure-text reply is allowed
 

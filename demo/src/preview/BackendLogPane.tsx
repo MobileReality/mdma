@@ -45,11 +45,7 @@ export function BackendLogDrawer() {
               <span className="preview-log-drawer-title">Backend log</span>
               <span className="preview-log-drawer-count">{entries.length}</span>
               {entries.length > 0 && (
-                <button
-                  type="button"
-                  className="preview-log-clear"
-                  onClick={clearSubmissionLog}
-                >
+                <button type="button" className="preview-log-clear" onClick={clearSubmissionLog}>
                   Clear
                 </button>
               )}

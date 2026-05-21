@@ -1,7 +1,6 @@
 const provider = process.env.EVAL_PROVIDER || 'openai:gpt-4.1-mini';
 const leaksReasoningTokens =
-  (provider.includes('gemini') && provider.includes('pro')) ||
-  provider.includes('grok-4.3');
+  (provider.includes('gemini') && provider.includes('pro')) || provider.includes('grok-4.3');
 
 const providerConfig = {
   max_tokens: 8192,

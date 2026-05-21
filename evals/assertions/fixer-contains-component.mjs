@@ -121,14 +121,18 @@ function compareFields(expected, actual, prefix) {
           if (typeof expectedVal[i] === 'object' && expectedVal[i] !== null) {
             failures.push(...compareFields(expectedVal[i], actualVal[i] ?? {}, `${path}[${i}]`));
           } else if (expectedVal[i] !== actualVal[i]) {
-            failures.push(`"${path}[${i}]": expected ${JSON.stringify(expectedVal[i])}, got ${JSON.stringify(actualVal[i])}`);
+            failures.push(
+              `"${path}[${i}]": expected ${JSON.stringify(expectedVal[i])}, got ${JSON.stringify(actualVal[i])}`,
+            );
           }
         }
       }
     } else if (typeof expectedVal === 'object') {
       failures.push(...compareFields(expectedVal, actualVal ?? {}, path));
     } else if (actualVal !== expectedVal) {
-      failures.push(`"${path}": expected ${JSON.stringify(expectedVal)}, got ${JSON.stringify(actualVal)}`);
+      failures.push(
+        `"${path}": expected ${JSON.stringify(expectedVal)}, got ${JSON.stringify(actualVal)}`,
+      );
     }
   }
   return failures;
