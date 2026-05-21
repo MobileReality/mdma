@@ -164,9 +164,46 @@ function TextBlockView({ block }: { block: TextBlock }) {
   return <MarkdownText text={block.content} />;
 }
 
-function ToolUseBlockView({ block, compact }: { block: ToolUseBlock; compact?: boolean }) {
+function ToolUseBlockView({
+  block,
+  compact,
+  isActive,
+  onSelect,
+}: {
+  block: ToolUseBlock;
+  compact?: boolean;
+  isActive?: boolean;
+  onSelect?: () => void;
+}) {
+  const clickable = compact && !block.isStreaming && Boolean(onSelect);
+  const className = [
+    'agent-tool-call',
+    compact ? 'agent-tool-call--compact' : '',
+    clickable ? 'agent-tool-call--clickable' : '',
+    isActive ? 'agent-tool-call--active' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const handleClick = clickable ? onSelect : undefined;
+
   return (
-    <div className={`agent-tool-call${compact ? ' agent-tool-call--compact' : ''}`}>
+    <div
+      className={className}
+      onClick={handleClick}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect?.();
+              }
+            }
+          : undefined
+      }
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+    >
       <div className="agent-tool-call-header">
         <svg
           className="agent-tool-icon"
@@ -183,7 +220,9 @@ function ToolUseBlockView({ block, compact }: { block: ToolUseBlock; compact?: b
         <span className="agent-tool-name">{block.name}</span>
         {block.isStreaming && <span className="agent-tool-streaming">generating…</span>}
         {compact && !block.isStreaming && (
-          <span className="agent-tool-streaming">rendered in preview →</span>
+          <span className="agent-tool-streaming">
+            {isActive ? 'showing in preview' : 'show in preview →'}
+          </span>
         )}
       </div>
 
@@ -214,9 +253,23 @@ interface AgentMessageProps {
    * the right-side pane and would be duplicated in the chat otherwise.
    */
   compactToolUse?: boolean;
+  /**
+   * Block id currently shown in the Preview pane. Highlighted in the chat.
+   */
+  activeToolUseId?: string | null;
+  /**
+   * When set, the compact tool_use chip becomes clickable and calls this
+   * with the block's id when the user wants to inspect that step.
+   */
+  onSelectToolUse?: (blockId: string) => void;
 }
 
-export const AgentMessage = memo(function AgentMessage({ turn, compactToolUse }: AgentMessageProps) {
+export const AgentMessage = memo(function AgentMessage({
+  turn,
+  compactToolUse,
+  activeToolUseId,
+  onSelectToolUse,
+}: AgentMessageProps) {
   if (turn.role === 'user') {
     if (turn.hidden) return null;
     return (
@@ -247,7 +300,15 @@ export const AgentMessage = memo(function AgentMessage({ turn, compactToolUse }:
               return <ThinkingBlockView key={block.id} block={block} />;
             if (block.type === 'text') return <TextBlockView key={block.id} block={block} />;
             if (block.type === 'tool_use')
-              return <ToolUseBlockView key={block.id} block={block} compact={compactToolUse} />;
+              return (
+                <ToolUseBlockView
+                  key={block.id}
+                  block={block}
+                  compact={compactToolUse}
+                  isActive={activeToolUseId === block.id}
+                  onSelect={onSelectToolUse ? () => onSelectToolUse(block.id) : undefined}
+                />
+              );
           })
         )}
       </div>

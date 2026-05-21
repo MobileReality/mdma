@@ -1,5 +1,5 @@
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import { customizations } from '../custom-components.js';
+import { previewCustomizations } from './preview-customizations.js';
 import type { PreviewState } from './use-preview-validation.js';
 
 interface PreviewPanelProps {
@@ -23,13 +23,16 @@ const STATUS_CLASS: Record<PreviewState['status'], string> = {
 };
 
 export function PreviewPanel({ state }: PreviewPanelProps) {
-  const { status, ast, store, unresolvedIssues, wasFixed } = state;
+  const { status, ast, store, unresolvedIssues, wasFixed, submitted } = state;
   const showRender = ast !== null && store !== null;
 
   return (
     <div className="preview-pane">
       <div className="preview-pane-header">
         <span className="preview-pane-title">Live MDMA Preview</span>
+        {submitted && (
+          <span className="preview-pane-status preview-pane-status--submitted">submitted</span>
+        )}
         <span className={`preview-pane-status ${STATUS_CLASS[status]}`}>
           {STATUS_LABELS[status]}
         </span>
@@ -74,8 +77,20 @@ export function PreviewPanel({ state }: PreviewPanelProps) {
                 </ul>
               </div>
             )}
+            {submitted && (
+              <div className="preview-pane-note preview-pane-note--submitted">
+                This step has already been submitted. Inputs are read-only — go back to the latest
+                step from the chat to continue.
+              </div>
+            )}
             {showRender && (
-              <MdmaDocument ast={ast} store={store} customizations={customizations} />
+              <div className={submitted ? 'preview-pane-locked' : undefined}>
+                <MdmaDocument
+                  ast={ast}
+                  store={store}
+                  customizations={previewCustomizations}
+                />
+              </div>
             )}
           </>
         )}

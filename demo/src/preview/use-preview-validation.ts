@@ -24,10 +24,22 @@ export interface PreviewState {
   store: DocumentStore | null;
   unresolvedIssues: ValidationIssue[];
   wasFixed: boolean;
+  /** Id of the block currently being rendered (the agent's tool_use block id). */
+  blockId: string | null;
+  /**
+   * True when the rendered block is from an earlier step than the latest
+   * one — i.e. it's already been submitted in the flow and re-interacting
+   * with it shouldn't happen. PreviewPanel uses this to disable inputs.
+   */
+  submitted: boolean;
 }
 
 interface UsePreviewValidationOptions {
   turns: AgentDisplayTurn[];
+  /**
+   * When set, show this specific tool_use block. When null, show the latest.
+   */
+  selectedBlockId: string | null;
   /**
    * Same config the agent uses. The fixer picks its credentials + model
    * from this — anthropic provider → haiku via x-api-key, openai → gpt-4.1-mini,
@@ -42,6 +54,8 @@ const INITIAL_STATE: PreviewState = {
   store: null,
   unresolvedIssues: [],
   wasFixed: false,
+  blockId: null,
+  submitted: false,
 };
 
 type FixerResolution =
@@ -128,17 +142,29 @@ async function anthropicFix(
   return text;
 }
 
-function findLatestToolUseBlock(turns: AgentDisplayTurn[]): ToolUseBlock | null {
-  for (let i = turns.length - 1; i >= 0; i--) {
-    const turn = turns[i];
+function collectToolUseBlocks(turns: AgentDisplayTurn[]): ToolUseBlock[] {
+  const blocks: ToolUseBlock[] = [];
+  for (const turn of turns) {
     if (turn.role !== 'assistant') continue;
-    const blocks = (turn as AssistantTurn).blocks;
-    for (let j = blocks.length - 1; j >= 0; j--) {
-      const block = blocks[j];
-      if (block.type === 'tool_use') return block;
+    for (const block of (turn as AssistantTurn).blocks) {
+      if (block.type === 'tool_use') blocks.push(block);
     }
   }
-  return null;
+  return blocks;
+}
+
+function resolveBlock(
+  turns: AgentDisplayTurn[],
+  selectedBlockId: string | null,
+): { block: ToolUseBlock | null; submitted: boolean } {
+  const all = collectToolUseBlocks(turns);
+  if (all.length === 0) return { block: null, submitted: false };
+  if (!selectedBlockId) {
+    return { block: all[all.length - 1], submitted: false };
+  }
+  const idx = all.findIndex((b) => b.id === selectedBlockId);
+  if (idx === -1) return { block: all[all.length - 1], submitted: false };
+  return { block: all[idx], submitted: idx < all.length - 1 };
 }
 
 /**
@@ -149,14 +175,15 @@ function findLatestToolUseBlock(turns: AgentDisplayTurn[]): ToolUseBlock | null 
  */
 export function usePreviewValidation({
   turns,
+  selectedBlockId,
   agentConfig,
 }: UsePreviewValidationOptions): PreviewState {
   const [state, setState] = useState<PreviewState>(INITIAL_STATE);
-  const handledRef = useRef(new Set<string>());
+  const handledRef = useRef(new Map<string, PreviewState>());
   const inFlightRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    const block = findLatestToolUseBlock(turns);
+    const { block, submitted } = resolveBlock(turns, selectedBlockId);
     if (!block) {
       setState(INITIAL_STATE);
       return;
@@ -169,22 +196,42 @@ export function usePreviewValidation({
         store: null,
         unresolvedIssues: [],
         wasFixed: false,
+        blockId: block.id,
+        submitted,
       });
       return;
     }
 
+    // De-dupe on (blockId, doc length) so toggling the selection between
+    // already-processed blocks re-uses the cached PreviewState instead of
+    // re-running validation + fixer.
     const handleKey = `${block.id}:${block.document.length}`;
-    if (handledRef.current.has(handleKey)) return;
-    handledRef.current.add(handleKey);
+    const cached = handledRef.current.get(handleKey);
+    if (cached) {
+      setState({ ...cached, submitted });
+      return;
+    }
 
     inFlightRef.current?.abort();
     inFlightRef.current = null;
 
     const fixer = resolveFixer(agentConfig);
-    void processBlock(block, fixer, setState, (ctrl) => {
-      inFlightRef.current = ctrl;
-    });
-  }, [turns, agentConfig]);
+    void processBlock(
+      block,
+      fixer,
+      (next) => {
+        const withFlags = { ...next, blockId: block.id, submitted };
+        // Snapshot terminal states so revisits don't refire the LLM.
+        if (next.status === 'ready' || next.status === 'invalid') {
+          handledRef.current.set(handleKey, withFlags);
+        }
+        setState(withFlags);
+      },
+      (ctrl) => {
+        inFlightRef.current = ctrl;
+      },
+    );
+  }, [turns, selectedBlockId, agentConfig]);
 
   const prevTurnCount = useRef(turns.length);
   useEffect(() => {
@@ -212,6 +259,8 @@ async function processBlock(
     store: null,
     unresolvedIssues: [],
     wasFixed: false,
+    blockId: block.id,
+    submitted: false,
   });
 
   const initial: ValidationResult = validate(block.document, {
@@ -229,6 +278,8 @@ async function processBlock(
       store,
       unresolvedIssues: [],
       wasFixed: initial.fixCount > 0,
+      blockId: block.id,
+      submitted: false,
     });
     return;
   }
@@ -242,6 +293,8 @@ async function processBlock(
         store,
         unresolvedIssues: unfixed,
         wasFixed: false,
+        blockId: block.id,
+        submitted: false,
       });
     } catch {
       setState({
@@ -250,6 +303,8 @@ async function processBlock(
         store: null,
         unresolvedIssues: unfixed,
         wasFixed: false,
+        blockId: block.id,
+        submitted: false,
       });
     }
     return;
@@ -261,6 +316,8 @@ async function processBlock(
     store: null,
     unresolvedIssues: unfixed,
     wasFixed: false,
+    blockId: block.id,
+    submitted: false,
   });
 
   const ctrl = new AbortController();
@@ -300,6 +357,8 @@ async function processBlock(
       store,
       unresolvedIssues: stillUnfixed,
       wasFixed: true,
+      blockId: block.id,
+      submitted: false,
     });
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') return;
@@ -312,6 +371,8 @@ async function processBlock(
         store,
         unresolvedIssues: unfixed,
         wasFixed: false,
+        blockId: block.id,
+        submitted: false,
       });
     } catch {
       setState({
@@ -320,6 +381,8 @@ async function processBlock(
         store: null,
         unresolvedIssues: unfixed,
         wasFixed: false,
+        blockId: block.id,
+        submitted: false,
       });
     }
   }
