@@ -124,6 +124,50 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 \[i] Noticeably slow response times — single-turn responses commonly take tens of seconds and full eval runs measure in minutes.
 
 
+## MDMA_FIXER prompt matrix
+
+Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant on the single-block fixer eval (15 tests covering structural fixes, bindings, PII, forms, tables/charts, approvals). The fixer is what powers automatic repair of LLM output that fails `validate()` — every supported model lands at ✅ via model-tailored inline guards (no-leading-separator, preserve-input-structure, table-key-direction, replace-all-placeholders, fix-all-listed-errors, etc.).
+
+✅ 100% on the single-block fixer eval (15/15).
+
+
+| Variant | single-block fixer | notes |
+| :--- | :---: | :--- |
+| **OpenAI** | | |
+| `gpt-5.5` | ✅ | |
+| `gpt-5.4` | ✅ | |
+| `gpt-5.4-mini` | ✅ | |
+| `gpt-5.4-nano` | ✅ | |
+| `gpt-5.2` | ✅ | |
+| `gpt-5.1` | ✅ | |
+| `gpt-5` | ✅ | |
+| `gpt-5-mini` | ✅ \* | |
+| `gpt-5-nano` | ✅ \* | |
+| `gpt-4.1` | ✅ | |
+| `gpt-4.1-mini` | ✅ | |
+| `gpt-4.1-nano` | ✅ | |
+| **Anthropic** | | |
+| `claude-opus-4.7` | ✅ | |
+| `claude-opus-4.6` | ✅ | |
+| `claude-sonnet` | ✅ | catch-all variant — matches `claude-sonnet-4-5`, `claude-sonnet-4-6`, etc. |
+| `claude-haiku` | ✅ | |
+| **Google** | | |
+| `gemini-3.1-pro-preview` | ✅ ‡ | requires OpenRouter `reasoning.exclude: true` (already wired in `evals/promptfooconfig.fixer.js`) |
+| `gemini-3.1-pro-preview-customtools` | ✅ ‡ | same `reasoning.exclude` requirement |
+| `gemini-3.1-flash-lite-preview` | ✅ | |
+| `gemini-3-flash-preview` | ✅ | |
+| `gemini-2.5-pro` | ✅ ‡ | same `reasoning.exclude` requirement |
+| `gemini-2.5-flash` | ✅ | |
+| `gemini-2.5-flash-lite` | ✅ | |
+| **xAI** | | |
+| `grok-4.3` | ✅ ‡ | minimal prompt + `reasoning.exclude: true` — extra framing regresses Grok 4.3 |
+| `grok-4.20` | ✅ | |
+
+\* Smaller-tier residual flakiness — `gpt-5-mini` and `gpt-5-nano` occasionally re-emit a leading `---` despite the inline guard (~1/15 on a bad run). Re-runs clear 15/15. Documented in the variant docblocks.
+
+‡ Reasoning-token leak suppression — for reasoning-flavoured Gemini Pro variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose prepended to every response. The eval config sets `passthrough.reasoning.exclude: true` (and the demo's `usePreviewValidation` does the same per-provider) to strip reasoning tokens from the response body at the API layer rather than at the prompt layer.
+
+
 ## Components
 
 9 built-in component types, all rendered out of the box by `@mobile-reality/mdma-renderer-react`:

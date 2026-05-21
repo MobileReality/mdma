@@ -114,14 +114,64 @@ export function PromptMatrix() {
       </p>
       <p className="docs-note">— Full eval data is being collected for these variants.</p>
 
+      <h2>MDMA_FIXER Prompt Matrix</h2>
+      <p>
+        Each cell shows the pass rate of the model-specialized <code>MDMA_FIXER</code> prompt
+        variant on the single-block fixer eval (15 tests covering structural fixes, bindings, PII,
+        forms, tables/charts, approvals). The fixer is what powers automatic repair of LLM output
+        that fails <code>validate()</code>.
+      </p>
+      <p>✅ 100% on the single-block fixer eval (15/15).</p>
+      <Table
+        headers={['Variant', 'single-block fixer', 'notes']}
+        rows={[
+          ['gpt-5.5', '✅', ''],
+          ['gpt-5.4', '✅', ''],
+          ['gpt-5.4-mini', '✅', ''],
+          ['gpt-5.4-nano', '✅', ''],
+          ['gpt-5.2', '✅', ''],
+          ['gpt-5.1', '✅', ''],
+          ['gpt-5', '✅', ''],
+          ['gpt-5-mini', '✅ *', ''],
+          ['gpt-5-nano', '✅ *', ''],
+          ['gpt-4.1', '✅', ''],
+          ['gpt-4.1-mini', '✅', ''],
+          ['gpt-4.1-nano', '✅', ''],
+          ['claude-opus-4.7', '✅', ''],
+          ['claude-opus-4.6', '✅', ''],
+          ['claude-sonnet', '✅', 'catch-all (sonnet-4-5, sonnet-4-6, …)'],
+          ['claude-haiku', '✅', ''],
+          ['gemini-3.1-pro-preview', '✅ ‡', 'reasoning.exclude required'],
+          ['gemini-3.1-pro-preview-customtools', '✅ ‡', 'reasoning.exclude required'],
+          ['gemini-3.1-flash-lite-preview', '✅', ''],
+          ['gemini-3-flash-preview', '✅', ''],
+          ['gemini-2.5-pro', '✅ ‡', 'reasoning.exclude required'],
+          ['gemini-2.5-flash', '✅', ''],
+          ['gemini-2.5-flash-lite', '✅', ''],
+          ['grok-4.3', '✅ ‡', 'minimal prompt + reasoning.exclude'],
+          ['grok-4.20', '✅', ''],
+        ]}
+      />
+      <p className="docs-note">
+        * Smaller-tier residual flakiness — <code>gpt-5-mini</code> and <code>gpt-5-nano</code>{' '}
+        occasionally re-emit a leading <code>---</code> despite the inline guard (~1/15 on a bad
+        run). Re-runs clear 15/15.
+      </p>
+      <p className="docs-note">
+        ‡ <strong>Reasoning-token leak suppression</strong> — for reasoning-flavoured Gemini Pro
+        variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose
+        prepended to every response. The eval config sets{' '}
+        <code>passthrough.reasoning.exclude: true</code> (and the demo's{' '}
+        <code>usePreviewValidation</code> does the same per-provider) to strip reasoning tokens
+        from the response body at the API layer rather than the prompt layer.
+      </p>
+
       <h2>In Progress</h2>
       <p>
-        The following prompts exist in <code>mdma-prompt-pack</code> but are still being optimized —
-        they do not yet have model-specific variants for GPT, Claude, Gemini, or Grok.
+        The following prompt still ships without model-specific variants and is on the roadmap:
       </p>
       <div className="docs-inprogress-list">
         {[
-          { name: 'MDMA_FIXER', description: 'Corrects invalid or malformed MDMA documents.' },
           {
             name: 'MDMA_REVIEWER',
             description: 'Reviews and critiques MDMA documents for quality and spec conformance.',
