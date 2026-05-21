@@ -5,9 +5,19 @@ import { AgentSettings } from './agent/AgentSettings.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { BackendLogDrawer } from './preview/BackendLogPane.js';
 import { PreviewPanel } from './preview/PreviewPanel.js';
+import { clearSubmissionLog } from './preview/insurance-backend.js';
 import { INSURANCE_FLOW_PROMPT } from './preview/insurance-flow-prompt.js';
 import { useInsuranceFlow } from './preview/use-insurance-flow.js';
 import { usePreviewValidation } from './preview/use-preview-validation.js';
+
+function countToolUseBlocks(turns: ReturnType<typeof useAgent>['turns']): number {
+  let count = 0;
+  for (const turn of turns) {
+    if (turn.role !== 'assistant') continue;
+    for (const block of turn.blocks) if (block.type === 'tool_use') count++;
+  }
+  return count;
+}
 
 export function PreviewView() {
   const {
@@ -23,11 +33,8 @@ export function PreviewView() {
     stop,
     clear,
     inputRef,
-  } = useAgent({ flowPrompt: INSURANCE_FLOW_PROMPT });
+  } = useAgent({ flowPrompt: INSURANCE_FLOW_PROMPT, useAuthorSubAgent: true });
 
-  // `selectedBlockId` controls which tool_use block the preview pane renders.
-  // null = follow the latest one. When the agent emits a new tool_use block,
-  // we snap back to "latest" so the new step shows automatically.
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
 
   const previewState = usePreviewValidation({
@@ -36,30 +43,23 @@ export function PreviewView() {
     agentConfig: config,
   });
 
-  useInsuranceFlow({
+  const insuranceFlow = useInsuranceFlow({
     currentStore: previewState.store,
     sendHidden,
     isGenerating,
   });
 
-  // Snap back to "latest" whenever a new tool_use block appears. Reading
-  // `turns` inside (not just .length) satisfies the deps lint while still
-  // only resetting on genuinely new content — selection survives interim
-  // streaming updates.
+  // Snap back to the latest step whenever a new tool_use block appears so
+  // the user doesn't get stuck viewing the previous step.
   const prevToolUseCountRef = useRef(0);
   useEffect(() => {
-    let count = 0;
-    for (const turn of turns) {
-      if (turn.role !== 'assistant') continue;
-      for (const block of turn.blocks) if (block.type === 'tool_use') count++;
-    }
+    const count = countToolUseBlocks(turns);
     if (count > prevToolUseCountRef.current) setSelectedBlockId(null);
     prevToolUseCountRef.current = count;
   }, [turns]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(turns.length);
-
   useEffect(() => {
     if (turns.length > prevCountRef.current) {
       chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -69,7 +69,10 @@ export function PreviewView() {
 
   const handleClear = useCallback(() => {
     clear();
-  }, [clear]);
+    setSelectedBlockId(null);
+    clearSubmissionLog();
+    insuranceFlow.reset();
+  }, [clear, insuranceFlow]);
 
   return (
     <div className="preview-layout">

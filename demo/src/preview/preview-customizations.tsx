@@ -3,14 +3,6 @@ import type { MdmaBlockRendererProps } from '@mobile-reality/mdma-renderer-react
 import type { MdmaCustomizations } from '../ChatView.js';
 import { customizations as baseCustomizations } from '../custom-components.js';
 
-/**
- * Preview-pane-specific callout renderer. The base `CustomCalloutRenderer`
- * is used across the demo, so changing it would affect Agent Chat and the
- * other views. This renderer emits its own `.preview-callout` markup and
- * is wired only via `previewCustomizations` below, keeping the polished
- * look local to the Insurance Preview page.
- */
-
 const VARIANT_ICONS: Record<string, string> = {
   info: 'ℹ️',
   warning: '⚠️',
@@ -63,11 +55,6 @@ const PreviewCalloutRenderer = memo(function PreviewCalloutRenderer({
   );
 });
 
-/**
- * Same as the base demo customizations but with the callout swapped out
- * for the preview-specific renderer. Forms, buttons, charts, etc. keep
- * the existing custom styling.
- */
 export const previewCustomizations: MdmaCustomizations = {
   ...baseCustomizations,
   components: {

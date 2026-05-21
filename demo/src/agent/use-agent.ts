@@ -20,9 +20,9 @@ import { parseMarkdown } from '../chat/parse-markdown.js';
 import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import type { AgentDisplayTurn, AssistantTurn, AgentBlock } from './types.js';
 
-// ── Tool definition ──────────────────────────────────────────────────────────
+// ── Tool definitions ─────────────────────────────────────────────────────────
 
-const GENERATE_MDMA_TOOL = {
+const GENERATE_MDMA_TOOL_INLINE = {
   name: 'generate_mdma',
   description:
     'Generate an MDMA Markdown document to present structured interactive content to the user. ' +
@@ -37,6 +37,31 @@ const GENERATE_MDMA_TOOL = {
       },
     },
     required: ['document'],
+  },
+};
+
+// Sub-agent mode: the conversation agent describes the intent; a separate
+// author sub-agent (same model + provider) produces the actual MDMA. The
+// conversation agent never writes raw MDMA into its visible response.
+const GENERATE_MDMA_TOOL_BRIEF = {
+  name: 'generate_mdma',
+  description:
+    'Request the MDMA Author (a specialised sub-agent) to generate an interactive MDMA component ' +
+    'for the user. Provide a clear brief describing what to generate — component type, id, fields, ' +
+    "labels, action labels (onSubmit etc.), and any constraints. Do NOT write MDMA Markdown yourself; " +
+    'the author will produce the final document and render it on the user’s screen.',
+  input_schema: {
+    type: 'object' as const,
+    properties: {
+      brief: {
+        type: 'string',
+        description:
+          'A natural-language description of the MDMA component(s) to generate. Include the ' +
+          'component type, id, every field with its label/type, required/sensitive flags, ' +
+          'onSubmit / onAction labels, and any other constraints. Do not include MDMA syntax.',
+      },
+    },
+    required: ['brief'],
   },
 };
 
@@ -133,6 +158,94 @@ interface BlockMeta {
   partialJson?: string;
 }
 
+// ── Sub-agent author dispatch ────────────────────────────────────────────────
+
+type AuthorSubAgent = (brief: string, signal: AbortSignal) => Promise<string>;
+
+async function callAuthorAnthropic(
+  config: AnthropicConfig,
+  authorPrompt: string,
+  brief: string,
+  signal: AbortSignal,
+): Promise<string> {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': config.apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-access': 'true',
+    },
+    body: JSON.stringify({
+      model: config.model,
+      max_tokens: 8192,
+      system: authorPrompt,
+      messages: [{ role: 'user', content: brief }],
+    }),
+    signal,
+  });
+  if (!response.ok) {
+    throw new Error(`Author sub-agent failed (${response.status}): ${await response.text()}`);
+  }
+  const json = (await response.json()) as { content?: Array<{ type: string; text?: string }> };
+  return (json.content ?? [])
+    .filter(
+      (b): b is { type: 'text'; text: string } => b.type === 'text' && typeof b.text === 'string',
+    )
+    .map((b) => b.text)
+    .join('');
+}
+
+async function callAuthorOpenAI(
+  config: AnthropicConfig,
+  authorPrompt: string,
+  brief: string,
+  signal: AbortSignal,
+): Promise<string> {
+  const provider = config.provider ?? 'openai';
+  const baseUrl = OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const apiKey = getApiKeyForProvider(config);
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
+    body: JSON.stringify({
+      model: config.model,
+      messages: [
+        { role: 'system', content: authorPrompt },
+        { role: 'user', content: brief },
+      ],
+    }),
+    signal,
+  });
+  if (!response.ok) {
+    throw new Error(`Author sub-agent failed (${response.status}): ${await response.text()}`);
+  }
+  const json = (await response.json()) as {
+    choices?: Array<{ message?: { content?: string } }>;
+  };
+  return json.choices?.[0]?.message?.content ?? '';
+}
+
+function makeAuthorSubAgent(config: AnthropicConfig): AuthorSubAgent {
+  const authorPrompt = getAuthorPromptVariant(config.systemPromptId).prompt;
+  const provider = config.provider ?? 'anthropic';
+  return (brief, signal) =>
+    provider === 'anthropic'
+      ? callAuthorAnthropic(config, authorPrompt, brief, signal)
+      : callAuthorOpenAI(config, authorPrompt, brief, signal);
+}
+
+// The author sub-agent occasionally wraps its entire response in an outer
+// ```markdown / ```md fence (the "treat the answer as a code block" failure
+// mode). If so, peel that outer wrapper off. NEVER strip ```mdma fences —
+// those are the document's actual component markers and removing them
+// would collapse a multi-block document into a single bare YAML snippet.
+function extractDocumentFromBrief(rawText: string): string {
+  const trimmed = rawText.trim();
+  const outer = trimmed.match(/^```(?:markdown|md)\s*\n([\s\S]*)\n```\s*$/);
+  return outer ? outer[1] : rawText;
+}
+
 // ── Anthropic agentic loop ────────────────────────────────────────────────────
 
 async function runAgentLoop(
@@ -144,7 +257,9 @@ async function runAgentLoop(
   setTurns: Dispatch<SetStateAction<AgentDisplayTurn[]>>,
   onError: (msg: string) => void,
   nextId: () => string,
+  subAgent: AuthorSubAgent | null,
 ): Promise<void> {
+  const tool = subAgent ? GENERATE_MDMA_TOOL_BRIEF : GENERATE_MDMA_TOOL_INLINE;
   let continueLoop = true;
 
   while (continueLoop && !signal.aborted) {
@@ -156,7 +271,7 @@ async function runAgentLoop(
       config,
       systemPrompt,
       history,
-      [GENERATE_MDMA_TOOL],
+      [tool],
       signal,
     )) {
       if (ev.type === 'stream_error') {
@@ -255,14 +370,28 @@ async function runAgentLoop(
         if (!meta) continue;
 
         if (meta.partialJson !== undefined) {
-          let document = '';
+          let parsedInput: { document?: string; brief?: string } = {};
           try {
-            const parsed = JSON.parse(meta.partialJson) as { document?: string };
-            document = parsed.document ?? '';
+            parsedInput = JSON.parse(meta.partialJson);
           } catch {
-            document = meta.partialJson;
+            parsedInput = subAgent ? { brief: meta.partialJson } : { document: meta.partialJson };
           }
-          if (meta.apiBlock.type === 'tool_use') meta.apiBlock.input = { document };
+
+          let document: string;
+          if (subAgent) {
+            const brief = parsedInput.brief ?? '';
+            try {
+              const raw = await subAgent(brief, signal);
+              document = extractDocumentFromBrief(raw);
+            } catch (err) {
+              onError(err instanceof Error ? err.message : String(err));
+              document = '';
+            }
+            if (meta.apiBlock.type === 'tool_use') meta.apiBlock.input = { brief };
+          } else {
+            document = parsedInput.document ?? '';
+            if (meta.apiBlock.type === 'tool_use') meta.apiBlock.input = { document };
+          }
 
           const parsed = await parseMarkdown(document).catch(() => null);
           const ast = parsed?.ast ?? null;
@@ -331,10 +460,12 @@ async function runOpenAIAgentLoop(
   setTurns: Dispatch<SetStateAction<AgentDisplayTurn[]>>,
   onError: (msg: string) => void,
   nextId: () => string,
+  subAgent: AuthorSubAgent | null,
 ): Promise<void> {
   const baseUrl =
     OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
   const apiKey = getApiKeyForProvider(config);
+  const tool = subAgent ? GENERATE_MDMA_TOOL_BRIEF : GENERATE_MDMA_TOOL_INLINE;
   let continueLoop = true;
 
   while (continueLoop && !signal.aborted) {
@@ -349,7 +480,7 @@ async function runOpenAIAgentLoop(
       config.model,
       systemPrompt,
       history,
-      [GENERATE_MDMA_TOOL],
+      [tool],
       signal,
       baseUrl,
     )) {
@@ -417,20 +548,41 @@ async function runOpenAIAgentLoop(
         if (!meta) continue;
 
         if (meta.partialJson !== undefined) {
-          let document = '';
+          let parsedInput: { document?: string; brief?: string } = {};
           try {
-            const parsed = JSON.parse(meta.partialJson) as { document?: string };
-            document = parsed.document ?? '';
+            parsedInput = JSON.parse(meta.partialJson);
           } catch {
-            document = meta.partialJson;
+            parsedInput = subAgent ? { brief: meta.partialJson } : { document: meta.partialJson };
           }
-          if (meta.apiBlock.type === 'tool_use') {
-            meta.apiBlock.input = { document };
-            finishedToolCalls.push({
-              id: meta.apiBlock.id,
-              name: meta.apiBlock.name,
-              arguments: meta.partialJson,
-            });
+
+          let document: string;
+          if (subAgent) {
+            const brief = parsedInput.brief ?? '';
+            try {
+              const raw = await subAgent(brief, signal);
+              document = extractDocumentFromBrief(raw);
+            } catch (err) {
+              onError(err instanceof Error ? err.message : String(err));
+              document = '';
+            }
+            if (meta.apiBlock.type === 'tool_use') {
+              meta.apiBlock.input = { brief };
+              finishedToolCalls.push({
+                id: meta.apiBlock.id,
+                name: meta.apiBlock.name,
+                arguments: meta.partialJson,
+              });
+            }
+          } else {
+            document = parsedInput.document ?? '';
+            if (meta.apiBlock.type === 'tool_use') {
+              meta.apiBlock.input = { document };
+              finishedToolCalls.push({
+                id: meta.apiBlock.id,
+                name: meta.apiBlock.name,
+                arguments: meta.partialJson,
+              });
+            }
           }
 
           const parsed = await parseMarkdown(document).catch(() => null);
@@ -455,9 +607,12 @@ async function runOpenAIAgentLoop(
     if (signal.aborted) break;
 
     // Push OpenAI-formatted assistant message
+    // OpenAI's Chat Completions endpoint rejects `content: null` even when
+    // tool_calls are present (despite the spec allowing it). Emit "" so a
+    // tool-only assistant turn stays valid in the history.
     const assistantMsg: OpenAIAssistantMessage = {
       role: 'assistant',
-      content: finishedTextContent || null,
+      content: finishedTextContent || '',
     };
     if (finishedToolCalls.length > 0) {
       assistantMsg.tool_calls = finishedToolCalls.map((tc) => ({
@@ -515,6 +670,13 @@ function patchBlock(
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export interface UseAgentOptions {
+  /**
+   * When true, the conversation agent never writes raw MDMA. Instead, the
+   * `generate_mdma` tool takes a high-level `brief` and a separate author
+   * sub-agent (same model + provider) produces the actual document. Keeps
+   * MDMA generation out of the chat surface.
+   */
+  useAuthorSubAgent?: boolean;
   /**
    * Extra flow-definition text appended to the agent's customPrompt. Used by
    * the Insurance Preview to lock the conversation to a specific 4-step
@@ -594,14 +756,21 @@ export function useAgent(options: UseAgentOptions = {}) {
 
       abortRef.current = new AbortController();
       const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
-      const customPrompt = options.flowPrompt
-        ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-        : toolPrompt;
-      const systemPrompt = buildSystemPrompt({
-        authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-        customPrompt,
-      });
+      // In sub-agent mode the conversation agent never writes MDMA directly,
+      // so its system prompt omits the author prompt and the buildSystemPrompt
+      // reminder (both of which would tempt the agent to inline MDMA in chat).
+      const systemPrompt = options.useAuthorSubAgent
+        ? options.flowPrompt
+          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+          : toolPrompt
+        : buildSystemPrompt({
+            authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+            customPrompt: options.flowPrompt
+              ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+              : toolPrompt,
+          });
 
+      const subAgent = options.useAuthorSubAgent ? makeAuthorSubAgent(config) : null;
       const provider = config.provider ?? 'anthropic';
 
       try {
@@ -619,6 +788,7 @@ export function useAgent(options: UseAgentOptions = {}) {
             setTurns,
             setError,
             nextId,
+            subAgent,
           );
           apiHistoryRef.current = history;
         } else {
@@ -632,6 +802,7 @@ export function useAgent(options: UseAgentOptions = {}) {
             setTurns,
             setError,
             nextId,
+            subAgent,
           );
           openaiHistoryRef.current = history;
         }
@@ -645,7 +816,7 @@ export function useAgent(options: UseAgentOptions = {}) {
         inputRef.current?.focus();
       }
     },
-    [config, isGenerating, nextId, options.flowPrompt],
+    [config, isGenerating, nextId, options.flowPrompt, options.useAuthorSubAgent],
   );
 
   const send = useCallback(async () => {

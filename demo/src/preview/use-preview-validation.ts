@@ -3,6 +3,7 @@ import {
   validate,
   type ValidationIssue,
   type ValidationResult,
+  type ValidationRuleId,
 } from '@mobile-reality/mdma-validator';
 import {
   buildFixerPrompt,
@@ -24,27 +25,13 @@ export interface PreviewState {
   store: DocumentStore | null;
   unresolvedIssues: ValidationIssue[];
   wasFixed: boolean;
-  /** Id of the block currently being rendered (the agent's tool_use block id). */
   blockId: string | null;
-  /**
-   * True when the rendered block is from an earlier step than the latest
-   * one — i.e. it's already been submitted in the flow and re-interacting
-   * with it shouldn't happen. PreviewPanel uses this to disable inputs.
-   */
   submitted: boolean;
 }
 
 interface UsePreviewValidationOptions {
   turns: AgentDisplayTurn[];
-  /**
-   * When set, show this specific tool_use block. When null, show the latest.
-   */
   selectedBlockId: string | null;
-  /**
-   * Same config the agent uses. The fixer picks its credentials + model
-   * from this — anthropic provider → haiku via x-api-key, openai → gpt-4.1-mini,
-   * openrouter → anthropic/claude-haiku-4-5 via openrouter.
-   */
   agentConfig: AnthropicConfig;
 }
 
@@ -58,23 +45,13 @@ const INITIAL_STATE: PreviewState = {
   submitted: false,
 };
 
-type FixerResolution =
-  | {
-      kind: 'anthropic';
-      apiKey: string;
-      model: string;
-    }
-  | {
-      kind: 'openai-compatible';
-      apiKey: string;
-      baseUrl: string;
-      model: string;
-    };
+const EXCLUDE_RULES: ValidationRuleId[] = ['thinking-block', 'flow-ordering'];
+const VALIDATE_OPTIONS = { exclude: EXCLUDE_RULES };
 
-/**
- * Picks the fixer endpoint + model based on the agent's current provider.
- * Returns null when the relevant API key isn't configured.
- */
+type FixerResolution =
+  | { kind: 'anthropic'; apiKey: string; model: string }
+  | { kind: 'openai-compatible'; apiKey: string; baseUrl: string; model: string };
+
 function resolveFixer(config: AnthropicConfig): FixerResolution | null {
   const provider = config.provider ?? 'anthropic';
   if (provider === 'anthropic') {
@@ -102,44 +79,57 @@ function resolveFixer(config: AnthropicConfig): FixerResolution | null {
   return null;
 }
 
-/**
- * Non-streaming Anthropic Messages API call — used by the fixer when the
- * agent provider is anthropic. Reuses the same direct-browser-access
- * header the streaming agent client sets.
- */
-async function anthropicFix(
-  apiKey: string,
-  model: string,
-  systemPrompt: string,
-  userMessage: string,
+async function callFixer(
+  fixer: FixerResolution,
+  document: string,
+  unfixed: ValidationIssue[],
   signal: AbortSignal,
 ): Promise<string> {
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model,
-      max_tokens: 4096,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userMessage }],
-    }),
-    signal,
-  });
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Anthropic fixer failed (${response.status}): ${body}`);
+  const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt('single-block')}`;
+  const userMessage = buildFixerMessage(document, unfixed);
+
+  if (fixer.kind === 'anthropic') {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-api-key': fixer.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true',
+      },
+      body: JSON.stringify({
+        model: fixer.model,
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userMessage }],
+      }),
+      signal,
+    });
+    if (!response.ok) {
+      throw new Error(`Anthropic fixer failed (${response.status}): ${await response.text()}`);
+    }
+    const json = (await response.json()) as { content?: Array<{ type: string; text?: string }> };
+    return (json.content ?? [])
+      .filter(
+        (b): b is { type: 'text'; text: string } => b.type === 'text' && typeof b.text === 'string',
+      )
+      .map((b) => b.text)
+      .join('');
   }
-  const json = (await response.json()) as { content?: Array<{ type: string; text?: string }> };
-  const text = (json.content ?? [])
-    .filter((block): block is { type: 'text'; text: string } => block.type === 'text' && typeof block.text === 'string')
-    .map((block) => block.text)
-    .join('');
-  return text;
+
+  const llmConfig: LlmConfig = {
+    baseUrl: fixer.baseUrl,
+    apiKey: fixer.apiKey,
+    model: fixer.model,
+  };
+  return chatCompletion(
+    llmConfig,
+    [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userMessage },
+    ],
+    signal,
+  );
 }
 
 function collectToolUseBlocks(turns: AgentDisplayTurn[]): ToolUseBlock[] {
@@ -159,27 +149,47 @@ function resolveBlock(
 ): { block: ToolUseBlock | null; submitted: boolean } {
   const all = collectToolUseBlocks(turns);
   if (all.length === 0) return { block: null, submitted: false };
-  if (!selectedBlockId) {
-    return { block: all[all.length - 1], submitted: false };
-  }
+  if (!selectedBlockId) return { block: all[all.length - 1], submitted: false };
   const idx = all.findIndex((b) => b.id === selectedBlockId);
   if (idx === -1) return { block: all[all.length - 1], submitted: false };
   return { block: all[idx], submitted: idx < all.length - 1 };
 }
 
-/**
- * Validates the latest assistant tool_use block's MDMA document and, if it
- * fails validation, runs the LLM fixer (single-block scope) to repair it
- * before rendering. The fixer model + credentials are picked from the
- * agent's current provider (see resolveFixer).
- */
+function getUnfixedIssues(result: ValidationResult): ValidationIssue[] {
+  return result.issues.filter(
+    (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
+  );
+}
+
+function buildState(
+  blockId: string,
+  submitted: boolean,
+  status: PreviewStatus,
+  ast: MdmaRoot | null = null,
+  store: DocumentStore | null = null,
+  unresolvedIssues: ValidationIssue[] = [],
+  wasFixed = false,
+): PreviewState {
+  return { status, ast, store, unresolvedIssues, wasFixed, blockId, submitted };
+}
+
+async function tryParse(
+  markdown: string,
+): Promise<{ ast: MdmaRoot; store: DocumentStore } | null> {
+  try {
+    return await parseMarkdown(markdown);
+  } catch {
+    return null;
+  }
+}
+
 export function usePreviewValidation({
   turns,
   selectedBlockId,
   agentConfig,
 }: UsePreviewValidationOptions): PreviewState {
   const [state, setState] = useState<PreviewState>(INITIAL_STATE);
-  const handledRef = useRef(new Map<string, PreviewState>());
+  const cacheRef = useRef(new Map<string, PreviewState>());
   const inFlightRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
@@ -190,23 +200,12 @@ export function usePreviewValidation({
     }
 
     if (block.isStreaming || !block.document) {
-      setState({
-        status: 'validating',
-        ast: null,
-        store: null,
-        unresolvedIssues: [],
-        wasFixed: false,
-        blockId: block.id,
-        submitted,
-      });
+      setState(buildState(block.id, submitted, 'validating'));
       return;
     }
 
-    // De-dupe on (blockId, doc length) so toggling the selection between
-    // already-processed blocks re-uses the cached PreviewState instead of
-    // re-running validation + fixer.
-    const handleKey = `${block.id}:${block.document.length}`;
-    const cached = handledRef.current.get(handleKey);
+    const cacheKey = `${block.id}:${block.document.length}`;
+    const cached = cacheRef.current.get(cacheKey);
     if (cached) {
       setState({ ...cached, submitted });
       return;
@@ -218,14 +217,13 @@ export function usePreviewValidation({
     const fixer = resolveFixer(agentConfig);
     void processBlock(
       block,
+      submitted,
       fixer,
       (next) => {
-        const withFlags = { ...next, blockId: block.id, submitted };
-        // Snapshot terminal states so revisits don't refire the LLM.
         if (next.status === 'ready' || next.status === 'invalid') {
-          handledRef.current.set(handleKey, withFlags);
+          cacheRef.current.set(cacheKey, next);
         }
-        setState(withFlags);
+        setState(next);
       },
       (ctrl) => {
         inFlightRef.current = ctrl;
@@ -236,7 +234,7 @@ export function usePreviewValidation({
   const prevTurnCount = useRef(turns.length);
   useEffect(() => {
     if (prevTurnCount.current > 0 && turns.length === 0) {
-      handledRef.current.clear();
+      cacheRef.current.clear();
       inFlightRef.current?.abort();
       inFlightRef.current = null;
       setState(INITIAL_STATE);
@@ -249,141 +247,80 @@ export function usePreviewValidation({
 
 async function processBlock(
   block: ToolUseBlock,
+  submitted: boolean,
   fixer: FixerResolution | null,
   setState: (state: PreviewState) => void,
   registerAbort: (ctrl: AbortController) => void,
 ): Promise<void> {
-  setState({
-    status: 'validating',
-    ast: null,
-    store: null,
-    unresolvedIssues: [],
-    wasFixed: false,
-    blockId: block.id,
-    submitted: false,
-  });
+  setState(buildState(block.id, submitted, 'validating'));
 
-  const initial: ValidationResult = validate(block.document, {
-    exclude: ['thinking-block', 'flow-ordering'],
-  });
-  const unfixed = initial.issues.filter(
-    (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
-  );
+  const initial = validate(block.document, VALIDATE_OPTIONS);
+  const unfixed = getUnfixedIssues(initial);
 
   if (unfixed.length === 0) {
-    const { ast, store } = await parseMarkdown(initial.output);
-    setState({
-      status: 'ready',
-      ast,
-      store,
-      unresolvedIssues: [],
-      wasFixed: initial.fixCount > 0,
-      blockId: block.id,
-      submitted: false,
-    });
+    const parsed = await tryParse(initial.output);
+    setState(
+      buildState(
+        block.id,
+        submitted,
+        'ready',
+        parsed?.ast ?? null,
+        parsed?.store ?? null,
+        [],
+        initial.fixCount > 0,
+      ),
+    );
     return;
   }
 
   if (!fixer) {
-    try {
-      const { ast, store } = await parseMarkdown(initial.output);
-      setState({
-        status: 'invalid',
-        ast,
-        store,
-        unresolvedIssues: unfixed,
-        wasFixed: false,
-        blockId: block.id,
-        submitted: false,
-      });
-    } catch {
-      setState({
-        status: 'invalid',
-        ast: null,
-        store: null,
-        unresolvedIssues: unfixed,
-        wasFixed: false,
-        blockId: block.id,
-        submitted: false,
-      });
-    }
+    const parsed = await tryParse(initial.output);
+    setState(
+      buildState(
+        block.id,
+        submitted,
+        'invalid',
+        parsed?.ast ?? null,
+        parsed?.store ?? null,
+        unfixed,
+      ),
+    );
     return;
   }
 
-  setState({
-    status: 'fixing',
-    ast: null,
-    store: null,
-    unresolvedIssues: unfixed,
-    wasFixed: false,
-    blockId: block.id,
-    submitted: false,
-  });
+  setState(buildState(block.id, submitted, 'fixing', null, null, unfixed));
 
   const ctrl = new AbortController();
   registerAbort(ctrl);
   try {
-    const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt('single-block')}`;
-    const userMessage = buildFixerMessage(block.document, unfixed);
-
-    let fixed: string;
-    if (fixer.kind === 'anthropic') {
-      fixed = await anthropicFix(fixer.apiKey, fixer.model, systemPrompt, userMessage, ctrl.signal);
-    } else {
-      const llmConfig: LlmConfig = {
-        baseUrl: fixer.baseUrl,
-        apiKey: fixer.apiKey,
-        model: fixer.model,
-      };
-      fixed = await chatCompletion(
-        llmConfig,
-        [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userMessage },
-        ],
-        ctrl.signal,
-      );
-    }
-
-    const revalidated = validate(fixed, { exclude: ['thinking-block', 'flow-ordering'] });
-    const stillUnfixed = revalidated.issues.filter(
-      (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
+    const fixed = await callFixer(fixer, block.document, unfixed, ctrl.signal);
+    const revalidated = validate(fixed, VALIDATE_OPTIONS);
+    const stillUnfixed = getUnfixedIssues(revalidated);
+    const parsed = await tryParse(revalidated.output);
+    setState(
+      buildState(
+        block.id,
+        submitted,
+        stillUnfixed.length === 0 ? 'ready' : 'invalid',
+        parsed?.ast ?? null,
+        parsed?.store ?? null,
+        stillUnfixed,
+        true,
+      ),
     );
-
-    const { ast, store } = await parseMarkdown(revalidated.output);
-    setState({
-      status: stillUnfixed.length === 0 ? 'ready' : 'invalid',
-      ast,
-      store,
-      unresolvedIssues: stillUnfixed,
-      wasFixed: true,
-      blockId: block.id,
-      submitted: false,
-    });
   } catch (err) {
     if (err instanceof DOMException && err.name === 'AbortError') return;
     console.error('[preview-validation] fixer failed', err);
-    try {
-      const { ast, store } = await parseMarkdown(initial.output);
-      setState({
-        status: 'invalid',
-        ast,
-        store,
-        unresolvedIssues: unfixed,
-        wasFixed: false,
-        blockId: block.id,
-        submitted: false,
-      });
-    } catch {
-      setState({
-        status: 'invalid',
-        ast: null,
-        store: null,
-        unresolvedIssues: unfixed,
-        wasFixed: false,
-        blockId: block.id,
-        submitted: false,
-      });
-    }
+    const parsed = await tryParse(initial.output);
+    setState(
+      buildState(
+        block.id,
+        submitted,
+        'invalid',
+        parsed?.ast ?? null,
+        parsed?.store ?? null,
+        unfixed,
+      ),
+    );
   }
 }

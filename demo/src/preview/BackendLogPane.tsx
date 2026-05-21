@@ -16,12 +16,6 @@ function formatTime(d: Date): string {
   });
 }
 
-/**
- * Floating toggle + slide-out drawer on the right edge of the Preview
- * page. Lives at the layout root (not inside `PreviewPanel`) so the log
- * doesn't share scroll/space with the rendered MDMA — the demo audience
- * can pop it open at any time to see the masked submissions land.
- */
 export function BackendLogDrawer() {
   const entries = useSubmissionLog();
   const [open, setOpen] = useState(false);

@@ -1,11 +1,3 @@
-/**
- * Mock backend for the Insurance Preview demo. Each function pretends to be
- * an endpoint of the insurance provider's API: validates a tiny shape,
- * waits a few hundred ms, and resolves with a fake server response. No
- * data leaves the browser — values land in the in-memory `submissionLog`,
- * which the optional debug pane on the right column displays.
- */
-
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 function maskIban(iban: string): string {
@@ -18,7 +10,6 @@ export interface SubmissionLogEntry {
   step: 'personal-info' | 'claim' | 'bank';
   at: Date;
   claimId: string;
-  /** Display-only summary (sensitive values masked). Never raw user data. */
   summary: string;
 }
 
@@ -66,20 +57,21 @@ function makeClaimId(): string {
   return `clm_${Math.random().toString(36).slice(2, 8)}`;
 }
 
+function appendEntry(entry: SubmissionLogEntry): void {
+  submissionLog = [...submissionLog, entry];
+  notify();
+}
+
 export const insuranceBackend = {
   async collectPersonalInfo(payload: PersonalInfoPayload): Promise<PersonalInfoResult> {
     await delay(700);
     const claimId = makeClaimId();
-    submissionLog = [
-      ...submissionLog,
-      {
-        step: 'personal-info',
-        at: new Date(),
-        claimId,
-        summary: `${payload['full-name']} (DOB ${payload.birthday})`,
-      },
-    ];
-    notify();
+    appendEntry({
+      step: 'personal-info',
+      at: new Date(),
+      claimId,
+      summary: `${payload['full-name']} (DOB ${payload.birthday})`,
+    });
     return { claimId, accepted: true };
   },
 
@@ -87,31 +79,18 @@ export const insuranceBackend = {
     await delay(800);
     const desc = payload['claim-description'];
     const preview = desc.length > 60 ? `${desc.slice(0, 60)}…` : desc;
-    submissionLog = [
-      ...submissionLog,
-      {
-        step: 'claim',
-        at: new Date(),
-        claimId,
-        summary: `"${preview}"`,
-      },
-    ];
-    notify();
+    appendEntry({ step: 'claim', at: new Date(), claimId, summary: `"${preview}"` });
     return { accepted: true };
   },
 
   async collectBank(claimId: string, payload: BankPayload): Promise<BankResult> {
     await delay(700);
-    submissionLog = [
-      ...submissionLog,
-      {
-        step: 'bank',
-        at: new Date(),
-        claimId,
-        summary: `IBAN ${maskIban(payload.iban)}`,
-      },
-    ];
-    notify();
+    appendEntry({
+      step: 'bank',
+      at: new Date(),
+      claimId,
+      summary: `IBAN ${maskIban(payload.iban)}`,
+    });
     return { accepted: true, etaDays: 5 };
   },
 };

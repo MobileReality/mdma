@@ -26,6 +26,22 @@ export function PreviewPanel({ state }: PreviewPanelProps) {
   const { status, ast, store, unresolvedIssues, wasFixed, submitted } = state;
   const showRender = ast !== null && store !== null;
 
+  const placeholder =
+    !showRender && status === 'idle'
+      ? {
+          title: 'Insurance claim flow',
+          hint: "Start the chat on the left. As the agent emits MDMA blocks, they'll be validated, auto-fixed if needed, and rendered here.",
+        }
+      : status === 'validating' || (status === 'fixing' && !showRender)
+        ? {
+            title: status === 'validating' ? 'Validating…' : 'Fixing with LLM…',
+            hint:
+              status === 'validating'
+                ? "Checking the agent's MDMA against the spec."
+                : "Calling the LLM fixer to repair the agent's output before rendering.",
+          }
+        : null;
+
   return (
     <div className="preview-pane">
       <div className="preview-pane-header">
@@ -38,24 +54,10 @@ export function PreviewPanel({ state }: PreviewPanelProps) {
         </span>
       </div>
       <div className="preview-pane-body">
-        {status === 'idle' && !showRender ? (
+        {placeholder ? (
           <div className="preview-pane-empty">
-            <p className="preview-pane-empty-title">Insurance claim flow</p>
-            <p className="preview-pane-empty-hint">
-              Start the chat on the left. As the agent emits MDMA blocks, they'll be validated,
-              auto-fixed if needed, and rendered here.
-            </p>
-          </div>
-        ) : status === 'validating' || (status === 'fixing' && !showRender) ? (
-          <div className="preview-pane-empty">
-            <p className="preview-pane-empty-title">
-              {status === 'validating' ? 'Validating…' : 'Fixing with LLM…'}
-            </p>
-            <p className="preview-pane-empty-hint">
-              {status === 'validating'
-                ? "Checking the agent's MDMA against the spec."
-                : "Calling the LLM fixer to repair the agent's output before rendering."}
-            </p>
+            <p className="preview-pane-empty-title">{placeholder.title}</p>
+            <p className="preview-pane-empty-hint">{placeholder.hint}</p>
           </div>
         ) : (
           <>
