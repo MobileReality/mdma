@@ -19,7 +19,7 @@ export function AgentChatView() {
     stop,
     clear,
     inputRef,
-  } = useAgent();
+  } = useAgent({ useAuthorSubAgent: true });
 
   const { events, isOpen: logOpen, setIsOpen: setLogOpen, clearEvents } = useAgentActionLog(turns);
 

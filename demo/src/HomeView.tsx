@@ -12,18 +12,18 @@ const SECTIONS = [
     description: 'Agent with tool use',
     items: [
       {
-        path: '/chat',
-        label: 'Agent Chat',
-        icon: '⚡',
-        description:
-          'Autonomous agent that thinks, plans, and generates interactive MDMA documents via tool calls.',
-      },
-      {
         path: '/preview',
         label: 'Preview',
         icon: '🛡️',
         description:
           'Multi-step flow demo (insurance claim) — chat on the left, live MDMA preview with auto-validation and fixer on the right.',
+      },
+      {
+        path: '/chat',
+        label: 'Agent Chat',
+        icon: '⚡',
+        description:
+          'Autonomous agent that thinks, plans, and generates interactive MDMA documents via tool calls.',
       },
     ],
   },
