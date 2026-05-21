@@ -182,11 +182,6 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               </select>
             </label>
           </div>
-          <p className="agent-settings-note">
-            {provider === 'anthropic'
-              ? 'Anthropic mode uses extended thinking (Claude 4.x only). Reasoning is visible during generation.'
-              : 'OpenAI-compatible mode uses Chat Completions with function calling. Reasoning is internal and not displayed.'}
-          </p>
           <p className="agent-settings-note agent-settings-note--storage">
             🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to
             any server other than the AI provider you select.
