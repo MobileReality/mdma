@@ -141,8 +141,8 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 | `gpt-5.2` | ✅ | |
 | `gpt-5.1` | ✅ | |
 | `gpt-5` | ✅ | |
-| `gpt-5-mini` | ✅ \* | |
-| `gpt-5-nano` | ✅ \* | |
+| `gpt-5-mini` | ✅ | |
+| `gpt-5-nano` | ✅ | |
 | `gpt-4.1` | ✅ | |
 | `gpt-4.1-mini` | ✅ | |
 | `gpt-4.1-nano` | ✅ | |
@@ -162,8 +162,6 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 | **xAI** | | |
 | `grok-4.3` | ✅ ‡ | minimal prompt + `reasoning.exclude: true` — extra framing regresses Grok 4.3 |
 | `grok-4.20` | ✅ | |
-
-\* Smaller-tier residual flakiness — `gpt-5-mini` and `gpt-5-nano` occasionally re-emit a leading `---` despite the inline guard (~1/15 on a bad run). Re-runs clear 15/15. Documented in the variant docblocks.
 
 ‡ Reasoning-token leak suppression — for reasoning-flavoured Gemini Pro variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose prepended to every response. The eval config sets `passthrough.reasoning.exclude: true` (and the demo's `usePreviewValidation` does the same per-provider) to strip reasoning tokens from the response body at the API layer rather than at the prompt layer.
 

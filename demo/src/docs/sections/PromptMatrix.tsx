@@ -132,8 +132,8 @@ export function PromptMatrix() {
           ['gpt-5.2', '✅', ''],
           ['gpt-5.1', '✅', ''],
           ['gpt-5', '✅', ''],
-          ['gpt-5-mini', '✅ *', ''],
-          ['gpt-5-nano', '✅ *', ''],
+          ['gpt-5-mini', '✅', ''],
+          ['gpt-5-nano', '✅', ''],
           ['gpt-4.1', '✅', ''],
           ['gpt-4.1-mini', '✅', ''],
           ['gpt-4.1-nano', '✅', ''],
@@ -152,11 +152,6 @@ export function PromptMatrix() {
           ['grok-4.20', '✅', ''],
         ]}
       />
-      <p className="docs-note">
-        * Smaller-tier residual flakiness — <code>gpt-5-mini</code> and <code>gpt-5-nano</code>{' '}
-        occasionally re-emit a leading <code>---</code> despite the inline guard (~1/15 on a bad
-        run). Re-runs clear 15/15.
-      </p>
       <p className="docs-note">
         ‡ <strong>Reasoning-token leak suppression</strong> — for reasoning-flavoured Gemini Pro
         variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose
