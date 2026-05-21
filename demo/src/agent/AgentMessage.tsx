@@ -164,9 +164,46 @@ function TextBlockView({ block }: { block: TextBlock }) {
   return <MarkdownText text={block.content} />;
 }
 
-function ToolUseBlockView({ block }: { block: ToolUseBlock }) {
+function ToolUseBlockView({
+  block,
+  compact,
+  isActive,
+  onSelect,
+}: {
+  block: ToolUseBlock;
+  compact?: boolean;
+  isActive?: boolean;
+  onSelect?: () => void;
+}) {
+  const clickable = compact && !block.isStreaming && Boolean(onSelect);
+  const className = [
+    'agent-tool-call',
+    compact ? 'agent-tool-call--compact' : '',
+    clickable ? 'agent-tool-call--clickable' : '',
+    isActive ? 'agent-tool-call--active' : '',
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+  const handleClick = clickable ? onSelect : undefined;
+
   return (
-    <div className="agent-tool-call">
+    <div
+      className={className}
+      onClick={handleClick}
+      onKeyDown={
+        clickable
+          ? (e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                onSelect?.();
+              }
+            }
+          : undefined
+      }
+      role={clickable ? 'button' : undefined}
+      tabIndex={clickable ? 0 : undefined}
+    >
       <div className="agent-tool-call-header">
         <svg
           className="agent-tool-icon"
@@ -182,27 +219,59 @@ function ToolUseBlockView({ block }: { block: ToolUseBlock }) {
         </svg>
         <span className="agent-tool-name">{block.name}</span>
         {block.isStreaming && <span className="agent-tool-streaming">generating…</span>}
+        {compact && !block.isStreaming && (
+          <span className="agent-tool-streaming">
+            {isActive ? 'showing in preview' : 'show in preview →'}
+          </span>
+        )}
       </div>
 
-      <div className="agent-tool-call-body">
-        {block.isStreaming ? (
-          <div className="agent-tool-loading">
-            <span className="agent-tool-loading-bar" />
-          </div>
-        ) : block.ast && block.store ? (
-          <MdmaDocument ast={block.ast} store={block.store} customizations={customizations} />
-        ) : block.document ? (
-          <pre className="chat-msg-source">{block.document}</pre>
-        ) : null}
-      </div>
+      {!compact && (
+        <div className="agent-tool-call-body">
+          {block.isStreaming ? (
+            <div className="agent-tool-loading">
+              <span className="agent-tool-loading-bar" />
+            </div>
+          ) : block.ast && block.store ? (
+            <MdmaDocument ast={block.ast} store={block.store} customizations={customizations} />
+          ) : block.document ? (
+            <pre className="chat-msg-source">{block.document}</pre>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Turn renderer ─────────────────────────────────────────────────────────────
 
-export const AgentMessage = memo(function AgentMessage({ turn }: { turn: AgentDisplayTurn }) {
+interface AgentMessageProps {
+  turn: AgentDisplayTurn;
+  /**
+   * When true, tool_use blocks render as a compact chip (no inline MDMA
+   * preview). Used by the Preview page, where the rendered MDMA lives in
+   * the right-side pane and would be duplicated in the chat otherwise.
+   */
+  compactToolUse?: boolean;
+  /**
+   * Block id currently shown in the Preview pane. Highlighted in the chat.
+   */
+  activeToolUseId?: string | null;
+  /**
+   * When set, the compact tool_use chip becomes clickable and calls this
+   * with the block's id when the user wants to inspect that step.
+   */
+  onSelectToolUse?: (blockId: string) => void;
+}
+
+export const AgentMessage = memo(function AgentMessage({
+  turn,
+  compactToolUse,
+  activeToolUseId,
+  onSelectToolUse,
+}: AgentMessageProps) {
   if (turn.role === 'user') {
+    if (turn.hidden) return null;
     return (
       <div className="chat-msg chat-msg--user">
         <div className="chat-msg-header">
@@ -230,7 +299,16 @@ export const AgentMessage = memo(function AgentMessage({ turn }: { turn: AgentDi
             if (block.type === 'thinking')
               return <ThinkingBlockView key={block.id} block={block} />;
             if (block.type === 'text') return <TextBlockView key={block.id} block={block} />;
-            if (block.type === 'tool_use') return <ToolUseBlockView key={block.id} block={block} />;
+            if (block.type === 'tool_use')
+              return (
+                <ToolUseBlockView
+                  key={block.id}
+                  block={block}
+                  compact={compactToolUse}
+                  isActive={activeToolUseId === block.id}
+                  onSelect={onSelectToolUse ? () => onSelectToolUse(block.id) : undefined}
+                />
+              );
           })
         )}
       </div>

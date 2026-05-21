@@ -73,6 +73,7 @@ describe('FormComponentSchema', () => {
           options: ['United States', 'Canada', 'Germany'],
         },
       ],
+      onSubmit: 'submit-action',
     };
     const result = FormComponentSchema.parse(form);
     expect(result.fields[0].options).toEqual([
@@ -87,6 +88,7 @@ describe('FormComponentSchema', () => {
       id: 'ds-form',
       type: 'form',
       fields: [{ name: 'country', type: 'select', label: 'Country', options: 'countries' }],
+      onSubmit: 'submit-action',
     };
     const result = FormComponentSchema.parse(form);
     expect(result.fields[0].options).toBe('countries');
@@ -104,6 +106,7 @@ describe('FormComponentSchema', () => {
         { name: 'resume', type: 'file', label: 'Resume', required: true },
         { name: 'passport', type: 'file', label: 'Passport', sensitive: true },
       ],
+      onSubmit: 'submit-action',
     };
     const result = FormComponentSchema.parse(form);
     expect(result.fields[0].type).toBe('file');
@@ -252,6 +255,7 @@ describe('MdmaComponentSchema (discriminated union)', () => {
       id: 'f',
       type: 'form',
       fields: [{ name: 'x', type: 'text', label: 'X' }],
+      onSubmit: 'submit-action',
     });
     expect(form.type).toBe('form');
 

@@ -38,6 +38,46 @@ import {
   SELECT_OPTIONS_BLOCK,
 } from './_shared.js';
 
+// Scoped to gemini-2.5-flash only. Triggered by a flows-eval failure
+// where the model emitted a malformed select option for the customer
+// sentiment field — duplicating "Positive" mid-list with the second
+// entry missing the \`value:\` field entirely:
+//
+//   options:
+//     - label: Positive
+//       value: positive
+//     - label: positive       ← missing value, partial duplicate
+//     - label: Neutral
+//       value: neutral
+//
+// The shared SELECT_OPTIONS_BLOCK only addresses string-vs-number on
+// value; this block adds the orthogonal rule that each entry must be
+// complete (both label AND value) and options must not be duplicated.
+const SELECT_ENTRY_COMPLETENESS_BLOCK = `## Select Option Entry Completeness
+
+Every entry in a \`type: select\` field's \`options\` array has BOTH a \`label\` and a \`value\` — never a label alone. Each distinct choice appears once; do not duplicate or near-duplicate (e.g., \`Positive\` then \`positive\`).
+
+Wrong (malformed and duplicated):
+
+\`\`\`yaml
+options:
+  - label: Positive
+    value: positive
+  - label: positive          # missing value, duplicate of "Positive"
+  - label: Neutral
+    value: neutral
+\`\`\`
+
+Right:
+
+\`\`\`yaml
+options:
+  - label: Positive
+    value: positive
+  - label: Neutral
+    value: neutral
+\`\`\``;
+
 export const MDMA_AUTHOR_PROMPT_GEMINI_2_5_FLASH = `${BASE_OPENING}
 
 ${OUTPUT_FORMAT_BLOCK}
@@ -49,6 +89,8 @@ ${FENCE_CLOSING_BLOCK}
 ${SCOPE_DISCIPLINE_BLOCK}
 
 ${SELECT_OPTIONS_BLOCK}
+
+${SELECT_ENTRY_COMPLETENESS_BLOCK}
 
 ${BASE_CHECKLIST}
 `;

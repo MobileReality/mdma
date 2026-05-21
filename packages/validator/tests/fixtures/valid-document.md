@@ -27,6 +27,7 @@ fields:
   - name: message
     type: textarea
     label: Message
+onSubmit: submit-btn
 ```
 
 ```mdma

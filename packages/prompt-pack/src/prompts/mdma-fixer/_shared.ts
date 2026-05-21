@@ -1,4 +1,15 @@
 /**
+ * Building blocks for all MDMA-Fixer prompt variants — the canonical default
+ * and every per-vendor variant under `<vendor>/`.
+ *
+ * Variants compose these via template-literal interpolation. Add model-
+ * specific framing in the vendor `_shared.ts` or inline in the variant file.
+ *
+ * The `_` filename prefix is recognized by `evals/select-prompt.mjs` and
+ * skipped during variant discovery.
+ */
+
+/**
  * Base fixer prompt — general rules that apply to all fix scenarios.
  */
 export const MDMA_FIXER_BASE = `You are an MDMA document fixer. You receive a Markdown document containing \`\`\`mdma component blocks along with a list of validation errors that could NOT be auto-fixed. Your job is to output a corrected version of the entire document that resolves every listed issue.
@@ -178,6 +189,193 @@ export const MDMA_FIXER_APPROVAL = `
 | Missing \`url\` on webhook | Add a valid URL (e.g. \`https://api.example.com/endpoint\`) |`;
 
 /**
+ * Few-shot examples: broken → fixed MDMA document pairs.
+ * Covers the most common fix patterns: broken action references,
+ * field name typos, and multi-step flow splitting.
+ */
+export const MDMA_FIXER_EXAMPLES = `
+## Examples
+
+### Example 1 — Broken action references
+
+**Issues reported:**
+1. [error] cross-reference #order-form → onSubmit: "submit-handler" does not match any component ID
+2. [error] schema-conformance #order-webhook → trigger: Required
+
+**Broken document:**
+
+\`\`\`mdma
+type: form
+id: order-form
+fields:
+  - name: product
+    type: text
+    label: Product Name
+    required: true
+onSubmit: submit-handler
+\`\`\`
+
+\`\`\`mdma
+type: webhook
+id: order-webhook
+url: https://api.example.com/orders
+method: POST
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: order-status
+variant: success
+content: Your order has been submitted!
+\`\`\`
+
+**Fixed document:**
+
+\`\`\`mdma
+type: form
+id: order-form
+fields:
+  - name: product
+    type: text
+    label: Product Name
+    required: true
+onSubmit: order-webhook
+\`\`\`
+
+\`\`\`mdma
+type: webhook
+id: order-webhook
+url: https://api.example.com/orders
+method: POST
+trigger: order-form
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: order-status
+variant: success
+content: Your order has been submitted!
+\`\`\`
+
+---
+
+### Example 2 — Field name typos
+
+**Issues reported:**
+1. [warning] field-name-typos #review-gate → "roles" is likely a typo — did you mean "allowedRoles"?
+2. [warning] field-name-typos #review-gate → "approvers" is likely a typo — did you mean "requiredApprovers"?
+3. [error] schema-conformance #submit-btn → text: Required
+
+**Broken document:**
+
+\`\`\`mdma
+type: approval-gate
+id: review-gate
+title: Manager Review
+roles:
+  - manager
+  - hr
+approvers: 2
+onApprove: confirmed
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: confirmed
+variant: success
+content: Request approved!
+\`\`\`
+
+\`\`\`mdma
+type: button
+id: submit-btn
+variant: primary
+onAction: review-gate
+\`\`\`
+
+**Fixed document:**
+
+\`\`\`mdma
+type: approval-gate
+id: review-gate
+title: Manager Review
+allowedRoles:
+  - manager
+  - hr
+requiredApprovers: 2
+onApprove: confirmed
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: confirmed
+variant: success
+content: Request approved!
+\`\`\`
+
+\`\`\`mdma
+type: button
+id: submit-btn
+text: Submit for Review
+variant: primary
+onAction: review-gate
+\`\`\`
+
+---
+
+### Example 3 — Multi-step flow in single message (no conversation history)
+
+**Issues reported:**
+1. [error] flow-ordering (document): Multi-step flow in single message — "intake-form" targets "approval-gate" via onSubmit
+
+**Broken document:**
+
+\`\`\`mdma
+type: form
+id: intake-form
+fields:
+  - name: reason
+    type: textarea
+    label: Reason
+onSubmit: approval-gate
+\`\`\`
+
+\`\`\`mdma
+type: approval-gate
+id: approval-gate
+title: Manager Approval
+requiredApprovers: 1
+onApprove: notify-webhook
+\`\`\`
+
+\`\`\`mdma
+type: webhook
+id: notify-webhook
+url: https://api.example.com/notify
+method: POST
+trigger: approval-gate
+\`\`\`
+
+**Fixed document** (no prior conversation — output step 1 only):
+
+\`\`\`mdma
+type: form
+id: intake-form
+fields:
+  - name: reason
+    type: textarea
+    label: Reason
+onSubmit: submitted-callout
+\`\`\`
+
+\`\`\`mdma
+type: callout
+id: submitted-callout
+variant: info
+content: Your request has been submitted and is awaiting manager approval.
+\`\`\``;
+
+/**
  * Map from validator variant keys to their fixer extensions.
  */
 export const FIXER_EXTENSIONS: Record<string, string[]> = {
@@ -188,6 +386,18 @@ export const FIXER_EXTENSIONS: Record<string, string[]> = {
     MDMA_FIXER_FORMS,
     MDMA_FIXER_TABLES_CHARTS,
     MDMA_FIXER_FLOW,
+    MDMA_FIXER_APPROVAL,
+  ],
+  // Single-block focus: every per-component fix, no multi-step workflow logic.
+  // Use this preset for callers that validate one MDMA block at a time via
+  // `validate()` — there is no conversation history to reason about, so the
+  // multi-step FLOW extension would only confuse the model.
+  'single-block': [
+    MDMA_FIXER_STRUCTURE,
+    MDMA_FIXER_BINDINGS,
+    MDMA_FIXER_PII,
+    MDMA_FIXER_FORMS,
+    MDMA_FIXER_TABLES_CHARTS,
     MDMA_FIXER_APPROVAL,
   ],
   structure: [MDMA_FIXER_STRUCTURE],
@@ -217,11 +427,8 @@ export function buildFixerPrompt(variantKey?: string): string {
           MDMA_FIXER_APPROVAL,
         ];
 
-  return `${MDMA_FIXER_BASE}\n${extensions.join('\n')}`;
+  return `${MDMA_FIXER_BASE}\n${extensions.join('\n')}\n${MDMA_FIXER_EXAMPLES}`;
 }
-
-/** @deprecated Use buildFixerPrompt() instead. Kept for backward compatibility. */
-export const MDMA_FIXER_PROMPT = buildFixerPrompt();
 
 export interface FixerIssue {
   ruleId: string;
@@ -269,7 +476,7 @@ export function buildFixerMessage(
     context += `\n\n## Original Prompt Requirements\n\nThe document was generated from the following instructions. The fixed output MUST comply with these requirements — use the correct component IDs, field names, types, options, and structure specified here:\n\n${options.promptContext}\n`;
   }
 
-  return `Fix the following MDMA document. The validator found ${issues.length} issue(s) that could not be auto-fixed:
+  return `Fix the following MDMA document. The validator found ${issues.length} issue(s) that need to be fixed:
 
 ${issueLines.join('\n')}${context}
 

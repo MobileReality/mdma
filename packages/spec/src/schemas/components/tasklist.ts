@@ -13,7 +13,7 @@ export const TaskItemSchema = z.object({
 export const TasklistComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('tasklist'),
   items: z.array(TaskItemSchema).min(1),
-  onComplete: z.string().optional().describe('Action ID triggered when all items are checked'),
+  onComplete: z.string().optional().describe('Action ID dispatched when all items are checked'),
 });
 
 export type TaskItem = z.infer<typeof TaskItemSchema>;

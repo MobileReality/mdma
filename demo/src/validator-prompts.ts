@@ -1,4 +1,4 @@
-import type { ExpectedComponent, FlowStepDefinition } from '@mobile-reality/mdma-validator';
+import type { ExpectedComponent, ConversationStep } from '@mobile-reality/mdma-validator';
 
 export interface ValidatorPromptVariant {
   key: string;
@@ -673,10 +673,11 @@ export const EXPECTED_COMPONENTS: Record<string, Record<string, ExpectedComponen
 };
 
 /**
- * Structured flow step definitions for deterministic validation via validateFlow().
- * Keyed by variant key — only variants with multi-step workflows need entries.
+ * Structured flow step definitions for deterministic validation via
+ * `validateConversation()`. Keyed by variant key — only variants with
+ * multi-step workflows need entries.
  */
-export const FLOW_STEPS: Record<string, FlowStepDefinition[]> = {
+export const FLOW_STEPS: Record<string, ConversationStep[]> = {
   flow: [
     { label: 'Registration Form', type: 'form', id: 'registration-form' },
     { label: 'Manager Approval', type: 'approval-gate', id: 'approval-gate' },

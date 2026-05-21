@@ -34,6 +34,13 @@ export interface UserTurn {
   id: string;
   role: 'user';
   content: string;
+  /**
+   * When true, the turn is not rendered in the chat UI but is still part of
+   * the API history sent to the agent. Used by the Insurance Preview to
+   * carry "step N submitted, please continue" signals without exposing
+   * synthetic prompts (or form data) to the user.
+   */
+  hidden?: boolean;
 }
 
 export interface AssistantTurn {

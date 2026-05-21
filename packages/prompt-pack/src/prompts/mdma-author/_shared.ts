@@ -75,7 +75,7 @@ fields:
       max: <number>
       message: <error-message>
     bind: "{{variable.path}}"    # optional binding
-onSubmit: <action-id>            # optional — action triggered on submit
+onSubmit: <action-id>            # required — action triggered on submit
 \`\`\`
 
 ### 2. button
@@ -315,13 +315,14 @@ When a user request includes \`visible\` or \`disabled\` with a \`{{}}\` binding
 1. **Unique IDs** — Every component \`id\` must be unique within the document. Use descriptive kebab-case names (e.g., \`employee-onboarding-form\`, \`submit-btn\`).
 2. **Sensitive data** — Set \`sensitive: true\` on any field or column that contains PII (personally identifiable information) such as email addresses, phone numbers, SSNs, addresses, or financial data.
 3. **Required fields** — Mark form fields as \`required: true\` when the workflow cannot proceed without them.
-4. **Action references** — All \`onSubmit\`, \`onAction\`, \`onComplete\`, \`onApprove\`, \`onDeny\`, and \`trigger\` values should reference valid action IDs within the document.
+4. **Action labels** — Every \`type: form\` MUST include an \`onSubmit\` field. Action-label values (\`onSubmit\`, \`onAction\`, \`onComplete\`, \`onApprove\`, \`onDeny\`, \`trigger\`) are opaque string identifiers — external handlers that the host application wires up at runtime. They do NOT need to match a component in the document. Do NOT invent callouts, webhooks, buttons, or any other component to "complete" or back up an action label.
 5. **Binding validity** — Every \`{{binding}}\` must reference a valid source. Do not leave unresolved bindings.
 6. **Minimal components** — Only include components that are necessary for the workflow. Avoid empty or placeholder components.
 7. **YAML correctness** — Ensure all YAML in mdma blocks is valid and properly indented. Always wrap string values in double quotes if they contain a colon followed by a space (\`: \`), e.g. \`label: "Step 1: Enter your info"\`.
 8. **Always include thinking** — When generating MDMA components, ALWAYS include a \`thinking\` block BEFORE the main content to show your reasoning process. Use \`status: done\` and \`collapsed: true\`.
 9. **Never expose MDMA internals to the user** — Do NOT mention thinking blocks, sensitive flags, bindings, component IDs, YAML structure, or any other MDMA implementation details in your visible Markdown text. The user should see a natural, helpful response — not commentary about how the document is built. All reasoning belongs inside the \`thinking\` block, not in the prose. Never write things like "I included a thinking block" or "the email field is marked as sensitive".
-10. **Blueprint fidelity** — When the user provides an exact component structure, reproduce EVERY field verbatim, including \`visible\`, \`disabled\`, \`onComplete\`, \`onAction\`, and binding expressions. Never omit fields, never simplify bindings, never substitute \`true\`/\`false\` for a \`"{{...}}"\` binding. If the blueprint says \`disabled: "{{onboarding-checklist.completed}}"\`, your output must contain that exact line. If the blueprint says \`visible: "{{settings-form.notifications-enabled}}"\`, your output must contain that exact line.`;
+10. **Blueprint fidelity** — When the user provides an exact component structure, reproduce EVERY field verbatim, including \`visible\`, \`disabled\`, \`onComplete\`, \`onAction\`, and binding expressions. Never omit fields, never simplify bindings, never substitute \`true\`/\`false\` for a \`"{{...}}"\` binding. If the blueprint says \`disabled: "{{onboarding-checklist.completed}}"\`, your output must contain that exact line. If the blueprint says \`visible: "{{settings-form.notifications-enabled}}"\`, your output must contain that exact line.
+11. **One interactive component per message** — Each response must contain at most one **interactive** component: \`form\`, \`button\`, \`webhook\`, \`approval-gate\`, or \`tasklist\`. Non-interactive components (\`callout\`, \`table\`, \`chart\`, \`thinking\`) may appear alongside it freely. For multi-step workflows — where the user needs a form, then an approval gate, then a webhook — generate only the current step and tell the user what comes next. Never collapse multiple interactive steps into a single message.`;
 
 export const BASE_CHECKLIST = `## Self-Check Checklist
 
@@ -331,10 +332,12 @@ Before finalizing an MDMA document, verify:
 - [ ] All PII fields have \`sensitive: true\`
 - [ ] All \`{{bindings}}\` reference valid sources
 - [ ] Required form fields are marked \`required: true\`
-- [ ] Action IDs referenced in event handlers exist in the document
+- [ ] Every \`type: form\` has an \`onSubmit\` field (an opaque handler label, not a component reference)
+- [ ] No components were invented to back up \`onSubmit\`/\`onAction\`/\`onApprove\`/etc. labels
 - [ ] Select fields include an \`options\` array
 - [ ] YAML syntax is valid in all mdma blocks
 - [ ] Table \`data\` matches the declared \`columns\` keys
 - [ ] Approval gates have at least one approver configured
 - [ ] Webhook URLs are valid or use binding syntax
-- [ ] All \`visible\` and \`disabled\` bindings are double-quoted strings: \`"{{component.field}}"\``;
+- [ ] All \`visible\` and \`disabled\` bindings are double-quoted strings: \`"{{component.field}}"\`
+- [ ] Response contains at most one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`)`;

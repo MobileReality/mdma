@@ -9,6 +9,7 @@ fields:
     label: Email
     required: true
     sensitive: true
+onSubmit: submit-action
 ```
 
 ```mdma

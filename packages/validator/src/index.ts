@@ -1,5 +1,5 @@
 export { validate } from './validate.js';
-export { validateFlow } from './validate-flow.js';
+export { validateConversation } from './validate-conversation.js';
 export type {
   ValidationResult,
   ValidationIssue,
@@ -10,8 +10,8 @@ export type {
   ExpectedComponent,
 } from './types.js';
 export type {
-  FlowStepDefinition,
-  FlowValidationOptions,
-  FlowValidationResult,
-  FlowValidationIssue,
-} from './validate-flow.js';
+  ConversationStep,
+  ValidateConversationOptions,
+  ValidateConversationResult,
+  ValidateConversationIssue,
+} from './validate-conversation.js';

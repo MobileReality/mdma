@@ -5374,3 +5374,534 @@ body {
   border-radius: 0 6px 6px 0;
   margin: 8px 0 16px !important;
 }
+
+.docs-do-dont {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 12px 0 24px;
+}
+
+@media (max-width: 900px) {
+  .docs-do-dont {
+    grid-template-columns: 1fr;
+  }
+}
+
+.docs-do,
+.docs-dont {
+  border-radius: 8px;
+  padding: 14px 16px;
+  border: 1px solid;
+}
+
+.docs-do {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.docs-dont {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.docs-do h4,
+.docs-dont h4 {
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.docs-do h4 {
+  color: #15803d;
+}
+
+.docs-dont h4 {
+  color: #b91c1c;
+}
+
+/* ===== Preview Layout (insurance claim demo) ===== */
+/* All rules below are scoped to .preview-layout to keep them isolated
+   from the other routes (Agent Chat, Author Chat, Validator, Docs). */
+
+.preview-layout {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.preview-layout .preview-chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid #e5e7eb;
+}
+
+.preview-layout .preview-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.preview-layout .preview-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+}
+
+.preview-layout .preview-pane-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.preview-layout .preview-pane-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.preview-layout .preview-pane-status--idle {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.preview-layout .preview-pane-status--validating,
+.preview-layout .preview-pane-status--fixing {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.preview-layout .preview-pane-status--ready {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.preview-layout .preview-pane-status--invalid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.preview-layout .preview-pane-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.preview-layout .preview-pane-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.preview-layout .preview-pane-empty-title {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.preview-layout .preview-pane-empty-hint {
+  margin: 0;
+  max-width: 360px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #6b7280;
+}
+
+/* ===== Preview-specific callout component =====
+   The agent demo's default callout uses `.custom-callout*` markup which
+   was already styled across the app. We render a dedicated callout in
+   the Preview pane (`.preview-callout*`) so we can give it a distinct,
+   confident look without affecting the other views. */
+.preview-layout .preview-callout {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  border-left-width: 5px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+.preview-layout .preview-callout-icon {
+  font-size: 22px;
+  line-height: 1.2;
+  flex-shrink: 0;
+}
+.preview-layout .preview-callout-body {
+  flex: 1;
+  min-width: 0;
+}
+.preview-layout .preview-callout-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.preview-layout .preview-callout-content {
+  margin: 0;
+  color: #1f2937;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.preview-layout .preview-callout-dismiss {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  border: none;
+  background: transparent;
+  font-size: 18px;
+  color: #6b7280;
+  cursor: pointer;
+}
+.preview-layout .preview-callout-dismiss:hover {
+  color: #111827;
+}
+
+.preview-layout .preview-callout--info {
+  background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: #bfdbfe;
+  border-left-color: #2563eb;
+}
+.preview-layout .preview-callout--info .preview-callout-title {
+  color: #1e3a8a;
+}
+.preview-layout .preview-callout--success {
+  background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #a7f3d0;
+  border-left-color: #059669;
+}
+.preview-layout .preview-callout--success .preview-callout-title {
+  color: #065f46;
+}
+.preview-layout .preview-callout--warning {
+  background: linear-gradient(180deg, #fffbeb 0%, #fef3c7 100%);
+  border-color: #fde68a;
+  border-left-color: #d97706;
+}
+.preview-layout .preview-callout--warning .preview-callout-title {
+  color: #92400e;
+}
+.preview-layout .preview-callout--error {
+  background: linear-gradient(180deg, #fef2f2 0%, #fee2e2 100%);
+  border-color: #fecaca;
+  border-left-color: #dc2626;
+}
+.preview-layout .preview-callout--error .preview-callout-title {
+  color: #991b1b;
+}
+
+/* "Submitted" status chip + read-only overlay for revisiting a past step. */
+.preview-layout .preview-pane-status--submitted {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+.preview-layout .preview-pane-note--submitted {
+  background: #eef2ff;
+  color: #3730a3;
+  border: 1px solid #c7d2fe;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.preview-layout .preview-pane-locked {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.62;
+  filter: grayscale(0.2);
+}
+
+/* Clickable / active variants of the compact tool_use chip in the chat. */
+.preview-layout .agent-tool-call--clickable {
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.preview-layout .agent-tool-call--clickable:hover {
+  border-color: #6c5ce7;
+  background: #faf5ff;
+}
+.preview-layout .agent-tool-call--active {
+  border-color: #6c5ce7;
+  background: #ede9fe;
+}
+.preview-layout .agent-tool-call--active .agent-tool-streaming {
+  color: #6c5ce7;
+  font-weight: 600;
+}
+
+/* Validation / fixer status notes shown above the rendered MDMA. */
+.preview-layout .preview-pane-note {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.preview-layout .preview-pane-note--fixed {
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde68a;
+}
+.preview-layout .preview-pane-note--invalid {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.preview-layout .preview-pane-note--invalid ul {
+  margin: 6px 0 0;
+  padding-left: 18px;
+}
+.preview-layout .preview-pane-note--invalid code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+/* Backend log — floating toggle (bottom-right) + slide-out drawer.
+   Drawer overlays the right edge of the layout so the log is accessible
+   from any sub-view of the Preview page without sharing space with the
+   rendered MDMA preview. */
+.preview-layout .preview-log-toggle {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #d1d5db;
+  border-radius: 20px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+.preview-layout .preview-log-toggle:hover {
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+.preview-layout .preview-log-toggle-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 9px;
+  background: #6c5ce7;
+  color: #fff;
+}
+
+.preview-layout .preview-log-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 23, 42, 0.25);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+.preview-layout .preview-log-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  width: min(440px, 100vw);
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-left: 1px solid #e5e7eb;
+  box-shadow: -4px 0 16px rgba(0, 0, 0, 0.12);
+}
+
+.preview-layout .preview-log-drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fafafa;
+}
+.preview-layout .preview-log-drawer-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
+}
+.preview-layout .preview-log-drawer-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 11px;
+  font-weight: 600;
+}
+.preview-layout .preview-log-clear {
+  margin-left: auto;
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.preview-layout .preview-log-clear:hover {
+  background: #f9fafb;
+}
+.preview-layout .preview-log-drawer-close {
+  padding: 0 8px;
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  line-height: 1;
+  color: #6b7280;
+  cursor: pointer;
+}
+.preview-layout .preview-log-drawer-close:hover {
+  color: #111827;
+}
+.preview-layout .preview-log-drawer-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
+}
+.preview-layout .preview-log-empty {
+  margin: 0;
+  color: #6b7280;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.preview-layout .preview-log-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.preview-layout .preview-log-item {
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+}
+.preview-layout .preview-log-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.preview-layout .preview-log-item-method {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: #1f2937;
+}
+.preview-layout .preview-log-item-status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.preview-layout .preview-log-item-time {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 11px;
+}
+.preview-layout .preview-log-item-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.preview-layout .preview-log-item-claim {
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.preview-layout .preview-log-item-summary {
+  color: #374151;
+  font-size: 12px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Compact tool_use chip — used by AgentMessage when compactToolUse is true.
+   Suppresses the inline MDMA preview in the chat so the right-side pane is
+   the single source of truth for the live render. */
+.preview-layout .agent-tool-call--compact {
+  padding: 6px 10px;
+}
+.preview-layout .agent-tool-call--compact .agent-tool-call-header {
+  margin-bottom: 0;
+}
+.preview-layout .agent-tool-call--compact .agent-tool-call-body {
+  display: none;
+}
+
+/* Stack vertically on narrow screens so the preview pane stays usable. */
+@media (max-width: 900px) {
+  .preview-layout {
+    flex-direction: column;
+  }
+  .preview-layout .preview-chat {
+    flex: 1 1 50%;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  .preview-layout .preview-pane {
+    flex: 1 1 50%;
+  }
+}

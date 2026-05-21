@@ -109,6 +109,9 @@ importers:
       promptfoo:
         specifier: 0.121.9
         version: 0.121.9(@cfworker/json-schema@4.1.1)(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)))(@types/json-schema@7.0.15)(@types/node@18.19.130)(@types/react@19.2.14)(pg@8.18.0)(playwright-core@1.59.1)(socks@2.8.7)(typescript@5.9.3)
+      yaml:
+        specifier: ^2.6.0
+        version: 2.8.2
 
   packages/attachables-core:
     dependencies:

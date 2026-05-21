@@ -5,7 +5,7 @@ import { ChatMessage } from './chat/ChatMessage.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { ChatActionLog } from './chat/ChatActionLog.js';
 import { useChatActionLog } from './chat/use-chat-action-log.js';
-import { validateFlow, type FlowStepDefinition } from '@mobile-reality/mdma-validator';
+import { validateConversation, type ConversationStep } from '@mobile-reality/mdma-validator';
 import { customizations } from './custom-components.js';
 import { VALIDATOR_PROMPT_VARIANTS, FLOW_STEPS } from './validator-prompts.js';
 import { ValidationPanel } from './validator/ValidationPanel.js';
@@ -72,14 +72,14 @@ function ValidatorChatInner({ promptKey }: { promptKey: string }) {
   });
 
   // Flow validation
-  const flowSteps = FLOW_STEPS[promptKey] as FlowStepDefinition[] | undefined;
+  const flowSteps = FLOW_STEPS[promptKey] as ConversationStep[] | undefined;
   const flowResult = useMemo(() => {
     if (!flowSteps) return null;
     const assistantContents = messages
       .filter((m) => m.role === 'assistant' && m.content)
       .map((m) => m.content);
     if (assistantContents.length === 0) return null;
-    return validateFlow(assistantContents, { steps: flowSteps });
+    return validateConversation(assistantContents, { steps: flowSteps });
   }, [flowSteps, messages]);
 
   const flowComplete =

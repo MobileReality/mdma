@@ -31,6 +31,7 @@ describe('schema-conformance rule', () => {
         type: 'form',
         id: 'my-form',
         fields: [{ name: 'email', type: 'email', label: 'Email' }],
+        onSubmit: 'submit-action',
       }),
     ]);
     schemaConformanceRule.validate(ctx);
@@ -184,6 +185,7 @@ describe('schema-conformance rule', () => {
         type: 'form',
         id: 'upload-form',
         fields: [{ name: 'resume', type: 'file', label: 'Resume', required: true }],
+        onSubmit: 'submit-action',
       }),
     ]);
     schemaConformanceRule.validate(ctx);

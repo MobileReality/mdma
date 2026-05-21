@@ -188,7 +188,8 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               : 'OpenAI-compatible mode uses Chat Completions with function calling. Reasoning is internal and not displayed.'}
           </p>
           <p className="agent-settings-note agent-settings-note--storage">
-            🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to any server other than the AI provider you select.
+            🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to
+            any server other than the AI provider you select.
           </p>
         </div>
       )}

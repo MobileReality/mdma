@@ -12,6 +12,13 @@ const SECTIONS = [
     description: 'Agent with tool use',
     items: [
       {
+        path: '/preview',
+        label: 'Preview',
+        icon: '🛡️',
+        description:
+          'Multi-step flow demo (insurance claim) — chat on the left, live MDMA preview with auto-validation and fixer on the right.',
+      },
+      {
         path: '/chat',
         label: 'Agent Chat',
         icon: '⚡',

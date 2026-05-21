@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Cli } from './sections/Cli.js';
 import { COMPONENTS, ComponentPreview, Components } from './sections/Components.js';
+import { CustomPromptBestPractices } from './sections/CustomPromptBestPractices.js';
 import { Installation } from './sections/Installation.js';
 import { Introduction } from './sections/Introduction.js';
 import { Mcp } from './sections/Mcp.js';
@@ -32,6 +33,11 @@ const SECTIONS: Section[] = [
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
   { slug: 'cli', label: 'CLI', component: Cli },
+  {
+    slug: 'custom-prompt-best-practices',
+    label: 'Custom Prompt Best Practices',
+    component: CustomPromptBestPractices,
+  },
   { slug: 'prompt-matrix', label: 'Prompt Matrix', component: PromptMatrix },
 ];
 
@@ -66,18 +72,27 @@ export function DocsView() {
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
-  const activePackageSlug = active.startsWith('packages/') ? active.slice('packages/'.length) : null;
-  const activePackage = activePackageSlug ? PACKAGES.find((p) => p.slug === activePackageSlug) : null;
+  const activePackageSlug = active.startsWith('packages/')
+    ? active.slice('packages/'.length)
+    : null;
+  const activePackage = activePackageSlug
+    ? PACKAGES.find((p) => p.slug === activePackageSlug)
+    : null;
 
   const isIntegrationsActive = active === 'integrations' || active.startsWith('integrations/');
-  const activeIntegrationSlug = active.startsWith('integrations/') ? active.slice('integrations/'.length) : null;
-  const ActiveIntegration = activeIntegrationSlug ? INTEGRATION_COMPONENTS[activeIntegrationSlug] : null;
+  const activeIntegrationSlug = active.startsWith('integrations/')
+    ? active.slice('integrations/'.length)
+    : null;
+  const ActiveIntegration = activeIntegrationSlug
+    ? INTEGRATION_COMPONENTS[activeIntegrationSlug]
+    : null;
 
   const section = SECTIONS.find((s) => s.slug === active);
   const SectionContent = section?.component ?? null;
 
   function renderContent() {
-    if (showPreview) return <Components selected={selectedComponent} onSelect={setSelectedComponent} />;
+    if (showPreview)
+      return <Components selected={selectedComponent} onSelect={setSelectedComponent} />;
     if (activePackage) return <PackageDetail pkg={activePackage} onNavigate={setActive} />;
     if (active === 'packages') return <Packages onNavigate={setActive} />;
     if (ActiveIntegration) return <ActiveIntegration />;

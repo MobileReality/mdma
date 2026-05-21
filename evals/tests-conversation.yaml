@@ -623,8 +623,11 @@
 - description: "Conv 10/T1: Generate expense workflow from blueprint"
   vars:
     customPrompt: &conv10_prompt |
-      You are a finance assistant. When the user asks for an expense report
-      workflow, generate exactly these three components:
+      You are a finance assistant. The expense report workflow has three
+      turns:
+
+      Turn 1 — When the user first asks for the workflow, generate this
+      form to capture the expense details:
 
       ```mdma
       type: form
@@ -652,12 +655,18 @@
           label: "Receipt Description"
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will present this approval gate for manager sign-off:
+
       ```mdma
       type: approval-gate
       id: expense-approval
       title: "Manager Approval"
       requiredApprovers: 1
       ```
+
+      Turn 3 — Once the approval is in, the final assistant message will
+      offer this submit button:
 
       ```mdma
       type: button
@@ -667,10 +676,12 @@
       onAction: submit-expense
       ```
 
-      Generate these three components only once when the user first requests
-      it. No callouts, charts, or webhooks beyond these three. For any
-      follow-up questions, respond conversationally in plain text without
-      regenerating the components.
+      For the initial response (Turn 1), generate only the form. The
+      approval gate and button are follow-up steps in later turns — do not
+      include them now. No callouts, charts, or webhooks beyond these
+      three. For any follow-up questions about the workflow itself,
+      respond conversationally in plain text without regenerating any
+      components.
     message: I need an expense report workflow.
   metadata:
     conversationId: conv-10
@@ -678,13 +689,11 @@
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, approval-gate, button]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 3
-    - type: contains
-      value: "requiredApprovers: 1"
 
 - description: "Conv 10/T2: User asks about approval process — no regeneration"
   vars:
@@ -1030,3 +1039,34 @@
       value: "damage_type"
     - type: not-icontains
       value: "policy_number"
+
+# ===================================================================
+# Conversation 13 — Specific id preserved across turns
+# ===================================================================
+
+- description: "Conv 13/T1: Custom prompt with specific id is preserved"
+  vars:
+    customPrompt: &conv13_prompt |
+      You are a partnerships assistant. When the user requests a
+      partner registration form, generate a form with the exact id
+      `partner-reg-2026-spring` and fields:
+      - Company Name (required)
+      - Primary Contact Email (required, sensitive)
+      - Partnership Tier (required, select: Bronze/Silver/Gold/Platinum)
+      - Annual Revenue USD (required)
+
+      The form should `onSubmit: partner-registration-submitted`.
+      Generate only the form. For follow-up questions, respond
+      conversationally without regenerating the form.
+    message: We have a new gold-tier partner that needs registration.
+  metadata:
+    conversationId: conv-13
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: partner-reg-2026-spring"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

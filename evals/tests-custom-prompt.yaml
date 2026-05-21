@@ -44,6 +44,7 @@
         - name: actual
           type: textarea
           label: "Actual Behavior"
+      onSubmit: bug-submitted
       ```
 
       Generate only this form. No buttons, callouts, or other components.
@@ -72,8 +73,11 @@
 - description: "Generates prescribed onboarding form and checklist"
   vars:
     customPrompt: |
-      You are an HR onboarding assistant. For every new hire, generate
-      exactly these two components:
+      You are an HR onboarding assistant. The onboarding workflow has two
+      turns:
+
+      Turn 1 — In the initial response, generate this form to collect new
+      hire details:
 
       ```mdma
       type: form
@@ -106,7 +110,11 @@
           type: date
           label: "Start Date"
           required: true
+      onSubmit: onboarding-checklist
       ```
+
+      Turn 2 — After the new hire submits the form, the next assistant
+      message will show this onboarding checklist:
 
       ```mdma
       type: tasklist
@@ -124,13 +132,15 @@
           text: "Meet your team lead"
       ```
 
-      Generate only these two components. No buttons, callouts, or others.
+      For the initial response, generate only the form. The tasklist is
+      a follow-up step and appears in the next turn — do not include it
+      now. No buttons, callouts, or other components.
     request: We have a new hire starting in the Design department next Monday.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, tasklist]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
@@ -143,8 +153,6 @@
       value: file://assertions/has-required-fields.mjs
       config:
         min: 3
-    - type: contains
-      value: "type: tasklist"
 
 # ---------------------------------------------------------------------------
 # 3. Customer feedback — form + pie chart MDMA blueprint
@@ -183,6 +191,7 @@
         - name: feedback
           type: textarea
           label: "Comments"
+      onSubmit: feedback-submitted
       ```
 
       ```mdma
@@ -223,8 +232,11 @@
 - description: "Generates exact expense workflow from MDMA blueprint"
   vars:
     customPrompt: |
-      You are a finance assistant. When a user submits an expense, always
-      generate exactly these three components in this order:
+      You are a finance assistant. The expense submission workflow has three
+      turns:
+
+      Turn 1 — In the initial response, generate this form to collect the
+      expense details:
 
       ```mdma
       type: form
@@ -261,6 +273,9 @@
       onSubmit: approve-expense
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will present this approval gate for manager sign-off:
+
       ```mdma
       type: approval-gate
       id: expense-approval
@@ -268,6 +283,9 @@
       description: "Expenses over $100 require manager sign-off."
       requiredApprovers: 1
       ```
+
+      Turn 3 — Once the approval is in, the final assistant message will
+      offer this submit button:
 
       ```mdma
       type: button
@@ -277,25 +295,21 @@
       onAction: approve-expense
       ```
 
-      Generate only these three components. No callouts, tables, charts, or webhooks.
+      For the initial response, generate only the form. The approval gate
+      and button are follow-up steps and appear in later turns — do not
+      include them now. No callouts, tables, charts, or webhooks.
     request: I need to expense a $250 flight for the NYC conference.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, approval-gate, button]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 5
     - type: javascript
       value: file://assertions/select-has-options.mjs
-    - type: contains
-      value: "type: approval-gate"
-    - type: contains
-      value: "requiredApprovers: 1"
-    - type: contains
-      value: "type: button"
 
 # ---------------------------------------------------------------------------
 # 5. IT ticket — form + webhook MDMA blueprint
@@ -303,8 +317,11 @@
 - description: "Generates IT ticket form with webhook integration"
   vars:
     customPrompt: |
-      You are an IT helpdesk assistant. When a user reports an issue,
-      always generate exactly these two components:
+      You are an IT helpdesk assistant. The ticket submission workflow has
+      two turns:
+
+      Turn 1 — In the initial response, generate this form to collect the
+      issue details:
 
       ```mdma
       type: form
@@ -348,6 +365,9 @@
       onSubmit: submit-ticket
       ```
 
+      Turn 2 — After the user submits the form, the next assistant message
+      will fire this webhook to register the ticket with the IT API:
+
       ```mdma
       type: webhook
       id: ticket-webhook
@@ -356,19 +376,19 @@
       trigger: submit-ticket
       ```
 
-      Generate only these two components. No buttons, callouts, or tables.
+      For the initial response, generate only the form. The webhook is a
+      follow-up step and appears in the next turn — do not include it
+      now. No buttons, callouts, or tables.
     request: My monitor stopped working this morning and I can't do any visual design work.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, webhook]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
         expected: 4
-    - type: javascript
-      value: file://assertions/has-webhook.mjs
     - type: javascript
       value: file://assertions/has-sensitive.mjs
     - type: javascript
@@ -479,6 +499,7 @@
           type: textarea
           label: "Chief Complaint"
           required: true
+      onSubmit: patient-registered
       ```
 
       Generate only this form. No other components.
@@ -543,8 +564,11 @@
 - description: "Generates exact contract review workflow"
   vars:
     customPrompt: |
-      You are a legal operations assistant. For contract reviews, always
-      generate exactly these three components:
+      You are a legal operations assistant. The contract review workflow has
+      three turns:
+
+      Turn 1 — In the initial response, generate this form to capture the
+      contract summary:
 
       ```mdma
       type: form
@@ -580,7 +604,11 @@
               value: amendment
             - label: Renewal
               value: renewal
+      onSubmit: review-checklist
       ```
+
+      Turn 2 — After the user submits the form, the next assistant message
+      will show this review checklist:
 
       ```mdma
       type: tasklist
@@ -600,6 +628,9 @@
           text: "Attach signed copy"
       ```
 
+      Turn 3 — Once the checklist is complete, the final assistant message
+      will request legal sign-off via this approval gate:
+
       ```mdma
       type: approval-gate
       id: legal-sign-off
@@ -611,13 +642,15 @@
       requireReason: true
       ```
 
-      Generate only these three components. No buttons, callouts, or charts.
+      For the initial response, generate only the form. The checklist and
+      approval gate are follow-up steps and appear in later turns — do
+      not include them now. No buttons, callouts, or charts.
     request: We need to review the new SoW from Acme Corp worth $500k.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
       config:
-        allowed: [form, tasklist, approval-gate]
+        allowed: [form]
     - type: javascript
       value: file://assertions/exact-field-count.mjs
       config:
@@ -628,10 +661,6 @@
       value: file://assertions/has-required-fields.mjs
       config:
         min: 4
-    - type: contains
-      value: "requiredApprovers: 2"
-    - type: contains
-      value: "allowedRoles:"
 
 # ---------------------------------------------------------------------------
 # 10b. Recruiting — job application with file uploads (resume + portfolio)
@@ -666,6 +695,7 @@
         - name: cover-letter
           type: textarea
           label: "Cover Letter"
+      onSubmit: application-submitted
       ```
 
       Mark only the email as sensitive. Generate only this form — no
@@ -719,6 +749,7 @@
           label: "Proof of Address (utility bill or bank statement)"
           required: true
           sensitive: true
+      onSubmit: kyc-identity-verified
       ```
 
       Every field in this form is PII and MUST have `sensitive: true`.
@@ -785,3 +816,30 @@
       value: "type: table"
     - type: not-contains
       value: "type: callout"
+
+# ---------------------------------------------------------------------------
+# 12. Specific component id requested by the custom prompt
+# ---------------------------------------------------------------------------
+- description: "Custom prompt with specific component id is preserved in output"
+  vars:
+    customPrompt: |
+      You are a vendor onboarding assistant. When the user asks to
+      onboard a new vendor, generate a vendor intake form with the
+      exact id `vendor-intake-q1-2026` and the following fields:
+      - Vendor Name (required)
+      - Vendor Contact Email (required, sensitive)
+      - Tax Identifier (required, sensitive)
+      - Service Category (required, select: Consulting/Software/Hardware/Logistics/Other)
+
+      The form should `onSubmit: vendor-intake-submitted`. Generate
+      only the form.
+    request: We need to onboard a new logistics vendor for Q1.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: vendor-intake-q1-2026"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs

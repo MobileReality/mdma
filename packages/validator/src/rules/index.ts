@@ -8,7 +8,6 @@ import { bindingSyntaxRule } from './binding-syntax.js';
 // Disabled: binding-resolution checks intra-message bindings but components
 // and their bindings are never generated in the same message.
 // import { bindingResolutionRule } from './binding-resolution.js';
-import { actionReferencesRule } from './action-references.js';
 import { sensitiveFlagsRule } from './sensitive-flags.js';
 import { requiredMarkersRule } from './required-markers.js';
 import { thinkingBlockRule } from './thinking-block.js';
@@ -21,6 +20,8 @@ import { placeholderContentRule } from './placeholder-content.js';
 // import { unreferencedComponentsRule } from './unreferenced-components.js';
 import { flowOrderingRule } from './flow-ordering.js';
 import { expectedComponentsRule } from './expected-components.js';
+import { formSubmitActionRule } from './form-submit-action.js';
+import { singleInteractiveComponentRule } from './single-interactive-component.js';
 
 /**
  * Ordered list of all validation rules.
@@ -39,7 +40,6 @@ export const ALL_RULES: readonly ValidationRule[] = [
   idFormatRule,
   bindingSyntaxRule,
   // bindingResolutionRule,
-  actionReferencesRule,
   sensitiveFlagsRule,
   requiredMarkersRule,
   thinkingBlockRule,
@@ -50,6 +50,8 @@ export const ALL_RULES: readonly ValidationRule[] = [
   // unreferencedComponentsRule,
   flowOrderingRule,
   expectedComponentsRule,
+  formSubmitActionRule,
+  singleInteractiveComponentRule,
 ];
 
 export function getRulesExcluding(exclude: ValidationRuleId[]): ValidationRule[] {

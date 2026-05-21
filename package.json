@@ -20,10 +20,12 @@
     "eval:prompt-builder": "pnpm --filter @mobile-reality/mdma-evals eval:prompt-builder",
     "eval:flows": "pnpm --filter @mobile-reality/mdma-evals eval:flows",
     "eval:fixer": "pnpm --filter @mobile-reality/mdma-evals eval:fixer",
-    "eval:fixer-flow": "pnpm --filter @mobile-reality/mdma-evals eval:fixer-flow",
+    "eval:conversation-flow": "pnpm --filter @mobile-reality/mdma-evals eval:conversation-flow",
+    "eval:fixer-all": "pnpm --filter @mobile-reality/mdma-evals eval:fixer-all",
     "eval:guidance": "pnpm --filter @mobile-reality/mdma-evals eval:guidance",
     "eval:all": "pnpm --filter @mobile-reality/mdma-evals eval:all",
     "eval:author": "pnpm --filter @mobile-reality/mdma-evals eval:author",
+    "eval:cache-clear": "pnpm --filter @mobile-reality/mdma-evals eval:cache-clear",
     "eval:view": "pnpm --filter @mobile-reality/mdma-evals eval:view"
   },
   "devDependencies": {

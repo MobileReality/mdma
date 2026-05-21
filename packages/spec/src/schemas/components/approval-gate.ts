@@ -7,8 +7,8 @@ export const ApprovalGateComponentSchema = ComponentBaseSchema.extend({
   description: z.string().optional(),
   requiredApprovers: z.number().int().positive().default(1),
   allowedRoles: z.array(z.string()).optional(),
-  onApprove: z.string().optional().describe('Action ID triggered on approval'),
-  onDeny: z.string().optional().describe('Action ID triggered on denial'),
+  onApprove: z.string().optional().describe('Action ID dispatched on approval'),
+  onDeny: z.string().optional().describe('Action ID dispatched on denial'),
   requireReason: z.boolean().default(false).describe('Require reason on denial'),
 });
 

@@ -5,7 +5,6 @@ export type ValidationRuleId =
   | 'duplicate-ids'
   | 'binding-syntax'
   | 'binding-resolution'
-  | 'action-references'
   | 'sensitive-flags'
   | 'required-markers'
   | 'id-format'
@@ -18,7 +17,9 @@ export type ValidationRuleId =
   | 'unreferenced-components'
   | 'flow-ordering'
   | 'field-name-typos'
-  | 'expected-components';
+  | 'expected-components'
+  | 'form-submit-action'
+  | 'single-interactive-component';
 
 export interface ValidationIssue {
   /** Which rule flagged this */

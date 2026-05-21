@@ -1,6 +1,6 @@
 import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 import { MDMA_REVIEWER_PROMPT } from './prompts/mdma-reviewer.js';
-import { MDMA_FIXER_PROMPT } from './prompts/mdma-fixer.js';
+import { MDMA_FIXER_PROMPT } from './prompts/mdma-fixer/default.js';
 
 /**
  * Static registry of all available prompts.

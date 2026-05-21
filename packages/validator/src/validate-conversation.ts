@@ -1,9 +1,11 @@
 import { extractMdmaBlocksFromMarkdown } from './extract-blocks.js';
+import { validate } from './validate.js';
+import type { ValidationRuleId, ValidationSeverity } from './types.js';
 
 /**
- * A single step definition in the expected flow.
+ * A single step definition in the expected conversation flow.
  */
-export interface FlowStepDefinition {
+export interface ConversationStep {
   /** Human-readable step label (e.g. "Registration Form") */
   label: string;
   /** The primary component type for this step */
@@ -16,27 +18,42 @@ export interface FlowStepDefinition {
     | 'callout'
     | 'table'
     | 'chart';
-  /** Expected component ID for the interactive component */
+  /** Expected component ID for the step's primary component */
   id: string;
 }
 
-export interface FlowValidationOptions {
-  /** Ordered list of expected flow steps. */
-  steps: FlowStepDefinition[];
+export interface ValidateConversationOptions {
+  /** Ordered list of expected conversation steps. */
+  steps: ConversationStep[];
+  /**
+   * Rule IDs to exclude from the per-message validation pass. Forwarded to
+   * `validate()` for each message. Same semantics as `validate()`'s `exclude`.
+   */
+  exclude?: ValidationRuleId[];
 }
 
-export interface FlowValidationResult {
+export interface ValidateConversationIssue {
+  /** 0-based message index in the conversation */
+  messageIndex: number;
+  severity: ValidationSeverity;
+  message: string;
+  /**
+   * Set when the issue was produced by the per-message `validate()` call —
+   * identifies which validator rule fired. Absent for issues raised by the
+   * multi-step layer itself (step sequence, cross-message regeneration, etc.).
+   */
+  ruleId?: ValidationRuleId;
+  /** Set for per-block issues from `validate()`. */
+  componentId?: string | null;
+  /** Set for per-block issues from `validate()`. */
+  field?: string;
+}
+
+export interface ValidateConversationResult {
   /** true if no errors */
   ok: boolean;
   /** All issues found across the conversation */
-  issues: FlowValidationIssue[];
-}
-
-export interface FlowValidationIssue {
-  /** 0-based message index in the conversation */
-  messageIndex: number;
-  severity: 'error' | 'warning' | 'info';
-  message: string;
+  issues: ValidateConversationIssue[];
 }
 
 /**
@@ -64,46 +81,73 @@ function extractStepComponents(
 }
 
 /**
- * Validate an entire conversation flow against expected step definitions.
+ * Validate an entire conversation (sequence of assistant messages) end-to-end.
  *
- * Takes all assistant messages in order and checks:
- * 1. Each message contains exactly one interactive component
- * 2. Steps follow the expected order
- * 3. No step is duplicated
- * 4. Component IDs match the expected definitions
+ * The function runs two passes:
+ *
+ *   1. Per-message — each assistant message is passed through `validate()`
+ *      so every per-block rule fires (yaml-correctness, schema-conformance,
+ *      duplicate-ids, sensitive-flags, ...). Per-message issues are surfaced
+ *      with their `messageIndex` set.
+ *
+ *   2. Multi-step — across messages, this function adds checks that
+ *      `validate()` cannot see by itself:
+ *      - exactly one interactive component per message
+ *      - no regenerated component IDs across turns
+ *      - step sequence matches the expected `options.steps` definition
+ *      - missing steps are surfaced as `info`
  *
  * @param assistantMessages - Assistant message contents in conversation order
- * @param options - Expected flow definition
+ * @param options - Expected flow + optional per-message validation exclusions
  */
-export function validateFlow(
+export function validateConversation(
   assistantMessages: string[],
-  options: FlowValidationOptions,
-): FlowValidationResult {
-  const { steps } = options;
-  const issues: FlowValidationIssue[] = [];
+  options: ValidateConversationOptions,
+): ValidateConversationResult {
+  const { steps, exclude } = options;
+  const issues: ValidateConversationIssue[] = [];
+
+  // --- Pass 1: per-message validation ---
+  for (let msgIdx = 0; msgIdx < assistantMessages.length; msgIdx++) {
+    const result = validate(assistantMessages[msgIdx], {
+      exclude,
+      autoFix: false,
+    });
+    for (const issue of result.issues) {
+      issues.push({
+        messageIndex: msgIdx,
+        severity: issue.severity,
+        message: issue.message,
+        ruleId: issue.ruleId,
+        componentId: issue.componentId,
+        field: issue.field,
+      });
+    }
+  }
+
+  // --- Pass 2: multi-step checks ---
   const seenIds = new Set<string>();
   let currentStepIndex = 0;
-
   const expectedIds = new Set(steps.map((s) => s.id));
   const expectedTypes = new Set(steps.map((s) => s.type));
 
   for (let msgIdx = 0; msgIdx < assistantMessages.length; msgIdx++) {
     const components = extractStepComponents(assistantMessages[msgIdx], expectedIds, expectedTypes);
 
-    // Skip messages with no interactive components (e.g. pure text responses)
-    if (components.length === 0) continue;
+    if (components.length === 0) continue; // pure-text reply is allowed
 
-    // Check: exactly one interactive component per message
     if (components.length > 1) {
       issues.push({
         messageIndex: msgIdx,
         severity: 'error',
-        message: `Message ${msgIdx + 1} has ${components.length} interactive components (${components.map((c) => `${c.type}#${c.id}`).join(', ')}) — expected exactly 1`,
+        message: `Message ${msgIdx + 1} has ${components.length} interactive components (${components
+          .map((c) => `${c.type}#${c.id}`)
+          .join(', ')}) — expected exactly 1`,
       });
     }
 
     for (const comp of components) {
-      // Check: no duplicates across messages
+      // No regenerated components across messages
       if (seenIds.has(comp.id)) {
         issues.push({
           messageIndex: msgIdx,
@@ -114,7 +158,7 @@ export function validateFlow(
       }
       seenIds.add(comp.id);
 
-      // Check: matches expected step
+      // Step sequence
       if (currentStepIndex < steps.length) {
         const expected = steps[currentStepIndex];
 
@@ -149,7 +193,6 @@ export function validateFlow(
     }
   }
 
-  // Check: all steps were shown
   if (currentStepIndex < steps.length) {
     for (let i = currentStepIndex; i < steps.length; i++) {
       issues.push({
