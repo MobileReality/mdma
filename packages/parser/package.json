@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-parser",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "keywords": [
     "mdma",
     "markdown",
@@ -41,7 +41,9 @@
     "vitest": "^3.2.0",
     "zod": "^3.24.0"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

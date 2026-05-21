@@ -1,5 +1,13 @@
 # @mobile-reality/mdma-renderer-react
 
+## 0.2.4
+
+### Patch Changes
+
+- Updated dependencies [5bb8529]
+  - @mobile-reality/mdma-spec@0.3.0
+  - @mobile-reality/mdma-runtime@0.2.3
+
 ## 0.2.3
 
 ### Patch Changes

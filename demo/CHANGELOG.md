@@ -1,5 +1,19 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.9
+
+### Patch Changes
+
+- 5bb8529: Split validator into per-block validate() and multi-message validateConversation(); make form.onSubmit required and rewrite action-label fields as opaque labels (drop the action-references rule); add many model-specific fixer/author/agent-tool prompt variants (gpt-5.x family, Claude opus/sonnet/haiku, Gemini 2.5/3, Grok), promote the conversation-judge prompt out of mdma-fixer/ and rename its export to MDMA_CONVERSATION_JUDGE.
+- Updated dependencies [5bb8529]
+- Updated dependencies [019778a]
+  - @mobile-reality/mdma-validator@0.3.0
+  - @mobile-reality/mdma-spec@0.3.0
+  - @mobile-reality/mdma-prompt-pack@0.3.2
+  - @mobile-reality/mdma-parser@0.2.3
+  - @mobile-reality/mdma-renderer-react@0.2.4
+  - @mobile-reality/mdma-runtime@0.2.3
+
 ## 0.0.8
 
 ### Patch Changes
