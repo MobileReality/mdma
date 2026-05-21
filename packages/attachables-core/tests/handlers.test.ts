@@ -36,6 +36,7 @@ describe('formHandler', () => {
         { name: 'email', type: 'email', label: 'Email' },
         { name: 'agree', type: 'checkbox', label: 'Agree' },
       ],
+      onSubmit: 'submit-f1',
     });
     expect(state.values.email).toBe('');
     expect(state.values.agree).toBe(false);

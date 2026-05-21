@@ -16,6 +16,7 @@ fields:
     label: Email
     required: true
     sensitive: true
+onSubmit: submit-test
 \`\`\`
 `;
     const result = validate(markdown);

@@ -11,6 +11,7 @@ fields:
   - name: user_name
     type: text
     label: Name
+onSubmit: submit-data
 ```
 
 ## Data Table

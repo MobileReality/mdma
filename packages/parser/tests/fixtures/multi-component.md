@@ -16,6 +16,7 @@ fields:
     options:
       - { label: P1 - Critical, value: P1 }
       - { label: P2 - High, value: P2 }
+onSubmit: submit-triage
 ```
 
 ## Checklist
