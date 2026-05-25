@@ -46,7 +46,7 @@ The following are in scope:
 - **PII leakage** -- sensitive fields (marked `sensitive: true`) appearing in logs, event bus payloads, or rendered output.
 - **Redaction failures** -- the redactor (`@mobile-reality/mdma-runtime`) failing to mask, hash, or omit PII as configured.
 - **Event log integrity** -- tampering with or forging audit log entries (hash-chain breaks).
-- **Approval gate bypass** -- approval-gate components accepting unauthorized approvers or skipping required approvals.
+- **Approval gate bypass** -- the approval-gate component's `allowedRoles`, `requiredApprovers`, and `requireReason` fields are advisory metadata surfaced to the host application; the MDMA runtime does not enforce them. Host-side authentication and authorization of approvers is the responsibility of the embedding application and is out of scope for this project. Reports that hinge on those fields being enforced at the runtime layer will be closed as not-a-bug.
 - **Injection via bindings** -- binding expressions (`{{variable.path}}`) that resolve to executable code or leak cross-component state.
 - **Dependency vulnerabilities** -- known CVEs in direct dependencies that are exploitable in MDMA's usage context.
 

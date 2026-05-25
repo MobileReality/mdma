@@ -294,7 +294,20 @@ dismissible: true
 
 ## approval-gate
 
-Blocks workflow progression until the required number of approvals is received. Supports role-based access control.
+Surfaces an approval-workflow UI element. The gate's status (`pending` / `approved` / `denied`) is exposed as a binding (`{{<id>.status}}`) for downstream components.
+
+> **Security model — read first.**
+>
+> The MDMA runtime does **not** verify approver identity, enforce role membership, or require multiple distinct approvers. The `allowedRoles`, `requiredApprovers`, and `requireReason` fields below are **advisory metadata only** — they describe the policy a host application should enforce, but MDMA itself does not enforce them. Anyone able to dispatch an `APPROVAL_GRANTED` action against the store can flip a gate to `approved` regardless of role, count, or reason.
+>
+> Host applications embedding MDMA are responsible for:
+>
+> 1. Authenticating the user and supplying a verified actor identity.
+> 2. Checking that identity against `allowedRoles` before invoking `store.dispatch({ type: 'APPROVAL_GRANTED', ... })`.
+> 3. Tracking distinct approvers if `requiredApprovers > 1` is intended to be meaningful.
+> 4. Enforcing end-to-end authorization on any backend the approval triggers (defense in depth — client-side controls are bypassable in any browser).
+>
+> When the runtime detects any of these advisory fields on a gate, it emits a `console.warn` once per gate at store initialization to make the responsibility explicit.
 
 ### Properties
 
@@ -303,11 +316,11 @@ Blocks workflow progression until the required number of approvals is received. 
 | `type` | `"approval-gate"` | *required* | Must be `"approval-gate"`. |
 | `title` | `string` | *required* | Gate title. Min length 1. |
 | `description` | `string` | -- | Additional details about the approval. |
-| `requiredApprovers` | `number` | `1` | Number of approvals needed. Positive integer. |
-| `allowedRoles` | `string[]` | -- | Restrict who can approve. If omitted, anyone can approve. |
+| `requiredApprovers` | `number` | `1` | **Advisory only** — not enforced by MDMA. The host application is responsible for tracking distinct approvers. Positive integer. |
+| `allowedRoles` | `string[]` | -- | **Advisory only** — not enforced by MDMA. The host application is responsible for verifying the actor's role before dispatching `APPROVAL_GRANTED`. |
 | `onApprove` | `string` | -- | Action ID triggered when approval is granted. |
 | `onDeny` | `string` | -- | Action ID triggered when approval is denied. |
-| `requireReason` | `boolean` | `false` | Require the denier to provide a reason. |
+| `requireReason` | `boolean` | `false` | **Advisory only** — UI may surface a reason input on denial; the MDMA runtime does not block dispatch when a reason is omitted. |
 
 ### Example
 
@@ -316,8 +329,9 @@ id: dual-approval
 type: approval-gate
 title: Production Change Approval
 description: >
-  Requires sign-off from both a tech lead and a manager.
-  This is a SOX compliance requirement for all production changes.
+  Surfaces the approval workflow for a production change. Authenticating
+  the signers and enforcing the role/quorum constraints below is the host
+  application's responsibility — see the "Security model" callout above.
 requiredApprovers: 2
 allowedRoles:
   - tech-lead

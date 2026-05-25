@@ -196,3 +196,119 @@ describe('DocumentStore', () => {
     expect(comp?.values.deniedReason).toBe('Not ready');
   });
 });
+
+describe('warnIfAdvisoryApprovalFields', () => {
+  it('warns at init when an approval-gate declares allowedRoles', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ast = makeAst([
+      {
+        id: 'gate-with-roles',
+        type: 'approval-gate',
+        title: 'Approve',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        allowedRoles: ['manager'],
+        requiredApprovers: 1,
+        requireReason: false,
+      },
+    ]);
+
+    createDocumentStore(ast);
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = warn.mock.calls[0][0] as string;
+    expect(message).toContain('gate-with-roles');
+    expect(message).toContain('allowedRoles');
+    expect(message).toContain('advisory');
+    warn.mockRestore();
+  });
+
+  it('warns when requiredApprovers > 1 or requireReason: true', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ast = makeAst([
+      {
+        id: 'gate-quorum',
+        type: 'approval-gate',
+        title: 'Approve',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        requiredApprovers: 2,
+        requireReason: true,
+      },
+    ]);
+
+    createDocumentStore(ast);
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = warn.mock.calls[0][0] as string;
+    expect(message).toContain('requiredApprovers');
+    expect(message).toContain('requireReason');
+    warn.mockRestore();
+  });
+
+  it('does NOT warn for a bare approval-gate with no advisory fields set', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const ast = makeAst([
+      {
+        id: 'bare-gate',
+        type: 'approval-gate',
+        title: 'Approve',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+      },
+    ]);
+
+    createDocumentStore(ast);
+
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it('warns when an approval-gate with advisory fields is added via updateAst', () => {
+    const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const initialAst = makeAst([
+      {
+        id: 'form1',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        fields: [],
+      },
+    ]);
+    const store = createDocumentStore(initialAst);
+    expect(warn).not.toHaveBeenCalled();
+
+    const updatedAst = makeAst([
+      {
+        id: 'form1',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        fields: [],
+      },
+      {
+        id: 'streamed-gate',
+        type: 'approval-gate',
+        title: 'Approve',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        allowedRoles: ['admin'],
+        requiredApprovers: 1,
+        requireReason: false,
+      },
+    ]);
+    store.updateAst(updatedAst);
+
+    expect(warn).toHaveBeenCalledTimes(1);
+    const message = warn.mock.calls[0][0] as string;
+    expect(message).toContain('streamed-gate');
+    expect(message).toContain('allowedRoles');
+    warn.mockRestore();
+  });
+});

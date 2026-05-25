@@ -77,6 +77,8 @@ allowedRoles:
 
 In this example, the approval gate's `visible` property is bound to the `user_role` field. When `user_role` has a truthy value, the gate becomes visible.
 
+> **Advisory.** `allowedRoles` is metadata MDMA surfaces to the host application; it is **not** a control the runtime enforces. Authenticating the user, verifying their role, and gating downstream actions are the host application's responsibility. See [approval-gate](../reference/component-catalog.md#approval-gate) for the security model.
+
 ### Binding Syntax Rules
 
 - Must start with `{{` and end with `}}`
@@ -268,6 +270,8 @@ onApprove: finalize-case
 onDeny: reopen-case
 requireReason: true
 ```
+
+> **Important.** `allowedRoles`, `requiredApprovers`, and `requireReason` are advisory — MDMA does not verify approver identity, enforce role membership, or require multiple distinct approvers. Host applications must authenticate users, check their roles before dispatching `APPROVAL_GRANTED`, and enforce downstream authorization on their own backend. See [approval-gate](../reference/component-catalog.md#approval-gate) for the security model.
 
 ## Validation Checklist
 

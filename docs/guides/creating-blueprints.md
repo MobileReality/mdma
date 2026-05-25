@@ -46,7 +46,7 @@ integrations:
 checklists:
   security:
     - PII fields (reporter_email) marked sensitive
-    - Approval gate enforces manager/director role
+    - Approval gate declares manager/director role (host application enforces — see approval-gate security model in `docs/reference/component-catalog.md`)
   logging:
     - All form submissions are logged with timestamp
     - Approval decisions are audit-logged
@@ -234,7 +234,7 @@ The `checklists` section documents what has been verified. This serves as a comp
 checklists:
   security:
     - All PII fields marked sensitive
-    - Approval gate enforces authorized roles
+    - Approval gate declares authorized roles (host application enforces — MDMA does not verify approver identity)
     - Data encrypted at rest and in transit
   logging:
     - All form submissions audit-logged
