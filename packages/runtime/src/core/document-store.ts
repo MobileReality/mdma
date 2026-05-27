@@ -378,13 +378,7 @@ function warnIfAdvisoryApprovalFields(comp: MdmaBlock['component']): void {
   if (hasRequireReason) fields.push('requireReason');
 
   console.warn(
-    `[mdma] approval-gate "${comp.id}" declares ${fields.join(', ')}, ` +
-      'but ALL approval-gate role/quorum/reason fields are advisory at the runtime layer. ' +
-      'The MDMA runtime does not verify approver identity, enforce role membership, ' +
-      'track distinct approvers (regardless of requiredApprovers value, including 1), ' +
-      'or block dispatch when a reason is omitted. ' +
-      'The host application is responsible for authentication and authorization. ' +
-      'See docs/reference/component-catalog.md#approval-gate.',
+    `[mdma] approval-gate "${comp.id}" declares ${fields.join(', ')}, but ALL approval-gate role/quorum/reason fields are advisory at the runtime layer. The MDMA runtime does not verify approver identity, enforce role membership, track distinct approvers (regardless of requiredApprovers value, including 1), or block dispatch when a reason is omitted. The host application is responsible for authentication and authorization. See docs/reference/component-catalog.md#approval-gate.`,
   );
 }
 
