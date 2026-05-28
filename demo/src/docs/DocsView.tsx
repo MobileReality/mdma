@@ -10,11 +10,13 @@ import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { Integrations, INTEGRATIONS } from './sections/Integrations.js';
 import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
+import { IntegrationVercelAiSdk } from './sections/IntegrationVercelAiSdk.js';
 import { Usage } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
 const INTEGRATION_COMPONENTS: Record<string, React.ComponentType> = {
   langchain: IntegrationLangchain,
+  'vercel-ai-sdk': IntegrationVercelAiSdk,
 };
 
 interface Section {

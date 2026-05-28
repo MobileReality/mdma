@@ -8,6 +8,12 @@ const INTEGRATIONS = [
     label: 'LangChain.js',
     description: 'Use MDMA inside a LangChain chain or agent — backend Node.js service.',
   },
+  {
+    slug: 'vercel-ai-sdk',
+    label: 'Vercel AI SDK',
+    description:
+      'Stream MDMA from a Next.js route via streamText, or run browser-only with the two-agent tool-call pattern.',
+  },
 ];
 
 export function Integrations({ onNavigate }: IntegrationsProps) {
