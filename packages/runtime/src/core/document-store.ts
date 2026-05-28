@@ -75,6 +75,8 @@ export function createDocumentStore(
         redactionCtx.sensitiveComponents.add(comp.id);
       }
 
+      warnIfAdvisoryApprovalFields(comp);
+
       // Extract sensitive fields from form components
       if (comp.type === 'form') {
         for (const field of comp.fields) {
@@ -286,6 +288,8 @@ export function createDocumentStore(
           redactionCtx.sensitiveComponents.add(comp.id);
         }
 
+        warnIfAdvisoryApprovalFields(comp);
+
         if (comp.type === 'form') {
           for (const field of comp.fields) {
             if (field.sensitive) {
@@ -337,6 +341,44 @@ function isPendingMdmaBlock(node: unknown): boolean {
     (node as { type: string }).type === 'code' &&
     'lang' in node &&
     (node as { lang: string }).lang === 'mdma'
+  );
+}
+
+/**
+ * approval-gate's `allowedRoles`, `requiredApprovers`, and `requireReason` fields
+ * are accepted by the schema and surfaced to the host UI, but the MDMA runtime
+ * does NOT verify approver identity, enforce role membership, or require multiple
+ * distinct approvers. If a document declares any of these fields above their
+ * schema defaults, warn so that embedding applications are not misled into
+ * treating the gate as a security control.
+ *
+ * Note: `requiredApprovers: 1` is the schema default and is suppressed here to
+ * avoid noise on gates that carry no quorum intent. It is still advisory at the
+ * runtime layer regardless of value — the warning text below makes that explicit.
+ *
+ * Emitted once per gate per store instance the first time it enters the store
+ * (init + updateAst's "new component" branch only — re-renders do not re-warn).
+ * The warning is delivered via `console.warn`, which is suppressed in some
+ * embedder pipelines (e.g. vitest --silent, SSR redirected to a structured
+ * logger). If embedders need durable advisory signalling, a structured-logger
+ * integration is the natural follow-up; that is intentionally out of scope here
+ * because `packages/runtime` does not currently take a logger dependency.
+ */
+function warnIfAdvisoryApprovalFields(comp: MdmaBlock['component']): void {
+  if (comp.type !== 'approval-gate') return;
+  const hasAllowedRoles = Array.isArray(comp.allowedRoles) && comp.allowedRoles.length > 0;
+  const hasMultiApproverRequirement =
+    typeof comp.requiredApprovers === 'number' && comp.requiredApprovers > 1;
+  const hasRequireReason = comp.requireReason === true;
+  if (!hasAllowedRoles && !hasMultiApproverRequirement && !hasRequireReason) return;
+
+  const fields: string[] = [];
+  if (hasAllowedRoles) fields.push('allowedRoles');
+  if (hasMultiApproverRequirement) fields.push('requiredApprovers');
+  if (hasRequireReason) fields.push('requireReason');
+
+  console.warn(
+    `[mdma] approval-gate "${comp.id}" declares ${fields.join(', ')}, but ALL approval-gate role/quorum/reason fields are advisory at the runtime layer. The MDMA runtime does not verify approver identity, enforce role membership, track distinct approvers (regardless of requiredApprovers value, including 1), or block dispatch when a reason is omitted. The host application is responsible for authentication and authorization. See docs/reference/component-catalog.md#approval-gate.`,
   );
 }
 

@@ -316,7 +316,12 @@ if (report.summary.failed > 0) {
   throw new Error(`Compliance check failed: ${report.summary.failed} failures`);
 }
 
-// 3. Create store with policy enforcement
+// 3. Create the store.
+//    Note: MDMA's runtime enforces policy only for the webhook integration
+//    (action 'webhook_call'). The approval-gate fields `allowedRoles`,
+//    `requiredApprovers`, and `requireReason` are advisory — the host application
+//    is responsible for verifying approver identity and quorum before dispatching
+//    APPROVAL_GRANTED. See docs/reference/component-catalog.md#approval-gate.
 const registry = new AttachableRegistry();
 registerAllCoreAttachables(registry);
 
