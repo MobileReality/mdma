@@ -9,7 +9,10 @@
   <a href="https://mobilereality.github.io/mdma/">🚀 Live Demo</a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="https://mobilereality.github.io/mdma/#/docs">📖 Docs</a>
+  <a href="https://discord.gg/etGSuCuR7B">💬 Discord</a>
 </p>
+
+
 
 
 ## Why MDMA?
