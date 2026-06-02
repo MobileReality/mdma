@@ -6,10 +6,11 @@
 <p align="center">Markdown Document with Mounted Applications</p>
 <p align="center">Interactive documents from Markdown. Built for next gen-apps</p>
 <p align="center">
-  <a href="https://mobilereality.github.io/mdma/">🚀 Live Demo</a>
+  <a href="https://mobilereality.github.io/mdma/"><b>🚀 Live Demo</b></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
-  <a href="https://mobilereality.github.io/mdma/#/docs">📖 Docs</a>
-  <a href="https://discord.gg/etGSuCuR7B">💬 Discord</a>
+  <a href="https://mobilereality.github.io/mdma/#/docs"><b>📖 Docs</b></a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://discord.gg/etGSuCuR7B"><b>💬 Discord</b></a>
 </p>
 
 
