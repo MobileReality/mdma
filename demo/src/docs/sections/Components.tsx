@@ -26,6 +26,7 @@ export const COMPONENTS: ComponentEntry[] = [
     example: `\`\`\`mdma
 type: form
 id: demo-form
+onSubmit: submit-demo-form
 fields:
   - name: full-name
     type: text
@@ -164,6 +165,7 @@ type: webhook
 id: demo-webhook
 label: "Run Integration Tests"
 url: "https://ci.example.com/trigger"
+trigger: run-integration-tests
 status: idle
 \`\`\``,
   },
