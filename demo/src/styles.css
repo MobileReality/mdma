@@ -207,6 +207,18 @@ body {
   gap: 12px;
 }
 
+.demo-ph-badge {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.demo-ph-badge img {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+
 .demo-star-btn {
   display: flex;
   align-items: center;

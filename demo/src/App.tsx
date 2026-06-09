@@ -118,6 +118,17 @@ export function App() {
         </div>
         <div className="demo-header-right">
           <a
+            className="demo-ph-badge"
+            href="https://www.producthunt.com/products/mdma-genui-for-apps?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-mdma-genui-for-apps"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              alt="MDMA - GenUI for apps - Turn AI chat responses into interactive forms and workflows | Product Hunt"
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1162215&theme=light&t=1780988696527"
+            />
+          </a>
+          <a
             className="demo-star-btn"
             href="https://github.com/MobileReality/mdma"
             target="_blank"
