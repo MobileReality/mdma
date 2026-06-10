@@ -972,6 +972,20 @@ body {
   box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
 }
 
+/* Custom sensitive-field marker (overrides the default 🔒 badge) */
+.ce-pii-badge {
+  margin-left: 6px;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
 /* Custom table sensitive cells */
 .custom-table-cell--sensitive {
   cursor: pointer;

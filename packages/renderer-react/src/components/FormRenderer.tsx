@@ -9,13 +9,14 @@ import {
   type FormTextareaElementProps,
   type FormFileElementProps,
   type FormSubmitElementProps,
+  type FormSensitiveIndicatorElementProps,
 } from '../context/ElementOverridesContext.js';
 
 // ─── Sensitive field indicator ──────────────────────────────────────────────
 
-function SensitiveIndicator() {
+function DefaultSensitiveIndicator({ label }: FormSensitiveIndicatorElementProps) {
   return (
-    <span className="mdma-sensitive-badge" title="This field contains sensitive data (PII)">
+    <span className="mdma-sensitive-badge" title={`${label} contains sensitive data (PII)`}>
       &#128274;
     </span>
   );
@@ -141,6 +142,9 @@ export const FormRenderer = memo(function FormRenderer({
   const FileInput = useElementOverride<FormFileElementProps>('form', 'file') ?? DefaultFile;
   const SubmitButton =
     useElementOverride<FormSubmitElementProps>('form', 'submitButton') ?? DefaultSubmitButton;
+  const SensitiveMark =
+    useElementOverride<FormSensitiveIndicatorElementProps>('form', 'sensitiveIndicator') ??
+    DefaultSensitiveIndicator;
 
   if (component.type !== 'form') return null;
 
@@ -174,7 +178,7 @@ export const FormRenderer = memo(function FormRenderer({
           >
             <label htmlFor={fieldId}>
               {field.label}
-              {field.sensitive && <SensitiveIndicator />}
+              {field.sensitive && <SensitiveMark name={field.name} label={field.label} />}
             </label>
             {field.type === 'select' ? (
               <Select
