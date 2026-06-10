@@ -56,6 +56,18 @@ export interface FormSubmitElementProps {
   label: string;
 }
 
+/**
+ * Props for the marker rendered next to a sensitive (PII) field's label.
+ * Override the `sensitiveIndicator` element to restyle the badge — or return
+ * `null` to opt out of it entirely for a given scope.
+ */
+export interface FormSensitiveIndicatorElementProps {
+  /** Machine name of the field this indicator marks. */
+  name: string;
+  /** Display label of the field this indicator marks. */
+  label: string;
+}
+
 // ─── Element overrides map ───────────────────────────────────────────────────
 
 /**
@@ -68,8 +80,11 @@ export interface FormSubmitElementProps {
  * @example
  * ```ts
  * const overrides: ElementOverrides = {
- *   '*': { input: GlassInput },            // global fallback
- *   form: { checkbox: ToggleSwitch },       // only inside forms
+ *   '*': { input: GlassInput },                          // global fallback
+ *   form: {
+ *     checkbox: ToggleSwitch,                            // only inside forms
+ *     sensitiveIndicator: () => null,                    // opt out of the PII badge
+ *   },
  * };
  * ```
  */

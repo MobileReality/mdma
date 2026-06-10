@@ -22,7 +22,9 @@ export {
   type FormSelectElementProps,
   type FormCheckboxElementProps,
   type FormTextareaElementProps,
+  type FormFileElementProps,
   type FormSubmitElementProps,
+  type FormSensitiveIndicatorElementProps,
 } from './context/ElementOverridesContext.js';
 export {
   useDocumentStore,

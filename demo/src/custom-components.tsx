@@ -10,6 +10,7 @@ import type {
   FormTextareaElementProps,
   FormFileElementProps,
   FormSubmitElementProps,
+  FormSensitiveIndicatorElementProps,
 } from '@mobile-reality/mdma-renderer-react';
 import type { MdmaCustomizations } from './ChatView.js';
 import { useEditableField, extractComponentId } from './chat/EditableMessageContext.js';
@@ -385,6 +386,16 @@ function GradientSubmitButton({ onClick, label }: FormSubmitElementProps) {
   );
 }
 
+// Demonstrates the overridable sensitive-field marker. Returning `null` here
+// instead would opt the whole form out of the PII badge entirely.
+function GlassSensitiveIndicator({ label }: FormSensitiveIndicatorElementProps) {
+  return (
+    <span className="ce-pii-badge" title={`${label} contains sensitive data (PII)`}>
+      PII
+    </span>
+  );
+}
+
 // ─── Custom Button (override) ────────────────────────────────────────────────
 
 export const CustomButtonRenderer = memo(function CustomButtonRenderer({
@@ -627,6 +638,7 @@ export const customizations: MdmaCustomizations = {
         textarea: GlassTextarea,
         file: GlassFile,
         submitButton: GradientSubmitButton,
+        sensitiveIndicator: GlassSensitiveIndicator,
       },
     },
   },
