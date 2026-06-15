@@ -1,0 +1,33 @@
+# MDMA Example Flow Custom Prompts — Gemma 4 eval
+#
+# Gemma variant of promptfooconfig.flows.yaml. See that file and
+# promptfooconfig.gemma-custom.yaml for the providers/prompt rationale.
+#
+# Run: pnpm --filter @mobile-reality/mdma-evals eval:gemma:flows
+
+description: MDMA Example Flow Custom Prompts Eval — Gemma 4
+
+envPath: .env
+outputPath: gemma/results-flows.json
+
+prompts:
+  - file://prompt-custom.mjs
+
+providers:
+  # Gemma 4 via OpenRouter (uses OPENROUTER_API_KEY). Choose model size by
+  # comment/uncomment; the system prompt is always the google/gemma-4 variant.
+  - id: openrouter:google/gemma-4-26b-a4b-it # 26B MoE (~4B active)
+    config:
+      max_tokens: 8192
+      max_completion_tokens: 8192
+  # - id: openrouter:google/gemma-4-31b-it
+  #   config:
+  #     max_tokens: 8192
+  #     max_completion_tokens: 8192
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+
+tests: tests-flows.yaml
