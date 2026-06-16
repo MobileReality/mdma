@@ -4,14 +4,14 @@
   "type": "module",
   "scripts": {
     "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval; exit 0",
-    "eval:gemma": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma.yaml; exit 0",
-    "eval:gemma:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-custom.yaml; exit 0",
-    "eval:gemma:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-conversation.yaml; exit 0",
-    "eval:gemma:flows": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-flows.yaml; exit 0",
-    "eval:gemma:guidance": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-guidance.yaml; exit 0",
-    "eval:gemma:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-prompt-builder.yaml; exit 0",
-    "eval:gemma:fixer": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-fixer.js; exit 0",
-    "eval:gemma:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-flows.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-guidance.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-prompt-builder.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.gemma-fixer.js; exit 0",
+    "eval:gemma": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma.yaml; exit 0",
+    "eval:gemma:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-custom.yaml; exit 0",
+    "eval:gemma:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-conversation.yaml; exit 0",
+    "eval:gemma:flows": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-flows.yaml; exit 0",
+    "eval:gemma:guidance": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-guidance.yaml; exit 0",
+    "eval:gemma:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-prompt-builder.yaml; exit 0",
+    "eval:gemma:fixer": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-fixer.js; exit 0",
+    "eval:gemma:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-flows.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-guidance.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-prompt-builder.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c gemma/promptfooconfig.gemma-fixer.js; exit 0",
     "eval:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.custom.yaml; exit 0",
     "eval:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation.yaml; exit 0",
     "eval:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.prompt-builder.yaml; exit 0",
@@ -25,13 +25,30 @@
     "eval:author": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.flows.yaml; exit 0",
     "eval:failed": "node scripts/show-failed.mjs",
     "eval:cache-clear": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo cache clear",
-    "eval:view": "promptfoo view"
+    "eval:view": "promptfoo view",
+    "dataset:generate": "tsx gemma/dataset/src/generate.ts",
+    "dataset:generate:status": "tsx gemma/dataset/src/generate.ts --status",
+    "dataset:generate:init": "tsx gemma/dataset/src/generate.ts --init",
+    "dataset:verify-seed": "tsx gemma/dataset/src/verify-seed.ts",
+    "dataset:show-holdout": "tsx gemma/dataset/src/show-holdout.ts",
+    "dataset:filter": "tsx gemma/dataset/src/filter.ts",
+    "dataset:build": "tsx gemma/dataset/src/build-training.ts",
+    "dataset:sanity": "tsx gemma/dataset/src/sanity-check.ts",
+    "dataset:test": "vitest run --root gemma/dataset",
+    "dataset:typecheck": "tsc --noEmit -p gemma/dataset/tsconfig.json"
   },
   "dependencies": {
     "@mobile-reality/mdma-cli": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
+    "dotenv": "^16.4.5",
+    "openai": "^6.0.0",
     "promptfoo": "0.121.9",
-    "yaml": "^2.6.0"
+    "yaml": "^2.6.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
   }
 }

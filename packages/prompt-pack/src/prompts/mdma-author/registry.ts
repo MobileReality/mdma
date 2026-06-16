@@ -19,7 +19,7 @@ import { MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW } from './google/gemini-3-fla
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/gemini-3.1-pro-preview-customtools.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
-import { MDMA_AUTHOR_PROMPT_GEMMA_4 } from './google/gemma-4.js';
+import { MDMA_AUTHOR_PROMPT_GEMMA } from './google/gemma.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_MINI } from './openai/gpt-4.1-mini.js';
@@ -109,11 +109,11 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW,
   },
   {
-    id: 'google/gemma-4',
-    label: 'Google — Gemma 4',
+    id: 'google/gemma',
+    label: 'Google — Gemma',
     description:
-      "Open-weights Gemma 4 (26B-a4b / 31B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the smaller open-model tier.",
-    prompt: MDMA_AUTHOR_PROMPT_GEMMA_4,
+      "Open-weights Gemma family (Gemma 4 26B-a4b / 31B, Gemma 3n 4B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the open-model tier.",
+    prompt: MDMA_AUTHOR_PROMPT_GEMMA,
   },
   {
     id: 'google/gemini-3.1-pro-preview-customtools',

@@ -1,15 +1,16 @@
 /**
- * MDMA Fixer Prompt — Google Gemma 4 variant.
+ * MDMA Fixer Prompt — Google Gemma variant (whole family).
  *
- * Open-weights Gemma 4 (26B-a4b / 31B, via OpenRouter). Shares Gemini's
- * Markdown-over-XML conventions, so it reuses the Gemini `google/_shared.ts`
- * fixer blocks and the same composition as the smallest Gemini tier
+ * Covers Google's open-weights Gemma models via OpenRouter — Gemma 4
+ * (26B-a4b / 31B) and Gemma 3n (4B). Shares Gemini's Markdown-over-XML
+ * conventions, so it reuses the Gemini `google/_shared.ts` fixer blocks and
+ * the same composition as the smallest Gemini tier
  * (`gemini-3.1-flash-lite-preview.ts`): the full baseline plus
  * TABLE_KEY_DIRECTION_BLOCK, since smaller models rename columns instead of
  * data keys when resolving column/data-key mismatches.
  *
- * Routing: substring match on `gemma-4` covers every Gemma 4 model id
- * (26b-a4b / 31b and their `:free` tiers) with a single variant.
+ * Routing: substring match on `gemma` covers every Gemma model id
+ * (gemma-4-*, gemma-3n-*, and their `:free` tiers) with a single variant.
  */
 
 import {
@@ -29,7 +30,7 @@ import {
   TABLE_KEY_DIRECTION_BLOCK,
 } from './_shared.js';
 
-export const MDMA_FIXER_PROMPT_GEMMA_4 = `${OUTPUT_FORMAT_BLOCK}
+export const MDMA_FIXER_PROMPT_GEMMA = `${OUTPUT_FORMAT_BLOCK}
 
 ${MDMA_FIXER_BASE}
 
