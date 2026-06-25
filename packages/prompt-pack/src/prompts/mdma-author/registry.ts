@@ -21,6 +21,7 @@ import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMMA } from './google/gemma.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
+import { MDMA_AUTHOR_PROMPT_MDMA_IL } from './mobile-reality/mdma-il.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_MINI } from './openai/gpt-4.1-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_NANO } from './openai/gpt-4.1-nano.js';
@@ -114,6 +115,13 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       "Open-weights Gemma family (Gemma 4 26B-a4b / 31B, Gemma 3n 4B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the open-model tier.",
     prompt: MDMA_AUTHOR_PROMPT_GEMMA,
+  },
+  {
+    id: 'mobile-reality/mdma-il',
+    label: 'Mobile Reality — MDMA-IL model',
+    description:
+      'Our self-hosted MDMA-IL DSL models (E4B mdma-v3 / 31B mdma-31b). Takes an MDMA-IL DSL intent and returns MDMA. This is the canonical v3 system prompt the models were fine-tuned with — send verbatim (a different prompt is out-of-distribution). Endpoint also requires temperature 0 + chat_template_kwargs.enable_thinking=false.',
+    prompt: MDMA_AUTHOR_PROMPT_MDMA_IL,
   },
   {
     id: 'google/gemini-3.1-pro-preview-customtools',
