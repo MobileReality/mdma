@@ -1,0 +1,325 @@
+# Custom system-prompt scenarios for our model — customPrompt carries DSL.
+#
+# Same scenarios/assertions as ../tests-custom-prompt.yaml, but each customPrompt
+# prescribes the intent in DSL (the INPUT our model was trained on), not an MDMA
+# blueprint (the output). The NL request stays as the user message; the model
+# combines DSL-grammar rules (system) + the scenario DSL (custom) + the request.
+
+# 1. Bug report form
+- description: "Bug report form (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a bug tracking assistant. When a user reports a bug, generate the
+      MDMA document for exactly this DSL intent and nothing else:
+
+      form#bug-report[title*:t, severity:s{critical|high|medium|low}, steps*:ta, expected:ta, actual:ta](action=bug-submitted)
+    request: I found a bug where the login page crashes after entering my password.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 2
+    - type: contains
+      value: "type: textarea"
+
+# 2. Employee onboarding (turn-1 form only)
+- description: "Onboarding form (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are an HR onboarding assistant. When a new hire needs to be set up,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#new-hire-info[full-name*:t, email*^:e, department:s{engineering|design|marketing|sales|operations}, start-date*:d](action=onboarding-checklist)
+    request: We have a new hire starting in the Design department next Monday.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 3
+
+# 3. Customer feedback — form + pie chart (multi-component)
+- description: "Feedback form + pie chart (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a customer success assistant. When asked about feedback, generate
+      the MDMA document for exactly this DSL intent and nothing else:
+
+      form#feedback-form[customer-name:t, email^:e, rating:s{1|2|3|4|5}, feedback:ta](action=feedback-submitted)
+      chart#satisfaction-chart(variant=pie)
+    request: I need to collect customer feedback for this quarter.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form, chart]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/pie-chart.mjs
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+
+# 4. Expense report (turn-1 form only)
+- description: "Expense form (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a finance assistant. When an expense needs logging, generate the
+      MDMA document for exactly this DSL intent and nothing else:
+
+      form#expense-form[amount*:n, category:s{travel|equipment|software|meals|other}, date*:d, receipt-desc:ta, receipt-number:t](action=approve-expense)
+    request: I need to expense a $250 flight for the NYC conference.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+
+# 5. IT ticket (turn-1 form only)
+- description: "IT ticket form (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are an IT helpdesk assistant. When a user reports an issue, generate
+      the MDMA document for exactly this DSL intent and nothing else:
+
+      form#it-ticket[requester-email*^:e, issue-type:s{hardware|software|network|access|other}, priority:s{low|medium|high|urgent}, description*:ta](action=submit-ticket)
+    request: My monitor stopped working this morning and I can't do any visual design work.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 2
+
+# 6. Sales dashboard — table + bar chart (multi-component)
+- description: "Sales table + bar chart (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a sales analytics assistant. When asked for a sales report,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      table#sales-table
+      chart#sales-chart(variant=bar)
+    request: Show me the Q4 sales performance breakdown.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table, chart]
+    - type: javascript
+      value: file://assertions/table-features.mjs
+    - type: javascript
+      value: file://assertions/bar-chart.mjs
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: button"
+
+# 7. Patient intake — PII-heavy form
+- description: "Patient intake form, PII marking (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a medical intake assistant. When registering a patient, generate
+      the MDMA document for exactly this DSL intent and nothing else:
+
+      form#patient-intake[full-name*^:t, dob*^:d, email^:e, phone^:t, insurance-id*^:t, chief-complaint*:ta](action=patient-registered)
+    request: New patient walk-in needs to be registered.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 6
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+
+# 8. Maintenance notice — single callout
+- description: "Maintenance callout (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a system status communicator. On a maintenance event, generate
+      the MDMA document for exactly this DSL intent and nothing else (fill the
+      callout content from the user's message):
+
+      callout#maintenance-notice(variant=warning)
+    request: We need to take the payment system offline on Saturday March 8th from 2 AM to 6 AM EST for database migration.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [callout]
+    - type: javascript
+      value: file://assertions/callout-variant.mjs
+      config:
+        variant: warning
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: button"
+
+# 9. Contract review (turn-1 form only)
+- description: "Contract summary form (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a legal operations assistant. When a contract needs review,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#contract-summary[contract-title*:t, counterparty*:t, contract-value*:n, effective-date*:d, contract-type:s{nda|msa|sow|amendment|renewal}](action=review-checklist)
+    request: We need to review the new SoW from Acme Corp worth $500k.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/select-has-options.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+
+# 10b. Recruiting — job application with file uploads
+- description: "Job application with file fields (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a recruiting assistant. When a candidate applies, generate the
+      MDMA document for exactly this DSL intent and nothing else:
+
+      form#job-application[full-name*:t, email*^:e, resume*:f, portfolio:f, cover-letter:ta](action=application-submitted)
+    request: I'd like to apply for the senior product designer role you posted.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 5
+    - type: javascript
+      value: file://assertions/file-field.mjs
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
+
+# 10c. KYC — sensitive identity file uploads
+- description: "KYC identity form, all fields sensitive (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a KYC compliance assistant. When verifying a customer's identity,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#kyc-identity-form[full-legal-name*^:t, date-of-birth*^:d, passport-scan*^:f, proof-of-address*^:f](action=kyc-identity-verified)
+    request: I need to verify the identity of a new customer applying for an account.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/exact-field-count.mjs
+      config:
+        expected: 4
+    - type: javascript
+      value: file://assertions/file-field.mjs
+      config:
+        sensitive: true
+    - type: javascript
+      value: file://assertions/pii-sensitive.mjs
+    - type: javascript
+      value: file://assertions/has-required-fields.mjs
+      config:
+        min: 4
+
+# 11. Account deletion — danger button
+- description: "Danger button (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are an account management assistant. When a user wants to delete their
+      account, generate the MDMA document for exactly this DSL intent and nothing
+      else:
+
+      button#delete-account(text="Delete My Account", action=delete-account-action, variant=danger)
+    request: I want to close my account and delete all my data.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [button]
+    - type: contains
+      value: "variant: danger"
+    - type: not-contains
+      value: "type: form"
+    - type: not-contains
+      value: "type: table"
+    - type: not-contains
+      value: "type: callout"
+
+# 12. Specific component id preserved from the DSL
+- description: "Specific component id preserved (DSL custom prompt)"
+  vars:
+    customPrompt: |
+      You are a vendor onboarding assistant. When onboarding a vendor, generate
+      the MDMA document for exactly this DSL intent and nothing else (keep the id):
+
+      form#vendor-intake-q1-2026[vendor-name*:t, vendor-contact-email*^:e, tax-identifier*^:t, service-category*:s{consulting|software|hardware|logistics|other}](action=vendor-intake-submitted)
+    request: We need to onboard a new logistics vendor for Q1.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: contains
+      value: "id: vendor-intake-q1-2026"
+    - type: javascript
+      value: file://assertions/has-sensitive.mjs
