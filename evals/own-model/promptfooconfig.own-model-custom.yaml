@@ -24,9 +24,11 @@ providers:
     config:
       apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
       apiKey: "{{ env.OWN_MODEL_API_KEY }}"
-      # 31B context is 4096 tokens total. The custom system prompt is ~1000
-      # tokens, so cap output so input + max_tokens stays under 4096.
-      max_tokens: 2048
+      # AWQ endpoint: max_model_len 16384, so no tight output cap needed.
+      # temperature 1 (conversational sampling) — non-deterministic, results may
+      # vary run-to-run.
+      temperature: 1
+      max_tokens: 4096
       chat_template_kwargs:
         enable_thinking: false
 

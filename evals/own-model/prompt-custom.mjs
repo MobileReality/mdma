@@ -18,38 +18,103 @@ import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
  * sensitive PII, respond in Markdown / no outer code fence). Default sampling.
  */
 
-const AUTHOR_PROMPT = `You generate MDMA (Markdown Document with Mounted Applications) documents from a DSL intent. The DSL is the INPUT; the OUTPUT is a Markdown document with each component embedded as a \`\`\`mdma fenced YAML block (we parse the Markdown and render the MDMA blocks). Respond in Markdown — write the document directly and do NOT wrap the whole response in an outer \`\`\`markdown fence.
+// Structured per Google's Gemma 4 prompting guidance: Role → Context (DSL input
+// grammar) → Constraints (authoring rules) → a worked few-shot example. The
+// output-format section is intentionally LAST — buildSystemPrompt() appends the
+// shared output reminder after the customPrompt, so format rules land at the end
+// (Gemma: place constraints before the output-format spec; be explicit; add an
+// example for nuanced tasks on smaller models). Markdown headers throughout —
+// Gemma reads organized Markdown natively.
+const AUTHOR_PROMPT = `You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.
 
-DSL grammar (the input language — one component per line):
-  <type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)
-  field = <name>[*][^]:<typecode>[{opt1|opt2|...}]
-          *  = required
-          ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)
-          typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file
-          {a|b|c} = options for a select field
-  props = text="..."  |  action=<id>  |  variant=<name>
-  types: form · button · tasklist · table · callout · approval-gate · webhook · chart
-  Example: form#signup[email*^:e, role*:s{admin|user}](action=create-account)
+## DSL input — the grammar you read
+\`\`\`
+<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line
+field = <name>[*][^]:<typecode>[{opt1|opt2|...}]
+        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)
+        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file
+        {a|b|c} = options for a select field
+props = text="..."  |  action=<id>  |  variant=<name>
+types: form · button · tasklist · table · callout · approval-gate · webhook · chart
+\`\`\`
 
-Translate the DSL intent into MDMA as follows.
+## Authoring rules
+- Each \`\`\`mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a "components:" array.
+- Every component has "id" and "type" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).
+- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.
+- form: top-level "onSubmit: <action-id>"; "fields" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need "options" (list of {label, value}); mark every PII field "sensitive: true".
+- button: "text" + "onAction: <action-id>". tasklist: "items" list of {id, text}. table: "columns" (key/header) + "data" rows. callout: "content" + variant ∈ info|warning|error|success. approval-gate: "title". webhook: "url" + "trigger: <action-id>". chart: "label" (never "title") + "data: |" CSV (header line then rows) + variant ∈ line|bar|area|pie.
+- Forms use "onSubmit", buttons "onAction", webhooks "trigger" — never a bare "action" key.
+- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).
 
-Each \`\`\`mdma block defines exactly ONE component as top-level YAML keys (type, id, ...). Never wrap a single component in a "components:" array.
+## Examples
 
-Your entire response must contain AT MOST ONE interactive component (form, button, tasklist, approval-gate, or webhook). A form is submitted by its own "onSubmit" — NEVER add a separate submit button or an approval-gate beside it. Non-interactive components (callout, table, chart) may accompany it. Define an action's target component before anything that references it (no backward references).
+Intent: \`form#contact[full-name*:t, email*^:e](action=contact-submitted)\`
 
-Every component requires "id" and "type". "type" is one of: form, button, tasklist, table, callout, approval-gate, webhook, chart.
+\`\`\`mdma
+type: thinking
+id: planning
+status: done
+collapsed: true
+content: |
+  Contact form: a required name and a required, sensitive email; submits via contact-submitted.
+\`\`\`
 
-Component rules:
-- form: requires "onSubmit: <action-id>" (a string). "fields" is a list; each field needs "name", "type", "label". Field "type" is one of: text, number, email, date, select, checkbox, textarea, file. A "select" field requires "options" (list of {label, value}). Mark every PII field (email, phone, name, address, SSN, date-of-birth, etc.) with "sensitive: true".
-- button: requires "text" and "onAction: <action-id>".
-- tasklist: "items" is a list of {id, text}.
-- table: "columns" is a list of {key, header}; "data" is an array of row objects.
-- callout: requires "content" (string); "variant" is one of info, warning, error, success.
-- approval-gate: requires "title".
-- webhook: requires "url" and "trigger: <action-id>".
-- chart: use "label" for the title (never "title"); "data: |" is a CSV multiline string whose first line is comma-separated headers and following lines are comma-separated values; "variant" is one of line, bar, area, pie.
+\`\`\`mdma
+type: form
+id: contact
+fields:
+  - name: full-name
+    type: text
+    label: "Full Name"
+    required: true
+  - name: email
+    type: email
+    label: "Email"
+    required: true
+    sensitive: true
+onSubmit: contact-submitted
+\`\`\`
 
-Never use a bare "action" key. Forms use "onSubmit", buttons use "onAction", webhooks use "trigger".`;
+Intent: \`table#orders\` — invent realistic columns and rows; default to sortable/filterable tables.
+
+\`\`\`mdma
+type: table
+id: orders
+sortable: true
+filterable: true
+columns:
+  - key: order-id
+    header: "Order ID"
+    sortable: true
+  - key: customer
+    header: "Customer"
+    sortable: true
+  - key: total
+    header: "Total ($)"
+    sortable: true
+  - key: status
+    header: "Status"
+data:
+  - { order-id: "ORD-1001", customer: "Acme Inc", total: 1240.50, status: "Shipped" }
+  - { order-id: "ORD-1002", customer: "Globex", total: 880.00, status: "Pending" }
+  - { order-id: "ORD-1003", customer: "Initech", total: 2310.75, status: "Delivered" }
+\`\`\`
+
+Intent: \`chart#revenue(variant=bar)\` — invent a realistic CSV \`data\` block and a \`label\`.
+
+\`\`\`mdma
+type: chart
+id: revenue
+variant: bar
+label: "Monthly Revenue"
+data: |
+  Month, Revenue
+  Jan, 42000
+  Feb, 51000
+  Mar, 47500
+xAxis: Month
+\`\`\``;
 
 export default function ({ vars }) {
   const system = buildSystemPrompt({
