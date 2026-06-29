@@ -37,6 +37,8 @@ export async function* streamOpenAIAgentMessages(
   tools: ToolDefinition[],
   signal?: AbortSignal,
   baseUrl = 'https://api.openai.com/v1',
+  /** Extra request-body fields merged in (e.g. temperature, chat_template_kwargs). */
+  extraBody?: Record<string, unknown>,
 ): AsyncGenerator<AgentStreamEvent> {
   const openAITools = tools.map((t) => ({
     type: 'function' as const,
@@ -57,6 +59,7 @@ export async function* streamOpenAIAgentMessages(
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         tools: openAITools,
         tool_choice: 'auto',
+        ...extraBody,
       }),
       signal,
     });

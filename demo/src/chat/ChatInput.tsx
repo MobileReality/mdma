@@ -13,6 +13,10 @@ export interface ChatInputProps {
   disabled?: boolean;
   /** Placeholder text override. */
   placeholder?: string;
+  /** Copy the whole raw conversation to the clipboard (debugging). */
+  onCopyRaw?: () => void;
+  /** Briefly true right after a successful copy, for button feedback. */
+  copiedRaw?: boolean;
 }
 
 export const ChatInput = memo(function ChatInput({
@@ -26,6 +30,8 @@ export const ChatInput = memo(function ChatInput({
   inputRef,
   disabled,
   placeholder,
+  onCopyRaw,
+  copiedRaw,
 }: ChatInputProps) {
   const isDisabled = disabled && !isGenerating;
 
@@ -48,6 +54,16 @@ export const ChatInput = memo(function ChatInput({
           }}
         />
         <div className="chat-input-actions">
+          {hasMessages && onCopyRaw && (
+            <button
+              type="button"
+              className="chat-clear-btn"
+              onClick={onCopyRaw}
+              title="Copy the whole raw conversation (text + generate_mdma documents) for debugging"
+            >
+              {copiedRaw ? 'Copied!' : 'Copy raw'}
+            </button>
+          )}
           {hasMessages && (
             <button
               type="button"

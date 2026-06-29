@@ -4,6 +4,7 @@ import {
   buildSystemPrompt,
   getAuthorPromptVariant,
   getAgentToolPromptVariant,
+  MDMA_IL_AGENT_SYSTEM_PROMPT,
 } from '@mobile-reality/mdma-prompt-pack';
 import {
   streamAgentMessages,
@@ -64,6 +65,23 @@ const GENERATE_MDMA_TOOL_BRIEF = {
     required: ['brief'],
   },
 };
+
+// ── Own-model (mdma-26b) endpoint ─────────────────────────────────────────────
+// Our self-hosted model, served OpenAI-compatible with tool-calling enabled.
+// In "own-model" provider mode the WHOLE agent loop runs here (conversation +
+// generate_mdma via tool_choice:auto), so no third-party model is called.
+// Auth is off (placeholder key); enable_thinking must be false; temperature 1
+// for agentic/conversational use.
+const OWN_MODEL_BASE_URL =
+  import.meta.env.VITE_OWN_MODEL_BASE_URL ??
+  'https://REDACTED.modal.run/v1';
+const OWN_MODEL_NAME = import.meta.env.VITE_OWN_MODEL_NAME ?? 'mdma-26b';
+
+// Extra OpenAI-request body our endpoint needs (merged in by the OpenAI client).
+const OWN_MODEL_EXTRA_BODY = {
+  temperature: 1,
+  chat_template_kwargs: { enable_thinking: false },
+} as const;
 
 // ── Config persistence ───────────────────────────────────────────────────────
 
@@ -432,6 +450,7 @@ async function runAgentLoop(
 const OPENAI_COMPAT_BASE_URLS: Partial<Record<NonNullable<AnthropicConfig['provider']>, string>> = {
   openai: 'https://api.openai.com/v1',
   openrouter: 'https://openrouter.ai/api/v1',
+  'own-model': OWN_MODEL_BASE_URL,
 };
 
 function getApiKeyForProvider(config: AnthropicConfig): string {
@@ -440,6 +459,8 @@ function getApiKeyForProvider(config: AnthropicConfig): string {
       return config.openaiApiKey ?? '';
     case 'openrouter':
       return config.openrouterApiKey ?? '';
+    case 'own-model':
+      return 'unused'; // auth is off on our endpoint; client just needs a non-empty key
     default:
       return config.apiKey;
   }
@@ -456,9 +477,12 @@ async function runOpenAIAgentLoop(
   nextId: () => string,
   subAgent: AuthorSubAgent | null,
 ): Promise<void> {
+  const isOwnModel = config.provider === 'own-model';
   const baseUrl =
     OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
   const apiKey = getApiKeyForProvider(config);
+  const model = isOwnModel ? OWN_MODEL_NAME : config.model;
+  const extraBody = isOwnModel ? OWN_MODEL_EXTRA_BODY : undefined;
   const tool = subAgent ? GENERATE_MDMA_TOOL_BRIEF : GENERATE_MDMA_TOOL_INLINE;
   let continueLoop = true;
 
@@ -471,12 +495,13 @@ async function runOpenAIAgentLoop(
 
     for await (const ev of streamOpenAIAgentMessages(
       apiKey,
-      config.model,
+      model,
       systemPrompt,
       history,
       [tool],
       signal,
       baseUrl,
+      extraBody,
     )) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
@@ -749,23 +774,34 @@ export function useAgent(options: UseAgentOptions = {}) {
       ]);
 
       abortRef.current = new AbortController();
-      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
-      // In sub-agent mode the conversation agent never writes MDMA directly,
-      // so its system prompt omits the author prompt and the buildSystemPrompt
-      // reminder (both of which would tempt the agent to inline MDMA in chat).
-      const systemPrompt = options.useAuthorSubAgent
-        ? options.flowPrompt
-          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-          : toolPrompt
-        : buildSystemPrompt({
-            authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-            customPrompt: options.flowPrompt
-              ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-              : toolPrompt,
-          });
-
-      const subAgent = options.useAuthorSubAgent ? makeAuthorSubAgent(config) : null;
       const provider = config.provider ?? 'anthropic';
+      // Our own model runs the whole turn itself (tool-calling enabled), so it
+      // emits the MDMA document inline via generate_mdma — no author sub-agent.
+      const useSubAgent = (options.useAuthorSubAgent ?? false) && provider !== 'own-model';
+      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
+      // Our own model gets its own Gemma-aligned agentic prompt (no <thinking>
+      // leak — see prompt-pack mdma-agent/mobile-reality/mdma-il). Other
+      // providers: sub-agent mode uses just the tool prompt; inline mode layers
+      // the author prompt via buildSystemPrompt.
+      let systemPrompt: string;
+      if (provider === 'own-model') {
+        systemPrompt = options.flowPrompt
+          ? `${MDMA_IL_AGENT_SYSTEM_PROMPT}\n\n---\n\n${options.flowPrompt}`
+          : MDMA_IL_AGENT_SYSTEM_PROMPT;
+      } else if (useSubAgent) {
+        systemPrompt = options.flowPrompt
+          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+          : toolPrompt;
+      } else {
+        systemPrompt = buildSystemPrompt({
+          authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+          customPrompt: options.flowPrompt
+            ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+            : toolPrompt,
+        });
+      }
+
+      const subAgent = useSubAgent ? makeAuthorSubAgent(config) : null;
 
       try {
         if (provider === 'anthropic') {

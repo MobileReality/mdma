@@ -1,8 +1,8 @@
 {
-  "evalId": "eval-I0W-2026-06-29T09:25:36",
+  "evalId": "eval-iIE-2026-06-29T11:10:51",
   "results": {
     "version": 3,
-    "timestamp": "2026-06-29T09:25:36.170Z",
+    "timestamp": "2026-06-29T11:10:51.451Z",
     "prompts": [
       {
         "raw": "function ({ vars }) {\n  const system = buildSystemPrompt({\n    authorPrompt: AUTHORING_SYSTEM_PROMPT,\n    customPrompt: vars.customPrompt,\n  });\n  return [\n    { role: 'system', content: `{% raw %}${system}{% endraw %}` },\n    { role: 'user', content: `{% raw %}${vars.request}{% endraw %}` },\n  ];\n}",
@@ -17,12 +17,12 @@
           "testErrorCount": 0,
           "assertPassCount": 60,
           "assertFailCount": 3,
-          "totalLatencyMs": 54298,
+          "totalLatencyMs": 54543,
           "tokenUsage": {
             "prompt": 22052,
-            "completion": 6797,
+            "completion": 6812,
             "cached": 0,
-            "total": 28849,
+            "total": 28864,
             "numRequests": 15,
             "completionDetails": {
               "reasoning": 0,
@@ -121,8 +121,8 @@
             }
           ]
         },
-        "id": "b107cd7c-0663-4c17-bb47-d417670016bb",
-        "latencyMs": 1897,
+        "id": "3f3f4291-2639-4f72-8ee2-7605a8c5d4f9",
+        "latencyMs": 1866,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a website assistant. When a visitor wants to contact the company,\\ngenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\nform#contact-form[full-name*:t, email*^:e, message*:ta](action=contact-submitted)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I'd like to send a message to your support team.\"}]",
@@ -144,7 +144,7 @@
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 1897,
+          "latencyMs": 1866,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -157,8 +157,8 @@
                 "alt-svc": "h3=\":443\"; ma=2592000",
                 "content-length": "1274",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:36 GMT",
-                "modal-function-call-id": "fc-01KW9B5MB5C34CEGC5C1EYY045",
+                "date": "Mon, 29 Jun 2026 11:10:51 GMT",
+                "modal-function-call-id": "fc-01KW9H6BFPTH8K16BF4DJY00V2",
                 "vary": "accept-encoding"
               }
             }
@@ -220,8 +220,8 @@
               "alt-svc": "h3=\":443\"; ma=2592000",
               "content-length": "1274",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:36 GMT",
-              "modal-function-call-id": "fc-01KW9B5MB5C34CEGC5C1EYY045",
+              "date": "Mon, 29 Jun 2026 11:10:51 GMT",
+              "modal-function-call-id": "fc-01KW9H6BFPTH8K16BF4DJY00V2",
               "vary": "accept-encoding"
             }
           },
@@ -296,8 +296,8 @@
             }
           ]
         },
-        "id": "697c0875-fe9f-4cbd-8621-8faa938aac1f",
-        "latencyMs": 4370,
+        "id": "21c8b430-8653-4c5a-adbe-4d5457979b00",
+        "latencyMs": 4125,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are an engineering support assistant. When a user reports a bug,\\ngenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#pagerduty-reminder(variant=warning)\\nform#bug-report-form[title*:t, reporter-email*^:e, severity*:s{P0|P1|P2|P3}, affected-component*:s{frontend|backend|database|auth|payments}, steps-to-reproduce*:ta, expected-behavior*:ta, actual-behavior*:ta](action=triage-bug-report)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"The checkout page is showing a 500 error for all users in production.\"}]",
@@ -311,15 +311,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a critical production error (500 error on checkout).\n  I need to generate two components:\n  1. A warning callout to remind the user to check PagerDuty.\n  2. A bug report form to capture the details of the 500 error, including the reporter's email (sensitive), severity, component, and reproduction steps.\n  The form will submit via the 'triage-bug-report' action.\n```\n\n```mdma\ntype: callout\nid: pagerduty-reminder\nvariant: warning\ncontent: Please ensure you have acknowledged this incident in PagerDuty and notified the on-call engineer.\n```\n\n```mdma\ntype: form\nid: bug-report-form\nfields:\n  - name: title\n    type: text\n    label: \"Issue Title\"\n    required: true\n  - name: reporter-email\n    type: email\n    label: \"Reporter Email\"\n    required: true\n    sensitive: true\n  - name: severity\n    type: select\n    label: \"Severity\"\n    required: true\n    options:\n      - { label: \"P0 - Critical\", value: \"P0\" }\n      - { label: \"P1 - High\", value: \"P1\" }\n      - { label: \"P2 - Medium\", value: \"P2\" }\n      - { label: \"P3 - Low\", value: \"P3\" }\n  - name: affected-component\n    type: select\n    label: \"Affected Component\"\n    required: true\n    options:\n      - { label: \"Frontend\", value: \"frontend\" }\n      - { label: \"Backend\", value: \"backend\" }\n      - { label: \"Database\", value: \"database\" }\n      - { label: \"Auth\", value: \"auth\" }\n      - { label: \"Payments\", value: \"payments\" }\n  - name: steps-to-reproduce\n    type: textarea\n    label: \"Steps to Reproduce\"\n    required: true\n  - name: expected-behavior\n    type: textarea\n    label: \"Expected Behavior\"\n    required: true\n  - name: actual-behavior\n    type: textarea\n    label: \"Actual Behavior\"\n    required: true\nonSubmit: triage-bug-report\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a critical production error (500 error on checkout). \n  I need to generate two components:\n  1. A warning callout to remind the user to check PagerDuty.\n  2. A bug report form to capture the details of the 500 error, including the reporter's email (sensitive), severity, component, and reproduction steps.\n```\n\n```mdma\ntype: callout\nid: pagerduty-reminder\nvariant: warning\ncontent: \"Please ensure this incident is acknowledged in PagerDuty to alert the on-call engineer.\"\n```\n\n```mdma\ntype: form\nid: bug-report-form\nfields:\n  - name: title\n    type: text\n    label: \"Issue Title\"\n    required: true\n  - name: reporter-email\n    type: email\n    label: \"Reporter Email\"\n    required: true\n    sensitive: true\n  - name: severity\n    type: select\n    label: \"Severity\"\n    required: true\n    options:\n      - { label: \"P0 - Critical\", value: \"P0\" }\n      - { label: \"P1 - High\", value: \"P1\" }\n      - { label: \"P2 - Medium\", value: \"P2\" }\n      - { label: \"P3 - Low\", value: \"P3\" }\n  - name: affected-component\n    type: select\n    label: \"Affected Component\"\n    required: true\n    options:\n      - { label: \"Frontend\", value: \"frontend\" }\n      - { label: \"Backend\", value: \"backend\" }\n      - { label: \"Database\", value: \"database\" }\n      - { label: \"Auth\", value: \"auth\" }\n      - { label: \"Payments\", value: \"payments\" }\n  - name: steps-to-reproduce\n    type: textarea\n    label: \"Steps to Reproduce\"\n    required: true\n  - name: expected-behavior\n    type: textarea\n    label: \"Expected Behavior\"\n    required: true\n  - name: actual-behavior\n    type: textarea\n    label: \"Actual Behavior\"\n    required: true\nonSubmit: triage-bug-report\n```",
           "tokenUsage": {
-            "total": 2034,
+            "total": 2017,
             "prompt": 1488,
-            "completion": 546,
+            "completion": 529,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4370,
+          "latencyMs": 4125,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -330,10 +330,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2551",
+                "content-length": "2486",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:38 GMT",
-                "modal-function-call-id": "fc-01KW9B5P2K8MEB0Q9NSYESBHK8",
+                "date": "Mon, 29 Jun 2026 11:10:53 GMT",
+                "modal-function-call-id": "fc-01KW9H6D4F2EXT4SBFB80GP8MB",
                 "vary": "accept-encoding"
               }
             }
@@ -393,10 +393,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2551",
+              "content-length": "2486",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:38 GMT",
-              "modal-function-call-id": "fc-01KW9B5P2K8MEB0Q9NSYESBHK8",
+              "date": "Mon, 29 Jun 2026 11:10:53 GMT",
+              "modal-function-call-id": "fc-01KW9H6D4F2EXT4SBFB80GP8MB",
               "vary": "accept-encoding"
             }
           },
@@ -471,8 +471,8 @@
             }
           ]
         },
-        "id": "8835a688-f744-4ad9-b949-493d9cd59c44",
-        "latencyMs": 2925,
+        "id": "d4ffbd7f-4df5-4d0f-be94-0fdab6b132be",
+        "latencyMs": 2479,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are an HR onboarding assistant. For the new hire's first-week setup,\\ngenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\nform#personal-info-form[full-name*:t, preferred-name:t, personal-email*^:e, phone^:t, emergency-contact*^:t](action=review-onboarding-info)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"Hi, I'm starting next Monday in the engineering team!\"}]",
@@ -486,15 +486,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is a new hire starting next Monday. I need to generate a form for their personal information.\n  The DSL specifies:\n  - form#personal-info-form\n  - fields: full-name (required), preferred-name, personal-email (required, sensitive), phone (sensitive), emergency-contact (required, sensitive)\n  - action: review-onboarding-info\n  - I will ensure all PII fields (email, phone, emergency-contact) are marked as sensitive.\n```\n\nWelcome to the team! We are so excited to have you join the engineering department next Monday. To get your onboarding process started, please take a moment to complete your personal information form below. This will help us ensure your payroll and emergency contact details are set up correctly before your first day.\n\n```mdma\ntype: form\nid: personal-info-form\nfields:\n  - name: full-name\n    type: text\n    label: \"Full Name\"\n    required: true\n  - name: preferred-name\n    type: text\n    label: \"Preferred Name\"\n  - name: personal-email\n    type: email\n    label: \"Personal Email\"\n    required: true\n    sensitive: true\n  - name: phone\n    type: text\n    label: \"Phone Number\"\n    sensitive: true\n  - name: emergency-contact\n    type: text\n    label: \"Emergency Contact Name & Relation\"\n    required: true\n    sensitive: true\nonSubmit: review-onboarding-info\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is a new hire starting next Monday. I need to generate a form for their personal information.\n  The DSL specifies:\n  - form#personal-info-form\n  - fields: full-name (required), preferred-name, personal-email (required, sensitive), phone (sensitive), emergency-contact (required, sensitive)\n  - action: review-onboarding-info\n  - I will ensure all PII fields (email, phone, emergency-contact) are marked as sensitive.\n```\n\n```mdma\ntype: form\nid: personal-info-form\nfields:\n  - name: full-name\n    type: text\n    label: \"Full Name\"\n    required: true\n  - name: preferred-name\n    type: text\n    label: \"Preferred Name\"\n  - name: personal-email\n    type: email\n    label: \"Personal Email\"\n    required: true\n    sensitive: true\n  - name: phone\n    type: text\n    label: \"Phone Number\"\n    sensitive: true\n  - name: emergency-contact\n    type: text\n    label: \"Emergency Contact Information\"\n    required: true\n    sensitive: true\nonSubmit: review-onboarding-info\n```",
           "tokenUsage": {
-            "total": 1804,
+            "total": 1743,
             "prompt": 1443,
-            "completion": 361,
+            "completion": 300,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2925,
+          "latencyMs": 2479,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -505,10 +505,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2053",
+                "content-length": "1727",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:42 GMT",
-                "modal-function-call-id": "fc-01KW9B5TG42PNKP03SQ78734DA",
+                "date": "Mon, 29 Jun 2026 11:10:57 GMT",
+                "modal-function-call-id": "fc-01KW9H6H7QTGSCAP2N25AYB043",
                 "vary": "accept-encoding"
               }
             }
@@ -568,10 +568,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2053",
+              "content-length": "1727",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:42 GMT",
-              "modal-function-call-id": "fc-01KW9B5TG42PNKP03SQ78734DA",
+              "date": "Mon, 29 Jun 2026 11:10:57 GMT",
+              "modal-function-call-id": "fc-01KW9H6H7QTGSCAP2N25AYB043",
               "vary": "accept-encoding"
             }
           },
@@ -655,8 +655,8 @@
             }
           ]
         },
-        "id": "bd97acee-9492-490b-9232-ba35cb8fd588",
-        "latencyMs": 3240,
+        "id": "89a7d7dd-cf8a-4ce3-a686-ec6ee5039911",
+        "latencyMs": 3299,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a finance assistant (requests over $5,000 need director approval).\\nGenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#budget-approval-warning(variant=warning)\\nform#budget-request-form[requester-name*:t, requester-email*^:e, department*:s{engineering|marketing|operations|finance}, requested-amount*:n, business-justification*:ta](action=route-budget-request)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I need to request $12,000 for new development servers.\"}]",
@@ -670,15 +670,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to request $12,000 for servers. \n  The DSL requires a warning callout and a budget request form.\n  The form includes: name (required), email (required, sensitive), department (required, select), amount (required), and justification (required, textarea).\n  The form submits via 'route-budget-request'.\n  The callout will warn that requests over $5,000 require director approval.\n```\n\n```mdma\ntype: callout\nid: budget-approval-warning\nvariant: warning\ncontent: |\n  Please note that all budget requests exceeding $5,000 require formal approval from the Finance Director before processing.\n```\n\n```mdma\ntype: form\nid: budget-request-form\nfields:\n  - name: requester-name\n    type: text\n    label: \"Requester Name\"\n    required: true\n  - name: requester-email\n    type: email\n    label: \"Requester Email\"\n    required: true\n    sensitive: true\n  - name: department\n    type: select\n    label: \"Department\"\n    required: true\n    options:\n      - label: \"Engineering\"\n        value: \"engineering\"\n      - label: \"Marketing\"\n        value: \"marketing\"\n      - label: \"Operations\"\n        value: \"operations\"\n      - label: \"Finance\"\n        value: \"finance\"\n  - name: requested-amount\n    type: number\n    label: \"Requested Amount ($)\"\n    required: true\n  - name: business-justification\n    type: textarea\n    label: \"Business Justification\"\n    required: true\nonSubmit: route-budget-request\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to request $12,000 for servers. \n  The DSL requires a warning callout and a budget request form.\n  The form includes: name (required), email (required, sensitive), department (required, select), amount (required), and justification (required, textarea).\n  The form submits via 'route-budget-request'.\n  The callout will warn that requests over $5,000 require director approval.\n```\n\n```mdma\ntype: callout\nid: budget-approval-warning\nvariant: warning\ncontent: |\n  Please note that all budget requests exceeding $5,000 require formal approval from the Finance Director.\n```\n\n```mdma\ntype: form\nid: budget-request-form\nfields:\n  - name: requester-name\n    type: text\n    label: \"Requester Name\"\n    required: true\n  - name: requester-email\n    type: email\n    label: \"Requester Email\"\n    required: true\n    sensitive: true\n  - name: department\n    type: select\n    label: \"Department\"\n    required: true\n    options:\n      - label: \"Engineering\"\n        value: \"engineering\"\n      - label: \"Marketing\"\n        value: \"marketing\"\n      - label: \"Operations\"\n        value: \"operations\"\n      - label: \"Finance\"\n        value: \"finance\"\n  - name: requested-amount\n    type: number\n    label: \"Requested Amount ($)\"\n    required: true\n  - name: business-justification\n    type: textarea\n    label: \"Business Justification\"\n    required: true\nonSubmit: route-budget-request\n```",
           "tokenUsage": {
-            "total": 1873,
+            "total": 1871,
             "prompt": 1465,
-            "completion": 408,
+            "completion": 406,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3240,
+          "latencyMs": 3299,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -689,10 +689,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2191",
+                "content-length": "2173",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:45 GMT",
-                "modal-function-call-id": "fc-01KW9B5XGACA0JV1TF09HWX1NZ",
+                "date": "Mon, 29 Jun 2026 11:10:59 GMT",
+                "modal-function-call-id": "fc-01KW9H6KQQBSD97DP40EY26JYR",
                 "vary": "accept-encoding"
               }
             }
@@ -756,10 +756,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2191",
+              "content-length": "2173",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:45 GMT",
-              "modal-function-call-id": "fc-01KW9B5XGACA0JV1TF09HWX1NZ",
+              "date": "Mon, 29 Jun 2026 11:10:59 GMT",
+              "modal-function-call-id": "fc-01KW9H6KQQBSD97DP40EY26JYR",
               "vary": "accept-encoding"
             }
           },
@@ -834,8 +834,8 @@
             }
           ]
         },
-        "id": "039f2ab0-2fbe-4f6c-9346-542de92255db",
-        "latencyMs": 3719,
+        "id": "48aee8de-93a4-4023-80d6-1498bb8c352a",
+        "latencyMs": 3825,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a customer experience assistant collecting post-support feedback.\\nGenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\nform#support-survey-form[support-ticket-id*:t, overall-satisfaction*:s{1|2|3|4|5}, response-time-rating*:s{1|2|3|4|5}, issue-resolved:c, additional-comments:ta, email^:e](action=survey-submitted)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I just finished a support call and want to leave feedback.\"}]",
@@ -857,7 +857,7 @@
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3719,
+          "latencyMs": 3825,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -870,8 +870,8 @@
                 "alt-svc": "h3=\":443\"; ma=2592000",
                 "content-length": "2184",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:49 GMT",
-                "modal-function-call-id": "fc-01KW9B60TE5TYT6VB66X8TE483",
+                "date": "Mon, 29 Jun 2026 11:11:03 GMT",
+                "modal-function-call-id": "fc-01KW9H6PYG8NWJ0XD7N2EHP5PF",
                 "vary": "accept-encoding"
               }
             }
@@ -933,8 +933,8 @@
               "alt-svc": "h3=\":443\"; ma=2592000",
               "content-length": "2184",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:49 GMT",
-              "modal-function-call-id": "fc-01KW9B60TE5TYT6VB66X8TE483",
+              "date": "Mon, 29 Jun 2026 11:11:03 GMT",
+              "modal-function-call-id": "fc-01KW9H6PYG8NWJ0XD7N2EHP5PF",
               "vary": "accept-encoding"
             }
           },
@@ -1001,8 +1001,8 @@
             }
           ]
         },
-        "id": "49b62972-8070-4859-bf90-c07e289e7a32",
-        "latencyMs": 3096,
+        "id": "783dfae5-7e6d-44b2-b012-9588286a7689",
+        "latencyMs": 3101,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a sales analytics assistant. For the Q1 overview (total $2.34M,\\n111% of target; Jan $720K, Feb $780K, Mar $840K; by product Platform $980K,\\nAnalytics $640K, Integrations $420K, Services $300K), generate the MDMA\\ndocument for exactly this DSL intent and nothing else (use that data):\\n\\ncallout#q1-summary(variant=info)\\nchart#revenue-trend(variant=line)\\nchart#product-breakdown(variant=bar)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"Give me the Q1 sales overview with charts.\"}]",
@@ -1016,15 +1016,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants a Q1 sales overview based on specific data.\n  I need to generate three components:\n  1. A callout for the summary (Total $2.34M, 111% of target).\n  2. A line chart for the revenue trend (Jan $720K, Feb $780K, Mar $840K).\n  3. A bar chart for the product breakdown (Platform $980K, Analytics $640K, Integrations $420K, Services $300K).\n  I will ensure the thinking block is present and the output is clean Markdown.\n```\n\n```mdma\ntype: callout\nid: q1-summary\nvariant: info\ncontent: |\n  # Q1 Sales Overview\n  Total revenue reached **$2.34M**, achieving **111%** of the quarterly target.\n```\n\n```mdma\ntype: chart\nid: revenue-trend\nvariant: line\nlabel: \"Monthly Revenue Trend\"\ndata: |\n  Month, Revenue\n  Jan, 720000\n  Feb, 780000\n  Mar, 840000\nxAxis: Month\n```\n\n```mdma\ntype: chart\nid: product-breakdown\nvariant: bar\nlabel: \"Revenue by Product Line\"\ndata: |\n  Product, Revenue\n  Platform, 980000\n  Analytics, 640000\n  Integrations, 420000\n  Services, 300000\nxAxis: Product\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants a Q1 sales overview based on specific data.\n  I will generate three components:\n  1. A callout for the high-level summary (Total $2.34M, 111% of target).\n  2. A line chart for the revenue trend (Jan $720K, Feb $780K, Mar $840K).\n  3. A bar chart for the product breakdown (Platform $980K, Analytics $640K, Integrations $420K, Services $300K).\n  I will ensure the thinking block is present and the output is valid MDMA.\n```\n\n```mdma\ntype: callout\nid: q1-summary\nvariant: info\ncontent: |\n  # Q1 Sales Performance\n  Total revenue reached **$2.34M**, achieving **111%** of the quarterly target.\n```\n\n```mdma\ntype: chart\nid: revenue-trend\nvariant: line\nlabel: \"Monthly Revenue Trend\"\ndata: |\n  Month, Revenue\n  Jan, 720000\n  Feb, 780000\n  Mar, 840000\nxAxis: Month\n```\n\n```mdma\ntype: chart\nid: product-breakdown\nvariant: bar\nlabel: \"Revenue by Product Line\"\ndata: |\n  Product, Revenue\n  Platform, 980000\n  Analytics, 640000\n  Integrations, 420000\n  Services, 300000\nxAxis: Product\n```",
           "tokenUsage": {
-            "total": 1881,
+            "total": 1884,
             "prompt": 1493,
-            "completion": 388,
+            "completion": 391,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3096,
+          "latencyMs": 3101,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1035,10 +1035,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "1743",
+                "content-length": "1750",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:53 GMT",
-                "modal-function-call-id": "fc-01KW9B64J6Z4QX31GVSC4B542D",
+                "date": "Mon, 29 Jun 2026 11:11:06 GMT",
+                "modal-function-call-id": "fc-01KW9H6TP8VAPFJD28JGXZEPYP",
                 "vary": "accept-encoding"
               }
             }
@@ -1095,10 +1095,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "1743",
+              "content-length": "1750",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:53 GMT",
-              "modal-function-call-id": "fc-01KW9B64J6Z4QX31GVSC4B542D",
+              "date": "Mon, 29 Jun 2026 11:11:06 GMT",
+              "modal-function-call-id": "fc-01KW9H6TP8VAPFJD28JGXZEPYP",
               "vary": "accept-encoding"
             }
           },
@@ -1170,8 +1170,8 @@
             }
           ]
         },
-        "id": "02aed8b4-faa1-4f48-b6c3-7aa10b0c04f8",
-        "latencyMs": 2706,
+        "id": "fb2ce005-9b2e-4a81-bc1b-b5831ec0bb74",
+        "latencyMs": 2997,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are an incident response assistant. Generate the MDMA document for\\nexactly this DSL intent and nothing else:\\n\\nform#incident-intake-form[incident-title*:t, reporter-email*^:e, severity*:s{P1|P2|P3|P4}, affected-systems*:t, description*:ta](action=triage-incident)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"Our payment processing service is completely down in production.\"}]",
@@ -1185,15 +1185,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a critical production outage (payment processing). \n  I need to provide an incident intake form to capture the necessary details for triage.\n  The form requires: incident title, reporter email (sensitive), severity (select), affected systems, and a description.\n  The form will submit via the 'triage-incident' action.\n```\n\n```mdma\ntype: form\nid: incident-intake-form\nfields:\n  - name: incident-title\n    type: text\n    label: \"Incident Title\"\n    required: true\n  - name: reporter-email\n    type: email\n    label: \"Reporter Email\"\n    required: true\n    sensitive: true\n  - name: severity\n    type: select\n    label: \"Severity\"\n    required: true\n    options:\n      - label: \"P1 - Critical\"\n        value: \"P1\"\n      - label: \"P2 - High\"\n        value: \"P2\"\n      - label: \"P3 - Medium\"\n        value: \"P3\"\n      - label: \"P4 - Low\"\n        value: \"P4\"\n  - name: affected-systems\n    type: text\n    label: \"Affected Systems\"\n    required: true\n  - name: description\n    type: textarea\n    label: \"Description\"\n    required: true\nonSubmit: triage-incident\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a critical production outage (payment processing service). \n  I need to provide an incident response interface.\n  The DSL intent specifies a form for incident intake.\n  I will generate the thinking block, then the form component.\n  The form requires: incident-title (text), reporter-email (email, sensitive), severity (select), affected-systems (text), and description (textarea).\n  The form submits via the 'triage-incident' action.\n```\n\n```mdma\ntype: form\nid: incident-intake-form\nfields:\n  - name: incident-title\n    type: text\n    label: \"Incident Title\"\n    required: true\n  - name: reporter-email\n    type: email\n    label: \"Reporter Email\"\n    required: true\n    sensitive: true\n  - name: severity\n    type: select\n    label: \"Severity\"\n    required: true\n    options:\n      - label: \"P1 - Critical\"\n        value: \"P1\"\n      - label: \"P2 - High\"\n        value: \"P2\"\n      - label: \"P3 - Medium\"\n        value: \"P3\"\n      - label: \"P4 - Low\"\n        value: \"P4\"\n  - name: affected-systems\n    type: text\n    label: \"Affected Systems\"\n    required: true\n  - name: description\n    type: textarea\n    label: \"Description\"\n    required: true\nonSubmit: triage-incident\n```",
           "tokenUsage": {
-            "total": 1773,
+            "total": 1802,
             "prompt": 1435,
-            "completion": 338,
+            "completion": 367,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2706,
+          "latencyMs": 2997,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1204,10 +1204,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "1859",
+                "content-length": "1976",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:56 GMT",
-                "modal-function-call-id": "fc-01KW9B67QF66V00350EE9B6735",
+                "date": "Mon, 29 Jun 2026 11:11:09 GMT",
+                "modal-function-call-id": "fc-01KW9H6XQSN7YBAZPWT57W0RVD",
                 "vary": "accept-encoding"
               }
             }
@@ -1264,10 +1264,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "1859",
+              "content-length": "1976",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:56 GMT",
-              "modal-function-call-id": "fc-01KW9B67QF66V00350EE9B6735",
+              "date": "Mon, 29 Jun 2026 11:11:09 GMT",
+              "modal-function-call-id": "fc-01KW9H6XQSN7YBAZPWT57W0RVD",
               "vary": "accept-encoding"
             }
           },
@@ -1343,8 +1343,8 @@
             }
           ]
         },
-        "id": "43a671d8-0c60-4e50-9112-1dcb70104e10",
-        "latencyMs": 557,
+        "id": "da44e38d-af99-4f57-83a4-0be9b2fac236",
+        "latencyMs": 575,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a product operations assistant (5-day review process). Generate the\\nMDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#review-process(variant=info)\\nform#feature-request-form[feature-title*:t, requester-name*:t, requesting-team*:s{engineering|sales|cs|marketing|product}, priority*:s{critical|high|medium|low}, description*:ta, primary-use-case*:ta](action=evaluate-feature-request)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"We need a bulk export feature for our enterprise customers.\"}]",
@@ -1366,7 +1366,7 @@
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 557,
+          "latencyMs": 575,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1379,8 +1379,8 @@
                 "alt-svc": "h3=\":443\"; ma=2592000",
                 "content-length": "792",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:59 GMT",
-                "modal-function-call-id": "fc-01KW9B6AFTN3W975FSF8JYN94Z",
+                "date": "Mon, 29 Jun 2026 11:11:12 GMT",
+                "modal-function-call-id": "fc-01KW9H70P53HCKGKA40TTM1KY6",
                 "vary": "accept-encoding"
               }
             }
@@ -1442,8 +1442,8 @@
               "alt-svc": "h3=\":443\"; ma=2592000",
               "content-length": "792",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:59 GMT",
-              "modal-function-call-id": "fc-01KW9B6AFTN3W975FSF8JYN94Z",
+              "date": "Mon, 29 Jun 2026 11:11:12 GMT",
+              "modal-function-call-id": "fc-01KW9H70P53HCKGKA40TTM1KY6",
               "vary": "accept-encoding"
             }
           },
@@ -1510,8 +1510,8 @@
             }
           ]
         },
-        "id": "e1351edb-9dc8-4801-aa45-9ca9939fa646",
-        "latencyMs": 3792,
+        "id": "d4673ce6-b2af-4e38-b726-bdc773260ef2",
+        "latencyMs": 3757,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a scrum master assistant. For Sprint 24 (velocity 42 of 45 target;\\nhistory 38,44,41,43,47; bugs Auth 5, API 3, Frontend 7, DB 2, CI/CD 1),\\ngenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#sprint-info(variant=info)\\nchart#velocity-trend(variant=line)\\nchart#bug-distribution(variant=bar)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"Let's start the Sprint 24 retrospective.\"}]",
@@ -1525,15 +1525,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants a retrospective dashboard for Sprint 24.\n  The DSL intent specifies:\n  1. A callout for sprint info (variant=info).\n  2. A line chart for velocity trend (variant=line).\n  3. A bar chart for bug distribution (variant=bar).\n\n  Data points to use:\n  - Sprint 24 velocity: 42 (target 45).\n  - Velocity history: 38, 44, 41, 43, 47.\n  - Bug counts: Auth 5, API 3, Frontend 7, DB 2, CI/CD 1.\n\n  Plan:\n  - Create `sprint-info` callout with a summary of the sprint performance.\n  - Create `velocity-trend` line chart using the history and current sprint.\n  - Create `bug-distribution` bar chart using the bug counts by category.\n```\n\n```mdma\ntype: callout\nid: sprint-info\nvariant: info\ncontent: |\n  ### Sprint 24 Summary\n  The sprint concluded with a velocity of 42, slightly below the target of 45. While the team maintained a steady pace, we observed a slight uptick in frontend-related bugs that impacted the final delivery.\n```\n\n```mdma\ntype: chart\nid: velocity-trend\nvariant: line\nlabel: \"Sprint Velocity Trend\"\ndata: |\n  Sprint, Velocity\n  S19, 38\n  S20, 44\n  S21, 41\n  S22, 43\n  S23, 47\n  S24, 42\nxAxis: Sprint\n```\n\n```mdma\ntype: chart\nid: bug-distribution\nvariant: bar\nlabel: \"Bugs by Category\"\ndata: |\n  Category, Count\n  Auth, 5\n  API, 3\n  Frontend, 7\n  DB, 2\n  CI/CD, 1\nxAxis: Category\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants a retrospective dashboard for Sprint 24.\n  The DSL intent specifies:\n  1. A callout for sprint info (variant=info).\n  2. A line chart for velocity trend (variant=line).\n  3. A bar chart for bug distribution (variant=bar).\n\n  Data points provided:\n  - Velocity: 42 (target 45).\n  - History: 38, 44, 41, 43, 47.\n  - Bugs: Auth 5, API 3, Frontend 7, DB 2, CI/CD 1.\n\n  Plan:\n  - Create `sprint-info` callout with a summary of the sprint performance.\n  - Create `velocity-trend` line chart using the history and current velocity.\n  - Create `bug-distribution` bar chart using the bug counts per category.\n```\n\n```mdma\ntype: callout\nid: sprint-info\nvariant: info\ncontent: |\n  Sprint 24 has concluded with a velocity of 42, slightly below the target of 45. While we maintained a steady pace, we should review the recent uptick in frontend bugs to ensure we meet our quality goals for the next sprint.\n```\n\n```mdma\ntype: chart\nid: velocity-trend\nvariant: line\nlabel: \"Sprint Velocity Trend\"\ndata: |\n  Sprint, Velocity\n  S19, 38\n  S20, 44\n  S21, 41\n  S22, 43\n  S23, 47\n  S24, 42\nxAxis: Sprint\n```\n\n```mdma\ntype: chart\nid: bug-distribution\nvariant: bar\nlabel: \"Bugs by Category\"\ndata: |\n  Category, Count\n  Auth, 5\n  API, 3\n  Frontend, 7\n  DB, 2\n  CI/CD, 1\nxAxis: Category\n```",
           "tokenUsage": {
-            "total": 1950,
+            "total": 1942,
             "prompt": 1471,
-            "completion": 479,
+            "completion": 471,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3792,
+          "latencyMs": 3757,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1544,10 +1544,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2076",
+                "content-length": "2050",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:25:59 GMT",
-                "modal-function-call-id": "fc-01KW9B6B71Q0321AK84KF29A05",
+                "date": "Mon, 29 Jun 2026 11:11:13 GMT",
+                "modal-function-call-id": "fc-01KW9H71B4DEQ2WYGM9GA6WAVS",
                 "vary": "accept-encoding"
               }
             }
@@ -1604,10 +1604,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2076",
+              "content-length": "2050",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:25:59 GMT",
-              "modal-function-call-id": "fc-01KW9B6B71Q0321AK84KF29A05",
+              "date": "Mon, 29 Jun 2026 11:11:13 GMT",
+              "modal-function-call-id": "fc-01KW9H71B4DEQ2WYGM9GA6WAVS",
               "vary": "accept-encoding"
             }
           },
@@ -1676,8 +1676,8 @@
             }
           ]
         },
-        "id": "0bb6938f-2f87-48fd-833d-3bfd3254eb9e",
-        "latencyMs": 3635,
+        "id": "dfcf3c07-6727-497f-a86d-6a5a5782d88f",
+        "latencyMs": 3521,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are an e-commerce customer service assistant. For order ORD-2024-78542\\n(in transit, ETA Mar 22; items Wireless Keyboard, USB-C Hub x2, Monitor\\nStand, Cable Kit), generate the MDMA document for exactly this DSL intent\\nand nothing else:\\n\\ncallout#order-status(variant=info)\\ntable#order-items\\ntasklist#delivery-milestones\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"Where is my order ORD-2024-78542?\"}]",
@@ -1691,15 +1691,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is asking for the status of order ORD-2024-78542.\n  The DSL requires three components:\n  1. A callout for the order status (in transit, ETA Mar 22).\n  2. A table for the order items (Wireless Keyboard, USB-C Hub x2, Monitor Stand, Cable Kit).\n  3. A tasklist for delivery milestones.\n  I will generate these components following the MDMA specification.\n```\n\n```mdma\ntype: callout\nid: order-status\nvariant: info\ncontent: |\n  Your order **ORD-2024-78542** is currently **in transit**. \n  It is estimated to arrive by **March 22**.\n```\n\n```mdma\ntype: table\nid: order-items\ncolumns:\n  - key: item\n    header: \"Item\"\n  - key: qty\n    header: \"Quantity\"\n  - key: price\n    header: \"Price\"\ndata:\n  - { item: \"Wireless Keyboard\", qty: 1, price: 45.00 }\n  - { item: \"USB-C Hub\", qty: 2, price: 25.00 }\n  - { item: \"Monitor Stand\", qty: 1, price: 35.00 }\n  - { item: \"Cable Kit\", qty: 1, price: 15.00 }\n```\n\n```mdma\ntype: tasklist\nid: delivery-milestones\nitems:\n  - id: order-placed\n    text: \"Order placed\"\n  - id: order-processed\n    text: \"Order processed\"\n  - id: order-shipped\n    text: \"Order shipped\"\n  - id: order-out-for-delivery\n    text: \"Out for delivery\"\n  - id: order-delivered\n    text: \"Order delivered\"\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is asking for the status of order ORD-2024-78542.\n  The DSL intent requires:\n  1. A callout for the order status (in transit, ETA Mar 22).\n  2. A table for the order items (Wireless Keyboard, USB-C Hub x2, Monitor Stand, Cable Kit).\n  3. A tasklist for delivery milestones.\n  I will generate these three components as requested.\n```\n\n```mdma\ntype: callout\nid: order-status\nvariant: info\ncontent: Your order ORD-2024-78542 is currently in transit and is expected to arrive by March 22.\n```\n\n```mdma\ntype: table\nid: order-items\ncolumns:\n  - key: item\n    header: \"Item\"\n  - key: qty\n    header: \"Quantity\"\n  - key: price\n    header: \"Price\"\ndata:\n  - { item: \"Wireless Keyboard\", qty: 1, price: 45.00 }\n  - { item: \"USB-C Hub\", qty: 2, price: 25.00 }\n  - { item: \"Monitor Stand\", qty: 1, price: 35.00 }\n  - { item: \"Cable Kit\", qty: 1, price: 15.00 }\n```\n\n```mdma\ntype: tasklist\nid: delivery-milestones\nitems:\n  - id: order-placed\n    text: \"Order Placed\"\n  - id: order-processed\n    text: \"Order Processed\"\n  - id: order-shipped\n    text: \"Order Shipped\"\n  - id: order-out-for-delivery\n    text: \"Out for Delivery\"\n  - id: order-delivered\n    text: \"Delivered\"\n```",
           "tokenUsage": {
-            "total": 1921,
+            "total": 1910,
             "prompt": 1461,
-            "completion": 460,
+            "completion": 449,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3635,
+          "latencyMs": 3521,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1710,10 +1710,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2005",
+                "content-length": "1953",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:03 GMT",
-                "modal-function-call-id": "fc-01KW9B6F069P0Z08H46ZXQ66TT",
+                "date": "Mon, 29 Jun 2026 11:11:17 GMT",
+                "modal-function-call-id": "fc-01KW9H74ZBV1SDXDFH6RX4HFHQ",
                 "vary": "accept-encoding"
               }
             }
@@ -1772,10 +1772,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2005",
+              "content-length": "1953",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:03 GMT",
-              "modal-function-call-id": "fc-01KW9B6F069P0Z08H46ZXQ66TT",
+              "date": "Mon, 29 Jun 2026 11:11:17 GMT",
+              "modal-function-call-id": "fc-01KW9H74ZBV1SDXDFH6RX4HFHQ",
               "vary": "accept-encoding"
             }
           },
@@ -1862,8 +1862,8 @@
             }
           ]
         },
-        "id": "fed6ff84-a307-4aa0-88d1-897bdac63040",
-        "latencyMs": 4405,
+        "id": "3526ebda-e371-41e6-96ec-78051f280482",
+        "latencyMs": 4385,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a release management assistant (SOX/ISO compliance). Generate the\\nMDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#risk-assessment-warning(variant=warning)\\nform#change-request-form[change-request-id*:t, jira-ticket*:t, change-title*:t, change-type*:s{standard|normal|emergency}, target-environment*:s{production|staging|pre-prod}, risk-level*:s{low|medium|high|critical}, change-description*:ta, rollback-plan*:ta](action=review-change-request)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I need to deploy a database migration to production this weekend.\"}]",
@@ -1877,15 +1877,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to manage a production database migration. \n  I will first generate a warning callout to highlight the risk of production changes.\n  Then, I will generate a comprehensive change request form to capture all necessary compliance and rollback information, ensuring the form submits to the 'review-change-request' action.\n```\n\n```mdma\ntype: callout\nid: risk-assessment-warning\nvariant: warning\ncontent: |\n  **⚠️ Production Change Warning**\n  This action involves modifying a production database. Ensure all pre-deployment checks are completed and the rollback plan is verified before proceeding.\n```\n\n```mdma\ntype: form\nid: change-request-form\nfields:\n  - name: change-request-id\n    type: text\n    label: \"Change Request ID\"\n    required: true\n  - name: jira-ticket\n    type: text\n    label: \"Jira Ticket\"\n    required: true\n  - name: change-title\n    type: text\n    label: \"Change Title\"\n    required: true\n  - name: change-type\n    type: select\n    label: \"Change Type\"\n    required: true\n    options:\n      - { label: \"Standard\", value: \"standard\" }\n      - { label: \"Normal\", value: \"normal\" }\n      - { label: \"Emergency\", value: \"emergency\" }\n  - name: target-environment\n    type: select\n    label: \"Target Environment\"\n    required: true\n    options:\n      - { label: \"Production\", value: \"production\" }\n      - { label: \"Staging\", value: \"staging\" }\n      - { label: \"Pre-Prod\", value: \"pre-prod\" }\n  - name: risk-level\n    type: select\n    label: \"Risk Level\"\n    required: true\n    options:\n      - { label: \"Low\", value: \"low\" }\n      - { label: \"Medium\", value: \"medium\" }\n      - { label: \"High\", value: \"high\" }\n      - { label: \"Critical\", value: \"critical\" }\n  - name: change-description\n    type: textarea\n    label: \"Change Description\"\n    required: true\n  - name: rollback-plan\n    type: textarea\n    label: \"Rollback Plan\"\n    required: true\nonSubmit: review-change-request\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to manage a production database migration. \n  I will first generate a warning callout to highlight the risk of production changes.\n  Then, I will generate a comprehensive change request form to capture all necessary compliance and rollback information, ensuring the form submits to the 'review-change-request' action.\n```\n\n```mdma\ntype: callout\nid: risk-assessment-warning\nvariant: warning\ncontent: |\n  **Caution: Production Environment Change**\n  This action involves modifying the production database. Ensure all pre-deployment checks are completed and the rollback plan is verified before proceeding.\n```\n\n```mdma\ntype: form\nid: change-request-form\nfields:\n  - name: change-request-id\n    type: text\n    label: \"Change Request ID\"\n    required: true\n  - name: jira-ticket\n    type: text\n    label: \"Jira Ticket\"\n    required: true\n  - name: change-title\n    type: text\n    label: \"Change Title\"\n    required: true\n  - name: change-type\n    type: select\n    label: \"Change Type\"\n    required: true\n    options:\n      - { label: \"Standard\", value: \"standard\" }\n      - { label: \"Normal\", value: \"normal\" }\n      - { label: \"Emergency\", value: \"emergency\" }\n  - name: target-environment\n    type: select\n    label: \"Target Environment\"\n    required: true\n    options:\n      - { label: \"Production\", value: \"production\" }\n      - { label: \"Staging\", value: \"staging\" }\n      - { label: \"Pre-Prod\", value: \"pre-prod\" }\n  - name: risk-level\n    type: select\n    label: \"Risk Level\"\n    required: true\n    options:\n      - { label: \"Low\", value: \"low\" }\n      - { label: \"Medium\", value: \"medium\" }\n      - { label: \"High\", value: \"high\" }\n      - { label: \"Critical\", value: \"critical\" }\n  - name: change-description\n    type: textarea\n    label: \"Change Description\"\n    required: true\n  - name: rollback-plan\n    type: textarea\n    label: \"Rollback Plan\"\n    required: true\nonSubmit: review-change-request\n```",
           "tokenUsage": {
-            "total": 2054,
+            "total": 2055,
             "prompt": 1489,
-            "completion": 565,
+            "completion": 566,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4405,
+          "latencyMs": 4385,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1896,10 +1896,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2746",
+                "content-length": "2754",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:07 GMT",
-                "modal-function-call-id": "fc-01KW9B6JP662G5G6S6HYSM092G",
+                "date": "Mon, 29 Jun 2026 11:11:20 GMT",
+                "modal-function-call-id": "fc-01KW9H78E73TPJ8KMJ7MR1WN95",
                 "vary": "accept-encoding"
               }
             }
@@ -1966,10 +1966,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2746",
+              "content-length": "2754",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:07 GMT",
-              "modal-function-call-id": "fc-01KW9B6JP662G5G6S6HYSM092G",
+              "date": "Mon, 29 Jun 2026 11:11:20 GMT",
+              "modal-function-call-id": "fc-01KW9H78E73TPJ8KMJ7MR1WN95",
               "vary": "accept-encoding"
             }
           },
@@ -2053,8 +2053,8 @@
             }
           ]
         },
-        "id": "d48ffdc5-889b-4da8-8b20-e628a34802dc",
-        "latencyMs": 4829,
+        "id": "8fcc6d8f-68e0-4c53-8c06-91997c7da034",
+        "latencyMs": 5090,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a customer support escalation assistant with SLA tracking. Generate\\nthe MDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#sla-compliance(variant=warning)\\nform#escalation-intake-form[case-id*:t, customer-name*:t, customer-email*^:e, account-id*^:t, priority*:s{P1|P2|P3|P4}, category*:s{billing|technical|account|other}, customer-sentiment*:s{angry|frustrated|neutral|satisfied}, escalation-reason*:ta](action=route-escalation)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"A major enterprise customer is threatening to cancel over billing errors.\"}]",
@@ -2068,15 +2068,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a high-stakes customer churn risk due to billing errors. \n  I need to provide an escalation intake form to capture the necessary details for the billing and account management teams.\n  I will also include a warning callout to highlight the urgency of the SLA compliance for this specific case.\n```\n\n```mdma\ntype: callout\nid: sla-compliance\nvariant: warning\ncontent: |\n  **Urgent: SLA Compliance Required**\n  This escalation involves a high-value enterprise customer. Please ensure all required fields are completed to prevent further service friction and meet the 4-hour response window.\n```\n\n```mdma\ntype: form\nid: escalation-intake-form\nfields:\n  - name: case-id\n    type: text\n    label: \"Case ID\"\n    required: true\n  - name: customer-name\n    type: text\n    label: \"Customer Name\"\n    required: true\n  - name: customer-email\n    type: email\n    label: \"Customer Email\"\n    required: true\n    sensitive: true\n  - name: account-id\n    type: text\n    label: \"Account ID\"\n    required: true\n    sensitive: true\n  - name: priority\n    type: select\n    label: \"Priority\"\n    required: true\n    options:\n      - { label: \"P1 - Critical\", value: \"P1\" }\n      - { label: \"P2 - High\", value: \"P2\" }\n      - { label: \"P3 - Medium\", value: \"P3\" }\n      - { label: \"P4 - Low\", value: \"P4\" }\n  - name: category\n    type: select\n    label: \"Category\"\n    required: true\n    options:\n      - { label: \"Billing\", value: \"billing\" }\n      - { label: \"Technical\", value: \"technical\" }\n      - { label: \"Account\", value: \"account\" }\n      - { label: \"Other\", value: \"other\" }\n  - name: customer-sentiment\n    type: select\n    label: \"Customer Sentiment\"\n    required: true\n    options:\n      - { label: \"Angry\", value: \"angry\" }\n      - { label: \"Frustrated\", value: \"frustrated\" }\n      - { label: \"Neutral\", value: \"neutral\" }\n      - { label: \"Satisfied\", value: \"satisfied\" }\n  - name: escalation-reason\n    type: textarea\n    label: \"Escalation Reason\"\n    required: true\nonSubmit: route-escalation\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user is reporting a high-stakes customer escalation. \n  I need to provide a warning callout to highlight the urgency and an intake form to capture the necessary details for the escalation process.\n  The form requires several fields: case ID, customer name, sensitive email, sensitive account ID, priority (select), category (select), sentiment (select), and a textarea for the reason.\n  The form will submit via the 'route-escalation' action.\n```\n\n```mdma\ntype: callout\nid: sla-compliance\nvariant: warning\ncontent: |\n  **Urgent: SLA Breach Risk**\n  This escalation involves a high-value enterprise account. Immediate action is required to prevent churn and ensure compliance with our service level agreements.\n```\n\n```mdma\ntype: form\nid: escalation-intake-form\nfields:\n  - name: case-id\n    type: text\n    label: \"Case ID\"\n    required: true\n  - name: customer-name\n    type: text\n    label: \"Customer Name\"\n    required: true\n  - name: customer-email\n    type: email\n    label: \"Customer Email\"\n    required: true\n    sensitive: true\n  - name: account-id\n    type: text\n    label: \"Account ID\"\n    required: true\n    sensitive: true\n  - name: priority\n    type: select\n    label: \"Priority\"\n    required: true\n    options:\n      - { label: \"P1 - Critical\", value: \"P1\" }\n      - { label: \"P2 - High\", value: \"P2\" }\n      - { label: \"P3 - Medium\", value: \"P3\" }\n      - { label: \"P4 - Low\", value: \"P4\" }\n  - name: category\n    type: select\n    label: \"Category\"\n    required: true\n    options:\n      - { label: \"Billing\", value: \"billing\" }\n      - { label: \"Technical\", value: \"technical\" }\n      - { label: \"Account\", value: \"account\" }\n      - { label: \"Other\", value: \"other\" }\n  - name: customer-sentiment\n    type: select\n    label: \"Customer Sentiment\"\n    required: true\n    options:\n      - { label: \"Angry\", value: \"angry\" }\n      - { label: \"Frustrated\", value: \"frustrated\" }\n      - { label: \"Neutral\", value: \"neutral\" }\n      - { label: \"Satisfied\", value: \"satisfied\" }\n  - name: escalation-reason\n    type: textarea\n    label: \"Escalation Reason\"\n    required: true\nonSubmit: route-escalation\n```",
           "tokenUsage": {
-            "total": 2106,
+            "total": 2133,
             "prompt": 1491,
-            "completion": 615,
+            "completion": 642,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4829,
+          "latencyMs": 5090,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -2087,10 +2087,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2857",
+                "content-length": "2962",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:11 GMT",
-                "modal-function-call-id": "fc-01KW9B6Q4E6N6PKF9T8M1T1QWS",
+                "date": "Mon, 29 Jun 2026 11:11:25 GMT",
+                "modal-function-call-id": "fc-01KW9H7CSZAWEQ5SKMJW8RQ4RP",
                 "vary": "accept-encoding"
               }
             }
@@ -2154,10 +2154,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2857",
+              "content-length": "2962",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:11 GMT",
-              "modal-function-call-id": "fc-01KW9B6Q4E6N6PKF9T8M1T1QWS",
+              "date": "Mon, 29 Jun 2026 11:11:25 GMT",
+              "modal-function-call-id": "fc-01KW9H7CSZAWEQ5SKMJW8RQ4RP",
               "vary": "accept-encoding"
             }
           },
@@ -2244,8 +2244,8 @@
             }
           ]
         },
-        "id": "4b7899b6-d7ab-4481-8f5e-f2625ccd43cd",
-        "latencyMs": 4942,
+        "id": "b0d9e70a-d929-44b7-b885-ecb080deefc7",
+        "latencyMs": 5401,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a clinical operations assistant (patient safety is top priority).\\nGenerate the MDMA document for exactly this DSL intent and nothing else:\\n\\ncallout#safety-review(variant=error)\\nform#procedure-submission-form[procedure-title*:t, change-type*:s{new|major-revision|minor-revision|retirement}, department*:s{radiology|cardiology|surgery|oncology|general}, author-credentials*:t, risk-category*:s{low|medium|high|critical}, clinical-summary*:ta, contraindications*:ta](action=review-procedure)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I need to submit a new surgical procedure for the radiology department.\"}]",
@@ -2259,15 +2259,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to submit a new surgical procedure for the radiology department.\n  The DSL requires a safety-review callout (error variant) and a procedure-submission-form.\n  The form includes several fields: procedure-title (required), change-type (required select), department (required select), author-credentials (required), risk-category (required select), clinical-summary (required textarea), and contraindications (required textarea).\n  The form submits via the 'review-procedure' action.\n  I will ensure the callout provides a clear safety warning and the form is structured according to the DSL specifications.\n```\n\n```mdma\ntype: callout\nid: safety-review\nvariant: error\ncontent: |\n  **Safety Critical:** All new surgical procedures must undergo a formal clinical safety review before implementation. Ensure all risk assessments are complete and contraindications are clearly documented.\n```\n\n```mdma\ntype: form\nid: procedure-submission-form\nfields:\n  - name: procedure-title\n    type: text\n    label: \"Procedure Title\"\n    required: true\n  - name: change-type\n    type: select\n    label: \"Change Type\"\n    required: true\n    options:\n      - { label: \"New\", value: \"new\" }\n      - { label: \"Major Revision\", value: \"major-revision\" }\n      - { label: \"Minor Revision\", value: \"minor-revision\" }\n      - { label: \"Retirement\", value: \"retirement\" }\n  - name: department\n    type: select\n    label: \"Department\"\n    required: true\n    options:\n      - { label: \"Radiology\", value: \"radiology\" }\n      - { label: \"Cardiology\", value: \"cardiology\" }\n      - { label: \"Surgery\", value: \"surgery\" }\n      - { label: \"Oncology\", value: \"oncology\" }\n      - { label: \"General\", value: \"general\" }\n  - name: author-credentials\n    type: text\n    label: \"Author Credentials\"\n    required: true\n  - name: risk-category\n    type: select\n    label: \"Risk Category\"\n    required: true\n    options:\n      - { label: \"Low\", value: \"low\" }\n      - { label: \"Medium\", value: \"medium\" }\n      - { label: \"High\", value: \"high\" }\n      - { label: \"Critical\", value: \"critical\" }\n  - name: clinical-summary\n    type: textarea\n    label: \"Clinical Summary\"\n    required: true\n  - name: contraindications\n    type: textarea\n    label: \"Contraindications\"\n    required: true\nonSubmit: review-procedure\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user needs to submit a new surgical procedure for the radiology department.\n  I will generate:\n  1. An error-variant callout to emphasize the critical nature of procedure safety and compliance.\n  2. A form for procedure submission with the following fields:\n     - procedure-title (required, text)\n     - change-type (required, select: new, major-revision, minor-revision, retirement)\n     - department (required, select: radiology, cardiology, surgery, oncology, general)\n     - author-credentials (required, text)\n     - risk-category (required, select: low, medium, high, critical)\n     - clinical-summary (required, textarea)\n     - contraindications (required, textarea)\n  The form will submit via the 'review-procedure' action.\n```\n\n```mdma\ntype: callout\nid: safety-review\nvariant: error\ncontent: |\n  **Critical Safety Notice:** All new surgical procedures and major revisions must undergo a formal clinical safety review before implementation. Ensure all contraindications and risk assessments are thoroughly documented to prevent patient harm.\n```\n\n```mdma\ntype: form\nid: procedure-submission-form\nfields:\n  - name: procedure-title\n    type: text\n    label: \"Procedure Title\"\n    required: true\n  - name: change-type\n    type: select\n    label: \"Change Type\"\n    required: true\n    options:\n      - { label: \"New Procedure\", value: \"new\" }\n      - { label: \"Major Revision\", value: \"major-revision\" }\n      - { label: \"Minor Revision\", value: \"minor-revision\" }\n      - { label: \"Retirement\", value: \"retirement\" }\n  - name: department\n    type: select\n    label: \"Department\"\n    required: true\n    options:\n      - { label: \"Radiology\", value: \"radiology\" }\n      - { label: \"Cardiology\", value: \"cardiology\" }\n      - { label: \"Surgery\", value: \"surgery\" }\n      - { label: \"Oncology\", value: \"oncology\" }\n      - { label: \"General\", value: \"general\" }\n  - name: author-credentials\n    type: text\n    label: \"Author Credentials\"\n    required: true\n  - name: risk-category\n    type: select\n    label: \"Risk Category\"\n    required: true\n    options:\n      - { label: \"Low\", value: \"low\" }\n      - { label: \"Medium\", value: \"medium\" }\n      - { label: \"High\", value: \"high\" }\n      - { label: \"Critical\", value: \"critical\" }\n  - name: clinical-summary\n    type: textarea\n    label: \"Clinical Summary\"\n    required: true\n  - name: contraindications\n    type: textarea\n    label: \"Contraindications\"\n    required: true\nonSubmit: review-procedure\n```",
           "tokenUsage": {
-            "total": 2125,
+            "total": 2178,
             "prompt": 1485,
-            "completion": 640,
+            "completion": 693,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4942,
+          "latencyMs": 5401,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -2278,10 +2278,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "3131",
+                "content-length": "3307",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:16 GMT",
-                "modal-function-call-id": "fc-01KW9B6W02VN3J3PYA5DMNA06J",
+                "date": "Mon, 29 Jun 2026 11:11:30 GMT",
+                "modal-function-call-id": "fc-01KW9H7HSSA5TQ1V54J6KPREY4",
                 "vary": "accept-encoding"
               }
             }
@@ -2348,10 +2348,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "3131",
+              "content-length": "3307",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:16 GMT",
-              "modal-function-call-id": "fc-01KW9B6W02VN3J3PYA5DMNA06J",
+              "date": "Mon, 29 Jun 2026 11:11:30 GMT",
+              "modal-function-call-id": "fc-01KW9H7HSSA5TQ1V54J6KPREY4",
               "vary": "accept-encoding"
             }
           },
@@ -2435,8 +2435,8 @@
             }
           ]
         },
-        "id": "b578cb15-4cba-49e6-917f-ddb4dc45006c",
-        "latencyMs": 5236,
+        "id": "74757764-3ae2-4851-9942-d0eed8214754",
+        "latencyMs": 5252,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are a compliance assistant for KYC/AML identity verification. Generate\\nthe MDMA document for exactly this DSL intent and nothing else:\\n\\nform#kyc-case-form[case-reference-id*:t, customer-type*:s{individual|business|trust}, full-legal-name*^:t, date-of-birth*^:d, tax-identifier*^:t, email*^:e, source-of-funds*:s{employment|business|investment|inheritance|other}, risk-rating*:s{low|medium|high|prohibited}](action=kyc-review)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"We have a new high-risk business entity that needs KYC verification.\"}]",
@@ -2458,7 +2458,7 @@
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 5236,
+          "latencyMs": 5252,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -2471,8 +2471,8 @@
                 "alt-svc": "h3=\":443\"; ma=2592000",
                 "content-length": "3010",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:22 GMT",
-                "modal-function-call-id": "fc-01KW9B710RZ56FBHP8SMJ5R39Z",
+                "date": "Mon, 29 Jun 2026 11:11:35 GMT",
+                "modal-function-call-id": "fc-01KW9H7Q3CY6BW5CKA54RB26HS",
                 "vary": "accept-encoding"
               }
             }
@@ -2538,8 +2538,8 @@
               "alt-svc": "h3=\":443\"; ma=2592000",
               "content-length": "3010",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:22 GMT",
-              "modal-function-call-id": "fc-01KW9B710RZ56FBHP8SMJ5R39Z",
+              "date": "Mon, 29 Jun 2026 11:11:35 GMT",
+              "modal-function-call-id": "fc-01KW9H7Q3CY6BW5CKA54RB26HS",
               "vary": "accept-encoding"
             }
           },
@@ -2623,8 +2623,8 @@
             }
           ]
         },
-        "id": "dff5b53f-d57a-466e-bf30-f3a7c5082d6a",
-        "latencyMs": 4949,
+        "id": "f0b1a136-8319-4b55-a033-6bc2ea8e65f0",
+        "latencyMs": 4870,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an MDMA authoring engine. You read a single DSL intent — a compact, one-line-per-component description of the UI to build — and produce the corresponding MDMA (Markdown Document with Mounted Applications) components.\\n\\n## DSL input — the grammar you read\\n```\\n<type>#<id>[<field>, <field>, ...](<prop>, <prop>, ...)   # one component per line\\nfield = <name>[*][^]:<typecode>[{opt1|opt2|...}]\\n        *  = required        ^  = sensitive (PII: name, email, phone, address, SSN, date-of-birth, …)\\n        typecode: t=text  n=number  e=email  d=date  s=select  c=checkbox  ta=textarea  f=file\\n        {a|b|c} = options for a select field\\nprops = text=\\\"...\\\"  |  action=<id>  |  variant=<name>\\ntypes: form · button · tasklist · table · callout · approval-gate · webhook · chart\\n```\\n\\n## Authoring rules\\n- Each ```mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a \\\"components:\\\" array.\\n- Every component has \\\"id\\\" and \\\"type\\\" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).\\n- AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.\\n- form: top-level \\\"onSubmit: <action-id>\\\"; \\\"fields\\\" list (each name/type/label); field type ∈ text|number|email|date|select|checkbox|textarea|file; select fields need \\\"options\\\" (list of {label, value}); mark every PII field \\\"sensitive: true\\\".\\n- button: \\\"text\\\" + \\\"onAction: <action-id>\\\". tasklist: \\\"items\\\" list of {id, text}. table: \\\"columns\\\" (key/header) + \\\"data\\\" rows. callout: \\\"content\\\" + variant ∈ info|warning|error|success. approval-gate: \\\"title\\\". webhook: \\\"url\\\" + \\\"trigger: <action-id>\\\". chart: \\\"label\\\" (never \\\"title\\\") + \\\"data: |\\\" CSV (header line then rows) + variant ∈ line|bar|area|pie.\\n- Forms use \\\"onSubmit\\\", buttons \\\"onAction\\\", webhooks \\\"trigger\\\" — never a bare \\\"action\\\" key.\\n- Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).\\n\\n## Examples\\n\\nIntent: `form#contact[full-name*:t, email*^:e](action=contact-submitted)`\\n\\n```mdma\\ntype: thinking\\nid: planning\\nstatus: done\\ncollapsed: true\\ncontent: |\\n  Contact form: a required name and a required, sensitive email; submits via contact-submitted.\\n```\\n\\n```mdma\\ntype: form\\nid: contact\\nfields:\\n  - name: full-name\\n    type: text\\n    label: \\\"Full Name\\\"\\n    required: true\\n  - name: email\\n    type: email\\n    label: \\\"Email\\\"\\n    required: true\\n    sensitive: true\\nonSubmit: contact-submitted\\n```\\n\\nIntent: `table#orders` — invent realistic columns and rows; default to sortable/filterable tables.\\n\\n```mdma\\ntype: table\\nid: orders\\nsortable: true\\nfilterable: true\\ncolumns:\\n  - key: order-id\\n    header: \\\"Order ID\\\"\\n    sortable: true\\n  - key: customer\\n    header: \\\"Customer\\\"\\n    sortable: true\\n  - key: total\\n    header: \\\"Total ($)\\\"\\n    sortable: true\\n  - key: status\\n    header: \\\"Status\\\"\\ndata:\\n  - { order-id: \\\"ORD-1001\\\", customer: \\\"Acme Inc\\\", total: 1240.50, status: \\\"Shipped\\\" }\\n  - { order-id: \\\"ORD-1002\\\", customer: \\\"Globex\\\", total: 880.00, status: \\\"Pending\\\" }\\n  - { order-id: \\\"ORD-1003\\\", customer: \\\"Initech\\\", total: 2310.75, status: \\\"Delivered\\\" }\\n```\\n\\nIntent: `chart#revenue(variant=bar)` — invent a realistic CSV `data` block and a `label`.\\n\\n```mdma\\ntype: chart\\nid: revenue\\nvariant: bar\\nlabel: \\\"Monthly Revenue\\\"\\ndata: |\\n  Month, Revenue\\n  Jan, 42000\\n  Feb, 51000\\n  Mar, 47500\\nxAxis: Month\\n```\\n\\n---\\n\\nYou are an employee benefits enrollment assistant (window closes Mar 31,\\n2026). Generate the MDMA document for exactly this DSL intent and nothing\\nelse (keep the form id):\\n\\ncallout#enrollment-deadline(variant=info)\\nform#benefits-enroll-2026-spring[employee-id*:t, health-plan*:s{hmo|ppo|hdhp|waive}, dental-plan*:s{basic|premium|waive}, vision-plan*:s{standard|premium|waive}, dependents-count*:n, hsa-contribution*:n](action=review-benefits-selection)\\n\\n\\n---\\n\\nReminder — when generating MDMA components you MUST:\\n- Include a `thinking` block BEFORE the main content (status: done, collapsed: true).\\n- Use unique kebab-case IDs for every component.\\n- Mark PII fields with `sensitive: true`.\\n- NEVER mention thinking blocks, sensitive flags, bindings, component IDs, or any MDMA implementation details in your visible text. All reasoning goes inside the thinking block. The user should see a natural response, not meta-commentary about how the document is structured.\\n- Respond in plain Markdown — do NOT wrap the entire response in code fences.\"},{\"role\":\"user\",\"content\":\"I want to enroll in this year's health benefits.\"}]",
@@ -2638,15 +2638,15 @@
           "label": ""
         },
         "response": {
-          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants to enroll in benefits. \n  The DSL requires a callout for the deadline and a form for enrollment.\n  The form includes:\n  - employee-id (required, text)\n  - health-plan (required, select: hmo, ppo, hdhp, waive)\n  - dental-plan (required, select: basic, premium, waive)\n  - vision-plan (required, select: standard, premium, waive)\n  - dependents-count (required, number)\n  - hsa-contribution (required, number)\n  The form submits via 'review-benefits-selection'.\n  The callout informs the user of the March 31, 2026 deadline.\n```\n\n```mdma\ntype: callout\nid: enrollment-deadline\nvariant: info\ncontent: |\n  The enrollment window for the 2026 Spring benefits period is now open. Please complete your selection by March 31, 2026, to ensure coverage for the upcoming term.\n```\n\n```mdma\ntype: form\nid: benefits-enroll-2026-spring\nfields:\n  - name: employee-id\n    type: text\n    label: \"Employee ID\"\n    required: true\n    sensitive: true\n  - name: health-plan\n    type: select\n    label: \"Health Insurance Plan\"\n    required: true\n    options:\n      - { label: \"HMO\", value: \"hmo\" }\n      - { label: \"PPO\", value: \"ppo\" }\n      - { label: \"HDHP\", value: \"hdhp\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: dental-plan\n    type: select\n    label: \"Dental Insurance Plan\"\n    required: true\n    options:\n      - { label: \"Basic\", value: \"basic\" }\n      - { label: \"Premium\", value: \"premium\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: vision-plan\n    type: select\n    label: \"Vision Insurance Plan\"\n    required: true\n    options:\n      - { label: \"Standard\", value: \"standard\" }\n      - { label: \"Premium\", value: \"premium\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: dependents-count\n    type: number\n    label: \"Number of Dependents\"\n    required: true\n  - name: hsa-contribution\n    type: number\n    label: \"Annual HSA Contribution ($)\"\n    required: true\nonSubmit: review-benefits-selection\n```",
+          "output": "```mdma\ntype: thinking\nid: planning\nstatus: done\ncollapsed: true\ncontent: |\n  The user wants to enroll in benefits. \n  The DSL requires a callout for the deadline and a form for enrollment.\n  The form includes:\n  - employee-id (required, text)\n  - health-plan (required, select: hmo, ppo, hdhp, waive)\n  - dental-plan (required, select: basic, premium, waive)\n  - vision-plan (required, select: standard, premium, waive)\n  - dependents-count (required, number)\n  - hsa-contribution (required, number)\n  The form submits via 'review-benefits-selection'.\n  The deadline is March 31, 2026.\n```\n\n```mdma\ntype: callout\nid: enrollment-deadline\nvariant: info\ncontent: |\n  The open enrollment period for the 2026 Spring benefits cycle is currently active. Please ensure all selections are submitted by the deadline on March 31, 2026, to ensure coverage begins on the next cycle.\n```\n\n```mdma\ntype: form\nid: benefits-enroll-2026-spring\nfields:\n  - name: employee-id\n    type: text\n    label: \"Employee ID\"\n    required: true\n    sensitive: true\n  - name: health-plan\n    type: select\n    label: \"Health Insurance Plan\"\n    required: true\n    options:\n      - { label: \"HMO\", value: \"hmo\" }\n      - { label: \"PPO\", value: \"ppo\" }\n      - { label: \"HDHP\", value: \"hdhp\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: dental-plan\n    type: select\n    label: \"Dental Insurance Plan\"\n    required: true\n    options:\n      - { label: \"Basic\", value: \"basic\" }\n      - { label: \"Premium\", value: \"premium\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: vision-plan\n    type: select\n    label: \"Vision Insurance Plan\"\n    required: true\n    options:\n      - { label: \"Standard\", value: \"standard\" }\n      - { label: \"Premium\", value: \"premium\" }\n      - { label: \"Waive Coverage\", value: \"waive\" }\n  - name: dependents-count\n    type: number\n    label: \"Number of Dependents\"\n    required: true\n  - name: hsa-contribution\n    type: number\n    label: \"Annual HSA Contribution ($)\"\n    required: true\nonSubmit: review-benefits-selection\n```",
           "tokenUsage": {
-            "total": 2129,
+            "total": 2130,
             "prompt": 1496,
-            "completion": 633,
+            "completion": 634,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4949,
+          "latencyMs": 4870,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -2657,10 +2657,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2790",
+                "content-length": "2804",
                 "content-type": "application/json",
-                "date": "Mon, 29 Jun 2026 09:26:27 GMT",
-                "modal-function-call-id": "fc-01KW9B766NF65ETFG88VDSG622",
+                "date": "Mon, 29 Jun 2026 11:11:40 GMT",
+                "modal-function-call-id": "fc-01KW9H7W87FN20CSHAAZYRB0V7",
                 "vary": "accept-encoding"
               }
             }
@@ -2724,10 +2724,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2790",
+              "content-length": "2804",
               "content-type": "application/json",
-              "date": "Mon, 29 Jun 2026 09:26:27 GMT",
-              "modal-function-call-id": "fc-01KW9B766NF65ETFG88VDSG622",
+              "date": "Mon, 29 Jun 2026 11:11:40 GMT",
+              "modal-function-call-id": "fc-01KW9H7W87FN20CSHAAZYRB0V7",
               "vary": "accept-encoding"
             }
           },
@@ -2742,9 +2742,9 @@
       "errors": 0,
       "tokenUsage": {
         "prompt": 22052,
-        "completion": 6797,
+        "completion": 6812,
         "cached": 0,
-        "total": 28849,
+        "total": 28864,
         "numRequests": 15,
         "completionDetails": {
           "reasoning": 0,
@@ -2768,8 +2768,8 @@
           }
         }
       },
-      "durationMs": 56513,
-      "evaluationDurationMs": 56513
+      "durationMs": 55153,
+      "evaluationDurationMs": 55153
     }
   },
   "config": {
@@ -3295,7 +3295,7 @@
     "nodeVersion": "v22.22.0",
     "platform": "darwin",
     "arch": "arm64",
-    "exportedAt": "2026-06-29T09:26:33.175Z",
-    "evaluationCreatedAt": "2026-06-29T09:25:36.170Z"
+    "exportedAt": "2026-06-29T11:11:47.522Z",
+    "evaluationCreatedAt": "2026-06-29T11:10:51.451Z"
   }
 }

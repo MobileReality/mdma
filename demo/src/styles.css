@@ -1628,6 +1628,49 @@ body {
   cursor: pointer;
 }
 
+/* Toggle row (e.g. "Generate with Own model") — label left, switch right. */
+.ai-setting--toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.ai-setting--toggle input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: 0 0 auto;
+  width: 38px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: #d1d5db;
+  position: relative;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.ai-setting--toggle input[type='checkbox']::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s;
+}
+
+.ai-setting--toggle input[type='checkbox']:checked {
+  background: #6c5ce7;
+}
+
+.ai-setting--toggle input[type='checkbox']:checked::after {
+  transform: translateX(16px);
+}
+
 .ai-setting-model-group {
   display: flex;
   gap: 6px;
@@ -1778,6 +1821,48 @@ body {
   color: #555;
   margin: 0;
   line-height: 1.5;
+}
+
+/* Per-message "Raw" debug toggle + raw output view */
+.agent-raw-toggle {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #6c5ce7;
+  background: transparent;
+  border: 1px solid #d6d2f5;
+  border-radius: 5px;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.agent-raw-toggle:hover {
+  background: #efecfd;
+}
+
+.agent-raw-toggle[data-active="true"] {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}
+
+.agent-raw {
+  font-size: 12px;
+  font-family: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #e0e0e0;
+  background: #1e1e2e;
+  margin: 0;
+  padding: 14px;
+  border-radius: 8px;
+  line-height: 1.55;
+  overflow: auto;
+  max-height: 520px;
 }
 
 .chat-msg-source {

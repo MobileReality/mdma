@@ -38,12 +38,21 @@ const PROVIDER_MODELS: Record<string, Array<{ value: string; label: string }>> =
     { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
     { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
   ],
+  'own-model': [{ value: 'mdma-26b', label: 'mdma-26b (our model)' }],
+};
+
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: 'anthropic',
+  openai: 'openai',
+  openrouter: 'openrouter',
+  'own-model': 'own model',
 };
 
 const DEFAULT_MODELS: Record<string, string> = {
   anthropic: 'claude-sonnet-4-6',
   openai: 'gpt-5.5',
   openrouter: 'google/gemini-3.1-pro-preview',
+  'own-model': 'mdma-26b',
 };
 
 const API_KEY_LABELS: Record<string, string> = {
@@ -80,7 +89,9 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
 
   const provider = config.provider ?? 'anthropic';
   const models = PROVIDER_MODELS[provider] ?? [];
-  const missingKey = !getApiKey(config, provider);
+  // Our own endpoint has auth off, so it never needs a key.
+  const needsKey = provider !== 'own-model';
+  const missingKey = needsKey && !getApiKey(config, provider);
 
   function switchProvider(next: NonNullable<AnthropicConfig['provider']>) {
     if (next === provider) return;
@@ -115,21 +126,28 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
                   className={`ai-preset-btn ${provider === p ? 'ai-preset-btn--active' : ''}`}
                   onClick={() => switchProvider(p)}
                 >
-                  {p}
+                  {PROVIDER_LABELS[p] ?? p}
                 </button>
               ),
             )}
           </div>
           <div className="chat-settings-fields">
-            <label className="ai-setting">
-              <span>{API_KEY_LABELS[provider]}</span>
-              <input
-                type="password"
-                value={getApiKey(config, provider)}
-                onChange={(e) => onUpdate(apiKeyPatch(provider, e.target.value))}
-                placeholder={API_KEY_PLACEHOLDERS[provider]}
-              />
-            </label>
+            {needsKey ? (
+              <label className="ai-setting">
+                <span>{API_KEY_LABELS[provider]}</span>
+                <input
+                  type="password"
+                  value={getApiKey(config, provider)}
+                  onChange={(e) => onUpdate(apiKeyPatch(provider, e.target.value))}
+                  placeholder={API_KEY_PLACEHOLDERS[provider]}
+                />
+              </label>
+            ) : (
+              <div className="ai-setting">
+                <span>Endpoint</span>
+                <input type="text" value="mdma-26b · self-hosted (no key)" readOnly disabled />
+              </div>
+            )}
             <div className="ai-setting">
               <span>Model</span>
               <select
@@ -182,6 +200,13 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               </select>
             </label>
           </div>
+          {provider === 'own-model' && (
+            <p className="agent-settings-note">
+              The entire agent runs on our self-hosted <strong>mdma-26b</strong> endpoint
+              (tool-calling enabled) — no third-party model is called. First message after idle can
+              take ~6–10&nbsp;min (cold start).
+            </p>
+          )}
           <p className="agent-settings-note agent-settings-note--storage">
             🔒 Your API key is stored in your browser&apos;s localStorage only. It is never sent to
             any server other than the AI provider you select.

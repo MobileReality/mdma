@@ -6,7 +6,11 @@
  */
 
 export interface AnthropicConfig {
-  provider?: 'anthropic' | 'openai' | 'openrouter';
+  /**
+   * 'own-model' routes the entire agent loop to our self-hosted mdma-26b
+   * endpoint (OpenAI-compatible, tool-calling enabled) — no third-party model.
+   */
+  provider?: 'anthropic' | 'openai' | 'openrouter' | 'own-model';
   /** Anthropic API key */
   apiKey: string;
   /** OpenAI API key — stored separately so switching providers doesn't clear it */
