@@ -1,0 +1,99 @@
+# Multi-turn DSL conversations for our model.
+# Each turn's `message` is a DSL intent. Prior turns (DSL in / MDMA out) are
+# replayed as context (threaded by metadata.conversationId). Per turn we assert
+# only-components [<the current turn's type>] — which also catches
+# cross-contamination: if the model re-emits an earlier turn's component, that
+# component isn't in the allowed set and the turn fails.
+
+# ===== Conversation 1 — onboarding, built step by step =====
+- description: "Conv1/T1: signup form (DSL)"
+  vars:
+    message: |
+      form#signup-form[full-name*:t, email*^:e](action=create-account)
+  metadata: { conversationId: own-conv-1 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 2 } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+- description: "Conv1/T2: welcome callout — no form re-emit (DSL)"
+  vars:
+    message: |
+      callout#welcome-note(variant=success)
+  metadata: { conversationId: own-conv-1 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: success } }
+
+- description: "Conv1/T3: onboarding tasklist — no prior re-emit (DSL)"
+  vars:
+    message: |
+      tasklist#onboarding-steps
+  metadata: { conversationId: own-conv-1 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [tasklist] } }
+
+# ===== Conversation 2 — support ticket then confirmation =====
+- description: "Conv2/T1: ticket form with priority select (DSL)"
+  vars:
+    message: |
+      form#ticket-form[subject*:t, priority*:s{low|medium|high}, description*:ta](action=submit-ticket)
+  metadata: { conversationId: own-conv-2 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+
+- description: "Conv2/T2: confirmation callout — no form re-emit (DSL)"
+  vars:
+    message: |
+      callout#ticket-received(variant=info)
+  metadata: { conversationId: own-conv-2 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: info } }
+
+# ===== Conversation 3 — dashboard built component by component =====
+- description: "Conv3/T1: revenue table (DSL)"
+  vars:
+    message: |
+      table#revenue-table
+  metadata: { conversationId: own-conv-3 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [table] } }
+    - { type: javascript, value: file://assertions/table-features.mjs }
+
+- description: "Conv3/T2: revenue bar chart — no table re-emit (DSL)"
+  vars:
+    message: |
+      chart#revenue-chart(variant=bar)
+  metadata: { conversationId: own-conv-3 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart] } }
+    - { type: javascript, value: file://assertions/bar-chart.mjs }
+
+- description: "Conv3/T3: summary callout — no prior re-emit (DSL)"
+  vars:
+    message: |
+      callout#dashboard-note(variant=info)
+  metadata: { conversationId: own-conv-3 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+
+# ===== Conversation 4 — expense submission then approval =====
+- description: "Conv4/T1: expense form with select + file (DSL)"
+  vars:
+    message: |
+      form#expense-form[amount*:n, category*:s{travel|meals|equipment}, receipt*:f](action=submit-expense)
+  metadata: { conversationId: own-conv-4 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/file-field.mjs }
+
+- description: "Conv4/T2: approval gate — no form re-emit (DSL)"
+  vars:
+    message: |
+      approval-gate#expense-approval
+  metadata: { conversationId: own-conv-4 }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }

@@ -1,0 +1,272 @@
+# Author suite for our model — DSL port of ../tests.yaml (28 scenarios).
+# Each `request` is the scenario expressed as a DSL intent (the input our model
+# was trained on), driven by the shared authoring system prompt (prompt-author.mjs).
+# The structural assertions are carried over unchanged. Details the DSL can't
+# carry (table sortable/filterable, button confirm, approval-gate
+# requiredApprovers/allowedRoles, bindings) are filled in by the model.
+
+# 1. Simple contact form
+- description: Contact form (DSL)
+  vars:
+    request: |
+      form#contact-form[full-name*:t, email*^:e, message*:ta](action=contact-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 3 } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+# 2. PII sensitivity
+- description: Employee PII form, sensitive fields (DSL)
+  vars:
+    request: |
+      form#employee-pii-form[full-name*:t, email*^:e, phone^:t, ssn*^:t](action=employee-pii-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 4 } }
+    - { type: javascript, value: file://assertions/pii-sensitive.mjs }
+
+# 3. Thinking block before content (warning callout)
+- description: Maintenance callout (DSL)
+  vars:
+    request: |
+      callout#maintenance-warning(variant=warning)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+
+# 4. No markdown wrapping (button)
+- description: Submit report button (DSL)
+  vars:
+    request: |
+      button#submit-report-btn(text="Submit Report", action=submit-report, variant=primary)
+  assert:
+    - { type: not-contains, value: "```markdown" }
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [button] } }
+
+# 5. Select field has options
+- description: Country selector form (DSL)
+  vars:
+    request: |
+      form#country-selector-form[country*:s{us|uk|ca|au|de}](action=country-form-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+
+# 6. Table
+- description: Languages table (DSL)
+  vars:
+    request: |
+      table#languages-table
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [table] } }
+    - { type: javascript, value: file://assertions/table-features.mjs }
+
+# 7. Bar chart
+- description: Quarterly sales bar chart (DSL)
+  vars:
+    request: |
+      chart#quarterly-sales(variant=bar)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart] } }
+    - { type: javascript, value: file://assertions/bar-chart.mjs }
+
+# 8. Approval gate (2 approvers)
+- description: Document approval gate (DSL)
+  vars:
+    request: |
+      approval-gate#document-approval
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }
+
+# 9. Incident triage form
+- description: Incident triage severity form (DSL)
+  vars:
+    request: |
+      form#severity-form[title*:t, reporter-email*^:e, severity*:s{critical|high|medium|low}](action=triage-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 3 } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+# 10. Unique kebab IDs across components (form + callout)
+- description: Settings form + saved callout (DSL)
+  vars:
+    request: |
+      form#settings-form[display-name*:t, email*^:e](action=settings-saved)
+      callout#settings-saved(variant=success)
+  assert:
+    - { type: javascript, value: file://assertions/unique-kebab-ids.mjs }
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/component-count.mjs, config: { min: 2 } }
+
+# 11. Callout — warning
+- description: Password-expiry warning callout (DSL)
+  vars:
+    request: |
+      callout#password-expiry(variant=warning)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: warning } }
+
+# 12. Callout — error
+- description: Payment-error callout (DSL)
+  vars:
+    request: |
+      callout#payment-error(variant=error)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: error } }
+
+# 13. Callout — success
+- description: Account-verified callout (DSL)
+  vars:
+    request: |
+      callout#account-verified(variant=success)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: success } }
+
+# 14. Pie chart
+- description: Browser-share pie chart (DSL)
+  vars:
+    request: |
+      chart#browser-share(variant=pie)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart] } }
+    - { type: javascript, value: file://assertions/pie-chart.mjs }
+
+# 15. Button with confirm dialog
+- description: Delete-account danger button (DSL)
+  vars:
+    request: |
+      button#delete-account-btn(text="Delete Account", action=delete-account, variant=danger)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [button] } }
+    - { type: contains, value: "variant: danger" }
+
+# 16. Form + confirmation callout
+- description: Ticket form + submitted callout (DSL)
+  vars:
+    request: |
+      form#ticket-form[subject*:t, description*:ta](action=ticket-submitted)
+      callout#ticket-submitted(variant=success)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/component-count.mjs, config: { min: 2 } }
+
+# 17. Sortable + filterable table
+- description: Employee directory table (DSL)
+  vars:
+    request: |
+      table#employee-directory
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [table] } }
+    - { type: javascript, value: file://assertions/table-features.mjs }
+
+# 18. Financial PII
+- description: Payment form, financial PII (DSL)
+  vars:
+    request: |
+      form#payment-form[cardholder-name*:t, card-number*^:t, expiry*^:t, cvv*^:t, billing-address*^:ta](action=payment-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 5 } }
+    - { type: javascript, value: file://assertions/pii-sensitive.mjs }
+
+# 19. Required fields on registration form
+- description: User registration form (DSL)
+  vars:
+    request: |
+      form#user-registration[username*:t, email*^:e, password*^:t, bio:ta](action=registration-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 4 } }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 20. Tasklist + button
+- description: Onboarding tasklist + button (DSL)
+  vars:
+    request: |
+      tasklist#onboarding-checklist
+      button#get-started-btn(text="Get Started", action=onboarding-done, variant=primary)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [tasklist, button] } }
+
+# 21. Form + conditional callout (binding)
+- description: Settings form + conditional callout (DSL)
+  vars:
+    request: |
+      form#settings-form[notifications-enabled:c](action=notification-info)
+      callout#notification-info(variant=info)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+
+# 22. Large HR personal-info form
+- description: HR personal info form (DSL)
+  vars:
+    request: |
+      form#personal-info-form[full-name*:t, email*^:e, phone^:t, dob^:d, ssn*^:t](action=info-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/unique-kebab-ids.mjs }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+# 23. Approval gate with roles
+- description: Budget approval gate (DSL)
+  vars:
+    request: |
+      approval-gate#budget-approval
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }
+
+# 24. Medical PII
+- description: Patient intake form, medical PII (DSL)
+  vars:
+    request: |
+      form#patient-intake[full-name*:t, dob*^:d, email^:e, phone^:t, medical-record*^:t, medications^:ta, allergies^:ta](action=patient-intake-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 7 } }
+    - { type: javascript, value: file://assertions/pii-sensitive.mjs }
+
+# 25. Multi-chart dashboard
+- description: Sales dashboard — 2 charts + table (DSL)
+  vars:
+    request: |
+      chart#monthly-revenue(variant=bar)
+      chart#category-breakdown(variant=pie)
+      table#region-summary
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart, table] } }
+    - { type: javascript, value: file://assertions/bar-chart.mjs }
+    - { type: javascript, value: file://assertions/pie-chart.mjs }
+    - { type: contains, value: "type: table" }
+
+# 26. File upload field
+- description: Resume form with file field (DSL)
+  vars:
+    request: |
+      form#resume-form[full-name*:t, resume*:f](action=resume-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/exact-field-count.mjs, config: { expected: 2 } }
+    - { type: javascript, value: file://assertions/file-field.mjs }
+
+# 27. Sensitive file upload (passport)
+- description: KYC form, sensitive file (DSL)
+  vars:
+    request: |
+      form#kyc-form[full-name*^:t, passport-scan*^:f](action=kyc-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/file-field.mjs, config: { sensitive: true } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+# 28. Preserves explicit component id
+- description: Conference registration, preserve id (DSL)
+  vars:
+    request: |
+      form#devcon-2026-registration[full-name*:t, email*^:e](action=devcon-registration-submitted)
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: contains, value: "id: devcon-2026-registration" }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }

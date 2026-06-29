@@ -1,0 +1,35 @@
+# MDMA Example Flows — own model (DSL port of the flagship flows suite)
+#
+# The 15 example-flow scenarios from ../tests-flows.yaml with each customPrompt
+# expressed in DSL (tests-flows.yaml). Reuses the custom builder (prompt-custom.mjs:
+# authoring prompt + customPrompt + NL request). Output validated against the
+# schema + per-case structural assertions.
+#
+# Run (serial): pnpm --filter @mobile-reality/mdma-evals eval:own-model:flows
+
+description: MDMA Example Flows Eval (DSL) — own model
+
+envPath: ../.env
+outputPath: own-model/results-flows.json
+
+prompts:
+  - file://prompt-custom.mjs
+
+providers:
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-26b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      temperature: 0
+      max_tokens: 2048
+      chat_template_kwargs:
+        enable_thinking: false
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
+tests: file://tests-flows.yaml

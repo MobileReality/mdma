@@ -1,0 +1,237 @@
+# Example-flow custom prompts for our model — customPrompt carries DSL.
+# DSL port of ../tests-flows.yaml (15 flows). Each flow's customPrompt keeps its
+# persona/context but prescribes the intent in DSL (the input), not an MDMA
+# blueprint or NL field list. Reuses the custom builder (prompt-custom.mjs):
+# authoring prompt + this customPrompt + NL request. Assertions carried over.
+
+# 1. Contact form
+- description: "Contact Form flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a website assistant. When a visitor wants to contact the company,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#contact-form[full-name*:t, email*^:e, message*:ta](action=contact-submitted)
+    request: I'd like to send a message to your support team.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 2 } }
+
+# 2. Bug report — callout + form
+- description: "Bug Report flow (DSL)"
+  vars:
+    customPrompt: |
+      You are an engineering support assistant. When a user reports a bug,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      callout#pagerduty-reminder(variant=warning)
+      form#bug-report-form[title*:t, reporter-email*^:e, severity*:s{P0|P1|P2|P3}, affected-component*:s{frontend|backend|database|auth|payments}, steps-to-reproduce*:ta, expected-behavior*:ta, actual-behavior*:ta](action=triage-bug-report)
+    request: The checkout page is showing a 500 error for all users in production.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 3. Employee onboarding — PII form
+- description: "Employee Onboarding flow (DSL)"
+  vars:
+    customPrompt: |
+      You are an HR onboarding assistant. For the new hire's first-week setup,
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#personal-info-form[full-name*:t, preferred-name:t, personal-email*^:e, phone^:t, emergency-contact*^:t](action=review-onboarding-info)
+    request: Hi, I'm starting next Monday in the engineering team!
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 1 } }
+
+# 4. Budget approval — warning callout + form
+- description: "Budget Approval flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a finance assistant (requests over $5,000 need director approval).
+      Generate the MDMA document for exactly this DSL intent and nothing else:
+
+      callout#budget-approval-warning(variant=warning)
+      form#budget-request-form[requester-name*:t, requester-email*^:e, department*:s{engineering|marketing|operations|finance}, requested-amount*:n, business-justification*:ta](action=route-budget-request)
+    request: I need to request $12,000 for new development servers.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 5. Customer survey — ratings
+- description: "Customer Survey flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a customer experience assistant collecting post-support feedback.
+      Generate the MDMA document for exactly this DSL intent and nothing else:
+
+      form#support-survey-form[support-ticket-id*:t, overall-satisfaction*:s{1|2|3|4|5}, response-time-rating*:s{1|2|3|4|5}, issue-resolved:c, additional-comments:ta, email^:e](action=survey-submitted)
+    request: I just finished a support call and want to leave feedback.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 1 } }
+
+# 6. Sales dashboard — callout + charts
+- description: "Sales Dashboard flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a sales analytics assistant. For the Q1 overview (total $2.34M,
+      111% of target; Jan $720K, Feb $780K, Mar $840K; by product Platform $980K,
+      Analytics $640K, Integrations $420K, Services $300K), generate the MDMA
+      document for exactly this DSL intent and nothing else (use that data):
+
+      callout#q1-summary(variant=info)
+      chart#revenue-trend(variant=line)
+      chart#product-breakdown(variant=bar)
+    request: Give me the Q1 sales overview with charts.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart, callout, table] } }
+    - { type: javascript, value: file://assertions/component-count.mjs, config: { min: 2 } }
+
+# 7. Incident triage — form
+- description: "Incident Triage flow (DSL)"
+  vars:
+    customPrompt: |
+      You are an incident response assistant. Generate the MDMA document for
+      exactly this DSL intent and nothing else:
+
+      form#incident-intake-form[incident-title*:t, reporter-email*^:e, severity*:s{P1|P2|P3|P4}, affected-systems*:t, description*:ta](action=triage-incident)
+    request: Our payment processing service is completely down in production.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+
+# 8. Feature request — info callout + form
+- description: "Feature Request flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a product operations assistant (5-day review process). Generate the
+      MDMA document for exactly this DSL intent and nothing else:
+
+      callout#review-process(variant=info)
+      form#feature-request-form[feature-title*:t, requester-name*:t, requesting-team*:s{engineering|sales|cs|marketing|product}, priority*:s{critical|high|medium|low}, description*:ta, primary-use-case*:ta](action=evaluate-feature-request)
+    request: We need a bulk export feature for our enterprise customers.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 9. Sprint retro — callout + charts
+- description: "Sprint Retro flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a scrum master assistant. For Sprint 24 (velocity 42 of 45 target;
+      history 38,44,41,43,47; bugs Auth 5, API 3, Frontend 7, DB 2, CI/CD 1),
+      generate the MDMA document for exactly this DSL intent and nothing else:
+
+      callout#sprint-info(variant=info)
+      chart#velocity-trend(variant=line)
+      chart#bug-distribution(variant=bar)
+    request: Let's start the Sprint 24 retrospective.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [chart, callout, form] } }
+    - { type: javascript, value: file://assertions/component-count.mjs, config: { min: 2 } }
+
+# 10. Order tracking — callout + table + tasklist
+- description: "Order Tracking flow (DSL)"
+  vars:
+    customPrompt: |
+      You are an e-commerce customer service assistant. For order ORD-2024-78542
+      (in transit, ETA Mar 22; items Wireless Keyboard, USB-C Hub x2, Monitor
+      Stand, Cable Kit), generate the MDMA document for exactly this DSL intent
+      and nothing else:
+
+      callout#order-status(variant=info)
+      table#order-items
+      tasklist#delivery-milestones
+    request: Where is my order ORD-2024-78542?
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [table, callout, tasklist, chart, button] } }
+    - { type: javascript, value: file://assertions/component-count.mjs, config: { min: 2 } }
+
+# 11. Change management — warning callout + form
+- description: "Change Management flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a release management assistant (SOX/ISO compliance). Generate the
+      MDMA document for exactly this DSL intent and nothing else:
+
+      callout#risk-assessment-warning(variant=warning)
+      form#change-request-form[change-request-id*:t, jira-ticket*:t, change-title*:t, change-type*:s{standard|normal|emergency}, target-environment*:s{production|staging|pre-prod}, risk-level*:s{low|medium|high|critical}, change-description*:ta, rollback-plan*:ta](action=review-change-request)
+    request: I need to deploy a database migration to production this weekend.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: warning } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 12. Customer escalation — warning callout + PII form
+- description: "Customer Escalation flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a customer support escalation assistant with SLA tracking. Generate
+      the MDMA document for exactly this DSL intent and nothing else:
+
+      callout#sla-compliance(variant=warning)
+      form#escalation-intake-form[case-id*:t, customer-name*:t, customer-email*^:e, account-id*^:t, priority*:s{P1|P2|P3|P4}, category*:s{billing|technical|account|other}, customer-sentiment*:s{angry|frustrated|neutral|satisfied}, escalation-reason*:ta](action=route-escalation)
+    request: A major enterprise customer is threatening to cancel over billing errors.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 13. Clinical procedure — error callout + form
+- description: "Clinical Ops flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a clinical operations assistant (patient safety is top priority).
+      Generate the MDMA document for exactly this DSL intent and nothing else:
+
+      callout#safety-review(variant=error)
+      form#procedure-submission-form[procedure-title*:t, change-type*:s{new|major-revision|minor-revision|retirement}, department*:s{radiology|cardiology|surgery|oncology|general}, author-credentials*:t, risk-category*:s{low|medium|high|critical}, clinical-summary*:ta, contraindications*:ta](action=review-procedure)
+    request: I need to submit a new surgical procedure for the radiology department.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/callout-variant.mjs, config: { variant: error } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 14. KYC case review — all-PII form
+- description: "KYC flow (DSL)"
+  vars:
+    customPrompt: |
+      You are a compliance assistant for KYC/AML identity verification. Generate
+      the MDMA document for exactly this DSL intent and nothing else:
+
+      form#kyc-case-form[case-reference-id*:t, customer-type*:s{individual|business|trust}, full-legal-name*^:t, date-of-birth*^:d, tax-identifier*^:t, email*^:e, source-of-funds*:s{employment|business|investment|inheritance|other}, risk-rating*:s{low|medium|high|prohibited}](action=kyc-review)
+    request: We have a new high-risk business entity that needs KYC verification.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: javascript, value: file://assertions/pii-sensitive.mjs }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
+
+# 15. Benefits enrollment — info callout + form with exact id
+- description: "Benefits enrollment flow, exact id (DSL)"
+  vars:
+    customPrompt: |
+      You are an employee benefits enrollment assistant (window closes Mar 31,
+      2026). Generate the MDMA document for exactly this DSL intent and nothing
+      else (keep the form id):
+
+      callout#enrollment-deadline(variant=info)
+      form#benefits-enroll-2026-spring[employee-id*:t, health-plan*:s{hmo|ppo|hdhp|waive}, dental-plan*:s{basic|premium|waive}, vision-plan*:s{standard|premium|waive}, dependents-count*:n, hsa-contribution*:n](action=review-benefits-selection)
+    request: I want to enroll in this year's health benefits.
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form, callout] } }
+    - { type: contains, value: "id: benefits-enroll-2026-spring" }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+    - { type: javascript, value: file://assertions/has-required-fields.mjs, config: { min: 3 } }
