@@ -1,13 +1,14 @@
-import { useRef, useEffect, useCallback, useState } from 'react';
-import { useAgent } from './agent/use-agent.js';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { AgentMessage } from './agent/AgentMessage.js';
 import { AgentSettings } from './agent/AgentSettings.js';
+import { useAgent } from './agent/use-agent.js';
 import { ChatInput } from './chat/ChatInput.js';
 import { BackendLogDrawer } from './preview/BackendLogPane.js';
 import { PreviewPanel } from './preview/PreviewPanel.js';
 import { clearSubmissionLog } from './preview/insurance-backend.js';
 import { INSURANCE_FLOW_PROMPT } from './preview/insurance-flow-prompt.js';
 import { useInsuranceFlow } from './preview/use-insurance-flow.js';
+import { usePreviewAutoplay } from './preview/use-preview-autoplay.js';
 import { usePreviewValidation } from './preview/use-preview-validation.js';
 
 function countToolUseBlocks(turns: ReturnType<typeof useAgent>['turns']): number {
@@ -29,6 +30,7 @@ export function PreviewView() {
     config,
     updateConfig,
     send,
+    sendText,
     sendHidden,
     stop,
     clear,
@@ -74,6 +76,16 @@ export function PreviewView() {
     insuranceFlow.reset();
   }, [clear, insuranceFlow]);
 
+  // Auto-play the full claim flow hands-free (kickoff message → fill & submit
+  // each step form). Mirrors the scripted demo in the Agent Chat view.
+  const { isPlaying, play } = usePreviewAutoplay({
+    previewState,
+    isGenerating,
+    sendText,
+    setInput,
+    reset: handleClear,
+  });
+
   return (
     <div className="preview-layout">
       <div className="preview-chat">
@@ -115,6 +127,8 @@ export function PreviewView() {
           isGenerating={isGenerating}
           hasMessages={turns.length > 0}
           inputRef={inputRef}
+          onPlayDemo={play}
+          isPlaying={isPlaying}
         />
       </div>
 

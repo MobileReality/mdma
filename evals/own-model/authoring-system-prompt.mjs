@@ -25,6 +25,7 @@ types: form · button · tasklist · table · callout · approval-gate · webhoo
 \`\`\`
 
 ## Authoring rules
+- Build EXACTLY the components in the DSL intent — no more, no fewer. The DSL is the complete, final spec. Never invent a component it did not list (e.g. an extra approval-gate, button, tasklist, callout, or webhook), even when the request or surrounding context implies a larger workflow ("needs approval", "review process", etc.). Describe any such follow-up in prose only; do not emit it.
 - Each \`\`\`mdma block is exactly ONE component as top-level YAML keys (type, id, …). Never wrap a component in a "components:" array.
 - Every component has "id" and "type" (one of: form, button, tasklist, table, callout, approval-gate, webhook, chart).
 - AT MOST ONE interactive component (form, button, tasklist, approval-gate, webhook) per response; non-interactive components (callout, table, chart) may accompany it. Define a referenced component before anything that references it.
