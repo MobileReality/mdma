@@ -73,6 +73,62 @@ class RepetitionLoopDetector {
   }
 }
 
+const MDMA_FENCE_OPEN = '```mdma';
+const MDMA_FENCE_CLOSE = '```';
+
+// Strips leaked ```mdma fenced documents out of the assistant's chat (content)
+// channel. The real document always arrives via the generate_mdma tool call and
+// renders in the preview pane; the model occasionally ALSO transcribes a copy of
+// the document as raw markdown into chat (most often on the first turn). Those
+// fenced blocks must never reach the chat UI, which is prose-only. Operates on
+// the live stream: complete lines are classified as they arrive, and the
+// trailing partial line is held back only while it could still be the start of a
+// ```mdma fence — so normal prose keeps streaming smoothly.
+class MdmaFenceStripper {
+  private buf = ''; // text after the last emitted char (start-aligned to current line)
+  private inFence = false;
+  private partialEmitted = 0; // chars of the current unterminated line already emitted
+
+  /** Feed a content delta; returns only the text that is safe to show in chat. */
+  push(text: string): string {
+    this.buf += text;
+    let out = '';
+    let nl: number;
+    while ((nl = this.buf.indexOf('\n')) !== -1) {
+      const line = this.buf.slice(0, nl + 1);
+      this.buf = this.buf.slice(nl + 1);
+      const trimmed = line.trim();
+      if (this.inFence) {
+        if (trimmed === MDMA_FENCE_CLOSE) this.inFence = false;
+      } else if (trimmed.startsWith(MDMA_FENCE_OPEN)) {
+        this.inFence = true;
+      } else {
+        out += line.slice(this.partialEmitted);
+      }
+      this.partialEmitted = 0;
+    }
+    // Trailing partial line: emit eagerly unless it could still open a fence.
+    if (!this.inFence && this.buf.length > this.partialEmitted) {
+      const trimmed = this.buf.trim();
+      const couldOpenFence = trimmed.length > 0 && MDMA_FENCE_OPEN.startsWith(trimmed);
+      if (!couldOpenFence) {
+        out += this.buf.slice(this.partialEmitted);
+        this.partialEmitted = this.buf.length;
+      }
+    }
+    return out;
+  }
+
+  /** Emit any leftover at stream end (drops a dangling, never-closed fence). */
+  flush(): string {
+    const out = this.inFence ? '' : this.buf.slice(this.partialEmitted);
+    this.buf = '';
+    this.partialEmitted = 0;
+    this.inFence = false;
+    return out;
+  }
+}
+
 export async function* streamOpenAIAgentMessages(
   apiKey: string,
   model: string,
@@ -133,6 +189,7 @@ export async function* streamOpenAIAgentMessages(
   let totalBytes = 0;
   const reasoningLoopDetector = new RepetitionLoopDetector();
   const contentLoopDetector = new RepetitionLoopDetector();
+  const fenceStripper = new MdmaFenceStripper();
 
   try {
     while (true) {
@@ -216,12 +273,18 @@ export async function* streamOpenAIAgentMessages(
         }
 
         if (typeof delta.content === 'string' && delta.content) {
-          if (!startedBlocks.has(TEXT_IDX)) {
-            startedBlocks.add(TEXT_IDX);
-            yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+          // Strip any leaked ```mdma document; only prose reaches the chat UI.
+          const visible = fenceStripper.push(delta.content);
+          if (visible) {
+            if (!startedBlocks.has(TEXT_IDX)) {
+              startedBlocks.add(TEXT_IDX);
+              yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+            }
+            yield { type: 'text_delta', index: TEXT_IDX, text: visible };
           }
-          yield { type: 'text_delta', index: TEXT_IDX, text: delta.content };
 
+          // Feed the loop detector the RAW content so a runaway fenced block
+          // still trips it even though we never display the fence.
           if (contentLoopDetector.push(delta.content)) {
             reader.cancel().catch(() => {});
             yield {
@@ -269,6 +332,17 @@ export async function* streamOpenAIAgentMessages(
     } catch {
       /* reader already released via cancel() */
     }
+  }
+
+  // Emit any prose the stripper was holding back (e.g. a final line with no
+  // trailing newline that turned out not to be a fence).
+  const tail = fenceStripper.flush();
+  if (tail) {
+    if (!startedBlocks.has(TEXT_IDX)) {
+      startedBlocks.add(TEXT_IDX);
+      yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+    }
+    yield { type: 'text_delta', index: TEXT_IDX, text: tail };
   }
 
   if (startedBlocks.has(REASONING_IDX)) yield { type: 'block_stop', index: REASONING_IDX };
