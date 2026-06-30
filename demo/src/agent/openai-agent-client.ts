@@ -38,23 +38,29 @@ const IDLE_TIMEOUT_MS = 60_000; // no chunk for this long → assume the stream 
 const MAX_STREAM_MS = 240_000; // hard wall-clock ceiling for one response
 const MAX_STREAM_BYTES = 4_000_000; // ~4 MB of SSE text → runaway guard
 
-// Loop detector for the reasoning channel. Gemma 4's known repetition collapse
-// (see evals/own-model/repetition-loops.md) degrades the thinking block into a
-// short token/phrase flooding the budget. `min_p` + `repetition_penalty` cut
-// most of it, but the collapse is an unfixed model trait, so we keep a cheap
-// safety net: over a sliding window of recent reasoning words, a healthy stream
-// is lexically diverse; a degenerate loop (one token, or a cycle like
+// Loop detector. Gemma 4's known repetition collapse (see
+// evals/own-model/repetition-loops.md) degrades a thinking block into a short
+// token/phrase flooding the budget. `min_p` + `repetition_penalty` cut most of
+// it, but the collapse is an unfixed model trait, so we keep a cheap safety
+// net: over a sliding window of recent words, a healthy stream is lexically
+// diverse; a degenerate loop (one token, or a cycle like
 // `(END) (DONE) (STOP) (FINAL) …`) collapses unique/total. Below the floor we
 // abort rather than let it eat the whole generation.
-const LOOP_WINDOW_WORDS = 160; // sliding window of recent reasoning words
+//
+// We run this on BOTH channels. The collapse usually lives in `reasoning`, but
+// it can also leak onto `content`: the model emits a valid document, then keeps
+// going with a raw "Thinking Process:" ramble after the reasoning span has
+// already closed. A legit MDMA document is well above the diversity floor, so
+// guarding content does not false-positive on real output.
+const LOOP_WINDOW_WORDS = 160; // sliding window of recent words
 const LOOP_MIN_WORDS = 120; // don't judge until we have enough signal
 const LOOP_UNIQUE_RATIO = 0.15; // unique/total below this → degenerate loop
 
-/** Tracks recent reasoning words and flags a degenerate repetition loop. */
-class ReasoningLoopDetector {
+/** Tracks recent words on one channel and flags a degenerate repetition loop. */
+class RepetitionLoopDetector {
   private readonly words: string[] = [];
 
-  /** Feed a reasoning delta; returns true once the window collapses into a loop. */
+  /** Feed a delta; returns true once the window collapses into a loop. */
   push(text: string): boolean {
     for (const w of text.split(/\s+/)) {
       if (!w) continue;
@@ -125,7 +131,8 @@ export async function* streamOpenAIAgentMessages(
   const startedBlocks = new Set<number>();
   const startedAt = Date.now();
   let totalBytes = 0;
-  const loopDetector = new ReasoningLoopDetector();
+  const reasoningLoopDetector = new RepetitionLoopDetector();
+  const contentLoopDetector = new RepetitionLoopDetector();
 
   try {
     while (true) {
@@ -197,7 +204,7 @@ export async function* streamOpenAIAgentMessages(
           }
           yield { type: 'thinking_delta', index: REASONING_IDX, thinking: delta.reasoning };
 
-          if (loopDetector.push(delta.reasoning)) {
+          if (reasoningLoopDetector.push(delta.reasoning)) {
             reader.cancel().catch(() => {});
             yield {
               type: 'stream_error',
@@ -214,6 +221,16 @@ export async function* streamOpenAIAgentMessages(
             yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
           }
           yield { type: 'text_delta', index: TEXT_IDX, text: delta.content };
+
+          if (contentLoopDetector.push(delta.content)) {
+            reader.cancel().catch(() => {});
+            yield {
+              type: 'stream_error',
+              message:
+                'The model got stuck repeating itself and was stopped. Please try again.',
+            };
+            return;
+          }
         }
 
         const toolCalls = delta.tool_calls as Array<Record<string, unknown>> | undefined;

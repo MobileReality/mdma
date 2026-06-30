@@ -1,8 +1,8 @@
 {
-  "evalId": "eval-2db-2026-06-30T11:20:07",
+  "evalId": "eval-LAg-2026-06-30T12:38:16",
   "results": {
     "version": 3,
-    "timestamp": "2026-06-30T11:20:07.991Z",
+    "timestamp": "2026-06-30T12:38:16.261Z",
     "prompts": [
       {
         "raw": "function ({ vars }) {\n  return [\n    { role: 'system', content: `{% raw %}${SYSTEM_PROMPT}{% endraw %}` },\n    { role: 'user', content: `{% raw %}${vars.request}{% endraw %}` },\n  ];\n}",
@@ -17,12 +17,12 @@
           "testErrorCount": 0,
           "assertPassCount": 15,
           "assertFailCount": 0,
-          "totalLatencyMs": 48621,
+          "totalLatencyMs": 58193,
           "tokenUsage": {
             "prompt": 3369,
-            "completion": 5630,
+            "completion": 6872,
             "cached": 0,
-            "total": 8999,
+            "total": 10241,
             "numRequests": 15,
             "completionDetails": {
               "reasoning": 0,
@@ -80,8 +80,8 @@
             }
           ]
         },
-        "id": "c95bb87d-6a93-418e-98f4-e6f74baca33b",
-        "latencyMs": 2740,
+        "id": "9082ab2a-5c69-4ef2-bd9b-ee6f00fd232a",
+        "latencyMs": 2175,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a contact form with fields for full name, email address, and a message.\"}]",
@@ -97,22 +97,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-90c3f7ae6fff7bcf",
+              "id": "chatcmpl-tool-b35e7453c16e9ae6",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# Contact Us\\n\\nPlease fill out the form below, and our team will get back to you as soon as possible.\\n\\n:::form\\n{\\n  \\\"fields\\\": [\\n    {\\n      \\\"id\\\": \\\"full_name\\\",\\n      \\\"label\\\": \\\"Full Name\\\",\\n      \\\"type\\\": \\\"text\\\",\\n      \\\"required\\\": true,\\n      \\\"placeholder\\\": \\\"John Doe\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"email_address\\\",\\n      \\\"label\\\": \\\"Email Address\\\",\\n      \\\"type\\\": \\\"email\\\",\\n      \\\"required\\\": true,\\n      \\\"placeholder\\\": \\\"john@example.com\\\"\\n    },\\n    {\\n      \\\"id\\\": \\\"message\\\",\\n      \\\"label\\\": \\\"Message\\\",\\n      \\\"type\\\": \\\"textarea\\\",\\n      \\\"required\\\": true,\\n      \\\"placeholder\\\": \\\"How can we help you?\\\"\\n    }\\n  ],\\n  \\\"onSubmit\\\": {\\n    \\\"type\\\": \\\"webhook\\\",\\n    \\\"url\\\": \\\"https://your-api-endpoint.com/contact\\\",\\n    \\\"method\\\": \\\"POST\\\",\\n    \\\"successMessage\\\": \\\"Thank you! Your message has been sent successfully.\\\"\\n  }\\n}\\n:::\"}"
+                "arguments": "{\"document\": \"# Contact Us\\n\\nPlease use the form below to get in touch with our team. We will get back to you as soon as possible.\\n\\n[[form]]\\n[[form.field:full_name:text:required:label=Full Name:placeholder=John Doe]]\\n[[form.field:email:email:required:label=Email Address:placeholder=john@example.com]]\\n[[form.field:message:textarea:required:label=Your Message:placeholder=How can we help you?]]\\n[[form.submit:label=Send Message:webhook=https://hooks.example.com/contact-form-received]]\\n\\n#[[callout:info:Contact Information]]\\n**Email:** support@example.com\\n**Phone:** +1 (555) 000-0000\\n**Hours:** Mon-Fri, 9am - 5pm EST\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 491,
+            "total": 429,
             "prompt": 224,
-            "completion": 267,
+            "completion": 205,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2740,
+          "latencyMs": 2175,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -123,10 +123,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "1863",
+                "content-length": "1409",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:08 GMT",
-                "modal-function-call-id": "fc-01KWC442159SJN2ACH74HSMESV",
+                "date": "Tue, 30 Jun 2026 12:38:16 GMT",
+                "modal-function-call-id": "fc-01KWC8K4CNG5TEHZPCQHPBR7CV",
                 "vary": "accept-encoding"
               }
             }
@@ -158,10 +158,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "1863",
+              "content-length": "1409",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:08 GMT",
-              "modal-function-call-id": "fc-01KWC442159SJN2ACH74HSMESV",
+              "date": "Tue, 30 Jun 2026 12:38:16 GMT",
+              "modal-function-call-id": "fc-01KWC8K4CNG5TEHZPCQHPBR7CV",
               "vary": "accept-encoding"
             }
           },
@@ -195,8 +195,8 @@
             }
           ]
         },
-        "id": "56daf1ca-f570-4cea-af0f-12ed20bd1083",
-        "latencyMs": 5529,
+        "id": "73238bd8-0e6e-40c5-bf96-11cd6410765d",
+        "latencyMs": 5270,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Build an employee onboarding flow with three steps: personal information, IT equipment setup, and policy acknowledgment.\\n\"}]",
@@ -212,22 +212,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-bed329dede2d2631",
+              "id": "chatcmpl-tool-896537d1a41c6994",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# 🚀 Employee Onboarding Flow\\n\\nWelcome to the team! Please complete the following three steps to finalize your onboarding process.\\n\\n---\\n\\n## 📋 Step 1: Personal Information\\nPlease provide your essential details for our HR records.\\n\\n<form id=\\\"personal-info-form\\\">\\n  <field label=\\\"Full Legal Name\\\" type=\\\"text\\\" required />\\n  <field label=\\\"Date of Birth\\\" type=\\\"date\\\" required />\\n  <field label=\\\"Home Address\\\" type=\\\"textarea\\\" required />\\n  <field label=\\\"Emergency Contact Name\\\" type=\\\"text\\\" required />\\n  <field label=\\\"Emergency Contact Phone\\\" type=\\\"tel\\\" required />\\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Save Information</button>\\n</form>\\n\\n---\\n\\n## 💻 Step 2: IT Equipment Setup\\nSelect the hardware you require to perform your role.\\n\\n<form id=\\\"it-equipment-form\\\">\\n  <section>\\n    <h3>💻 Hardware Selection</h3>\\n    <checkbox-group label=\\\"Select your preferred laptop setup\\\">\\n      <option value=\\\"macbook-pro\\\">MacBook Pro 14\\\"</option>\\n      <option value=\\\"macbook-pro-16\\\">MacBook Pro 16\\\"</option>\\n      <option value=\\\"dell-xps\\\">Dell XPS 15</option>\\n    </checkbox-group>\\n    \\n    <checkbox-group label=\\\"Additional Accessories\\\">\\n      <option value=\\\"monitor\\\">External Monitor (4K)</option>\\n      <option value=\\\"keyboard-mouse\\\">Wireless Keyboard & Mouse Set</option>\\n      <option value=\\\"headset\\\">Noise Cancelling Headset</option>\\n    </checkbox-group>\\n  </section>\\n\\n  <section>\\n    <h3>🔒 Security Setup</h3>\\n    <callout type=\\\"info\\\" title=\\\"Security Requirement\\\">\\n      All employees must register their mobile device for Multi-Factor Authentication (MFA) before their first day.\\n    </callout>\\n  </section>\\n  \\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Submit Equipment Request</button>\\n</form>\\n\\n---\\n\\n## ✍️ Step 3: Policy Acknowledgment\\nPlease review and sign off on the company policies below.\\n\\n<tasklist id=\\\"policy-ack-list\\\">\\n  <task label=\\\"Employee Handbook Review\\\" />\\n  <task label=\\\"Data Privacy & Security Agreement\\\" />\\n  <task label=\\\"Code of Conduct\\\" />\\n  <task label=\\\"Remote Work Policy\\\" />\\n</tasklist>\\n\\n<callout type=\\\"warning\\\" title=\\\"Final Step\\\">\\n  Once all tasks above are completed, please click the approval button below to submit your entire onboarding package to HR.\\n</callout>\\n\\n<approval-gate id=\\\"onboarding-final-approval\\\" title=\\\"Final Submission\\\">\\n  <button onclick=\\\"submitOnboarding()\\\" variant=\\\"success\\\">Submit All Onboarding Documents</button>\\n</approval-gate>\\n\\n<webhook url=\\\"/api/onboarding/complete\\\" method=\\\"POST\\\" trigger=\\\"onboarding-final-approval\\\" />\\n\"}"
+                "arguments": "{\"document\": \"# 🚀 Employee Onboarding Flow\\n\\nWelcome to the team! Please complete the following onboarding steps to get everything set up for your first week.\\n\\n---\\n\\n## 📋 Step 1: Personal Information\\n*Please ensure your contact details and emergency information are up to date.*\\n\\n| Field | Input Type | Placeholder/Help |\\n| :--- | :--- | :--- |\\n| **Full Legal Name** | `text` | As it appears on government ID |\\n| **Date of Birth** | `date` | MM/DD/YYYY |\\n| **Personal Email** | `email` | For non-work communications |\\n| **Phone Number** | `tel` | Primary contact number |\\n| **Emergency Contact Name** | `text` | Full Name |\\n| **Emergency Contact Phone** | `tel` | Phone number |\\n\\n<button label=\\\"Submit Personal Info\\\" action=\\\"submit_personal_info\\\" />\\n\\n---\\n\\n## 💻 Step 2: IT Equipment Setup\\n*Select the hardware you require to perform your role. Your manager will approve these requests.*\\n\\n<callout type=\\\"info\\\" title=\\\"Equipment Policy\\\">\\nAll company-issued hardware must be returned upon termination of employment.\\n</callout>\\n\\n| Equipment Item | Selection | Notes |\\n| :--- | :--- | :--- |\\n| **Laptop Model** | `select(MacBook Pro, Dell XPS, Lenovo ThinkPad)` | Choose based on role |\\n| **Monitor** | `checkbox(Single, Dual, None)` | Standard is Dual |\\n| **Peripherals** | `multiselect(Mouse, Keyboard, Headset, Webcam)` | Check all that apply |\\n| **Special Requirements** | `textarea` | Any accessibility or hardware needs |\\n\\n<approval-gate id=\\\"it_approval\\\" title=\\\"IT Hardware Approval\\\" required=\\\"true\\\">\\n  *Approval is required before equipment is dispatched.*\\n</approval-gate>\\n\\n<button label=\\\"Submit IT Request\\\" action=\\\"submit_it_request\\\" />\\n\\n---\\n\\n## ⚖️ Step 3: Policy Acknowledgment\\n*Please review and confirm your understanding of the following company policies.*\\n\\n<tasklist>\\n- [ ] **Code of Conduct**: Review our standards for professional behavior and ethics.\\n- [ ] **Data Privacy & Security**: Understand how we handle sensitive company and client data.\\n- [ ] **Remote Work Policy**: Review guidelines for working from home and security protocols.\\n- [ ] **Anti-Harassment Policy**: Our commitment to a safe and inclusive workplace.\\n</tasklist>\\n\\n> [!IMPORTANT]\\n> You must complete all acknowledgments before the onboarding process can be finalized.\\n\\n<webhook url=\\\"https://api.company.com/onboarding/complete\\\" method=\\\"POST\\\" />\\n\\n---\\n\\n### 👋 Next Steps\\nOnce all three steps are completed and approved, your onboarding dashboard will be unlocked, giving you access to your team's Slack channel, JIRA boards, and upcoming training sessions.\\n\\n**Questions?** Reach out to #help-hr on Slack.\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 897,
+            "total": 888,
             "prompt": 227,
-            "completion": 670,
+            "completion": 661,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 5529,
+          "latencyMs": 5270,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -238,10 +238,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "3647",
+                "content-length": "3557",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:11 GMT",
-                "modal-function-call-id": "fc-01KWC444EC0VV861P3DMERCWC3",
+                "date": "Tue, 30 Jun 2026 12:38:18 GMT",
+                "modal-function-call-id": "fc-01KWC8K68KGFW2X3CZYCHK85EQ",
                 "vary": "accept-encoding"
               }
             }
@@ -273,10 +273,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "3647",
+              "content-length": "3557",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:11 GMT",
-              "modal-function-call-id": "fc-01KWC444EC0VV861P3DMERCWC3",
+              "date": "Tue, 30 Jun 2026 12:38:18 GMT",
+              "modal-function-call-id": "fc-01KWC8K68KGFW2X3CZYCHK85EQ",
               "vary": "accept-encoding"
             }
           },
@@ -310,8 +310,8 @@
             }
           ]
         },
-        "id": "a4bbe74b-f674-4b01-904f-e7be88e83ca6",
-        "latencyMs": 3906,
+        "id": "731948ef-0150-422a-92e5-adb60bae72d1",
+        "latencyMs": 3141,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"I need a bug report form for my engineering team. It should capture the title, severity, steps to reproduce, and an optional file attachment.\\n\"}]",
@@ -327,22 +327,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-b20e1961a72f081f",
+              "id": "chatcmpl-tool-bfa158702757aca6",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# 🐞 Bug Report Form\\n\\nPlease fill out the details below to help the engineering team investigate and resolve this issue as quickly as possible.\\n\\n---\\n\\n### 📝 Issue Details\\n\\n<form>\\n  <field label=\\\"Issue Title\\\" placeholder=\\\"Brief, descriptive summary of the bug\\\" required=\\\"true\\\" />\\n  \\n  <field label=\\\"Severity\\\" type=\\\"select\\\" required=\\\"true\\\">\\n    <option value=\\\"critical\\\">Critical (Service Down / Blocker)</option>\\n    <option value=\\\"high\\\">High (Major functionality broken)</option>\\n    <option value=\\\"medium\\\">Medium (Workaround available / Non-critical)</option>\\n    <option value=\\\"low\\\">Low (UI/UX annoyance / Cosmetic)</option>\\n  </field>\\n\\n  <field label=\\\"Steps to Reproduce\\\" type=\\\"textarea\\\" placeholder=\\\"1. Open app... 2. Click button... 3. Error occurs...\\\" required=\\\"true\\\" />\\n\\n  <field label=\\\"Expected Behavior\\\" type=\\\"textarea\\\" placeholder=\\\"What should have happened?\\\" required=\\\"true\\\" />\\n\\n  <field label=\\\"Actual Behavior\\\" type=\\\"textarea\\\" placeholder=\\\"What actually happened?\\\" required=\\\"true\\\" />\\n\\n  <field label=\\\"Attachment\\\" type=\\\"file\\\" description=\\\"Upload screenshots, screen recordings, or log files.\\\" />\\n</form>\\n\\n---\\n\\n### 🛠️ Developer Context (Optional)\\n\\n<callout type=\\\"info\\\" title=\\\"Pro-Tip\\\">\\nInclude your browser version, OS, and any specific environment details (Staging/Production) to speed up debugging.\\n</callout>\\n\\n<form>\\n  <field label=\\\"Environment\\\" type=\\\"select\\\">\\n    <option value=\\\"prod\\\">Production</option>\\n    <option value=\\\"staging\\\">Staging</option>\\n    <option value=\\\"dev\\\">Development / Local</option>\\n  </field>\\n\\n  <field label=\\\"Device / Browser Details\\\" placeholder=\\\"e.g., iPhone 13 / Safari\\\" />\\n</form>\\n\\n<button action=\\\"webhook\\\" label=\\\"Submit Bug Report\\\" color=\\\"primary\\\" />\\n\"}"
+                "arguments": "{\"document\": \"# 🐞 Bug Report Form\\n\\nPlease fill out the details below to report a technical issue. The engineering team will review this report to prioritize and resolve the bug.\\n\\n---\\n\\n## 📋 Bug Details\\n\\n| Field | Input / Selection |\\n| :--- | :--- |\\n| **Bug Title** | [Enter a concise, descriptive title here] |\\n| **Severity** | <select><option>Low (UI/Minor annoyance)</option><option>Medium (Feature broken, workarounds exist)</option><option>High (Major feature broken, no workaround)</option><option>Critical (System down/Data loss)</option></select> |\\n| **Environment** | <select><option>Production</option><option>Staging</option><option>Development/Local</option></select> |\\n\\n## 🛠️ Steps to Reproduce\\n\\nPlease provide a numbered list of actions taken to trigger the bug:\\n\\n1.  \\n2.  \\n3.  \\n\\n> [!TIP]\\n> Be as specific as possible about what you clicked or what data you entered.\\n\\n## 🖼️ Attachments & Evidence\\n\\nIf you have screenshots, logs, or video recordings of the issue, please upload them below.\\n\\n**File Upload:**\\n[Attach File](https://example.com/upload-endpoint)\\n\\n---\\n\\n## 🚀 Submission\\n\\n<button action=\\\"webhook\\\" url=\\\"https://api.yourteam.com/bug-reports\\\" label=\\\"Submit Bug Report\\\" />\\n\\n<button action=\\\"reset\\\" label=\\\"Clear Form\\\" />\\n\\n***\\n\\n*Form generated by MDMA Assistant. Please ensure all \\\"High\\\" and \\\"Critical\\\" bugs are also logged in your primary tracking system (Jira/Linear).*\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 691,
+            "total": 611,
             "prompt": 236,
-            "completion": 455,
+            "completion": 375,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3906,
+          "latencyMs": 3141,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -353,10 +353,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2794",
+                "content-length": "2296",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:16 GMT",
-                "modal-function-call-id": "fc-01KWC449W3RH3AQK4GEXV2J0S4",
+                "date": "Tue, 30 Jun 2026 12:38:23 GMT",
+                "modal-function-call-id": "fc-01KWC8KBE733NWX4BAN3AEGT0F",
                 "vary": "accept-encoding"
               }
             }
@@ -388,10 +388,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2794",
+              "content-length": "2296",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:16 GMT",
-              "modal-function-call-id": "fc-01KWC449W3RH3AQK4GEXV2J0S4",
+              "date": "Tue, 30 Jun 2026 12:38:23 GMT",
+              "modal-function-call-id": "fc-01KWC8KBE733NWX4BAN3AEGT0F",
               "vary": "accept-encoding"
             }
           },
@@ -425,8 +425,8 @@
             }
           ]
         },
-        "id": "10d5c3ed-fc7f-4d46-b66d-04f54f88caa6",
-        "latencyMs": 4594,
+        "id": "a0708fc2-6469-402a-b292-84308c7f1e5d",
+        "latencyMs": 4279,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a customer satisfaction survey with rating questions for product quality, support experience, and likelihood to recommend.\\n\"}]",
@@ -442,22 +442,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-8178c9220b3e431b",
+              "id": "chatcmpl-tool-a5bd796e36ce0d85",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# Customer Satisfaction Survey\\n\\nThank you for your time! Your feedback helps us improve our products and services. Please take a moment to complete this brief survey.\\n\\n---\\n\\n## 1. Product Quality\\nHow would you rate the overall quality and reliability of the product?\\n\\n| Rating | 1 (Poor) | 2 | 3 (Average) | 4 | 5 (Excellent) |\\n| :--- | :---: | :---: | :---: | :---: | :---: |\\n| **Product Quality** | [ ] | [ ] | [ ] | [ ] | [ ] |\\n\\n> [!TIP]\\n> *Please consider durability, ease of use, and how well it meets your initial requirements.*\\n\\n---\\n\\n## 2. Support Experience\\nThinking about your most recent interaction with our support team, please rate your experience.\\n\\n| Rating | 1 (Poor) | 2 | 3 (Average) | 4 | 5 (Excellent) |\\n| :--- | :---: | :---: | :---: | :---: | :---: |\\n| **Support Quality** | [ ] | [ ] | [ ] | [ ] | [ ] |\\n\\n**Follow-up Question:**\\nHow would you describe the response time?\\n- [ ] Very Slow\\n- [ ] Slow\\n- [ ] Reasonable\\n- [ ] Fast\\n- [ ] Very Fast\\n\\n---\\n\\n## 3. Net Promoter Score (NPS)\\nBased on your overall experience, how likely are you to recommend us to a friend or colleague?\\n\\n| Rating | 0 (Not at all likely) | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 (Extremely likely) |\\n| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |\\n| **Likelihood to Recommend** | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] | [ ] |\\n\\n---\\n\\n## 4. Final Thoughts\\nIs there anything else you would like to tell us?\\n\\n[ ] *Type your comments here...*\\n\\n---\\n\\n### Submission\\nOnce you have completed the survey, please click the button below to submit your responses.\\n\\n[Submit Survey](https://example.com/api/submit-survey?webhook=true)\"}"
+                "arguments": "{\"document\": \"# Customer Satisfaction Survey\\n\\nThank you for your recent experience with us! We value your feedback and would love to hear your thoughts so we can improve our products and services.\\n\\n---\\n\\n### 🛠 Product Quality\\n*How satisfied are you with the quality and reliability of our products?*\\n\\n| Criteria | 1 (Very Poor) | 2 | 3 | 4 | 5 (Excellent) |\\n| :--- | :---: | :---: | :---: | :---: | :---: |\\n| **Durability & Build** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n| **Ease of Use** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n| **Feature Set** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n\\n---\\n\\n### 🎧 Support Experience\\n*Please rate your recent interactions with our customer support team.*\\n\\n| Criteria | 1 (Poor) | 2 | 3 | 4 | 5 (Great) |\\n| :--- | :---: | :---: | :---: | :---: | :---: |\\n| **Response Time** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n| **Technical Knowledge** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n| **Resolution Speed** | ◯ | ◯ | ◯ | ◯ | ◯ |\\n\\n---\\n\\n### 🚀 Loyalty & Recommendation\\n*Your likelihood to recommend us to a friend or colleague.*\\n\\n**On a scale of 0–10, how likely are you to recommend us?**\\n0 (Not at all likely) —————— 10 (Extremely likely)\\n\\n[ 0 ] [ 1 ] [ 2 ] [ 3 ] [ 4 ] [ 5 ] [ 6 ] [ 7 ] [ 8 ] [ 9 ] [ 10 ]\\n\\n---\\n\\n### ✍️ Additional Comments\\n*Is there anything else you'd like to share with us?*\\n\\n[ Text Area: Please type your feedback here... ]\\n\\n---\\n\\n### 📬 Final Step\\n> [!IMPORTANT]\\n> Please ensure you have filled out all required fields before clicking submit.\\n\\n[ Submit Survey ] {{ webhook: \\\"https://api.example.com/v1/survey-submit\\\" }}\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 790,
+            "total": 756,
             "prompt": 227,
-            "completion": 563,
+            "completion": 529,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4594,
+          "latencyMs": 4279,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -468,10 +468,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2566",
+                "content-length": "2436",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:20 GMT",
-                "modal-function-call-id": "fc-01KWC44DPWBKDRQV33RBEVASGE",
+                "date": "Tue, 30 Jun 2026 12:38:26 GMT",
+                "modal-function-call-id": "fc-01KWC8KEH8X9QFK99MCFNT7HDS",
                 "vary": "accept-encoding"
               }
             }
@@ -503,10 +503,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2566",
+              "content-length": "2436",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:20 GMT",
-              "modal-function-call-id": "fc-01KWC44DPWBKDRQV33RBEVASGE",
+              "date": "Tue, 30 Jun 2026 12:38:26 GMT",
+              "modal-function-call-id": "fc-01KWC8KEH8X9QFK99MCFNT7HDS",
               "vary": "accept-encoding"
             }
           },
@@ -540,8 +540,8 @@
             }
           ]
         },
-        "id": "1ab72104-b199-443d-9a51-79d8105adc9e",
-        "latencyMs": 4717,
+        "id": "9a3a47a4-c8fd-4828-b4b2-db39eb2afc66",
+        "latencyMs": 7093,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Make an expense reimbursement approval workflow: the employee submits amount and category, then a manager approves or rejects with a comment.\\n\"}]",
@@ -557,22 +557,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-8e59afc90d1306c7",
+              "id": "chatcmpl-tool-8a3d20eaf8ba813b",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# Expense Reimbursement Workflow\\n\\nThis workflow facilitates the submission and approval of employee expense claims.\\n\\n## 1. Submission Phase\\n*Action required by the employee.*\\n\\n<form \\n  id=\\\"expense-submission-form\\\" \\n  on_submit=\\\"handle_submission\\\"\\n  fields='[\\n    { \\\"id\\\": \\\"employee_name\\\", \\\"label\\\": \\\"Employee Name\\\", \\\"type\\\": \\\"text\\\", \\\"required\\\": true },\\n    { \\\"id\\\": \\\"amount\\\", \\\"label\\\": \\\"Amount ($)\\\", \\\"type\\\": \\\"number\\\", \\\"required\\\": true, \\\"min\\\": 0.01 },\\n    { \\\"id\\\": \\\"category\\\", \\\"label\\\": \\\"Expense Category\\\", \\\"type\\\": \\\"select\\\", \\\"options\\\": [\\\"Travel\\\", \\\"Meals\\\", \\\"Office Supplies\\\", \\\"Software/Subcription\\\", \\\"Other\\\"], \\\"required\\\": true },\\n    { \\\"id\\\": \\\"receipt\\\", \\\"label\\\": \\\"Upload Receipt\\\", \\\"type\\\": \\\"file\\\", \\\"required\\\": true }\\n  ]'\\n/>\\n\\n---\\n\\n## 2. Approval Phase\\n*Action required by the Manager. This section is visible only after the form is submitted.*\\n\\n<approval_gate \\n  id=\\\"reimbursement-approval\\\" \\n  depends_on=\\\"expense-submission-form\\\"\\n  on_approval=\\\"process_approved_reimbursement\\\"\\n  on_rejection=\\\"process_rejected_reimbursement\\\"\\n  fields='[\\n    { \\\"id\\\": \\\"manager_comment\\\", \\\"label\\\": \\\"Approval/Rejection Comment\\\", \\\"type\\\": \\\"textarea\\\", \\\"required\\\": true }\\n  ]'\\n/>\\n\\n## 3. Process Summary\\n*This table will automatically populate once a request is in progress.*\\n\\n| Status | Employee | Amount | Category | Manager Comment |\\n| :--- | :--- | :--- | :--- | :--- |\\n| 🟡 Pending | | | | |\\n\\n---\\n\\n<callout type=\\\"info\\\" title=\\\"Process Flow\\\">\\n1. **Employee** fills out the submission form and attaches a receipt.\\n2. **Manager** receives a notification and reviews the claim.\\n3. **Manager** uses the approval gate to either Approve (triggering payment) or Reject (notifying the employee).\\n4. **Finance** receives the final data via webhook upon approval.\\n</callout>\\n\\n<webhook \\n  id=\\\"finance-payment-webhook\\\" \\n  trigger_on=\\\"process_approved_reimbursement\\\"\\n  url=\\\"https://api.yourcompany.com/finance/process-payment\\\"\\n  payload='{ \\\"status\\\": \\\"approved\\\", \\\"data\\\": \\\"{{expense-submission-form}}\\\" }'\\n/>\"}"
+                "arguments": "{\"document\": \"# Expense Reimbursement Workflow\\n\\nThis workflow manages the end-to-end process of employee expense claims, from initial submission to final manager approval.\\n\\n## Phase 1: Employee Submission\\n*Please fill out the form below to request reimbursement for your business expenses.*\\n\\n---\\n\\n### 📝 Expense Claim Form\\n> [!IMPORTANT]\\n> Ensure all uploaded receipts match the total amount entered to avoid delays in processing.\\n\\n<form \\n  action=\\\"https://api.yourcompany.com/expenses/submit\\\" \\n  method=\\\"POST\\\"\\n>\\n  <fieldset>\\n    <legend>Claim Details</legend>\\n    \\n    <label for=\\\"amount\\\">Total Amount (USD)</label>\\n    <input type=\\\"number\\\" id=\\\"amount\\\" name=\\\"amount\\\" placeholder=\\\"0.00\\\" required step=\\\"0.01\\\" />\\n\\n    <label for=\\\"category\\\">Expense Category</label>\\n    <select id=\\\"category\\\" name=\\\"category\\\" required>\\n      <option value=\\\"\\\" disabled selected>Select a category...</option>\\n      <option value=\\\"travel\\\">Travel (Flights, Hotel, Rail)</option>\\n      <option value=\\\"meals\\\">Meals & Entertainment</option>\\n      <option value=\\\"transport\\\">Ground Transport (Uber, Taxi, Parking)</option>\\n      <option value=\\\"supplies\\\">Office Supplies</option>\\n      <option value=\\\"other\\\">Other</option>\\n    </select>\\n\\n    <label for=\\\"description\\\">Business Purpose / Description</label>\\n    <textarea id=\\\"description\\\" name=\\\"description\\\" placeholder=\\\"Briefly explain the business need for this expense...\\\" required />\\n\\n    <label for=\\\"receipt\\\">Attach Receipt (Image/PDF)</label>\\n    <input type=\\\"file\\\" id=\\\"receipt\\\" name=\\\"receipt\\\" accept=\\\"image/*,.pdf\\\" required />\\n  </fieldset>\\n\\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Submit for Approval</button>\\n</form>\\n\\n---\\n\\n## Phase 2: Manager Review\\n*This section is visible only to designated approving managers once a claim has been submitted.*\\n\\n### 🔍 Pending Approval\\nThe following expense claim requires your immediate attention:\\n\\n| Item | Detail |\\n| :--- | :--- |\\n| **Employee** | Jane Doe |\\n| **Amount** | $142.50 |\\n| **Category** | Travel |\\n| **Description** | Client lunch meeting - Q3 Strategy |\\n\\n<callout type=\\\"info\\\">\\n**Approval Guidelines:** Claims exceeding $500 require additional VP authorization. Please verify that the expense aligns with the department budget.\\n</callout>\\n\\n### 🗳️ Decision Panel\\n<form action=\\\"https://api.yourcompany.com/expenses/approve\\\" method=\\\"POST\\\">\\n  <label for=\\\"manager-comment\\\">Reviewer Comments</label>\\n  <textarea id=\\\"manager-comment\\\" name=\\\"comment\\\" placeholder=\\\"Provide reasoning for rejection or notes for accounting...\\\" />\\n\\n  <div style=\\\"display: flex; gap: 10px;\\\">\\n    <button type=\\\"submit\\\" name=\\\"action\\\" value=\\\"approve\\\" variant=\\\"success\\\">Approve Claim</button>\\n    <button type=\\\"submit\\\" name=\\\"action\\\" value=\\\"reject\\\" variant=\\\"danger\\\">Reject Claim</button>\\n  </div>\\n</form>\\n\\n---\\n\\n## Workflow Status Summary\\nOnce a decision is made, the status will be updated and the user notified.\\n\\n| Role | Action | Status |\\n| :--- | :--- | :--- |\\n| Employee | Submit Claim | ✅ Completed |\\n| Manager | Review & Decision | ⏳ Pending |\\n| Finance | Process Payment | 🌑 Awaiting Approval |\\n\\n<webhook url=\\\"https://api.yourcompany.com/webhooks/expense-events\\\" />\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 808,
+            "total": 1048,
             "prompt": 231,
-            "completion": 577,
+            "completion": 817,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4717,
+          "latencyMs": 7093,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -583,10 +583,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "3190",
+                "content-length": "4336",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:25 GMT",
-                "modal-function-call-id": "fc-01KWC44J7D5PFS41N0QQWKC94C",
+                "date": "Tue, 30 Jun 2026 12:38:30 GMT",
+                "modal-function-call-id": "fc-01KWC8KJR600HBJ9HPY492BQYT",
                 "vary": "accept-encoding"
               }
             }
@@ -618,10 +618,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "3190",
+              "content-length": "4336",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:25 GMT",
-              "modal-function-call-id": "fc-01KWC44J7D5PFS41N0QQWKC94C",
+              "date": "Tue, 30 Jun 2026 12:38:30 GMT",
+              "modal-function-call-id": "fc-01KWC8KJR600HBJ9HPY492BQYT",
               "vary": "accept-encoding"
             }
           },
@@ -655,8 +655,8 @@
             }
           ]
         },
-        "id": "d9ff0615-a8f6-4789-a4d2-e3604e68a814",
-        "latencyMs": 4693,
+        "id": "218fd67c-ff05-4742-8171-b1d9bb7d37d6",
+        "latencyMs": 6754,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Build a sales pipeline dashboard showing deals grouped by stage with a bar chart of revenue by month.\\n\"}]",
@@ -672,22 +672,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-a7fd61c8c182be82",
+              "id": "chatcmpl-tool-a44637a72e677ae9",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# 🚀 Sales Pipeline Dashboard\\n\\nWelcome to your sales overview. Use this dashboard to track your current pipeline, monitor monthly revenue, and manage deal movement.\\n\\n:::callout(type=\\\"info\\\", title=\\\"Dashboard Overview\\\")\\nThis view provides a real-time snapshot of your current deal flow and historical performance.\\n:::\\n\\n## 📊 Revenue Trend (Monthly)\\nThe following chart visualizes the revenue recognized and projected by month.\\n\\n```mermaid\\n{\\n  \\\"chartType\\\": \\\"bar\\\",\\n  \\\"title\\\": \\\"Revenue by Month\\\",\\n  \\\"data\\\": [\\n    {\\\"label\\\": \\\"Jan\\\", \\\"value\\\": 45000},\\n    {\\\"label\\\": \\\"Feb\\\", \\\"value\\\": 52000},\\n    {\\\"label\\\": \\\"Mar\\\", \\\"value\\\": 48000},\\n    {\\\"label\\\": \\\"Apr\\\", \\\"value\\\": 61000},\\n    {\\\"label\\\": \\\"May\\\", \\\"value\\\": 55000},\\n    {\\\"label\\\": \\\"Jun\\\", \\\"value\\\": 72000}\\n  ],\\n  \\\"xAxis\\\": \\\"Month\\\",\\n  \\\"yAxis\\\": \\\"Revenue ($)\\\"\\n}\\n```\\n\\n---\\n\\n## 🗂️ Deals by Pipeline Stage\\n\\n| Stage | Total Deals | Total Value | Action |\\n| :--- | :---: | :--- | :--- |\\n| **🚀 Prospecting** | 12 | $120,000 | [View Deals](#) |\\n| **🔍 Qualification** | 8 | $85,000 | [View Deals](#) |\\n| **📝 Proposal** | 5 | $60,000 | [View Deals](#) |\\n| **🤝 Negotiation** | 3 | $45,000 | [View Deals](#) |\\n| **✅ Closed Won** | 15 | $210,000 | [View Deals](#) |\\n\\n---\\n\\n## 📝 Quick Actions\\n\\n:::button(label=\\\"➕ Create New Deal\\\", icon=\\\"plus\\\", variant=\\\"primary\\\", action=\\\"NEW_DEAL_WEBHOOK\\\")\\n:::\\n:::button(label=\\\"📈 Update Forecast\\\", icon=\\\"trending-up\\\", action=\\\"OPEN_FORECAST_MODAL\\\")\\n:::\\n\\n---\\n\\n## 🛠️ Management Tasklist\\nUse this list to track operational items related to your pipeline health.\\n\\n- [ ] Conduct weekly pipeline review meeting\\n- [ ] Verify accuracy of \\\"Closed Lost\\\" reasons\\n- [ ] Audit stale deals (no activity > 14 days)\\n- [ ] Update Q3 revenue targets in CRM\\n\"}"
+                "arguments": "{\"document\": \"# 🚀 Sales Pipeline Dashboard\\n\\n> **Overview**: This dashboard provides a real-time view of the current sales pipeline, stage distribution, and monthly revenue trends.\\n\\n---\\n\\n## 📊 Revenue by Month\\n{\\n  \\\"type\\\": \\\"chart\\\",\\n  \\\"chartType\\\": \\\"bar\\\",\\n  \\\"title\\\": \\\"Monthly Projected Revenue\\\",\\n  \\\"data\\\": [\\n    {\\\"month\\\": \\\"Jan\\\", \\\"revenue\\\": 45000},\\n    {\\\"month\\\": \\\"Feb\\\", \\\"revenue\\\": 52000},\\n    {\\\"month\\\": \\\"Mar\\\", \\\"revenue\\\": 38000},\\n    {\\\"month\\\": \\\"Apr\\\", \\\"revenue\\\": 61000},\\n    {\\\"month\\\": \\\"May\\\", \\\"revenue\\\": 55000},\\n    {\\\"month\\\": \\\"Jun\\\", \\\"revenue\\\": 67000}\\n  ],\\n  \\\"xAxis\\\": \\\"month\\\",\\n  \\\"yAxis\\\": \\\"revenue\\\",\\n  \\\"yAxisLabel\\\": \\\"Revenue ($)\\\"\\n}\\n\\n---\\n\\n## 📑 Deal Pipeline by Stage\\n\\n| Stage | Deal Name | Account | Deal Value | Owner | Last Activity |\\n| :--- | :--- | :--- | :--- | :--- | :--- |\\n| 🟢 **Discovery** | Cloud Migration | Acme Corp | $12,000 | Sarah K. | 2h ago |\\n| 🟢 **Discovery** | API Integration | Globex Inc | $8,500 | Mike R. | Yesterday |\\n| 🟡 **Proposal** | Security Audit | Stark Ind | $45,000 | Sarah K. | 1d ago |\\n| 🟡 **Proposal** | Data Warehouse | Wayne Ent | $22,000 | David L. | 3h ago |\\n| 🟠 **Negotiation** | SaaS Renewal | Cyberdyne | $15,000 | Mike R. | 10m ago |\\n| 🟠 **Negotiation** | Mobile App Dev | Umbrella Co | $35,000 | Sarah K. | 2d ago |\\n| 🔵 **Closed Won** | Network Upgrade | Initech | $28,000 | David L. | Completed |\\n\\n---\\n\\n## 🛠 Quick Actions\\n\\n{\\n  \\\"type\\\": \\\"button_group\\\",\\n  \\\"buttons\\\": [\\n    {\\n      \\\"label\\\": \\\"➕ Create New Deal\\\",\\n      \\\"action\\\": \\\"open_form\\\",\\n      \\\"formId\\\": \\\"new-deal-form\\\"\\n    },\\n    {\\n      \\\"label\\\": \\\"📥 Export Pipeline (CSV)\\\",\\n      \\\"action\\\": \\\"webhook\\\",\\n      \\\"url\\\": \\\"https://api.yoursalescrm.com/export/deals\\\"\\n    },\\n    {\\n      \\\"label\\\": \\\"🔄 Refresh Dashboard\\\",\\n      \\\"action\\\": \\\"refresh\\\"\\n    }\\n  ]\\n}\\n\\n---\\n\\n## 🚨 High Priority Alerts\\n\\n:::warning[Immediate Attention Required]\\nThe following deals have been stuck in the **Proposal** stage for more than 10 days:\\n- **Security Audit** ($45,000) - No contact in 12 days.\\n- **Data Warehouse** ($22,000) - Awaiting legal review.\\n:::\\n\\n:::info[Pipeline Health]\\nYour average deal cycle is currently **24 days**. This is **4 days faster** than last month. 📈\\n:::\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 799,
+            "total": 982,
             "prompt": 226,
-            "completion": 573,
+            "completion": 756,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 4693,
+          "latencyMs": 6754,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -698,10 +698,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2831",
+                "content-length": "3391",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:29 GMT",
-                "modal-function-call-id": "fc-01KWC44PVJWF42S3GDR6GJ7X17",
+                "date": "Tue, 30 Jun 2026 12:38:38 GMT",
+                "modal-function-call-id": "fc-01KWC8KSQ5AME9YR648XKSYXYK",
                 "vary": "accept-encoding"
               }
             }
@@ -733,10 +733,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2831",
+              "content-length": "3391",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:29 GMT",
-              "modal-function-call-id": "fc-01KWC44PVJWF42S3GDR6GJ7X17",
+              "date": "Tue, 30 Jun 2026 12:38:38 GMT",
+              "modal-function-call-id": "fc-01KWC8KSQ5AME9YR648XKSYXYK",
               "vary": "accept-encoding"
             }
           },
@@ -770,8 +770,8 @@
             }
           ]
         },
-        "id": "e7ef6b68-ab98-4cff-931e-cbe823142fc3",
-        "latencyMs": 2895,
+        "id": "09af351d-6a80-4a55-892d-eaccbd4b2cf6",
+        "latencyMs": 4519,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a document upload form for medical records with patient name, date of birth, and a file upload field.\"}]",
@@ -787,22 +787,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-99187fa606e9df38",
+              "id": "chatcmpl-tool-9b487c7c0f4dc036",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# Medical Record Submission\\n\\nPlease complete the form below to upload medical records securely. Ensure all files are in PDF or JPEG format.\\n\\n---\\n\\n### Patient Information\\n\\n:::callout(type=\\\"info\\\")\\nEnsure the details provided match the official identification documents to prevent delays in processing.\\n:::\\n\\n<form>\\n  <field\\n    label=\\\"Patient Full Name\\\"\\n    name=\\\"patient_name\\\"\\n    type=\\\"text\\\"\\n    required=\\\"true\\\"\\n    placeholder=\\\"e.g. Jane Doe\\\"\\n  />\\n\\n  <field\\n    label=\\\"Date of Birth\\\"\\n    name=\\\"dob\\\"\\n    type=\\\"date\\\"\\n    required=\\\"true\\\"\\n  />\\n\\n  <field\\n    label=\\\"Medical Records\\\"\\n    name=\\\"record_files\\\"\\n    type=\\\"file\\\"\\n    accept=\\\"application/pdf,image/jpeg,image/png\\\"\\n    required=\\\"true\\\"\\n    multiple=\\\"true\\\"\\n  />\\n\\n  <action\\n    label=\\\"Submit Medical Records\\\"\\n    type=\\\"submit\\\"\\n    webhook=\\\"https://api.hospital-portal.com/v1/upload-medical-records\\\"\\n  />\\n</form>\\n\\n---\\n\\n### Submission Checklist\\n\\n- [ ] Patient name matches legal identification.\\n- [ ] Date of birth is entered in the correct format.\\n- [ ] File size is under 10MB per document.\\n- [ ] All files are clearly legible.\\n\\n<button\\n  label=\\\"Cancel and Clear Form\\\"\\n  type=\\\"reset\\\"\\n/>\"}"
+                "arguments": "{\"document\": \"# 📁 Medical Records Upload Portal\\n\\nPlease use this form to securely upload your medical documents for review. Ensure all files are clear and legible.\\n\\n:::callout(type=\\\"info\\\", title=\\\"Submission Privacy Notice\\\")\\nAll uploaded files are encrypted and handled in compliance with HIPAA regulations. Only authorized medical staff will have access to these documents.\\n:::\\n\\n<form>\\n  <fieldset>\\n    <legend>Patient Identification</legend>\\n    \\n    <group>\\n      <label for=\\\"patient-name\\\">Full Legal Name</label>\\n      <input type=\\\"text\\\" id=\\\"patient-name\\\" name=\\\"patient-name\\\" placeholder=\\\"John Doe\\\" required />\\n    </group>\\n\\n    <group>\\n      <label for=\\\"dob\\\">Date of Birth</label>\\n      <input type=\\\"date\\\" id=\\\"dob\\\" name=\\\"dob\\\" required />\\n    </group>\\n  </fieldset>\\n\\n  <fieldset>\\n    <legend>Document Upload</legend>\\n    \\n    <group>\\n      <label for=\\\"medical-files\\\">Select Files</label>\\n      <input type=\\\"file\\\" id=\\\"medical-files\\\" name=\\\"medical-files\\\" multiple required />\\n      <p class=\\\"help-text\\\">Accepted formats: PDF, JPG, PNG. Maximum file size: 10MB per file.</p>\\n    </group>\\n\\n    <group>\\n      <label for=\\\"reason\\\">Reason for Upload</label>\\n      <select id=\\\"reason\\\" name=\\\"reason\\\">\\n        <option value=\\\"routine\\\">Routine Check-up</option>\\n        <option value=\\\"new-patient\\\">New Patient Intake</option>\\n        <option value=\\\"specialist\\\">Specialist Referral</option>\\n        <option value=\\\"follow-up\\\">Follow-up Appointment</option>\\n        <option value=\\\"other\\\">Other</option>\\n      </select>\\n    </group>\\n  </fieldset>\\n\\n  <div class=\\\"form-actions\\\">\\n    <button type=\\\"submit\\\" variant=\\\"primary\\\">📤 Submit Medical Records</button>\\n    <button type=\\\"button\\\" variant=\\\"ghost\\\" onclick=\\\"window.history.back()\\\">Cancel</button>\\n  </div>\\n</form>\\n\\n<webhook url=\\\"/api/v1/medical/upload\\\" method=\\\"POST\\\" />\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 565,
+            "total": 733,
             "prompt": 229,
-            "completion": 336,
+            "completion": 504,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2895,
+          "latencyMs": 4519,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -813,10 +813,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2154",
+                "content-length": "2867",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:34 GMT",
-                "modal-function-call-id": "fc-01KWC44VF9HB1PSJAA05M6C4KH",
+                "date": "Tue, 30 Jun 2026 12:38:44 GMT",
+                "modal-function-call-id": "fc-01KWC8M0ASAYX238Q94ZX1AMEY",
                 "vary": "accept-encoding"
               }
             }
@@ -848,10 +848,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2154",
+              "content-length": "2867",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:34 GMT",
-              "modal-function-call-id": "fc-01KWC44VF9HB1PSJAA05M6C4KH",
+              "date": "Tue, 30 Jun 2026 12:38:44 GMT",
+              "modal-function-call-id": "fc-01KWC8M0ASAYX238Q94ZX1AMEY",
               "vary": "accept-encoding"
             }
           },
@@ -885,8 +885,8 @@
             }
           ]
         },
-        "id": "18ea3a88-f728-4c69-a52e-895222b4136d",
-        "latencyMs": 3013,
+        "id": "12add697-491c-45e3-9439-0a3b5d1e9f69",
+        "latencyMs": 5712,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"I need a KYC form that collects full name, date of birth, national ID number, residential address, and a document upload for ID verification.\\n\"}]",
@@ -902,22 +902,22 @@
         "response": {
           "output": [
             {
-              "id": "chatcmpl-tool-84ae8b194b0b95cf",
+              "id": "chatcmpl-tool-b0677ddd693ca26d",
               "type": "function",
               "function": {
                 "name": "generate_mdma",
-                "arguments": "{\"document\": \"# Know Your Customer (KYC) Verification Form\\n\\nPlease complete the information below to verify your identity. Ensure all information matches your government-issued identification documents.\\n\\n---\\n\\n## 👤 Personal Information\\n\\n| Field | Input Type | Required |\\n| :--- | :--- | :--- |\\n| **Full Legal Name** | [text:full_name] | Yes |\\n| **Date of Birth** | [date:dob] | Yes |\\n| **National ID Number** | [text:national_id] | Yes |\\n\\n---\\n\\n## 🏠 Residential Details\\n\\n| Field | Input Type | Required |\\n| :--- | :--- | :--- |\\n| **Residential Address** | [textarea:address] | Yes |\\n\\n---\\n\\n## 📂 Identity Verification\\n\\nPlease upload a high-quality, color photo of your government-issued ID (Passport, Driver's License, or National ID card).\\n\\n> [!IMPORTANT]\\n> **Upload Guidelines:**\\n> - Ensure all four corners of the document are visible.\\n> - Avoid glare or shadows over your information.\\n> - The image must be in .jpg, .jpeg, or .png format.\\n\\n**Upload ID Document:**\\n[file_upload:id_document]\\n\\n---\\n\\n## 🖋️ Submission & Consent\\n\\nBy clicking \\\"Submit Application\\\", I certify that the information provided is true and accurate to the best of my knowledge and I consent to the verification of my identity.\\n\\n[button:submit_kyc|Submit Application]\\n\\n***\\n\\n*Note: Your data is encrypted and handled in accordance with our Privacy Policy.*\"}"
+                "arguments": "{\"document\": \"# Know Your Customer (KYC) Verification Form\\n\\nPlease complete the form below to verify your identity. Ensure all information provided is accurate and matches your official documents.\\n\\n---\\n\\n## 👤 Personal Information\\n\\n:::callout info: Identity Requirements\\nVerification is required by law to prevent identity theft and fraud. Please ensure the document you upload is valid and not expired.\\n:::\\n\\n<form>\\n  <section>\\n    ### Basic Details\\n    \\n    **Full Name**\\n    Please provide your full name as it appears on your government-issued ID.\\n    <input type=\\\"text\\\" name=\\\"full_name\\\" label=\\\"Full Legal Name\\\" placeholder=\\\"e.g. Johnathan Doe\\\" required />\\n\\n    **Date of Birth**\\n    <input type=\\\"date\\\" name=\\\"dob\\\" label=\\\"Date of Birth\\\" required />\\n\\n    **National ID Number**\\n    Enter your government-issued identification number (SSN, Passport Number, etc.).\\n    <input type=\\\"text\\\" name=\\\"national_id\\\" label=\\\"National ID / Passport Number\\\" placeholder=\\\"e.g. 123-456-789\\\" required />\\n  </section>\\n\\n  <section>\\n    ### Residential Address\\n\\n    **Street Address**\\n    <input type=\\\"text\\\" name=\\\"address_street\\\" label=\\\"Street Address\\\" placeholder=\\\"123 Main St, Apt 4B\\\" required />\\n\\n    **City**\\n    <input type=\\\"text\\\" name=\\\"address_city\\\" label=\\\"City\\\" required />\\n\\n    **State / Province**\\n    <input type=\\\"text\\\" name=\\\"address_state\\\" label=\\\"State / Province\\\" required />\\n\\n    **Postal Code**\\n    <input type=\\\"text\\\" name=\\\"address_zip\\\" label=\\\"Postal / Zip Code\\\" required />\\n\\n    **Country**\\n    <select name=\\\"address_country\\\" label=\\\"Country\\\" required>\\n      <option value=\\\"\\\">Select a country</option>\\n      <option value=\\\"us\\\">United States</option>\\n      <option value=\\\"uk\\\">United Kingdom</option>\\n      <option value=\\\"ca\\\">Canada</option>\\n      <option value=\\\"au\\\">Australia</option>\\n      <option value=\\\"other\\\">Other</option>\\n    </select>\\n  </section>\\n\\n  <section>\\n    ### Document Upload\\n\\n    **ID Document Verification**\\n    Please upload a high-quality photo or scan of your government-issued ID (Passport, Driver's License, or National ID card).\\n    \\n    <file_upload name=\\\"id_document\\\" label=\\\"Upload ID Document\\\" accept=\\\"image/*,.pdf\\\" required />\\n    \\n    :::callout warning: Upload Tips\\n    * Ensure the entire document is visible within the frame.\\n    * Make sure all text is legible and not obscured by glare.\\n    * Files must be in JPEG, PNG, or PDF format.\\n    :::\\n  </section>\\n\\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Submit Verification</button>\\n</form>\\n\\n---\\n\\n### 🛡️ Data Privacy & Consent\\nBy submitting this form, you acknowledge that you have read our [Privacy Policy] and consent to the processing of your personal data for identity verification purposes.\\n\\n<webhook url=\\\"https://api.yourdomain.com/v1/kyc/verify\\\" method=\\\"POST\\\" />\"}"
               }
             }
           ],
           "tokenUsage": {
-            "total": 588,
+            "total": 964,
             "prompt": 236,
-            "completion": 352,
+            "completion": 728,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 3013,
+          "latencyMs": 5712,
           "finishReason": "tool_calls",
           "guardrails": {
             "flagged": false
@@ -928,10 +928,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2204",
+                "content-length": "3902",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:37 GMT",
-                "modal-function-call-id": "fc-01KWC44YAGAAWBG5J6J108SM1K",
+                "date": "Tue, 30 Jun 2026 12:38:49 GMT",
+                "modal-function-call-id": "fc-01KWC8M4RZ1C4KCP70QMRZYFPZ",
                 "vary": "accept-encoding"
               }
             }
@@ -963,10 +963,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2204",
+              "content-length": "3902",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:37 GMT",
-              "modal-function-call-id": "fc-01KWC44YAGAAWBG5J6J108SM1K",
+              "date": "Tue, 30 Jun 2026 12:38:49 GMT",
+              "modal-function-call-id": "fc-01KWC8M4RZ1C4KCP70QMRZYFPZ",
               "vary": "accept-encoding"
             }
           },
@@ -1003,8 +1003,8 @@
             }
           ]
         },
-        "id": "2771ed7a-ad3f-4d85-a1e7-4d5ea3f7dcc4",
-        "latencyMs": 2858,
+        "id": "868a9bb7-3604-4641-ac81-a968c3a3b7c4",
+        "latencyMs": 2698,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"What kind of interactive documents can MDMA format represent?\"}]",
@@ -1018,15 +1018,15 @@
           "label": ""
         },
         "response": {
-          "output": "The MDMA format is designed to transform static text into an interactive user interface. It goes beyond standard Markdown by allowing you to embed functional elements that can drive workflows and data visualization.\n\nHere are the primary types of interactive documents you can represent:\n\n### 1. Action-Oriented Workflows\n*   **Forms:** Complex, multi-field inputs used for data collection, user registration, or survey taking.\n*   **Approval Gates:** Visual, one-click decision points (Approve/Reject/Request Changes) that can trigger downstream business processes.\n*   **Buttons & Webhooks:** Interactive triggers that can send real-time data to external services (like Slack, Jira, or custom APIs) to execute actions.\n\n### 2. Data & Information Management\n*   **Interactive Tables:** Data grids that can handle complex structures and often facilitate data updates.\n*   **Tasklists:** Dynamic checklists for project management and progress tracking.\n*   **Callouts:** Semantic information boxes (Info, Warning, Error, Success) to highlight critical context or guidance.\n\n### 3. Visual Data Representation\n*   **Charts:** Interactive visualizations (Bar, Line, Pie, etc.) that transform raw numbers into visual insights, making it easier to spot trends.\n\n### When to use it\nYou should think of MDMA as the \"UI layer\" for documentation. While standard Markdown is best for reading long-form text, **MDMA is the best choice when the user needs to *do* something with the information**—whether that is submitting data, making a decision, or analyzing a dataset.",
+          "output": "The MDMA format is designed to go beyond static text by embedding interactive components that allow users to input data, trigger workflows, and visualize information directly within the document.\n\nHere are the primary types of interactive elements MDMA can represent:\n\n### 1. Data Entry & Collection\n*   **Forms:** Structured collections of input fields (text, selects, checkboxes, dates, etc.) used to capture user data.\n*   **Webhooks:** Buttons or form submissions that can send data to external APIs, enabling real-time integration with other software systems.\n\n### 2. Structured Data & Planning\n*   **Interactive Tables:** Sophisticated tables for data display that can include sorting, filtering, and specific cell actions.\n*   **Tasklists:** Checklists used for project management, tracking progress, and ensuring step-by-step completion of processes.\n\n### 3. Decision Making & Governance\n*   **Approval Gates:** Specialized UI components that require a formal \"Approve\" or \"Reject\" action, often used to lock in decisions or initiate official workflows.\n*   **Buttons:** Actionable elements used to trigger immediate commands or navigation.\n\n### 4. Analysis & Communication\n*   **Charts:** Dynamic visual representations of data (line, bar, pie, etc.) that make complex information easier to digest.\n*   **Callouts:** Specialized alert or info boxes used to highlight important caveats, warnings, or contextually relevant information.\n\nIf you would like to see an example of any of these in action, just let me know what you're working on!",
           "tokenUsage": {
-            "total": 549,
+            "total": 544,
             "prompt": 218,
-            "completion": 331,
+            "completion": 326,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2858,
+          "latencyMs": 2698,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1037,10 +1037,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2211",
+                "content-length": "2201",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:40 GMT",
-                "modal-function-call-id": "fc-01KWC451A1E3S68GH1A66GF4WP",
+                "date": "Tue, 30 Jun 2026 12:38:55 GMT",
+                "modal-function-call-id": "fc-01KWC8MAD984DWYTZF35Z5JREH",
                 "vary": "accept-encoding"
               }
             }
@@ -1075,10 +1075,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2211",
+              "content-length": "2201",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:40 GMT",
-              "modal-function-call-id": "fc-01KWC451A1E3S68GH1A66GF4WP",
+              "date": "Tue, 30 Jun 2026 12:38:55 GMT",
+              "modal-function-call-id": "fc-01KWC8MAD984DWYTZF35Z5JREH",
               "vary": "accept-encoding"
             }
           },
@@ -1115,8 +1115,8 @@
             }
           ]
         },
-        "id": "9e79f259-9222-482f-a767-0d971b536314",
-        "latencyMs": 5022,
+        "id": "823bd9a9-3e50-4d38-bbb5-3b1e3d78e6ca",
+        "latencyMs": 5351,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Can you explain the difference between a form and a steps component in MDMA?\"}]",
@@ -1130,15 +1130,15 @@
           "label": ""
         },
         "response": {
-          "output": "In MDMA, both **Forms** and **Steps** components are used to structure how a user inputs information or moves through a process, but they serve different architectural purposes:\n\n### 1. The Form Component\nA **Form** is a container designed for **data collection**. Its primary goal is to gather specific pieces of information (input fields, selections, dates) and submit them all at once (or in chunks) to a backend or webhook.\n\n*   **Focus:** Input fields and data validation.\n*   **Best used when:** You need to collect a specific set of data points (e.g., a user profile, a reimbursement request, or a ticket submission).\n*   **Core logic:** The form manages the state of individual inputs and ensures the data is valid before the \"Submit\" action is triggered.\n\n### 2. The Steps Component\n**Steps** (often referred to as a Stepper) is a **navigation and flow pattern**. It isn't about the data itself, but about the **sequence of the user journey**. It breaks a complex, overwhelming process into smaller, manageable chunks.\n\n*   **Focus:** Progress tracking and workflow organization.\n*   **Best used when:** A process has multiple distinct stages (e.g., \"Draft\" $\\rightarrow$ \"Review\" $\\rightarrow$ \"Approval\" $\\rightarrow$ \"Complete\").\n*   **Core logic:** The steps component manages the \"state\" of the entire process. In a sophisticated MDMA setup, you will often wrap multiple **Forms** inside a **Steps** component.\n\n---\n\n### Key Differences at a Glance\n\n| Feature | Form | Steps |\n| :--- | :--- | :--- |\n| **Primary Goal** | To collect data. | To define a sequence or workflow. |\n| **User Perception** | \"I am filling out details.\" | \"I am making progress through a process.\" |\n| **Complexity** | Handles field validation (is this email valid?). | Handles state transitions (can we move to Step 2?). |\n| **Visual Element** | Input boxes, checkboxes, dropdowns. | Progress bars, numbered circles, or tabs. |\n\n### How they work together\nIn real-world MDMA design, you rarely choose one *over* the other. Instead, you use them in tandem:\n\n**The Pattern:** `Steps` $\\rightarrow$ contains $\\rightarrow$ `Form(s)`\n\n**Example Scenario: A Mortgage Application**\n1.  **Step 1 (Personal Info):** The user sees a **Form** with name, SSN, and DOB.\n2.  **Step 2 (Financial Info):** Upon clicking \"Next\" (a button), the user moves to the next **Step**, which presents a new **Form** for income and assets.\n3.  **Step 3 (Review & Sign):** The final **Step** shows a summary of all collected data for final confirmation.",
+          "output": "In MDMA, both components are used to guide users through processes, but they serve different structural and logical purposes. Here is the breakdown:\n\n### 1. The Form Component\nThe **Form** is a collection of input fields designed for **data entry**. Its primary goal is to capture information from the user and send it to a destination (via a webhook or a state update).\n\n*   **Purpose:** To gather specific, structured data (text, numbers, dates, selections, files).\n*   **Interaction Model:** The user sees all required fields at once (or in a single logical group) and submits the entire batch of data to complete the action.\n*   **Best Use Case:** Creating a new ticket, submitting an expense report, or updating a profile.\n*   **Logic:** Forms are usually \"single-shot.\" Once you click submit, the task for that specific input session is done.\n\n### 2. The Steps Component\nThe **Steps** component is a **navigation and progress indicator**. It is a structural element used to break a complex, long-running process into manageable, digestible chunks.\n\n*   **Purpose:** To provide visual feedback on \"where I am\" and \"how much is left\" in a complex workflow.\n*   **Interaction Model:** It tells the user they are in a multi-stage journey. As they complete one part of a process, the steps component updates to show progress (e.g., moving from Step 1 to Step 2).\n*   **Best Use Case:** An onboarding wizard, a complex multi-stage approval workflow, or a multi-step procurement process.\n*   **Logic:** Steps are \"continuous.\" They represent the state of a lifecycle rather than a single data capture event.\n\n---\n\n### Key Comparison Table\n\n| Feature | Form | Steps |\n| :--- | :--- | :--- |\n| **Primary Function** | Data Capture (Input) | Progress Tracking (Navigation) |\n| **User Focus** | \"What information do I need to provide?\" | \"How far along am I in this process?\" |\n| **Visual Output** | Input fields, checkboxes, dropdowns | A progress bar or breadcrumb-style stepper |\n| **Lifecycle** | Completed upon submission | Persists throughout the entire duration of a multi-stage task |\n| **Implementation** | Contains interactive inputs | Often *contains* or *wraps* several forms (one for each step) |\n\n### How they work together\nIn a professional MDMA document, you rarely choose one *over* the other; instead, you **nest forms inside steps**.\n\n**Example:** You are building a \"New Project Setup\" wizard:\n1.  You use a **Steps component** at the top to show: *Setup $\\rightarrow$ Budget $\\rightarrow$ Team $\\rightarrow$ Launch*.\n2.  On the **Setup** step, you render a **Form** to capture the project name and description.\n3.  Once the user submits the first form, the **Steps component** updates to show Step 1 is complete and Step 2 is active.\n4.  On the **Budget** step, you render a *new* **Form** to capture financial data.",
           "tokenUsage": {
-            "total": 841,
+            "total": 899,
             "prompt": 223,
-            "completion": 618,
+            "completion": 676,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 5022,
+          "latencyMs": 5351,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1149,10 +1149,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "3202",
+                "content-length": "3515",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:43 GMT",
-                "modal-function-call-id": "fc-01KWC454402QC8FF3HNA6XKG02",
+                "date": "Tue, 30 Jun 2026 12:38:57 GMT",
+                "modal-function-call-id": "fc-01KWC8MD2HK5PKHYDMDXZJYSPZ",
                 "vary": "accept-encoding"
               }
             }
@@ -1187,10 +1187,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "3202",
+              "content-length": "3515",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:43 GMT",
-              "modal-function-call-id": "fc-01KWC454402QC8FF3HNA6XKG02",
+              "date": "Tue, 30 Jun 2026 12:38:57 GMT",
+              "modal-function-call-id": "fc-01KWC8MD2HK5PKHYDMDXZJYSPZ",
               "vary": "accept-encoding"
             }
           },
@@ -1227,8 +1227,8 @@
             }
           ]
         },
-        "id": "fe93886e-4037-4da3-8e06-6c52377b11a9",
-        "latencyMs": 795,
+        "id": "6eb79019-43fc-4d8a-b9a2-9eefd87ca480",
+        "latencyMs": 879,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Thank you, the form looks great!\"}]",
@@ -1242,15 +1242,15 @@
           "label": ""
         },
         "response": {
-          "output": "You're very welcome! I'm glad to hear the form meets your needs. \n\nIf you need any adjustments—like adding new fields, changing the layout, or adding buttons and approval gates—just let me know. I'm here to help!",
+          "output": "You're very welcome! I'm glad to hear the form meets your needs. \n\nIf you need any modifications—like adding more fields, creating a different type of document (like a dashboard or a tasklist), or setting up any new automation—just let me know. I'm here to help!",
           "tokenUsage": {
-            "total": 270,
+            "total": 281,
             "prompt": 215,
-            "completion": 55,
+            "completion": 66,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 795,
+          "latencyMs": 879,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1261,10 +1261,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "847",
+                "content-length": "897",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:48 GMT",
-                "modal-function-call-id": "fc-01KWC4592CDKQX0Y4Z6PQYDB3J",
+                "date": "Tue, 30 Jun 2026 12:39:03 GMT",
+                "modal-function-call-id": "fc-01KWC8MJBS71ER6YSX7Q82AQEH",
                 "vary": "accept-encoding"
               }
             }
@@ -1299,10 +1299,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "847",
+              "content-length": "897",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:48 GMT",
-              "modal-function-call-id": "fc-01KWC4592CDKQX0Y4Z6PQYDB3J",
+              "date": "Tue, 30 Jun 2026 12:39:03 GMT",
+              "modal-function-call-id": "fc-01KWC8MJBS71ER6YSX7Q82AQEH",
               "vary": "accept-encoding"
             }
           },
@@ -1339,8 +1339,8 @@
             }
           ]
         },
-        "id": "b2a62a5e-d6ba-4e38-820c-335357b9488a",
-        "latencyMs": 2064,
+        "id": "2d0219b4-69ba-42e9-ae76-d62e48a4e679",
+        "latencyMs": 2300,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"How many components can I put in a single MDMA document?\"}]",
@@ -1354,15 +1354,15 @@
           "label": ""
         },
         "response": {
-          "output": "There is no hard coded limit on the number of components you can include in a single MDMA document. However, for the sake of usability, performance, and clarity, I recommend following these best practices:\n\n1.  **Logical Grouping:** Instead of cramming dozens of components into one giant file, it is often better to create a **single master dashboard** that links to smaller, specialized MDMA documents.\n2.  **Complexity Management:** If a document becomes too long (e.g., hundreds of rows in a table or a massive tasklist), it can become difficult for a user to scroll through and manage.\n3.  **Contextual Flow:** Try to keep components that belong to the same process (e.g., a form followed by an approval gate) in the same document to ensure a smooth workflow.\n\n**In short:** You can add as many components as you need to achieve the user's goal, but if the document starts feeling cluttered, that's a signal to split it into multiple, smaller, more focused documents.",
+          "output": "There is no hard-coded limit on the number of components you can include in a single MDMA document. You can combine multiple forms, tables, tasklists, callouts, and buttons within one document to create complex, multi-step workflows or comprehensive dashboards.\n\nHowever, there are a few practical considerations to keep in mind for the best user experience:\n\n1.  **Complexity & Load Times:** While the system can handle many components, an extremely large document (e.g., dozens of complex forms and massive data tables) may impact the rendering speed or the responsiveness of the interface.\n2.  **Cognitive Load:** From a UX perspective, it's often better to break a very large process into smaller, modular MDMA documents rather than overwhelming the user with a single \"everything-at-once\" page. \n3.  **Token Limits:** Since MDMA documents are generated via text, extremely massive documents might hit the output token limit of the LLM during generation.\n\n**Best Practice:**\nIf you are building a massive enterprise workflow, I recommend a **modular approach**: use one MDMA document for the initial data entry, then use a `webhook` or `button` to trigger a second MDMA document for a different stage of the process (e.g., an Approval Gate).",
           "tokenUsage": {
-            "total": 438,
+            "total": 490,
             "prompt": 220,
-            "completion": 218,
+            "completion": 270,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2064,
+          "latencyMs": 2300,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1373,10 +1373,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "1608",
+                "content-length": "1886",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:49 GMT",
-                "modal-function-call-id": "fc-01KWC459VRM4WBD17G8X8CF98C",
+                "date": "Tue, 30 Jun 2026 12:39:03 GMT",
+                "modal-function-call-id": "fc-01KWC8MK73XR035178NASFQ7KM",
                 "vary": "accept-encoding"
               }
             }
@@ -1411,10 +1411,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "1608",
+              "content-length": "1886",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:49 GMT",
-              "modal-function-call-id": "fc-01KWC459VRM4WBD17G8X8CF98C",
+              "date": "Tue, 30 Jun 2026 12:39:03 GMT",
+              "modal-function-call-id": "fc-01KWC8MK73XR035178NASFQ7KM",
               "vary": "accept-encoding"
             }
           },
@@ -1451,8 +1451,8 @@
             }
           ]
         },
-        "id": "17eac3c5-9fd4-4594-ba8c-45cdffe5bc13",
-        "latencyMs": 673,
+        "id": "6c4e3a62-ae1b-4845-ac83-7d73eec9b47b",
+        "latencyMs": 837,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Can you remind me what fields were in the last form you created?\"}]",
@@ -1466,15 +1466,15 @@
           "label": ""
         },
         "response": {
-          "output": "I haven't created any forms in this conversation yet. If you tell me what kind of form you're looking for, I can build a new one for you right now!",
+          "output": "Since this is the start of our current conversation, I haven't created any forms for you yet! \n\nHowever, I'm ready whenever you are. If you tell me what you need to capture (e.g., an onboarding process, a bug report, a project intake, etc.), I can build a custom interactive MDMA document for you right now.",
           "tokenUsage": {
-            "total": 259,
+            "total": 297,
             "prompt": 221,
-            "completion": 38,
+            "completion": 76,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 673,
+          "latencyMs": 837,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1485,10 +1485,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "776",
+                "content-length": "938",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:51 GMT",
-                "modal-function-call-id": "fc-01KWC45BXKQAW1DPVGRKMHWT0E",
+                "date": "Tue, 30 Jun 2026 12:39:06 GMT",
+                "modal-function-call-id": "fc-01KWC8MNFMMEJYSTYVMKK6XZ9Q",
                 "vary": "accept-encoding"
               }
             }
@@ -1523,10 +1523,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "776",
+              "content-length": "938",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:51 GMT",
-              "modal-function-call-id": "fc-01KWC45BXKQAW1DPVGRKMHWT0E",
+              "date": "Tue, 30 Jun 2026 12:39:06 GMT",
+              "modal-function-call-id": "fc-01KWC8MNFMMEJYSTYVMKK6XZ9Q",
               "vary": "accept-encoding"
             }
           },
@@ -1563,8 +1563,8 @@
             }
           ]
         },
-        "id": "27db2e84-f593-42af-be20-19059bc9400b",
-        "latencyMs": 2214,
+        "id": "7502e0c5-082c-4b40-b9ba-3fa1eb887226",
+        "latencyMs": 4304,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Does MDMA support conditional field visibility based on other field values?\"}]",
@@ -1578,15 +1578,15 @@
           "label": ""
         },
         "response": {
-          "output": "Currently, MDMA does **not** support dynamic field visibility or \"conditional logic\" (where a field appears or disappears based on another field's value) within a single component or document.\n\nForms are currently designed to be static in their structure. However, you can achieve a similar user experience through these alternative patterns:\n\n1.  **Multi-step Processes (Approval Gates):** If the conditional logic is used to manage a workflow, you can use an `approval-gate` to transition the user through different stages of a process.\n2.  **Multiple Forms via Buttons:** You can use a `button` component to trigger a new form or a webhook that presents a different set of fields based on the previous selection.\n3.  **Visual Cues via Callouts:** If certain fields are only relevant under specific conditions, you can use a `callout` (Info or Warning) to instruct the user to \"Only fill out Section B if you selected Yes in Section A.\"\n\nIn summary, while the engine doesn't support reactive \"if/then\" UI hiding yet, you can architect around this using workflow transitions and branching paths.",
+          "output": "Yes, MDMA supports conditional logic for form fields. You can control the visibility of specific fields based on the value or state of other fields using a `trigger` and `action` pattern within the field's JSON structure.\n\n### How it works\n\nThe logic follows a simple **\"If [Field A] [Operator] [Value], then [Action] [Field B]\"** pattern.\n\n1.  **The Trigger:** You specify a field that the user interacts with.\n2.  **The Condition:** You define the operator (e.g., `equals`, `not_equals`, `contains`, `greater_than`) and the expected value.\n3.  **The Action:** You define what happens to the target field (usually `show` or `hide`).\n\n### Implementation Example\n\nHere is how you would define a field that only appears when a \"Type\" dropdown is set to \"Physical Goods\":\n\n```json\n{\n  \"type\": \"select\",\n  \"id\": \"shipping_address\",\n  \"label\": \"Shipping Address\",\n  \"required\": true,\n  \"visibility\": {\n    \"trigger_field\": \"order_type\",\n    \"condition\": {\n      \"operator\": \"equals\",\n      \"value\": \"physical_goods\"\n    },\n    \"action\": \"show\"\n  }\n}\n```\n\n### Key Concepts\n\n*   **`visibility` key:** This is added to any field you want to control.\n*   **Multi-field Logic:** If you need a field to show only when *both* Condition A and Condition B are met, you can provide an array of conditions. MDMA treats these as an `AND` operation by default.\n*   **Stateful UI:** When a condition is no longer met (e.g., a user changes a value from \"Physical\" to \"Digital\"), the hidden fields are automatically hidden and their validation state is cleared to prevent dirty data from being submitted.\n\n### Supported Operators\n\n| Operator | Description |\n| :--- | :--- |\n| `equals` | Field value matches exactly. |\n| `not_equals` | Field value does not match. |\n| `contains` | (For strings/arrays) Value is part of the selection. |\n| `greater_than` / `less_than` | (For numbers/dates) Comparison logic. |\n| `is_empty` / `is_not_empty` | Checks for the presence of a value. |",
           "tokenUsage": {
-            "total": 457,
+            "total": 752,
             "prompt": 220,
-            "completion": 237,
+            "completion": 532,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2214,
+          "latencyMs": 4304,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1597,10 +1597,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "1740",
+                "content-length": "2675",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:51 GMT",
-                "modal-function-call-id": "fc-01KWC45CNF64PZXE5A6RP5GMAQ",
+                "date": "Tue, 30 Jun 2026 12:39:07 GMT",
+                "modal-function-call-id": "fc-01KWC8MPC7NNCM86J9W735BAQX",
                 "vary": "accept-encoding"
               }
             }
@@ -1635,10 +1635,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "1740",
+              "content-length": "2675",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:51 GMT",
-              "modal-function-call-id": "fc-01KWC45CNF64PZXE5A6RP5GMAQ",
+              "date": "Tue, 30 Jun 2026 12:39:07 GMT",
+              "modal-function-call-id": "fc-01KWC8MPC7NNCM86J9W735BAQX",
               "vary": "accept-encoding"
             }
           },
@@ -1675,8 +1675,8 @@
             }
           ]
         },
-        "id": "b6be7ed8-4886-48e7-b15a-ff2ae5a090f8",
-        "latencyMs": 2908,
+        "id": "86de816c-15c1-4695-aafb-4acc793150fd",
+        "latencyMs": 2881,
         "namedScores": {},
         "prompt": {
           "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Hi, what can you help me with?\"}]",
@@ -1690,15 +1690,15 @@
           "label": ""
         },
         "response": {
-          "output": "I am an assistant specialized in designing and building interactive documents and user interfaces using **MDMA (Markdown Dynamic Management Applications)**.\n\nThink of me as a developer and UI designer rolled into one. Instead of just giving you plain text, I can generate functional, interactive layouts directly in our chat.\n\n### Here is what I can build for you:\n\n*   **Dynamic Forms & Data Entry:** Create forms for user input, surveys, or registration, complete with custom fields.\n*   **Interactive Tables & Tasklists:** Build trackers for projects, inventory logs, or to-do lists that you can interact with.\n*   **Approval Gates:** Design workflows where items require a \"digital signature\" or a button click to move from \"Pending\" to \"Approved.\"\n*   **Visual Data & Charts:** Represent complex numbers through clean, readable charts and graphs.\n*   **Actionable Buttons & Webhooks:** Create buttons that can trigger real-world actions, like sending a notification to Slack, starting a workflow, or updating a database.\n*   **Information Hierarchy:** Use callouts (warnings, info, success) to highlight critical information within a document.\n\n### How to use me:\nYou don't need to know any code! You can simply say things like:\n*   *\"Design a project onboarding dashboard for my new engineering team.\"*\n*   *\"Create a multi-step expense approval form.\"*\n*   *\"Build an interactive product inventory table with a 'Reorder' button.\"*\n*   *\"Generate a bug reporting form for my QA team.\"*\n\n**How can I help you get started today?**",
+          "output": "Hello! I can help you with a wide range of tasks, from casual conversation and answering general questions to complex workflows and data management.\n\nHere is a breakdown of my core capabilities:\n\n### 🧠 Information & Content\n*   **Answering Questions:** I can explain complex topics, provide historical facts, or help with trivia.\n*   **Writing & Editing:** I can draft emails, essays, stories, code, or professional documents, and refine your existing text.\n*   **Summarization:** Paste a long article or document, and I can give you a concise summary or key bullet points.\n*   **Brainstorming:** I can generate ideas for marketing campaigns, gift ideas, project names, or creative writing.\n\n### 📊 Structured Documents & Tools (Interactive)\nOne of my specialized skills is creating **interactive MDMA documents**. If you need a structured way to track something or interact with data, I can generate:\n*   **Forms:** To collect specific information or data entry.\n*   **Tables & Charts:** To organize complex datasets or visualize trends.\n*   **Tasklists & Approval Gates:** To manage project workflows or decision-making processes.\n*   **Callouts & Webhooks:** For highlighting critical information or connecting to other services.\n\n### 💻 Technical & Analytical\n*   **Coding:** I can write, debug, and explain code in many different programming languages.\n*   **Mathematics & Logic:** I can help solve mathematical problems and logical puzzles.\n*   **Data Transformation:** I can convert text into formats like JSON, CSV, or Markdown tables.\n\n**Is there something specific you're working on right now that I can assist with?**",
           "tokenUsage": {
-            "total": 556,
+            "total": 567,
             "prompt": 216,
-            "completion": 340,
+            "completion": 351,
             "numRequests": 1
           },
           "cached": false,
-          "latencyMs": 2908,
+          "latencyMs": 2881,
           "finishReason": "stop",
           "guardrails": {
             "flagged": false
@@ -1709,10 +1709,10 @@
               "statusText": "OK",
               "headers": {
                 "alt-svc": "h3=\":443\"; ma=2592000",
-                "content-length": "2198",
+                "content-length": "2287",
                 "content-type": "application/json",
-                "date": "Tue, 30 Jun 2026 11:20:54 GMT",
-                "modal-function-call-id": "fc-01KWC45ESPA5KFW788T5T9JFMF",
+                "date": "Tue, 30 Jun 2026 12:39:11 GMT",
+                "modal-function-call-id": "fc-01KWC8MTJ1VGFTAK7NFJKDPPJ1",
                 "vary": "accept-encoding"
               }
             }
@@ -1747,10 +1747,10 @@
             "statusText": "OK",
             "headers": {
               "alt-svc": "h3=\":443\"; ma=2592000",
-              "content-length": "2198",
+              "content-length": "2287",
               "content-type": "application/json",
-              "date": "Tue, 30 Jun 2026 11:20:54 GMT",
-              "modal-function-call-id": "fc-01KWC45ESPA5KFW788T5T9JFMF",
+              "date": "Tue, 30 Jun 2026 12:39:11 GMT",
+              "modal-function-call-id": "fc-01KWC8MTJ1VGFTAK7NFJKDPPJ1",
               "vary": "accept-encoding"
             }
           },
@@ -1765,9 +1765,9 @@
       "errors": 0,
       "tokenUsage": {
         "prompt": 3369,
-        "completion": 5630,
+        "completion": 6872,
         "cached": 0,
-        "total": 8999,
+        "total": 10241,
         "numRequests": 15,
         "completionDetails": {
           "reasoning": 0,
@@ -1791,8 +1791,8 @@
           }
         }
       },
-      "durationMs": 49110,
-      "evaluationDurationMs": 49110
+      "durationMs": 58789,
+      "evaluationDurationMs": 58789
     }
   },
   "config": {
@@ -2057,7 +2057,7 @@
     "nodeVersion": "v22.22.0",
     "platform": "darwin",
     "arch": "arm64",
-    "exportedAt": "2026-06-30T11:20:57.206Z",
-    "evaluationCreatedAt": "2026-06-30T11:20:07.991Z"
+    "exportedAt": "2026-06-30T12:39:15.164Z",
+    "evaluationCreatedAt": "2026-06-30T12:38:16.261Z"
   }
 }
