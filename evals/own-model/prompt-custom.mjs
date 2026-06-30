@@ -1,11 +1,12 @@
-import { AUTHORING_SYSTEM_PROMPT } from './authoring-system-prompt.mjs';
+import { getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 
 /**
  * Promptfoo prompt function — custom-system-prompt suite for our model.
  *
- * The shared authoring system prompt (DSL grammar + rules + form/table/chart
- * few-shot examples) is the author base; the test's `customPrompt` (the scenario
- * intent in DSL) is layered after a separator; the NL `request` is the user msg.
+ * The `mobile-reality/mdma-il` author prompt from the prompt pack (DSL grammar +
+ * rules + form/table/chart few-shot examples) is the author base; the test's
+ * `customPrompt` (the scenario intent in DSL) is layered after a separator; the
+ * NL `request` is the user msg.
  *
  * NOTE: we deliberately do NOT use buildSystemPrompt() here. Its generic
  * "Reminder" footer is flagship/agentic guidance ("respond in plain Markdown",
@@ -14,6 +15,8 @@ import { AUTHORING_SYSTEM_PROMPT } from './authoring-system-prompt.mjs';
  * heaviest multi-component flow (5/5 pass with this lean join vs 2/5 with the
  * footer). The authoring prompt already carries every rule our model needs.
  */
+const AUTHORING_SYSTEM_PROMPT = getAuthorPromptVariant('mobile-reality/mdma-il').prompt;
+
 export default function ({ vars }) {
   const system = vars.customPrompt
     ? `${AUTHORING_SYSTEM_PROMPT}\n\n---\n\n${vars.customPrompt}`

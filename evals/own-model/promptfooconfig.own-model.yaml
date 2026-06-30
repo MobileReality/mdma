@@ -1,13 +1,13 @@
 # MDMA-IL DSL holdout gate — Mobile Reality's own model
 #
 # Our self-hosted model (Gemma-4-E4B + v3 MDMA-IL LoRA) takes ONE MDMA-IL DSL
-# intent and returns an MDMA document. This suite is the plan's §6 gate: feed
+# intent and returns an MDMA document. This suite is the DSL holdout gate: feed
 # the 95 held-out scenarios in DSL form (../gemma/dataset/data/holdout-dsl.jsonl
 # via tests-dsl.mjs) and validate the MDMA output.
 #
-# The system prompt is the THIN prompt the LoRA was fine-tuned with
-# (mobile-reality/mdma-il) — heavier prompts measurably degrade this model, and
-# the served context is only 2048 tokens. See README.md.
+# The system prompt is the mobile-reality/mdma-il author prompt (DSL grammar +
+# worked examples). The served context is only 2048 tokens on E4B, so the prompt
+# stays lean. See README.md.
 #
 # Model is plugged in via OWN_MODEL_* in ../.env (OpenAI-compatible endpoint).
 #

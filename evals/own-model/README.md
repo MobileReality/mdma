@@ -11,30 +11,33 @@ DSL intent** as input and return an **MDMA document**. So this suite is a
 
 - **Input:** the 95 held-out scenarios in **DSL** form
   (`../gemma/dataset/data/holdout-dsl.jsonl`, via `tests-dsl.mjs`).
-- **System prompt:** the **thin** prompt the LoRA was fine-tuned with
-  (`mobile-reality/mdma-il`). See "Why thin" below.
+- **System prompt:** the `mobile-reality/mdma-il` author prompt from the prompt
+  pack — DSL input grammar + authoring rules + worked form/table/chart examples.
 - **Assertion:** `validate-mdma` — every output must be a valid MDMA document.
 
-## Why the thin prompt (not a spec/DSL-legend prompt)
+## Why a DSL-aware prompt (not a bare instruction)
 
-Empirically measured against this endpoint:
+The system prompt **must describe the MDMA-IL DSL** the model reads — a bare
+"generate MDMA" instruction is out-of-distribution, since the model's whole job
+is to interpret a DSL intent. Empirically measured against this endpoint:
 
-1. **Context is only 2048 tokens** (`max_model_len`). A heavy system prompt
-   doesn't leave room for output.
-2. **Heavier prompts degrade the model.** Adding "use `onSubmit` / don't nest /
-   top-level `type`" directives made it drop `type:`/`id:`, nest under a `form:`
-   key, and hallucinate `type: action`. The thin prompt keeps it in-distribution.
+1. **The DSL grammar is required.** Without the grammar section the model
+   misreads the intent and drops `type:`/`id:`, nests under a `form:` key, or
+   hallucinates `type: action`.
+2. **A worked example anchors the output shape.** On the DSL holdout, validity
+   moved from ~41% (bare instruction) to ~90.5% once the prompt carried the DSL
+   grammar plus a worked example.
 
-So the system prompt here is exactly:
-
-> You generate MDMA documents. Output only valid MDMA YAML blocks in markdown code fences.
+The small E4B model has only a 2048-token context (`max_model_len`), so the
+prompt stays lean while still teaching the DSL — grammar + a few examples, not a
+full spec dump.
 
 ## Observations (not conclusions)
 
 This is a **small model** (Gemma 4 E4B + LoRA) — prompt-sensitive, with a
 2048-token context. In short, on the DSL holdout, output validity against
-the **current** validator moved with the system prompt: ~41% (thin prompt) →
-~90.5% (current variant with a worked example). It is **not 100%**, and we have
+the **current** validator moved with the system prompt: ~41% (bare prompt) →
+~90.5% (DSL-aware prompt with a worked example). It is **not 100%**, and we have
 **not** concluded whether the residual gap calls for a retrain, output
 normalization, or more prompt work — that's an open question.
 
@@ -60,7 +63,7 @@ with `pnpm --filter @mobile-reality/mdma-evals dataset:build`, or point
 ## Contents
 
 - `promptfooconfig.own-model.yaml` — the gate config.
-- `prompt.mjs` — pins the thin `mobile-reality/mdma-il` system prompt; passes the
+- `prompt.mjs` — pins the `mobile-reality/mdma-il` system prompt; passes the
   DSL as the user message.
 - `tests-dsl.mjs` — loads the DSL holdout into promptfoo test cases.
 - `assertions/` — own copy of the assertion modules (self-contained).

@@ -120,7 +120,7 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     id: 'mobile-reality/mdma-il',
     label: 'Mobile Reality — MDMA-IL model',
     description:
-      'Our self-hosted MDMA-IL DSL models (E4B mdma-v3 / 31B mdma-31b). Takes an MDMA-IL DSL intent and returns MDMA. This is the canonical v3 system prompt the models were fine-tuned with — send verbatim (a different prompt is out-of-distribution). Endpoint also requires temperature 0 + chat_template_kwargs.enable_thinking=false.',
+      'Our self-hosted MDMA-IL DSL models (E4B mdma-v3 / 31B mdma-31b). Reads an MDMA-IL DSL intent (grammar + worked examples are in the prompt) and returns MDMA. The DSL grammar section is required — a prompt without it is out-of-distribution. Endpoint also requires temperature 0 + chat_template_kwargs.enable_thinking=false.',
     prompt: MDMA_AUTHOR_PROMPT_MDMA_IL,
   },
   {

@@ -19,7 +19,9 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import YAML from 'yaml';
 import { validate } from '@mobile-reality/mdma-validator';
-import { AUTHORING_SYSTEM_PROMPT } from './authoring-system-prompt.mjs';
+import { getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
+
+const AUTHORING_SYSTEM_PROMPT = getAuthorPromptVariant('mobile-reality/mdma-il').prompt;
 
 const BASE = process.env.OWN_MODEL_BASE_URL || 'https://REDACTED.modal.run/v1';
 const MODEL = (process.env.OWN_MODEL_PROVIDER || 'openai:chat:mdma-26b').split(':').pop();

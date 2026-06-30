@@ -3,9 +3,9 @@ import { getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 /**
  * Promptfoo prompt function — MDMA-IL DSL holdout gate.
  *
- * System message = the thin `mobile-reality/mdma-il` prompt the LoRA was
- * fine-tuned with (looked up directly from the registry, decoupled from the
- * provider id). User message = the MDMA-IL DSL intent from each holdout case
+ * System message = the `mobile-reality/mdma-il` author prompt (DSL grammar +
+ * worked examples), looked up directly from the registry, decoupled from the
+ * provider id. User message = the MDMA-IL DSL intent from each holdout case
  * (`vars.request`, supplied by tests-dsl.mjs).
  *
  * Both are wrapped in {% raw %} so Nunjucks passes the DSL (and any `{...}`
