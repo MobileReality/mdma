@@ -11,6 +11,8 @@
   <a href="https://mobilereality.github.io/mdma/#/docs"><b>📖 Docs</b></a>
   &nbsp;&nbsp;·&nbsp;&nbsp;
   <a href="https://discord.gg/etGSuCuR7B"><b>💬 Discord</b></a>
+  &nbsp;&nbsp;·&nbsp;&nbsp;
+  <a href="https://huggingface.co/MobileReality/mdma-gemma4-26b-dsl-unsloth-v1"><b>🤗 Model</b></a>
 </p>
 
 
@@ -61,6 +63,17 @@ variant: primary
 onAction: submit
 ```
 ````
+
+
+## Speed comparison
+
+Same scenario, two models. GPT-5.5 and our own hosted MDMA-IL model.
+
+Our model is available on Hugging Face: [MobileReality/mdma-gemma4-26b-dsl-unsloth-v1](https://huggingface.co/MobileReality/mdma-gemma4-26b-dsl-unsloth-v1)
+
+| GPT-5.5 | Our own hosted model |
+| :---: | :---: |
+| <img src="assets/gpt-5.5.gif" width="100%"> | <img src="assets/own-model.gif" width="100%"> |
 
 
 ## MDMA_AUTHOR prompt matrix
