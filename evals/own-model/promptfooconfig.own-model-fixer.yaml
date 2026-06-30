@@ -1,0 +1,30 @@
+# MDMA Fixer — own model (capability probe)
+#
+# OFF-CONTRACT for our DSL→MDMA model: the input is a broken MDMA document to
+# repair, not a DSL intent. Run as a probe — can the model fix MDMA, or refuse?
+# Reuses the flagship fixer test set (../tests-fixer.yaml) and its assertions.
+#
+# Run (serial): pnpm --filter @mobile-reality/mdma-evals eval:own-model:fixer
+
+description: MDMA Fixer Eval (capability probe) — own model
+
+envPath: ../.env
+outputPath: own-model/results-fixer.json
+
+prompts:
+  - file://prompt-fixer.mjs
+
+providers:
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-26b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      temperature: 1
+      max_tokens: 2048
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
+      chat_template_kwargs:
+        enable_thinking: false
+
+tests: ../tests-fixer.yaml

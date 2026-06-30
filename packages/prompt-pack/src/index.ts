@@ -29,3 +29,4 @@ export {
   getAgentToolPromptVariant,
   type AgentToolPromptVariant,
 } from './prompts/mdma-agent/registry.js';
+export { MDMA_IL_AGENT_SYSTEM_PROMPT } from './prompts/mdma-agent/mobile-reality/mdma-il.js';

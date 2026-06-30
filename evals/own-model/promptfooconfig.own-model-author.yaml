@@ -1,0 +1,38 @@
+# MDMA Author — own model (DSL port of the flagship author suite)
+#
+# The 28 author scenarios from ../tests.yaml expressed as DSL intents
+# (tests-author.yaml), driven by our shared authoring system prompt
+# (prompt-author.mjs: system = authoring prompt, user = DSL). Output validated
+# against the schema + per-case structural assertions. DSL is the input.
+#
+# Run (serial): pnpm --filter @mobile-reality/mdma-evals eval:own-model:author
+
+description: MDMA Author Eval (DSL) — own model
+
+envPath: ../.env
+outputPath: own-model/results-author.json
+
+prompts:
+  - file://prompt-author.mjs
+
+providers:
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-26b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      temperature: 1
+      max_tokens: 2048
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
+      chat_template_kwargs:
+        enable_thinking: false
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
+tests: file://tests-author.yaml

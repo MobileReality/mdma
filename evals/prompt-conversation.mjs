@@ -8,19 +8,30 @@ import { selectAuthorPrompt } from './select-prompt.mjs';
  * replays any prior conversation turns from `_conversation`,
  * and appends the current user message.
  *
- * The author prompt base is resolved from `EVAL_PROVIDER` — model-specialized
- * variants under `mdma-author/<family>/<model>.ts` win over the default.
+ * The author prompt base is resolved from the actual provider promptfoo is
+ * calling (`context.provider.id`, falling back to `EVAL_PROVIDER`) —
+ * model-specialized variants under `mdma-author/<family>/<model>.ts` win over the default.
  * Selector falls back to the canonical `MDMA_AUTHOR_PROMPT` when no variant
  * matches. Resolution is deferred into a promise (no top-level await — tsx/cjs
  * forbids it) and cached so the selector runs only once per eval run.
  */
-const authorPromptPromise = selectAuthorPrompt().then(({ prompt, source }) => {
-  console.error(`[author-conversation] system prompt: ${source}`);
-  return prompt;
-});
+const promptByProvider = new Map();
 
-export default async function ({ vars }) {
-  const authorPrompt = await authorPromptPromise;
+function resolveAuthorPrompt(providerId) {
+  if (!promptByProvider.has(providerId)) {
+    promptByProvider.set(
+      providerId,
+      selectAuthorPrompt(providerId).then(({ prompt, source }) => {
+        console.error(`[author-conversation] system prompt: ${source}`);
+        return prompt;
+      }),
+    );
+  }
+  return promptByProvider.get(providerId);
+}
+
+export default async function ({ vars, provider }) {
+  const authorPrompt = await resolveAuthorPrompt(provider?.id ?? process.env.EVAL_PROVIDER);
   const systemPrompt = buildSystemPrompt({
     authorPrompt,
     customPrompt: vars.customPrompt,

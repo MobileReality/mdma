@@ -106,12 +106,28 @@ importers:
       '@mobile-reality/mdma-validator':
         specifier: workspace:*
         version: link:../packages/validator
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      openai:
+        specifier: ^6.0.0
+        version: 6.36.0(ws@8.19.0)(zod@3.25.76)
       promptfoo:
         specifier: 0.121.9
-        version: 0.121.9(@cfworker/json-schema@4.1.1)(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)))(@types/json-schema@7.0.15)(@types/node@18.19.130)(@types/react@19.2.14)(pg@8.18.0)(playwright-core@1.59.1)(socks@2.8.7)(typescript@5.9.3)
+        version: 0.121.9(@cfworker/json-schema@4.1.1)(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76)))(@types/json-schema@7.0.15)(@types/node@22.19.11)(@types/react@19.2.14)(pg@8.18.0)(playwright-core@1.59.1)(socks@2.8.7)(typescript@5.9.3)
       yaml:
         specifier: ^2.6.0
         version: 2.8.2
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.11
+      tsx:
+        specifier: ^4.19.0
+        version: 4.21.0
 
   packages/attachables-core:
     dependencies:
@@ -7644,7 +7660,7 @@ snapshots:
       - typescript
     optional: true
 
-  '@ibm-generative-ai/node-sdk@3.2.4(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)))':
+  '@ibm-generative-ai/node-sdk@3.2.4(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76)))':
     dependencies:
       '@ai-zen/node-fetch-event-source': 2.1.4
       fetch-retry: 5.0.6
@@ -7653,7 +7669,7 @@ snapshots:
       p-queue-compat: 1.0.225
       yaml: 2.8.2
     optionalDependencies:
-      '@langchain/core': 1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3))
+      '@langchain/core': 1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76))
     transitivePeerDependencies:
       - encoding
     optional: true
@@ -7757,41 +7773,41 @@ snapshots:
 
   '@inquirer/ansi@2.0.5': {}
 
-  '@inquirer/checkbox@5.1.4(@types/node@18.19.130)':
+  '@inquirer/checkbox@5.1.4(@types/node@22.19.11)':
     dependencies:
       '@inquirer/ansi': 2.0.5
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
       '@inquirer/figures': 2.0.5
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
-  '@inquirer/confirm@6.0.12(@types/node@18.19.130)':
+  '@inquirer/confirm@6.0.12(@types/node@22.19.11)':
     dependencies:
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
-  '@inquirer/core@11.1.9(@types/node@18.19.130)':
+  '@inquirer/core@11.1.9(@types/node@22.19.11)':
     dependencies:
       '@inquirer/ansi': 2.0.5
       '@inquirer/figures': 2.0.5
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
       cli-width: 4.1.0
       fast-wrap-ansi: 0.2.0
       mute-stream: 3.0.0
       signal-exit: 4.1.0
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
-  '@inquirer/editor@5.1.1(@types/node@18.19.130)':
+  '@inquirer/editor@5.1.1(@types/node@22.19.11)':
     dependencies:
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
-      '@inquirer/external-editor': 3.0.0(@types/node@18.19.130)
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
+      '@inquirer/external-editor': 3.0.0(@types/node@22.19.11)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
   '@inquirer/external-editor@1.0.3(@types/node@22.19.11)':
     dependencies:
@@ -7800,34 +7816,34 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.19.11
 
-  '@inquirer/external-editor@3.0.0(@types/node@18.19.130)':
+  '@inquirer/external-editor@3.0.0(@types/node@22.19.11)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.2
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
   '@inquirer/figures@2.0.5': {}
 
-  '@inquirer/input@5.0.12(@types/node@18.19.130)':
+  '@inquirer/input@5.0.12(@types/node@22.19.11)':
     dependencies:
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
-  '@inquirer/select@5.1.4(@types/node@18.19.130)':
+  '@inquirer/select@5.1.4(@types/node@22.19.11)':
     dependencies:
       '@inquirer/ansi': 2.0.5
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
       '@inquirer/figures': 2.0.5
-      '@inquirer/type': 4.0.5(@types/node@18.19.130)
+      '@inquirer/type': 4.0.5(@types/node@22.19.11)
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
-  '@inquirer/type@4.0.5(@types/node@18.19.130)':
+  '@inquirer/type@4.0.5(@types/node@22.19.11)':
     optionalDependencies:
-      '@types/node': 18.19.130
+      '@types/node': 22.19.11
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -7873,14 +7889,14 @@ snapshots:
 
   '@kwsites/promise-deferred@1.1.1': {}
 
-  '@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3))':
+  '@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76))':
     dependencies:
       '@cfworker/json-schema': 4.1.1
       ansi-styles: 5.2.0
       camelcase: 6.3.0
       decamelize: 1.2.0
       js-tiktoken: 1.0.21
-      langsmith: 0.5.6(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3))
+      langsmith: 0.5.6(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76))
       mustache: 4.2.0
       p-queue: 6.6.2
       uuid: 10.0.0
@@ -9720,8 +9736,7 @@ snapshots:
     dependencies:
       path-type: 4.0.0
 
-  dotenv@16.4.5:
-    optional: true
+  dotenv@16.4.5: {}
 
   dotenv@17.4.2: {}
 
@@ -10705,7 +10720,7 @@ snapshots:
       langfuse-core: 3.38.20
     optional: true
 
-  langsmith@0.5.6(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)):
+  langsmith@0.5.6(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76)):
     dependencies:
       '@types/uuid': 10.0.0
       chalk: 5.6.2
@@ -10716,7 +10731,7 @@ snapshots:
     optionalDependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/sdk-trace-base': 2.7.1(@opentelemetry/api@1.9.0)
-      openai: 6.36.0(ws@8.19.0)(zod@4.4.3)
+      openai: 6.36.0(ws@8.19.0)(zod@3.25.76)
     optional: true
 
   lightningcss-android-arm64@1.31.1:
@@ -11283,6 +11298,11 @@ snapshots:
       is-inside-container: 1.0.0
       wsl-utils: 0.1.0
 
+  openai@6.36.0(ws@8.19.0)(zod@3.25.76):
+    optionalDependencies:
+      ws: 8.19.0
+      zod: 3.25.76
+
   openai@6.36.0(ws@8.19.0)(zod@4.4.3):
     optionalDependencies:
       ws: 8.19.0
@@ -11562,17 +11582,17 @@ snapshots:
   process-nextick-args@2.0.1:
     optional: true
 
-  promptfoo@0.121.9(@cfworker/json-schema@4.1.1)(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)))(@types/json-schema@7.0.15)(@types/node@18.19.130)(@types/react@19.2.14)(pg@8.18.0)(playwright-core@1.59.1)(socks@2.8.7)(typescript@5.9.3):
+  promptfoo@0.121.9(@cfworker/json-schema@4.1.1)(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76)))(@types/json-schema@7.0.15)(@types/node@22.19.11)(@types/react@19.2.14)(pg@8.18.0)(playwright-core@1.59.1)(socks@2.8.7)(typescript@5.9.3):
     dependencies:
       '@anthropic-ai/sdk': 0.91.1(zod@4.4.3)
       '@apidevtools/json-schema-ref-parser': 15.3.5(@types/json-schema@7.0.15)
       '@googleapis/sheets': 13.0.1
-      '@inquirer/checkbox': 5.1.4(@types/node@18.19.130)
-      '@inquirer/confirm': 6.0.12(@types/node@18.19.130)
-      '@inquirer/core': 11.1.9(@types/node@18.19.130)
-      '@inquirer/editor': 5.1.1(@types/node@18.19.130)
-      '@inquirer/input': 5.0.12(@types/node@18.19.130)
-      '@inquirer/select': 5.1.4(@types/node@18.19.130)
+      '@inquirer/checkbox': 5.1.4(@types/node@22.19.11)
+      '@inquirer/confirm': 6.0.12(@types/node@22.19.11)
+      '@inquirer/core': 11.1.9(@types/node@22.19.11)
+      '@inquirer/editor': 5.1.1(@types/node@22.19.11)
+      '@inquirer/input': 5.0.12(@types/node@22.19.11)
+      '@inquirer/select': 5.1.4(@types/node@22.19.11)
       '@modelcontextprotocol/sdk': 1.29.0(@cfworker/json-schema@4.1.1)(zod@4.4.3)
       '@openai/agents': 0.8.5(@cfworker/json-schema@4.1.1)(ws@8.19.0)(zod@4.4.3)
       '@opencode-ai/sdk': 1.14.33
@@ -11663,7 +11683,7 @@ snapshots:
       '@fal-ai/client': 1.10.0
       '@huggingface/transformers': 4.2.0
       '@ibm-cloud/watsonx-ai': 1.7.11(@swc/core@1.15.33)(typescript@5.9.3)
-      '@ibm-generative-ai/node-sdk': 3.2.4(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@4.4.3)))
+      '@ibm-generative-ai/node-sdk': 3.2.4(@langchain/core@1.1.27(@opentelemetry/api@1.9.0)(@opentelemetry/sdk-trace-base@2.7.1(@opentelemetry/api@1.9.0))(openai@6.36.0(ws@8.19.0)(zod@3.25.76)))
       '@openai/codex-sdk': 0.125.0
       '@playwright/browser-chromium': 1.59.1
       '@rollup/rollup-linux-x64-gnu': 4.60.3

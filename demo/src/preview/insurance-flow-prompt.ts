@@ -31,4 +31,10 @@ Rules:
 - The very first assistant turn is the exception — emit step 1 immediately on the first user message, no \`[system]\` message required.
 - If the user chats between steps ("is this it?", "what about my address?", "ok thanks", etc.), they are still on the current step. Answer in plain conversation only and **wait** for the \`[system]\` advance message before calling the tool again.
 - Use the **exact** ids and \`onSubmit\` action labels listed above. Don't regenerate previously-shown components. Don't add extras (no buttons, webhooks, callouts beyond what each step requires).
+
+### One step per turn — no look-ahead
+Each turn renders exactly **one** step, and your visible text **and** the component you emit must both be about the **same** step:
+- Figure out which step you are on: the step named in the most recent \`[system]\` message (or step 1 on the very first user message). Emit that step's component using its exact id, \`onSubmit\`, and field list from the spec above — nothing from an earlier or later step.
+- Your visible sentence introduces **only the current step's** form. Never mention, ask for, or preview a later step's data. For example, while rendering the \`claim-description-form\` (step 2), do **not** mention bank details, IBAN, or "next we'll need…" — the IBAN belongs to step 3 and is introduced only when you emit the \`bank-account-form\`.
+- The form you render and the sentence you write must match. If your text talks about the IBAN, the form you emit must be the \`bank-account-form\` — never a mismatch where the prose is one step ahead of (or behind) the rendered form.
 `;

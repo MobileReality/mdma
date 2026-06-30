@@ -25,9 +25,109 @@ export interface OpenAIToolCall {
 
 export type OpenAIMessage = OpenAIUserMessage | OpenAIAssistantMessage | OpenAIToolMessage;
 
-// text block always lives at index 0; tool calls at 1, 2, …
+// reasoning block lives at -1 (rendered first), text at 0, tool calls at 1, 2, …
+const REASONING_IDX = -1;
 const TEXT_IDX = 0;
 const TOOL_IDX_OFFSET = 1;
+
+// Safety limits so a stalled or runaway stream can never hang the UI. Our
+// self-hosted endpoint can emit an unbounded `delta.reasoning` channel (the
+// model's chain-of-thought); without these a non-terminating stream leaves the
+// agent loop awaiting forever and `isGenerating` stuck true.
+const IDLE_TIMEOUT_MS = 60_000; // no chunk for this long → assume the stream died
+const MAX_STREAM_MS = 240_000; // hard wall-clock ceiling for one response
+const MAX_STREAM_BYTES = 4_000_000; // ~4 MB of SSE text → runaway guard
+
+// Loop detector. Gemma 4's known repetition collapse (see
+// evals/own-model/repetition-loops.md) degrades a thinking block into a short
+// token/phrase flooding the budget. `min_p` + `repetition_penalty` cut most of
+// it, but the collapse is an unfixed model trait, so we keep a cheap safety
+// net: over a sliding window of recent words, a healthy stream is lexically
+// diverse; a degenerate loop (one token, or a cycle like
+// `(END) (DONE) (STOP) (FINAL) …`) collapses unique/total. Below the floor we
+// abort rather than let it eat the whole generation.
+//
+// We run this on BOTH channels. The collapse usually lives in `reasoning`, but
+// it can also leak onto `content`: the model emits a valid document, then keeps
+// going with a raw "Thinking Process:" ramble after the reasoning span has
+// already closed. A legit MDMA document is well above the diversity floor, so
+// guarding content does not false-positive on real output.
+const LOOP_WINDOW_WORDS = 160; // sliding window of recent words
+const LOOP_MIN_WORDS = 120; // don't judge until we have enough signal
+const LOOP_UNIQUE_RATIO = 0.15; // unique/total below this → degenerate loop
+
+/** Tracks recent words on one channel and flags a degenerate repetition loop. */
+class RepetitionLoopDetector {
+  private readonly words: string[] = [];
+
+  /** Feed a delta; returns true once the window collapses into a loop. */
+  push(text: string): boolean {
+    for (const w of text.split(/\s+/)) {
+      if (!w) continue;
+      this.words.push(w);
+      if (this.words.length > LOOP_WINDOW_WORDS) this.words.shift();
+    }
+    if (this.words.length < LOOP_MIN_WORDS) return false;
+    const unique = new Set(this.words).size;
+    return unique / this.words.length < LOOP_UNIQUE_RATIO;
+  }
+}
+
+const MDMA_FENCE_OPEN = '```mdma';
+const MDMA_FENCE_CLOSE = '```';
+
+// Strips leaked ```mdma fenced documents out of the assistant's chat (content)
+// channel. The real document always arrives via the generate_mdma tool call and
+// renders in the preview pane; the model occasionally ALSO transcribes a copy of
+// the document as raw markdown into chat (most often on the first turn). Those
+// fenced blocks must never reach the chat UI, which is prose-only. Operates on
+// the live stream: complete lines are classified as they arrive, and the
+// trailing partial line is held back only while it could still be the start of a
+// ```mdma fence — so normal prose keeps streaming smoothly.
+class MdmaFenceStripper {
+  private buf = ''; // text after the last emitted char (start-aligned to current line)
+  private inFence = false;
+  private partialEmitted = 0; // chars of the current unterminated line already emitted
+
+  /** Feed a content delta; returns only the text that is safe to show in chat. */
+  push(text: string): string {
+    this.buf += text;
+    let out = '';
+    let nl: number;
+    while ((nl = this.buf.indexOf('\n')) !== -1) {
+      const line = this.buf.slice(0, nl + 1);
+      this.buf = this.buf.slice(nl + 1);
+      const trimmed = line.trim();
+      if (this.inFence) {
+        if (trimmed === MDMA_FENCE_CLOSE) this.inFence = false;
+      } else if (trimmed.startsWith(MDMA_FENCE_OPEN)) {
+        this.inFence = true;
+      } else {
+        out += line.slice(this.partialEmitted);
+      }
+      this.partialEmitted = 0;
+    }
+    // Trailing partial line: emit eagerly unless it could still open a fence.
+    if (!this.inFence && this.buf.length > this.partialEmitted) {
+      const trimmed = this.buf.trim();
+      const couldOpenFence = trimmed.length > 0 && MDMA_FENCE_OPEN.startsWith(trimmed);
+      if (!couldOpenFence) {
+        out += this.buf.slice(this.partialEmitted);
+        this.partialEmitted = this.buf.length;
+      }
+    }
+    return out;
+  }
+
+  /** Emit any leftover at stream end (drops a dangling, never-closed fence). */
+  flush(): string {
+    const out = this.inFence ? '' : this.buf.slice(this.partialEmitted);
+    this.buf = '';
+    this.partialEmitted = 0;
+    this.inFence = false;
+    return out;
+  }
+}
 
 export async function* streamOpenAIAgentMessages(
   apiKey: string,
@@ -37,6 +137,8 @@ export async function* streamOpenAIAgentMessages(
   tools: ToolDefinition[],
   signal?: AbortSignal,
   baseUrl = 'https://api.openai.com/v1',
+  /** Extra request-body fields merged in (e.g. temperature, chat_template_kwargs). */
+  extraBody?: Record<string, unknown>,
 ): AsyncGenerator<AgentStreamEvent> {
   const openAITools = tools.map((t) => ({
     type: 'function' as const,
@@ -57,6 +159,7 @@ export async function* streamOpenAIAgentMessages(
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         tools: openAITools,
         tool_choice: 'auto',
+        ...extraBody,
       }),
       signal,
     });
@@ -82,11 +185,46 @@ export async function* streamOpenAIAgentMessages(
   let buf = '';
   let finishReason = 'stop';
   const startedBlocks = new Set<number>();
+  const startedAt = Date.now();
+  let totalBytes = 0;
+  const reasoningLoopDetector = new RepetitionLoopDetector();
+  const contentLoopDetector = new RepetitionLoopDetector();
+  const fenceStripper = new MdmaFenceStripper();
 
   try {
     while (true) {
-      const { done, value } = await reader.read();
+      // Race the read against an idle timer so a stalled stream can't hang.
+      const readPromise = reader.read();
+      readPromise.catch(() => {}); // swallow rejection if we cancel below
+      let idleTimer: ReturnType<typeof setTimeout> | undefined;
+      const idle = new Promise<'idle'>((resolve) => {
+        idleTimer = setTimeout(() => resolve('idle'), IDLE_TIMEOUT_MS);
+      });
+      const result = await Promise.race([readPromise, idle]);
+      clearTimeout(idleTimer);
+
+      if (result === 'idle') {
+        reader.cancel().catch(() => {});
+        yield {
+          type: 'stream_error',
+          message: `Stream stalled — no data for ${IDLE_TIMEOUT_MS / 1000}s. The model may be stuck; please try again.`,
+        };
+        return;
+      }
+
+      const { done, value } = result;
       if (done) break;
+
+      totalBytes += value?.byteLength ?? 0;
+      if (totalBytes > MAX_STREAM_BYTES || Date.now() - startedAt > MAX_STREAM_MS) {
+        reader.cancel().catch(() => {});
+        yield {
+          type: 'stream_error',
+          message:
+            'Stream exceeded safety limits (likely a runaway generation) and was stopped. Please try again.',
+        };
+        return;
+      }
 
       buf += decoder.decode(value, { stream: true });
       const lines = buf.split('\n');
@@ -113,12 +251,49 @@ export async function* streamOpenAIAgentMessages(
         if (finish) finishReason = finish;
         if (!delta) continue;
 
-        if (typeof delta.content === 'string' && delta.content) {
-          if (!startedBlocks.has(TEXT_IDX)) {
-            startedBlocks.add(TEXT_IDX);
-            yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+        // Our model streams its chain-of-thought on a separate `reasoning`
+        // channel (OpenAI-compatible servers like vLLM expose it here). Render
+        // it as a collapsible thinking block instead of dropping it on the floor.
+        if (typeof delta.reasoning === 'string' && delta.reasoning) {
+          if (!startedBlocks.has(REASONING_IDX)) {
+            startedBlocks.add(REASONING_IDX);
+            yield { type: 'block_start', index: REASONING_IDX, blockType: 'thinking' };
           }
-          yield { type: 'text_delta', index: TEXT_IDX, text: delta.content };
+          yield { type: 'thinking_delta', index: REASONING_IDX, thinking: delta.reasoning };
+
+          if (reasoningLoopDetector.push(delta.reasoning)) {
+            reader.cancel().catch(() => {});
+            yield {
+              type: 'stream_error',
+              message:
+                'The model got stuck repeating itself while thinking and was stopped. Please try again.',
+            };
+            return;
+          }
+        }
+
+        if (typeof delta.content === 'string' && delta.content) {
+          // Strip any leaked ```mdma document; only prose reaches the chat UI.
+          const visible = fenceStripper.push(delta.content);
+          if (visible) {
+            if (!startedBlocks.has(TEXT_IDX)) {
+              startedBlocks.add(TEXT_IDX);
+              yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+            }
+            yield { type: 'text_delta', index: TEXT_IDX, text: visible };
+          }
+
+          // Feed the loop detector the RAW content so a runaway fenced block
+          // still trips it even though we never display the fence.
+          if (contentLoopDetector.push(delta.content)) {
+            reader.cancel().catch(() => {});
+            yield {
+              type: 'stream_error',
+              message:
+                'The model got stuck repeating itself and was stopped. Please try again.',
+            };
+            return;
+          }
         }
 
         const toolCalls = delta.tool_calls as Array<Record<string, unknown>> | undefined;
@@ -151,9 +326,26 @@ export async function* streamOpenAIAgentMessages(
       }
     }
   } finally {
-    reader.releaseLock();
+    // releaseLock throws if we already cancelled the reader — ignore that.
+    try {
+      reader.releaseLock();
+    } catch {
+      /* reader already released via cancel() */
+    }
   }
 
+  // Emit any prose the stripper was holding back (e.g. a final line with no
+  // trailing newline that turned out not to be a fence).
+  const tail = fenceStripper.flush();
+  if (tail) {
+    if (!startedBlocks.has(TEXT_IDX)) {
+      startedBlocks.add(TEXT_IDX);
+      yield { type: 'block_start', index: TEXT_IDX, blockType: 'text' };
+    }
+    yield { type: 'text_delta', index: TEXT_IDX, text: tail };
+  }
+
+  if (startedBlocks.has(REASONING_IDX)) yield { type: 'block_stop', index: REASONING_IDX };
   if (startedBlocks.has(TEXT_IDX)) yield { type: 'block_stop', index: TEXT_IDX };
   for (const tcIdx of Array.from(startedBlocks).filter((i) => i >= TOOL_IDX_OFFSET)) {
     yield { type: 'block_stop', index: tcIdx };

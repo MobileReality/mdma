@@ -1,14 +1,24 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import { customizations } from '../custom-components.js';
 import type {
+  AgentBlock,
   AgentDisplayTurn,
   AssistantTurn,
   ThinkingBlock,
   TextBlock,
   ToolUseBlock,
 } from './types.js';
+
+// Raw dump of an assistant turn — the pure model output (conversational text +
+// the generate_mdma document), with no added labels, for debugging messaging.
+function buildRawDump(blocks: AgentBlock[]): string {
+  return blocks
+    .map((b) => (b.type === 'tool_use' ? b.document : b.content))
+    .filter(Boolean)
+    .join('\n\n');
+}
 
 // ── Inline markdown renderer ──────────────────────────────────────────────────
 
@@ -270,6 +280,8 @@ export const AgentMessage = memo(function AgentMessage({
   activeToolUseId,
   onSelectToolUse,
 }: AgentMessageProps) {
+  const [showRaw, setShowRaw] = useState(false);
+
   if (turn.role === 'user') {
     if (turn.hidden) return null;
     return (
@@ -286,32 +298,53 @@ export const AgentMessage = memo(function AgentMessage({
 
   const { blocks } = turn as AssistantTurn;
 
+  const hasContent = blocks.some(
+    (b) => (b.type === 'text' || b.type === 'thinking' ? b.content : (b as ToolUseBlock).document),
+  );
+
   return (
     <div className="chat-msg chat-msg--assistant">
       <div className="chat-msg-header">
         <span className="chat-msg-label">Agent</span>
-      </div>
-      <div className="chat-msg-body agent-blocks">
-        {blocks.length === 0 ? (
-          <span className="chat-msg-typing">Starting…</span>
-        ) : (
-          blocks.map((block) => {
-            if (block.type === 'thinking')
-              return <ThinkingBlockView key={block.id} block={block} />;
-            if (block.type === 'text') return <TextBlockView key={block.id} block={block} />;
-            if (block.type === 'tool_use')
-              return (
-                <ToolUseBlockView
-                  key={block.id}
-                  block={block}
-                  compact={compactToolUse}
-                  isActive={activeToolUseId === block.id}
-                  onSelect={onSelectToolUse ? () => onSelectToolUse(block.id) : undefined}
-                />
-              );
-          })
+        {hasContent && (
+          <button
+            type="button"
+            className="agent-raw-toggle"
+            data-active={showRaw ? 'true' : undefined}
+            onClick={() => setShowRaw((v) => !v)}
+            title="Show the raw model output (text + generate_mdma document) for debugging"
+          >
+            {showRaw ? 'Hide raw' : 'Raw'}
+          </button>
         )}
       </div>
+      {showRaw ? (
+        <div className="chat-msg-body agent-blocks">
+          <pre className="agent-raw">{buildRawDump(blocks)}</pre>
+        </div>
+      ) : (
+        <div className="chat-msg-body agent-blocks">
+          {blocks.length === 0 ? (
+            <span className="chat-msg-typing">Starting…</span>
+          ) : (
+            blocks.map((block) => {
+              if (block.type === 'thinking')
+                return <ThinkingBlockView key={block.id} block={block} />;
+              if (block.type === 'text') return <TextBlockView key={block.id} block={block} />;
+              if (block.type === 'tool_use')
+                return (
+                  <ToolUseBlockView
+                    key={block.id}
+                    block={block}
+                    compact={compactToolUse}
+                    isActive={activeToolUseId === block.id}
+                    onSelect={onSelectToolUse ? () => onSelectToolUse(block.id) : undefined}
+                  />
+                );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 });

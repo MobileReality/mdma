@@ -1,0 +1,45 @@
+# MDMA Author + Custom System Prompt — own model (MDMA-IL)
+#
+# Same eval as the flagship models' custom suite (promptfooconfig.custom.yaml):
+# the model's author/schema prompt + the test's customPrompt layered into the
+# SYSTEM message (buildSystemPrompt), the NL request as the user message, output
+# validated against the schema. Only the provider (our 31B) and the author
+# variant (mobile-reality/mdma-il) differ.
+#
+# No temperature override — default sampling (the model should stay conversational
+# and still produce MDMA). enable_thinking=false per the endpoint contract.
+#
+# Run (serial): pnpm --filter @mobile-reality/mdma-evals eval:own-model:custom
+
+description: MDMA Author + Custom System Prompt Eval — own model
+
+envPath: ../.env
+outputPath: own-model/results-custom.json
+
+prompts:
+  - file://prompt-custom.mjs
+
+providers:
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-31b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      # AWQ endpoint: max_model_len 16384, so no tight output cap needed.
+      # temperature 1 (conversational sampling) — non-deterministic, results may
+      # vary run-to-run.
+      temperature: 1
+      max_tokens: 4096
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
+      chat_template_kwargs:
+        enable_thinking: false
+
+defaultTest:
+  assert:
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
+tests: file://tests-custom.yaml

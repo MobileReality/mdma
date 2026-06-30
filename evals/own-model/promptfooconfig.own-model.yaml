@@ -1,0 +1,52 @@
+# MDMA-IL DSL holdout gate — Mobile Reality's own model
+#
+# Our self-hosted model (Gemma-4-E4B + v3 MDMA-IL LoRA) takes ONE MDMA-IL DSL
+# intent and returns an MDMA document. This suite is the DSL holdout gate: feed
+# the 95 held-out scenarios in DSL form (../gemma/dataset/data/holdout-dsl.jsonl
+# via tests-dsl.mjs) and validate the MDMA output.
+#
+# The system prompt is the mobile-reality/mdma-il author prompt (DSL grammar +
+# worked examples). The served context is only 2048 tokens on E4B, so the prompt
+# stays lean. See README.md.
+#
+# Model is plugged in via OWN_MODEL_* in ../.env (OpenAI-compatible endpoint).
+#
+# Run:  pnpm --filter @mobile-reality/mdma-evals eval:own-model
+# View: pnpm --filter @mobile-reality/mdma-evals eval:view
+
+description: MDMA-IL DSL Holdout Gate — own model
+
+envPath: ../.env
+outputPath: own-model/results.json
+
+prompts:
+  - file://prompt.mjs
+
+providers:
+  # OpenAI-compatible DSL endpoint (31B mdma-31b). Set OWN_MODEL_* in ../.env.
+  # Contract: v3 system prompt verbatim + DSL
+  # user message; temperature 0; enable_thinking=false (else thinking leaks in).
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-31b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      temperature: 1
+      # 31B has a large context (no 2048 cap like E4B); 1024 truncated big
+      # multi-component docs (callout + full data table), so raised to 2048.
+      max_tokens: 2048
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
+      chat_template_kwargs:
+        enable_thinking: false
+
+defaultTest:
+  assert:
+    # The gate: every output must be a valid MDMA document. thinking-block is
+    # always excluded by the assertion; the holdout has no multi-step flows.
+    - type: javascript
+      value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [flow-ordering]
+
+tests: file://tests-dsl.mjs

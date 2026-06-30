@@ -19,7 +19,9 @@ import { MDMA_AUTHOR_PROMPT_GEMINI_3_FLASH_PREVIEW } from './google/gemini-3-fla
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_FLASH_LITE_PREVIEW } from './google/gemini-3.1-flash-lite-preview.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW_CUSTOMTOOLS } from './google/gemini-3.1-pro-preview-customtools.js';
 import { MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW } from './google/gemini-3.1-pro-preview.js';
+import { MDMA_AUTHOR_PROMPT_GEMMA } from './google/gemma.js';
 import { MDMA_AUTHOR_PROMPT } from './default.js';
+import { MDMA_AUTHOR_PROMPT_MDMA_IL } from './mobile-reality/mdma-il.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1 } from './openai/gpt-4.1.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_MINI } from './openai/gpt-4.1-mini.js';
 import { MDMA_AUTHOR_PROMPT_GPT_4_1_NANO } from './openai/gpt-4.1-nano.js';
@@ -106,6 +108,20 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       "Gemini-native framing — Markdown headers (no XML), constraints placed at the END per Google's Gemini 3 prompting guide.",
     prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_1_PRO_PREVIEW,
+  },
+  {
+    id: 'google/gemma',
+    label: 'Google — Gemma',
+    description:
+      "Open-weights Gemma family (Gemma 4 26B-a4b / 31B, Gemma 3n 4B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the open-model tier.",
+    prompt: MDMA_AUTHOR_PROMPT_GEMMA,
+  },
+  {
+    id: 'mobile-reality/mdma-il',
+    label: 'Mobile Reality — MDMA-IL model',
+    description:
+      'Our self-hosted MDMA-IL DSL models (E4B mdma-v3 / 31B mdma-31b). Reads an MDMA-IL DSL intent (grammar + worked examples are in the prompt) and returns MDMA. The DSL grammar section is required — a prompt without it is out-of-distribution. Endpoint also requires temperature 0 + chat_template_kwargs.enable_thinking=false.',
+    prompt: MDMA_AUTHOR_PROMPT_MDMA_IL,
   },
   {
     id: 'google/gemini-3.1-pro-preview-customtools',

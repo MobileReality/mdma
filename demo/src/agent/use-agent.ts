@@ -2,11 +2,16 @@ import { useState, useCallback, useRef, useEffect } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import {
   buildSystemPrompt,
+  buildFixerPrompt,
+  buildFixerMessage,
   getAuthorPromptVariant,
   getAgentToolPromptVariant,
+  MDMA_IL_AGENT_SYSTEM_PROMPT,
 } from '@mobile-reality/mdma-prompt-pack';
+import { validate } from '@mobile-reality/mdma-validator';
 import {
   streamAgentMessages,
+  OWN_MODEL_DEFAULT_BASE_URL,
   type AnthropicConfig,
   type ApiMessage,
   type ApiAssistantBlock,
@@ -64,6 +69,40 @@ const GENERATE_MDMA_TOOL_BRIEF = {
     required: ['brief'],
   },
 };
+
+// ── Own-model (mdma-26b) endpoint ─────────────────────────────────────────────
+// Our self-hosted model, served OpenAI-compatible with tool-calling enabled.
+// In "own-model" provider mode the WHOLE agent loop runs here (conversation +
+// generate_mdma via tool_choice:auto), so no third-party model is called.
+// Auth is off (placeholder key); enable_thinking must be false; temperature 1
+// for agentic/conversational use.
+const OWN_MODEL_NAME = import.meta.env.VITE_OWN_MODEL_NAME ?? 'mdma-26b';
+
+// The own-model endpoint is user-configurable in Agent Settings. Normalise what
+// they type: trim trailing slashes and append the OpenAI-compatible `/v1` suffix
+// if missing. Empty → fall back to the build-time default.
+function normalizeOwnModelBaseUrl(raw?: string): string {
+  const url = (raw ?? '').trim().replace(/\/+$/, '');
+  if (!url) return OWN_MODEL_DEFAULT_BASE_URL;
+  return url.endsWith('/v1') ? url : `${url}/v1`;
+}
+
+// Extra OpenAI-request body our endpoint needs (merged in by the OpenAI client).
+// `max_tokens` bounds the response server-side so a runaway reasoning channel
+// can't generate forever (the client also caps the stream defensively).
+//
+// `min_p` + `repetition_penalty` cut the degenerate reasoning repetition loop
+// (word-doubling → token-doubling → single-token flooding) that is a known
+// Gemma 4 trait — see evals/own-model/repetition-loops.md. `min_p` is the
+// primary tail-cutter; `repetition_penalty` starts low (raise only if needed —
+// too high hurts valid output). DRY would be ideal but vLLM doesn't support it.
+const OWN_MODEL_EXTRA_BODY = {
+  temperature: 1,
+  max_tokens: 8192,
+  min_p: 0.02,
+  repetition_penalty: 1.1,
+  chat_template_kwargs: { enable_thinking: false },
+} as const;
 
 // ── Config persistence ───────────────────────────────────────────────────────
 
@@ -202,8 +241,7 @@ async function callAuthorOpenAI(
   brief: string,
   signal: AbortSignal,
 ): Promise<string> {
-  const provider = config.provider ?? 'openai';
-  const baseUrl = OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const baseUrl = getBaseUrlForProvider(config);
   const apiKey = getApiKeyForProvider(config);
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -387,6 +425,7 @@ async function runAgentLoop(
             if (meta.apiBlock.type === 'tool_use') meta.apiBlock.input = { document };
           }
 
+          document = await maybeFixDocument(config, document, signal);
           const parsed = await parseMarkdown(document).catch(() => null);
           const ast = parsed?.ast ?? null;
           const store = parsed?.store ?? null;
@@ -434,15 +473,101 @@ const OPENAI_COMPAT_BASE_URLS: Partial<Record<NonNullable<AnthropicConfig['provi
   openrouter: 'https://openrouter.ai/api/v1',
 };
 
+/**
+ * Resolve the OpenAI-compatible base URL for the configured provider. For
+ * 'own-model' this is the user-supplied endpoint (Agent Settings), normalised
+ * and falling back to the build-time default; otherwise the static map.
+ */
+function getBaseUrlForProvider(config: AnthropicConfig): string {
+  const provider = config.provider ?? 'openai';
+  if (provider === 'own-model') return normalizeOwnModelBaseUrl(config.ownModelBaseUrl);
+  return OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+}
+
 function getApiKeyForProvider(config: AnthropicConfig): string {
   switch (config.provider) {
     case 'openai':
       return config.openaiApiKey ?? '';
     case 'openrouter':
       return config.openrouterApiKey ?? '';
+    case 'own-model':
+      return 'unused'; // auth is off on our endpoint; client just needs a non-empty key
     default:
       return config.apiKey;
   }
+}
+
+// ── Self-healing fixer ────────────────────────────────────────────────────────
+// When generate_mdma returns an invalid document, repair it before render: first
+// the validator's deterministic auto-fixes (free), then — for anything left — an
+// LLM fixer pass (same provider/model) using the canonical fixer prompt. The
+// model's varied slips (HTML-tag thinking, JSON-in-fence, wrong field keys) need
+// the LLM; a regex repair can't cover them.
+
+/** Provider-aware one-shot completion (system + user → text). */
+async function chatOnce(
+  config: AnthropicConfig,
+  system: string,
+  user: string,
+  signal: AbortSignal,
+): Promise<string> {
+  const provider = config.provider ?? 'anthropic';
+  if (provider === 'anthropic') return callAuthorAnthropic(config, system, user, signal);
+
+  const isOwn = provider === 'own-model';
+  const baseUrl = getBaseUrlForProvider(config);
+  const response = await fetch(`${baseUrl}/chat/completions`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json', authorization: `Bearer ${getApiKeyForProvider(config)}` },
+    body: JSON.stringify({
+      model: isOwn ? OWN_MODEL_NAME : config.model,
+      messages: [
+        { role: 'system', content: system },
+        { role: 'user', content: user },
+      ],
+      temperature: 0, // strict, deterministic repair
+      ...(isOwn ? { max_tokens: 4096, chat_template_kwargs: { enable_thinking: false } } : {}),
+    }),
+    signal,
+  });
+  if (!response.ok) throw new Error(`Fixer call failed (${response.status})`);
+  const json = (await response.json()) as { choices?: Array<{ message?: { content?: string } }> };
+  return json.choices?.[0]?.message?.content ?? '';
+}
+
+/**
+ * Return a valid (or best-effort repaired) MDMA document. No-ops when the input
+ * is already valid, so it adds zero latency on the common path.
+ */
+async function maybeFixDocument(
+  config: AnthropicConfig,
+  document: string,
+  signal: AbortSignal,
+): Promise<string> {
+  if (!document.trim()) return document;
+  // 1. Deterministic auto-fix.
+  const r = validate(document, { exclude: ['thinking-block'], autoFix: true });
+  if (r.ok) return r.output;
+
+  // 2. LLM fixer for the remaining issues.
+  const unfixed = r.issues.filter(
+    (i) => !i.fixed && (i.severity === 'error' || i.severity === 'warning'),
+  );
+  if (unfixed.length === 0) return r.output;
+
+  try {
+    const system = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt('single-block')}`;
+    const userMessage = buildFixerMessage(document, unfixed, {});
+    const fixed = await chatOnce(config, system, userMessage, signal);
+    if (fixed) {
+      // Accept only if it actually improves validity.
+      const after = validate(fixed, { exclude: ['thinking-block'], autoFix: true });
+      if (after.summary.errors <= r.summary.errors) return after.output;
+    }
+  } catch {
+    /* fixer failed — fall back to the deterministic best-effort below */
+  }
+  return r.output;
 }
 
 async function runOpenAIAgentLoop(
@@ -456,9 +581,11 @@ async function runOpenAIAgentLoop(
   nextId: () => string,
   subAgent: AuthorSubAgent | null,
 ): Promise<void> {
-  const baseUrl =
-    OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const isOwnModel = config.provider === 'own-model';
+  const baseUrl = getBaseUrlForProvider(config);
   const apiKey = getApiKeyForProvider(config);
+  const model = isOwnModel ? OWN_MODEL_NAME : config.model;
+  const extraBody = isOwnModel ? OWN_MODEL_EXTRA_BODY : undefined;
   const tool = subAgent ? GENERATE_MDMA_TOOL_BRIEF : GENERATE_MDMA_TOOL_INLINE;
   let continueLoop = true;
 
@@ -471,12 +598,13 @@ async function runOpenAIAgentLoop(
 
     for await (const ev of streamOpenAIAgentMessages(
       apiKey,
-      config.model,
+      model,
       systemPrompt,
       history,
       [tool],
       signal,
       baseUrl,
+      extraBody,
     )) {
       if (ev.type === 'stream_error') {
         onError(ev.message);
@@ -486,7 +614,20 @@ async function runOpenAIAgentLoop(
 
       if (ev.type === 'block_start') {
         const displayId = nextId();
-        if (ev.blockType === 'text') {
+        if (ev.blockType === 'thinking') {
+          // Reasoning channel (delta.reasoning) → collapsible thinking block.
+          // Not added to the OpenAI history (only text + tool_calls are).
+          const apiBlock: ApiAssistantBlock = { type: 'thinking', thinking: '', signature: '' };
+          blockMeta.set(ev.index, { displayId, apiBlock });
+          setTurns((prev) =>
+            appendBlock(prev, assistantTurnId, {
+              id: displayId,
+              type: 'thinking',
+              content: '',
+              isStreaming: true,
+            } satisfies AgentBlock),
+          );
+        } else if (ev.blockType === 'text') {
           const apiBlock: ApiAssistantBlock = { type: 'text', text: '' };
           blockMeta.set(ev.index, { displayId, apiBlock });
           setTurns((prev) =>
@@ -528,6 +669,15 @@ async function runOpenAIAgentLoop(
           meta.apiBlock.text += ev.text;
           finishedTextContent = meta.apiBlock.text;
           const snap = meta.apiBlock.text;
+          setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, { content: snap }));
+        }
+      }
+
+      if (ev.type === 'thinking_delta') {
+        const meta = blockMeta.get(ev.index);
+        if (meta?.apiBlock.type === 'thinking') {
+          meta.apiBlock.thinking += ev.thinking;
+          const snap = meta.apiBlock.thinking;
           setTurns((prev) => patchBlock(prev, assistantTurnId, meta.displayId, { content: snap }));
         }
       }
@@ -579,6 +729,7 @@ async function runOpenAIAgentLoop(
             }
           }
 
+          document = await maybeFixDocument(config, document, signal);
           const parsed = await parseMarkdown(document).catch(() => null);
           setTurns((prev) =>
             patchBlock(prev, assistantTurnId, meta.displayId, {
@@ -749,23 +900,34 @@ export function useAgent(options: UseAgentOptions = {}) {
       ]);
 
       abortRef.current = new AbortController();
-      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
-      // In sub-agent mode the conversation agent never writes MDMA directly,
-      // so its system prompt omits the author prompt and the buildSystemPrompt
-      // reminder (both of which would tempt the agent to inline MDMA in chat).
-      const systemPrompt = options.useAuthorSubAgent
-        ? options.flowPrompt
-          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-          : toolPrompt
-        : buildSystemPrompt({
-            authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-            customPrompt: options.flowPrompt
-              ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-              : toolPrompt,
-          });
-
-      const subAgent = options.useAuthorSubAgent ? makeAuthorSubAgent(config) : null;
       const provider = config.provider ?? 'anthropic';
+      // Our own model runs the whole turn itself (tool-calling enabled), so it
+      // emits the MDMA document inline via generate_mdma — no author sub-agent.
+      const useSubAgent = (options.useAuthorSubAgent ?? false) && provider !== 'own-model';
+      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
+      // Our own model gets its own Gemma-aligned agentic prompt (no <thinking>
+      // leak — see prompt-pack mdma-agent/mobile-reality/mdma-il). Other
+      // providers: sub-agent mode uses just the tool prompt; inline mode layers
+      // the author prompt via buildSystemPrompt.
+      let systemPrompt: string;
+      if (provider === 'own-model') {
+        systemPrompt = options.flowPrompt
+          ? `${MDMA_IL_AGENT_SYSTEM_PROMPT}\n\n---\n\n${options.flowPrompt}`
+          : MDMA_IL_AGENT_SYSTEM_PROMPT;
+      } else if (useSubAgent) {
+        systemPrompt = options.flowPrompt
+          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+          : toolPrompt;
+      } else {
+        systemPrompt = buildSystemPrompt({
+          authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+          customPrompt: options.flowPrompt
+            ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
+            : toolPrompt,
+        });
+      }
+
+      const subAgent = useSubAgent ? makeAuthorSubAgent(config) : null;
 
       try {
         if (provider === 'anthropic') {
@@ -824,6 +986,15 @@ export function useAgent(options: UseAgentOptions = {}) {
     [runTurn],
   );
 
+  // Send a specific message as a visible user turn and resolve when the agent's
+  // response is fully complete. Used by the auto-play demo to pace the script.
+  const sendText = useCallback(
+    async (text: string) => {
+      await runTurn(text, false);
+    },
+    [runTurn],
+  );
+
   const stop = useCallback(() => {
     abortRef.current?.abort();
   }, []);
@@ -848,6 +1019,7 @@ export function useAgent(options: UseAgentOptions = {}) {
     updateConfig,
     send,
     sendHidden,
+    sendText,
     stop,
     clear,
     inputRef,

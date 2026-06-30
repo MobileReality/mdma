@@ -20,7 +20,7 @@ import { selectFixerPrompt } from './select-prompt.mjs';
  * 2. Collects remaining unfixed issues
  * 3. Sends the fixer system prompt (with variant-specific extensions) + user message
  */
-export default async function ({ vars }) {
+export default async function ({ vars, provider }) {
   // Default to single-block scope unless the test explicitly opts into
   // multi-step (variantKey: 'flow'). For single-block tests we also drop
   // the flow-ordering rule from validate() since by design each test has
@@ -32,7 +32,9 @@ export default async function ({ vars }) {
   const result = validate(vars.brokenDocument, { exclude });
   const allIssues = result.issues.filter((i) => i.severity === 'error' || i.severity === 'warning');
 
-  const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt();
+  const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt(
+    provider?.id ?? process.env.EVAL_PROVIDER,
+  );
   const fixerPrompt = fixerSource.startsWith('default')
     ? buildFixerPrompt(variantKey)
     : variantPrompt;

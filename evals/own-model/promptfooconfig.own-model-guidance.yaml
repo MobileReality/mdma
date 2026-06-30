@@ -1,0 +1,52 @@
+# MDMA Agent Guidance — own model (agentic tool-calling)
+#
+# Tests whether the model correctly CALLS the generate_mdma tool for
+# document-creation requests (and not for conversational ones). DSL port not
+# applicable — this is a tool-calling decision, driven by NL requests
+# (../tests-guidance.yaml).
+#
+# ⚠️ REQUIRES the endpoint to have function-calling enabled (vLLM
+# --enable-auto-tool-choice + --tool-call-parser). Until then the endpoint
+# returns HTTP 400 for tool_choice: auto.
+#
+# Run (serial): pnpm --filter @mobile-reality/mdma-evals eval:own-model:guidance
+
+description: MDMA Agent Guidance Eval (tool-calling) — own model
+
+envPath: ../.env
+outputPath: own-model/results-guidance.json
+
+prompts:
+  - file://prompt-guidance.mjs
+
+providers:
+  - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-26b' }}"
+    config:
+      apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
+      apiKey: "{{ env.OWN_MODEL_API_KEY }}"
+      temperature: 1
+      max_tokens: 1024
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
+      chat_template_kwargs:
+        enable_thinking: false
+      tool_choice: auto
+      tools:
+        - type: function
+          function:
+            name: generate_mdma
+            description: >
+              Generate an MDMA Markdown document to present structured
+              interactive content to the user (forms, tables, tasklists,
+              approval gates, charts, callouts, buttons, webhooks).
+            parameters:
+              type: object
+              properties:
+                document:
+                  type: string
+                  description: The complete MDMA Markdown document.
+              required:
+                - document
+
+tests: ../tests-guidance.yaml

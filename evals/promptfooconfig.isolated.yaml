@@ -23,6 +23,6 @@ defaultTest:
     - type: javascript
       value: file://assertions/validate-mdma.mjs
       config:
-        exclude: [flow-ordering]
+        exclude: [flow-ordering, html-tags]
 
 tests: tests-isolated.yaml

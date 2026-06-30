@@ -4,6 +4,13 @@
   "type": "module",
   "scripts": {
     "eval": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval; exit 0",
+    "eval:own-model": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model.yaml -j 1; exit 0",
+    "eval:own-model:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model-custom.yaml -j 1; exit 0",
+    "eval:own-model:author": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model-author.yaml -j 1; exit 0",
+    "eval:own-model:flows": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model-flows.yaml -j 1; exit 0",
+    "eval:own-model:conversation": "node own-model/run-conversation.mjs; exit 0",
+    "eval:own-model:fixer": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model-fixer.yaml -j 1; exit 0",
+    "eval:own-model:guidance": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c own-model/promptfooconfig.own-model-guidance.yaml -j 1; exit 0",
     "eval:custom": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.custom.yaml; exit 0",
     "eval:conversation": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation.yaml; exit 0",
     "eval:prompt-builder": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.prompt-builder.yaml; exit 0",
@@ -23,7 +30,14 @@
     "@mobile-reality/mdma-cli": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
+    "dotenv": "^16.4.5",
+    "openai": "^6.0.0",
     "promptfoo": "0.121.9",
-    "yaml": "^2.6.0"
+    "yaml": "^2.6.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0"
   }
 }

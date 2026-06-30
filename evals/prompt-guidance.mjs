@@ -15,14 +15,24 @@ import { selectAuthorPrompt } from './select-prompt.mjs';
  * level so promptfoo includes it in the API request.
  */
 
-const systemPromptPromise = selectAuthorPrompt().then(({ prompt, source }) => {
-  console.error(`[guidance] system prompt: ${source}`);
-  const agentToolPrompt = getAgentToolPromptVariant(source).prompt;
-  return buildSystemPrompt({ authorPrompt: prompt, customPrompt: agentToolPrompt });
-});
+const promptByProvider = new Map();
 
-export default async function ({ vars }) {
-  const systemPrompt = await systemPromptPromise;
+function resolveSystemPrompt(providerId) {
+  if (!promptByProvider.has(providerId)) {
+    promptByProvider.set(
+      providerId,
+      selectAuthorPrompt(providerId).then(({ prompt, source }) => {
+        console.error(`[guidance] system prompt: ${source}`);
+        const agentToolPrompt = getAgentToolPromptVariant(source).prompt;
+        return buildSystemPrompt({ authorPrompt: prompt, customPrompt: agentToolPrompt });
+      }),
+    );
+  }
+  return promptByProvider.get(providerId);
+}
+
+export default async function ({ vars, provider }) {
+  const systemPrompt = await resolveSystemPrompt(provider?.id ?? process.env.EVAL_PROVIDER);
 
   return [
     { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
