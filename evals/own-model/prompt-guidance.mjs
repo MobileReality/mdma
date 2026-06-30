@@ -8,8 +8,7 @@
  *
  * ⚠️ Requires the endpoint to have function-calling enabled
  * (vLLM `--enable-auto-tool-choice` + `--tool-call-parser`). Without it the
- * endpoint returns HTTP 400 for `tool_choice: auto`. See
- * PHASE3-31B-SERVING-CONTEXT-TROUBLESHOOTING.md.
+ * endpoint returns HTTP 400 for `tool_choice: auto`.
  */
 const SYSTEM_PROMPT =
   'You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents ' +

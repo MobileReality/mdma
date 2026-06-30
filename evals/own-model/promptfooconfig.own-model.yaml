@@ -24,7 +24,7 @@ prompts:
 
 providers:
   # OpenAI-compatible DSL endpoint (31B mdma-31b). Set OWN_MODEL_* in ../.env.
-  # Contract (PHASE3-31B-ENDPOINT-CONNECT.md): v3 system prompt verbatim + DSL
+  # Contract: v3 system prompt verbatim + DSL
   # user message; temperature 0; enable_thinking=false (else thinking leaks in).
   - id: "{{ env.OWN_MODEL_PROVIDER or 'openai:chat:mdma-31b' }}"
     config:

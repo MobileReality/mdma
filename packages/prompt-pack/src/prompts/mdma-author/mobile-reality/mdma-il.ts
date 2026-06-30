@@ -6,9 +6,8 @@
  * intent** as the user message and returns one MDMA document.
  *
  * IMPORTANT: a different system prompt is out-of-distribution and degrades
- * quality — do not paraphrase or "improve" this. Source of truth:
- * `PHASE3-31B-ENDPOINT-CONNECT.md` §4. Endpoint contract also requires
- * `temperature: 0` and `chat_template_kwargs.enable_thinking = false`.
+ * quality — do not paraphrase or "improve" this. The endpoint contract also
+ * requires `temperature: 0` and `chat_template_kwargs.enable_thinking = false`.
  *
  * Used by both DSL endpoints (E4B `mdma-v3`, 31B `mdma-31b`); the eval harness
  * (`evals/own-model/`) imports this variant directly. Registry id:

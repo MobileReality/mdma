@@ -1,13 +1,13 @@
 # Own-model eval — MDMA-IL DSL holdout gate
 
 Self-contained eval for **our own hosted model** — `google/gemma-4-E4B-it` + the
-**v3 MDMA-IL LoRA** (see [`PHASE2-SYSTEM-PROMPT-PLAN.md`](../../PHASE2-SYSTEM-PROMPT-PLAN.md)).
+**v3 MDMA-IL LoRA**.
 
 ## What this tests
 
 Our model is **not** an NL chat model — it was fine-tuned to take **one MDMA-IL
-DSL intent** as input and return an **MDMA document**. So this suite is the
-plan's **§6 gate**, not the NL author suites the third-party models run:
+DSL intent** as input and return an **MDMA document**. So this suite is a
+**DSL holdout gate**, not the NL author suites the third-party models run:
 
 - **Input:** the 95 held-out scenarios in **DSL** form
   (`../gemma/dataset/data/holdout-dsl.jsonl`, via `tests-dsl.mjs`).
@@ -32,8 +32,7 @@ So the system prompt here is exactly:
 ## Observations (not conclusions)
 
 This is a **small model** (Gemma 4 E4B + LoRA) — prompt-sensitive, with a
-2048-token context. See [`OWN-MODEL-EVAL-FINDINGS.md`](../../OWN-MODEL-EVAL-FINDINGS.md)
-for the full test record. In short, on the DSL holdout, output validity against
+2048-token context. In short, on the DSL holdout, output validity against
 the **current** validator moved with the system prompt: ~41% (thin prompt) →
 ~90.5% (current variant with a worked example). It is **not 100%**, and we have
 **not** concluded whether the residual gap calls for a retrain, output
