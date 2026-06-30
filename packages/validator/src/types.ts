@@ -19,7 +19,8 @@ export type ValidationRuleId =
   | 'field-name-typos'
   | 'expected-components'
   | 'form-submit-action'
-  | 'single-interactive-component';
+  | 'single-interactive-component'
+  | 'html-tags';
 
 export interface ValidationIssue {
   /** Which rule flagged this */

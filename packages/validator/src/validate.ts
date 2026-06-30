@@ -45,6 +45,29 @@ function detectUnfencedComponents(markdown: string): Array<{ type: string; line:
   return results;
 }
 
+/**
+ * Detect HTML/XML-style component tags (e.g. `<thinking …/>`, `<think>`,
+ * `<form>`) that AI models sometimes emit instead of ```mdma YAML blocks. These
+ * are never valid MDMA; flagging them lets the fixer rewrite them as proper
+ * fenced components. Tags inside fenced blocks are ignored.
+ */
+function detectHtmlComponentTags(markdown: string): Array<{ tag: string; line: number }> {
+  const stripped = markdown.replace(/```[\s\S]*?```/g, (match) =>
+    '\n'.repeat(match.split('\n').length - 1),
+  );
+  const tagNames = ['thinking', 'think', ...KNOWN_TYPES];
+  // Opening tag for a known name, followed by whitespace, `/`, `>`, or EOL
+  // (handles multi-line tags like `<thinking\n  id="…" …/>`).
+  const re = new RegExp(`<(${tagNames.join('|')})(?=[\\s/>]|$)`, 'i');
+  const results: Array<{ tag: string; line: number }> = [];
+  const lines = stripped.split('\n');
+  for (let i = 0; i < lines.length; i++) {
+    const m = lines[i].match(re);
+    if (m) results.push({ tag: m[1].toLowerCase(), line: i + 1 });
+  }
+  return results;
+}
+
 function buildIdMap(blocks: ParsedBlock[]): Map<string, number> {
   const map = new Map<string, number>();
   for (const block of blocks) {
@@ -70,6 +93,21 @@ export function validate(markdown: string, options: ValidatorOptions = {}): Vali
     blockIndex: -1,
     fixed: false,
   }));
+
+  // 0b. Detect HTML/XML-style component tags (not valid MDMA). Own rule id
+  // ('html-tags') so consumers can disable it via `exclude` without also
+  // silencing real YAML errors.
+  const htmlTags = exclude.includes('html-tags') ? [] : detectHtmlComponentTags(markdown);
+  for (const t of htmlTags) {
+    preIssues.push({
+      ruleId: 'html-tags' as ValidationRuleId,
+      severity: 'error' as const,
+      message: `Found HTML-style \`<${t.tag}>\` tag at line ${t.line} — this is NOT valid MDMA. DELETE the entire \`<${t.tag} …>\` tag (including all its attributes and any closing tag) from the output. Do NOT keep it. If it carried reasoning, you may instead express that as a single \`\`\`mdma block with \`type: thinking\` — but the raw HTML tag must be gone.`,
+      componentId: null,
+      blockIndex: -1,
+      fixed: false,
+    });
+  }
 
   // 1. Extract and parse all mdma blocks
   const blocks = extractMdmaBlocksFromMarkdown(markdown);

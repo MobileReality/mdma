@@ -49,6 +49,10 @@ async function gen(messages) {
       model: MODEL,
       temperature: 1,
       max_tokens: 2048,
+      // Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md):
+      // min_p is the primary tail-cutter, repetition_penalty starts low.
+      min_p: 0.02,
+      repetition_penalty: 1.1,
       chat_template_kwargs: { enable_thinking: false },
       messages,
     }),

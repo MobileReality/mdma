@@ -27,6 +27,9 @@ providers:
       apiKey: "{{ env.OWN_MODEL_API_KEY }}"
       temperature: 1
       max_tokens: 1024
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
       chat_template_kwargs:
         enable_thinking: false
       tool_choice: auto

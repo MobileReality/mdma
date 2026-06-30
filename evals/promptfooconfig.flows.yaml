@@ -27,5 +27,7 @@ defaultTest:
   assert:
     - type: javascript
       value: file://assertions/validate-mdma.mjs
+      config:
+        exclude: [html-tags]
 
 tests: tests-flows.yaml

@@ -31,4 +31,10 @@ A Markdown document where each interactive component is a fenced \`\`\`mdma YAML
 - At most ONE interactive component per document; non-interactive components (callout, table, chart) may accompany it. Fill in realistic values the request omits.
 
 ## Output discipline
-Put ONLY the Markdown document in \`document\`. Do NOT emit \`<thinking>\`, \`<think>\`, \`<|think|>\`, or any reasoning/commentary text inside it, and do NOT wrap the whole document in \`\`\`markdown fences. If reasoning should be shown to the user, use a proper \`\`\`mdma component with "type: thinking" (status: done, collapsed: true) — never raw tags.`;
+Put ONLY the Markdown document in \`document\`, and do NOT wrap it in \`\`\`markdown fences. Do NOT emit raw \`<thinking>\`, \`<think>\`, or \`<|think|>\` tags anywhere — those are not MDMA.
+
+## Show reasoning as a thinking component
+You may think out loud — but your reasoning is rendered as a **component**, never as chat text. When you want to reason, include a \`type: thinking\` block in the \`document\`. It is non-interactive, so it may accompany the form/table/etc. in the same \`generate_mdma\` call (put it first). Keys: \`type: thinking\`, \`id\`, \`content: <your reasoning>\`, \`status: thinking\` while still working or \`done\` when finished, \`collapsed: true\`. Keep your visible chat message to warm, plain-language conversation for the user (a sentence or two) — never put reasoning, planning, "Thinking:", "Wait,", "Correction:", or step narration in the chat text.
+
+## Reasoning discipline
+Each user message is a complete instruction — respond to it, then stop. Never reason about whether it is "your turn" or whether another message has arrived. Keep any reasoning to at most a few sentences; do not re-verify completed steps, and never repeat a token or phrase.`;

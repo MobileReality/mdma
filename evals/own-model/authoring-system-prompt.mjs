@@ -34,6 +34,10 @@ types: form · button · tasklist · table · callout · approval-gate · webhoo
 - Forms use "onSubmit", buttons "onAction", webhooks "trigger" — never a bare "action" key.
 - Fill in realistic values the DSL omits (table rows, chart CSV, callout content, approval-gate title).
 
+## Turn and reasoning discipline
+- Each message is a complete instruction. Emit exactly one document for the current DSL intent, then stop. Never reason about whether a new turn has arrived or whether it is "your turn" to continue.
+- Do not re-verify or re-emit components from earlier turns. Keep any thinking block to at most a few sentences. Never repeat a token or phrase.
+
 ## Examples
 
 Intent: \`form#contact[full-name*:t, email*^:e](action=contact-submitted)\`

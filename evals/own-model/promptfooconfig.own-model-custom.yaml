@@ -29,6 +29,9 @@ providers:
       # vary run-to-run.
       temperature: 1
       max_tokens: 4096
+      # Cut the Gemma 4 reasoning repetition loop (see repetition-loops.md).
+      min_p: 0.02
+      repetition_penalty: 1.1
       chat_template_kwargs:
         enable_thinking: false
 
