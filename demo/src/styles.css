@@ -2077,6 +2077,31 @@ body {
   background: #fef2f2;
 }
 
+.chat-demo-btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #d6d2f5;
+  border-radius: 8px;
+  background: transparent;
+  color: #6c5ce7;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-right: auto;
+}
+
+.chat-demo-btn:hover {
+  background: #efecfd;
+  border-color: #6c5ce7;
+}
+
+.chat-demo-btn[data-active="true"] {
+  background: #6c5ce7;
+  color: #fff;
+  border-color: #6c5ce7;
+}
+
 .chat-send-btn {
   padding: 7px 18px;
   font-size: 13.5px;

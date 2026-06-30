@@ -17,6 +17,10 @@ export interface ChatInputProps {
   onCopyRaw?: () => void;
   /** Briefly true right after a successful copy, for button feedback. */
   copiedRaw?: boolean;
+  /** Start/stop the scripted auto-play demo. */
+  onPlayDemo?: () => void;
+  /** True while the auto-play demo is running. */
+  isPlaying?: boolean;
 }
 
 export const ChatInput = memo(function ChatInput({
@@ -32,8 +36,10 @@ export const ChatInput = memo(function ChatInput({
   placeholder,
   onCopyRaw,
   copiedRaw,
+  onPlayDemo,
+  isPlaying,
 }: ChatInputProps) {
-  const isDisabled = disabled && !isGenerating;
+  const isDisabled = (disabled && !isGenerating) || Boolean(isPlaying);
 
   return (
     <div className="chat-input-bar">
@@ -54,6 +60,17 @@ export const ChatInput = memo(function ChatInput({
           }}
         />
         <div className="chat-input-actions">
+          {onPlayDemo && (
+            <button
+              type="button"
+              className="chat-demo-btn"
+              data-active={isPlaying ? 'true' : undefined}
+              onClick={onPlayDemo}
+              title="Auto-play a scripted conversation (for demo recordings)"
+            >
+              {isPlaying ? '■ Stop demo' : '▶ Play demo'}
+            </button>
+          )}
           {hasMessages && onCopyRaw && (
             <button
               type="button"

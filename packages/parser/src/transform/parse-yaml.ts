@@ -7,10 +7,17 @@ export type ParseYamlResult =
   | { ok: true; data: Record<string, unknown> }
   | { ok: false; error: MdmaParseError };
 
+// YAML indicator characters that cannot begin a plain scalar. A value that
+// starts with one (e.g. `unit: %`, `range: > 40 mg/dL`, `note: @home`) crashes
+// the parser — AI models emit these for symbols/units. We quote such values.
+const LEADING_INDICATOR = /^[%@`!&*>|?,]/;
+
 /**
- * Auto-quote plain scalar values that contain ": " (colon-space) — a common
- * issue with AI-generated YAML where values like `label: Example: Revenue`
- * are interpreted as nested mappings instead of a simple string value.
+ * Auto-quote plain scalar values that AI-generated YAML commonly gets wrong:
+ *  - values containing ": " (colon-space), e.g. `label: Example: Revenue`,
+ *    which YAML reads as a nested mapping instead of a string;
+ *  - values that start with a YAML indicator character, e.g. `unit: %`, which
+ *    is a parse error (`%` is a directive indicator).
  *
  * Only affects simple `key: value` lines (not block scalars, sequences, etc.).
  */
@@ -53,8 +60,9 @@ function sanitizeYaml(source: string): string {
     // Skip sequence items (e.g. `  - item`)
     if (indent && /^\s*-/.test(line)) continue;
 
-    // If the value contains ": " (colon-space), quote it
-    if (value.includes(': ')) {
+    // Quote values that contain ": " (colon-space) or start with a YAML
+    // indicator character — both break a plain scalar.
+    if (value.includes(': ') || LEADING_INDICATOR.test(value)) {
       const escaped = value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       lines[i] = line.replace(/:\s+.+$/, `: "${escaped}"`);
     }

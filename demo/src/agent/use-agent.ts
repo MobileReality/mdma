@@ -860,6 +860,15 @@ export function useAgent(options: UseAgentOptions = {}) {
     [runTurn],
   );
 
+  // Send a specific message as a visible user turn and resolve when the agent's
+  // response is fully complete. Used by the auto-play demo to pace the script.
+  const sendText = useCallback(
+    async (text: string) => {
+      await runTurn(text, false);
+    },
+    [runTurn],
+  );
+
   const stop = useCallback(() => {
     abortRef.current?.abort();
   }, []);
@@ -884,6 +893,7 @@ export function useAgent(options: UseAgentOptions = {}) {
     updateConfig,
     send,
     sendHidden,
+    sendText,
     stop,
     clear,
     inputRef,

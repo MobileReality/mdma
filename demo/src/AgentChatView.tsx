@@ -7,6 +7,19 @@ import { ChatActionLog } from './chat/ChatActionLog.js';
 import { ChatInput } from './chat/ChatInput.js';
 import type { AssistantTurn, AgentDisplayTurn } from './agent/types.js';
 
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+// Scripted conversation for the auto-play demo (each entry is one user message).
+const DEMO_SCRIPT = [
+  'hi',
+  'generate sample form',
+  'sample chart',
+  'and table',
+  'whats Product Name',
+  'ok could make chart from this table',
+  'line pls',
+];
+
 /**
  * Serialize the conversation to a raw transcript: the user's messages and the
  * agent's PURE responses (conversational text + the generate_mdma document),
@@ -36,6 +49,7 @@ export function AgentChatView() {
     config,
     updateConfig,
     send,
+    sendText,
     stop,
     clear,
     inputRef,
@@ -53,6 +67,43 @@ export function AgentChatView() {
       /* clipboard unavailable */
     }
   }, [turns]);
+
+  // ── Auto-play demo ──────────────────────────────────────────────────────────
+  // Replays a scripted conversation through the real agent: types each message,
+  // sends it, waits for the full response, then the next. For demo recordings.
+  const [isPlaying, setIsPlaying] = useState(false);
+  const playingRef = useRef(false);
+  const handlePlayDemo = useCallback(async () => {
+    if (playingRef.current) {
+      // already running → stop
+      playingRef.current = false;
+      setIsPlaying(false);
+      return;
+    }
+    playingRef.current = true;
+    setIsPlaying(true);
+    clear();
+    clearEvents();
+    await sleep(500);
+
+    for (const msg of DEMO_SCRIPT) {
+      if (!playingRef.current) break;
+      // Typewriter the message into the input for a natural look.
+      for (let k = 1; k <= msg.length; k++) {
+        if (!playingRef.current) break;
+        setInput(msg.slice(0, k));
+        await sleep(28);
+      }
+      await sleep(350);
+      if (!playingRef.current) break;
+      setInput('');
+      await sendText(msg); // renders the user bubble + awaits the agent's reply
+      await sleep(1100); // beat between turns
+    }
+
+    playingRef.current = false;
+    setIsPlaying(false);
+  }, [clear, clearEvents, sendText, setInput]);
 
   const chatEndRef = useRef<HTMLDivElement>(null);
   const prevCountRef = useRef(turns.length);
@@ -105,6 +156,8 @@ export function AgentChatView() {
           inputRef={inputRef}
           onCopyRaw={handleCopyRaw}
           copiedRaw={copiedRaw}
+          onPlayDemo={handlePlayDemo}
+          isPlaying={isPlaying}
         />
       </div>
 

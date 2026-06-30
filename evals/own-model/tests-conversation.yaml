@@ -97,3 +97,55 @@
   metadata: { conversationId: own-conv-4 }
   assert:
     - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }
+
+# ===== Conversation-flow ports (multi-INTERACTIVE-step flows) =====
+# DSL port of the flagship conversation-flow judge eval. Each step is ONE
+# interactive component, advanced one per turn. The harness enforces the flow
+# invariants the judge eval checks: one expected component per turn (no
+# cramming / wrong component) and no re-emitting a prior step's id (no
+# regeneration). Correct order is implied by the per-turn expected type.
+
+# ----- Conv5 — registration → manager approval (2 interactive steps) -----
+- description: "Conv5/T1: registration form (DSL)"
+  vars:
+    message: |
+      form#registration-form[full-name*:t, email*^:e](action=registration-submitted)
+  metadata: { conversationId: own-conv-5-flow }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/has-sensitive.mjs }
+
+- description: "Conv5/T2: approval gate advances flow — no form re-emit (DSL)"
+  vars:
+    message: |
+      approval-gate#manager-approval
+  metadata: { conversationId: own-conv-5-flow }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }
+
+# ----- Conv6 — incident flow: form → approval-gate → webhook (3 steps) -----
+- description: "Conv6/T1: incident intake form (DSL)"
+  vars:
+    message: |
+      form#incident-form[title*:t, severity*:s{low|high}](action=incident-submitted)
+  metadata: { conversationId: own-conv-6-flow }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [form] } }
+    - { type: javascript, value: file://assertions/select-has-options.mjs }
+
+- description: "Conv6/T2: approval gate advances flow — no form re-emit (DSL)"
+  vars:
+    message: |
+      approval-gate#incident-review
+  metadata: { conversationId: own-conv-6-flow }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [approval-gate] } }
+
+- description: "Conv6/T3: webhook advances flow — no prior re-emit (DSL)"
+  vars:
+    message: |
+      webhook#notify-oncall(action=incident-approved)
+  metadata: { conversationId: own-conv-6-flow }
+  assert:
+    - { type: javascript, value: file://assertions/only-components.mjs, config: { allowed: [webhook] } }
+    - { type: javascript, value: file://assertions/has-webhook.mjs }

@@ -33,4 +33,7 @@ Component rules:
 - webhook: requires "url" and "trigger: <action-id>".
 - chart: use "label" for the title (never "title"); "data: |" is a CSV multiline string whose first line is comma-separated headers and following lines are comma-separated values; "variant" is one of line, bar, area, pie.
 
-Never use a bare "action" key. Forms use "onSubmit", buttons use "onAction", webhooks use "trigger".`;
+Never use a bare "action" key. Forms use "onSubmit", buttons use "onAction", webhooks use "trigger".
+
+Select options are STRINGS — quote both "label" AND "value" when they look numeric or boolean (label: "0", value: "0", never label: 0).
+Quote any YAML scalar that is, or starts with, a special character (>, <, |, &, *, !, %, @, ?) so it parses, e.g. unit: "%", range: "> 40 mg/dL".`;

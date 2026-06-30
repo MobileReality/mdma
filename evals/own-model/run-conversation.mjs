@@ -47,7 +47,7 @@ async function gen(messages) {
     headers: { 'Content-Type': 'application/json', Authorization: 'Bearer unused' },
     body: JSON.stringify({
       model: MODEL,
-      temperature: 0,
+      temperature: 1,
       max_tokens: 2048,
       chat_template_kwargs: { enable_thinking: false },
       messages,

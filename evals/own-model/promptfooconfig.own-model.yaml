@@ -30,7 +30,7 @@ providers:
     config:
       apiBaseUrl: "{{ env.OWN_MODEL_BASE_URL }}"
       apiKey: "{{ env.OWN_MODEL_API_KEY }}"
-      temperature: 0
+      temperature: 1
       # 31B has a large context (no 2048 cap like E4B); 1024 truncated big
       # multi-component docs (callout + full data table), so raised to 2048.
       max_tokens: 2048

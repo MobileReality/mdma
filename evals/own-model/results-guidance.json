@@ -1,0 +1,2061 @@
+{
+  "evalId": "eval-8Bh-2026-06-30T09:51:35",
+  "results": {
+    "version": 3,
+    "timestamp": "2026-06-30T09:51:35.646Z",
+    "prompts": [
+      {
+        "raw": "function ({ vars }) {\n  return [\n    { role: 'system', content: `{% raw %}${SYSTEM_PROMPT}{% endraw %}` },\n    { role: 'user', content: `{% raw %}${vars.request}{% endraw %}` },\n  ];\n}",
+        "label": "own-model/prompt-guidance.mjs",
+        "config": {},
+        "id": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "provider": "openai:chat:mdma-26b",
+        "metrics": {
+          "score": 15,
+          "testPassCount": 15,
+          "testFailCount": 0,
+          "testErrorCount": 0,
+          "assertPassCount": 15,
+          "assertFailCount": 0,
+          "totalLatencyMs": 57059,
+          "tokenUsage": {
+            "prompt": 3369,
+            "completion": 6062,
+            "cached": 0,
+            "total": 9431,
+            "numRequests": 15,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0,
+              "cacheReadInputTokens": 0,
+              "cacheCreationInputTokens": 0
+            },
+            "assertions": {
+              "total": 0,
+              "prompt": 0,
+              "completion": 0,
+              "cached": 0,
+              "numRequests": 0,
+              "completionDetails": {
+                "reasoning": 0,
+                "acceptedPrediction": 0,
+                "rejectedPrediction": 0,
+                "cacheReadInputTokens": 0,
+                "cacheCreationInputTokens": 0
+              }
+            }
+          },
+          "namedScores": {},
+          "namedScoresCount": {},
+          "namedScoreWeights": {},
+          "cost": 0
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "a496e47d-0b09-426e-8c5d-d3c139a31529",
+        "latencyMs": 2651,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a contact form with fields for full name, email address, and a message.\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-9214d91e475118c6",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# Contact Us\\n\\nPlease use the form below to send us a message. We will get back to you as soon as possible.\\n\\n<form \\n  action=\\\"https://example.com/api/contact\\\" \\n  method=\\\"POST\\\"\\n>\\n  <group>\\n    <field \\n      label=\\\"Full Name\\\" \\n      name=\\\"fullName\\\" \\n      type=\\\"text\\\" \\n      required \\n      placeholder=\\\"John Doe\\\"\\n    />\\n    <field \\n      label=\\\"Email Address\\\" \\n      name=\\\"email\\\" \\n      type=\\\"email\\\" \\n      required \\n      placeholder=\\\"john@example.com\\\"\\n    />\\n    <field \\n      label=\\\"Message\\\" \\n      name=\\\"message\\\" \\n      type=\\\"textarea\\\" \\n      required \\n      placeholder=\\\"How can we help you?\\\"\\n    />\\n  </group>\\n\\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Send Message</button>\\n</form>\\n\\n:::info\\nNote: We typically respond within 24-48 business hours.\\n:::\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 472,
+            "prompt": 224,
+            "completion": 248,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 2651,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "1705",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:35 GMT",
+                "modal-function-call-id": "fc-01KWBZ1Y6PVEGDNRWMZTJFSF5A",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Contact form request calls generate_mdma",
+          "vars": {
+            "request": "Create a contact form with fields for full name, email address, and a message."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "request": "Create a contact form with fields for full name, email address, and a message."
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "1705",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:35 GMT",
+              "modal-function-call-id": "fc-01KWBZ1Y6PVEGDNRWMZTJFSF5A",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "412dc0f9-f35e-4735-8486-af0bb1a229b0",
+        "latencyMs": 5261,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Build an employee onboarding flow with three steps: personal information, IT equipment setup, and policy acknowledgment.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-8d5d6df4e87f4315",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# Employee Onboarding Flow\\n\\nWelcome to the team! Please complete the following steps to finalize your onboarding process.\\n\\n---\\n\\n## Step 1: Personal Information\\nPlease provide your details to ensure our payroll and HR systems are accurate.\\n\\n<form>\\n  <field type=\\\"text\\\" label=\\\"Full Legal Name\\\" required=\\\"true\\\" />\\n  <field type=\\\"email\\\" label=\\\"Personal Email Address\\\" required=\\\"true\\\" />\\n  <field type=\\\"date\\\" label=\\\"Date of Birth\\\" required=\\\"true\\\" />\\n  <field type=\\\"text\\\" label=\\\"Emergency Contact Name\\\" required=\\\"true\\\" />\\n  <field type=\\\"tel\\\" label=\\\"Emergency Contact Phone\\\" required=\\\"true\\\" />\\n  <field type=\\\"text\\\" label=\\\"Home Address\\\" required=\\\"true\\\" />\\n</form>\\n\\n---\\n\\n## Step 2: IT Equipment Setup\\nPlease select the hardware configuration required for your role.\\n\\n<form>\\n  <field type=\\\"select\\\" label=\\\"Laptop Model\\\" required=\\\"true\\\">\\n    <option value=\\\"macbook-pro\\\">MacBook Pro 14\\\" (M3 Chip)</option>\\n    <option value=\\\"macbook-air\\\">MacBook Air 13\\\" (M3 Chip)</option>\\n    <option value=\\\"dell-xps\\\">Dell XPS 15 (Windows)</option>\\n  </field>\\n  <field type=\\\"select\\\" label=\\\"Monitor Setup\\\" required=\\\"true\\\">\\n    <option value=\\\"single-27\\\">Single 27\\\" 4K Monitor</option>\\n    <option value=\\\"dual-27\\\">Dual 27\\\" 4K Monitors</option>\\n    <option value=\\\"none\\\">No Monitor Required</option>\\n  </field>\\n  <field type=\\\"checkbox\\\" label=\\\"Need Peripheral Kit (Mouse, Keyboard, Adapter)\\\" />\\n</form>\\n\\n---\\n\\n## Step 3: Policy Acknowledgment\\nPlease review the documents below and confirm your agreement.\\n\\n<callout type=\\\"info\\\" title=\\\"Required Reading\\\">\\nBefore proceeding, please ensure you have read the Employee Handbook, Data Privacy Policy, and Code of Conduct.\\n</callout>\\n\\n<tasklist>\\n  <task label=\\\"I have read and understood the Employee Handbook\\\" required=\\\"true\\\" />\\n  <task label=\\\"I agree to the Data Privacy & Security Policy\\\" required=\\\"true\\\" />\\n  <task label=\\\"I have read the Code of Conduct\\\" required=\\\"true\\\" />\\n</tasklist>\\n\\n---\\n\\n## Final Submission\\n\\nOnce you have completed all three steps, please click the button below to submit your onboarding packet to the HR team.\\n\\n<webhook url=\\\"https://api.yourcompany.com/onboarding/submit\\\" method=\\\"POST\\\">\\n  <button label=\\\"Submit Onboarding Packet\\\" variant=\\\"primary\\\" />\\n</webhook>\\n\\n<approval-gate>\\n  <label>HR Approval Status</label>\\n  <status current=\\\"pending\\\" />\\n</approval-gate>\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 874,
+            "prompt": 227,
+            "completion": 647,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 5261,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "3487",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:38 GMT",
+                "modal-function-call-id": "fc-01KWBZ20FNFPYCZG6JHSX2HZ2Z",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Onboarding flow request calls generate_mdma",
+          "vars": {
+            "request": "Build an employee onboarding flow with three steps: personal information, IT equipment setup, and policy acknowledgment.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 1,
+        "vars": {
+          "request": "Build an employee onboarding flow with three steps: personal information, IT equipment setup, and policy acknowledgment.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "3487",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:38 GMT",
+              "modal-function-call-id": "fc-01KWBZ20FNFPYCZG6JHSX2HZ2Z",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "741dcd71-346e-4b49-ad80-72c501ae17cb",
+        "latencyMs": 3600,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"I need a bug report form for my engineering team. It should capture the title, severity, steps to reproduce, and an optional file attachment.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-8f8d448000a67b3b",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# 🐞 Bug Report Form\\nUse this form to report bugs and technical issues found during development or testing. Please provide as much detail as possible to help the engineering team reproduce and resolve the issue quickly.\\n\\n---\\n\\n## 📋 Issue Details\\n\\n<form>\\n  <input type=\\\"text\\\" name=\\\"title\\\" label=\\\"Bug Title\\\" placeholder=\\\"Brief, descriptive summary of the issue\\\" required />\\n\\n  <select name=\\\"severity\\\" label=\\\"Severity\\\" required>\\n    <option value=\\\"critical\\\">🔴 Critical (System Down / Blocker)</option>\\n    <option value=\\\"high\\\">🟠 High (Major functionality broken, no workaround)</option>\\n    <option value=\\\"medium\\\" selected>🟡 Medium (Minor functionality issue, workaround exists)</option>\\n    <option value=\\\"low\\\">🔵 Low (Cosmetic, UI/UX, or suggestion)</option>\\n  </select>\\n\\n  <textarea name=\\\"steps_to_reproduce\\\" label=\\\"Steps to Reproduce\\\" placeholder=\\\"1. Go to '...'&#10;2. Click on '...'&#10;3. Scroll down to '...'\\\" required />\\n\\n  <file-upload name=\\\"attachments\\\" label=\\\"Attachments (Screenshots, Logs, Videos)\\\" />\\n</form>\\n\\n---\\n\\n## 🛠️ Metadata\\n| Field | Details |\\n| :--- | :--- |\\n| **Reported By** | `{{user.name}}` |\\n| **Timestamp** | `{{now}}` |\\n| **Environment** | Production / Staging / Local |\\n\\n<button type=\\\"submit\\\" variant=\\\"primary\\\" webhook=\\\"https://your-jira-webhook-url.com/api/issue-create\\\">\\n  Submit Bug Report\\n</button>\\n\\n<callout type=\\\"info\\\" title=\\\"Pro-Tip\\\">\\n  Before submitting, please check if the issue has already been reported in the **#engineering-bugs** Slack channel or our Jira backlog.\\n</callout>\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 665,
+            "prompt": 236,
+            "completion": 429,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 3600,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "2510",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:43 GMT",
+                "modal-function-call-id": "fc-01KWBZ25KZNDXFFDKJAWRYBQX2",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Bug report form calls generate_mdma",
+          "vars": {
+            "request": "I need a bug report form for my engineering team. It should capture the title, severity, steps to reproduce, and an optional file attachment.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 2,
+        "vars": {
+          "request": "I need a bug report form for my engineering team. It should capture the title, severity, steps to reproduce, and an optional file attachment.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "2510",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:43 GMT",
+              "modal-function-call-id": "fc-01KWBZ25KZNDXFFDKJAWRYBQX2",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "471957d6-7e0d-47f1-a02e-c596a66136d2",
+        "latencyMs": 4731,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a customer satisfaction survey with rating questions for product quality, support experience, and likelihood to recommend.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-b4db7c0e7629e632",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# Customer Satisfaction Survey 📝\\n\\nThank you for your feedback! We are constantly working to improve our products and services, and your input is invaluable to us. It will only take about 2 minutes to complete.\\n\\n---\\n\\n### 🌟 Product Experience\\n\\n**1. How would you rate the overall quality of the product?**\\n{\\n  \\\"type\\\": \\\"rating\\\",\\n  \\\"id\\\": \\\"product_quality\\\",\\n  \\\"label\\\": \\\"Product Quality\\\",\\n  \\\"options\\\": [\\\"Poor\\\", \\\"Fair\\\", \\\"Good\\\", \\\"Very Good\\\", \\\"Excellent\\\"]\\n}\\n\\n**2. Did the product meet your initial expectations?**\\n{\\n  \\\"type\\\": \\\"select\\\",\\n  \\\"id\\\": \\\"met_expectations\\\",\\n  \\\"label\\\": \\\"Expectations Met\\\",\\n  \\\"options\\\": [\\\"Exceeded expectations\\\", \\\"Met expectations\\\", \\\"Below expectations\\\"]\\n}\\n\\n---\\n\\n### 🎧 Support Experience\\n\\n**3. How satisfied were you with our support team's response time and expertise?**\\n{\\n  \\\"type\\\": \\\"rating\\\",\\n  \\\"id\\\": \\\"support_experience\\\",\\n  \\\"label\\\": \\\"Support Experience\\\",\\n  \\\"options\\\": [\\\"Poor\\\", \\\"Fair\\\", \\\"Good\\\", \\\"Very Good\\\", \\\"Excellent\\\"]\\n}\\n\\n**4. Please tell us more about your experience with our support team (optional):**\\n{\\n  \\\"type\\\": \\\"textarea\\\",\\n  \\\"id\\\": \\\"support_details\\\",\\n  \\\"label\\\": \\\"Support Details\\\"\\n}\\n\\n---\\n\\n### 🚀 Future Outlook\\n\\n**5. On a scale of 0-10, how likely are you to recommend us to a friend or colleague?**\\n{\\n  \\\"type\\\": \\\"rating\\\",\\n  \\\"id\\\": \\\"nps_score\\\",\\n  \\\"label\\\": \\\"Net Promoter Score (NPS)\\\",\\n  \\\"options\\\": [\\\"0\\\", \\\"1\\\", \\\"2\\\", \\\"3\\\", \\\"4\\\", \\\"5\\\", \\\"6\\\", \\\"7\\\", \\\"8\\\", \\\"9\\\", \\\"10\\\"]\\n}\\n\\n**6. Is there anything else you'd like to share with us?**\\n{\\n  \\\"type\\\": \\\"textarea\\\",\\n  \\\"id\\\": \\\"additional_feedback\\\",\\n  \\\"label\\\": \\\"Additional Comments\\\"\\n}\\n\\n---\\n\\n### 📤 Submission\\n\\n{\\n  \\\"type\\\": \\\"button\\\",\\n  \\\"label\\\": \\\"Submit Survey\\\",\\n  \\\"action\\\": \\\"webhook\\\",\\n  \\\"url\\\": \\\"https://your-api-endpoint.com/webhook/survey-submission\\\",\\n  \\\"method\\\": \\\"POST\\\",\\n  \\\"requires_validation\\\": true\\n}\\n\\n*Your responses are confidential and will be used solely for improving our services.*\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 805,
+            "prompt": 227,
+            "completion": 578,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 4731,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "3219",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:47 GMT",
+                "modal-function-call-id": "fc-01KWBZ295DZQBA318GW3R9WAVQ",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Customer satisfaction survey calls generate_mdma",
+          "vars": {
+            "request": "Create a customer satisfaction survey with rating questions for product quality, support experience, and likelihood to recommend.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 3,
+        "vars": {
+          "request": "Create a customer satisfaction survey with rating questions for product quality, support experience, and likelihood to recommend.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "3219",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:47 GMT",
+              "modal-function-call-id": "fc-01KWBZ295DZQBA318GW3R9WAVQ",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "1648a9a1-0287-4311-922d-b9c4233e5543",
+        "latencyMs": 4042,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Make an expense reimbursement approval workflow: the employee submits amount and category, then a manager approves or rejects with a comment.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-b7441250fc492738",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# Expense Reimbursement Approval Workflow\\n\\nThis workflow facilitates the submission and approval process for employee expenses. \\n\\n## 1. Submission Phase\\n*To be completed by the Employee.*\\n\\n:::form\\n**Expense Submission Form**\\n\\n- **Amount**: {type: number, placeholder: \\\"0.00\\\", required: true}\\n- **Currency**: {type: select, options: [\\\"USD\\\", \\\"EUR\\\", \\\"GBP\\\", \\\"JPY\\\"], default: \\\"USD\\\"}\\n- **Category**: {type: select, options: [\\\"Travel\\\", \\\"Meals\\\", \\\"Office Supplies\\\", \\\"Software/SaaS\\\", \\\"Training\\\", \\\"Other\\\"], required: true}\\n- **Description**: {type: textarea, placeholder: \\\"Briefly explain the business purpose...\\\"}\\n- **Receipt Upload**: {type: file, accept: \\\"image/*,application/pdf\\\"}\\n\\n[Submit Expense Request]({{webhook:SUBMIT_EXPENSE}})\\n:::\\n\\n---\\n\\n## 2. Approval Phase\\n*This section is visible only to the assigned Manager once a request is submitted.*\\n\\n:::callout type:info title=\\\"Pending Approval\\\"\\nA new expense reimbursement request has been submitted and is awaiting your review.\\n:::\\n\\n| Item | Detail |\\n| :--- | :--- |\\n| **Submitted By** | {{user_name}} |\\n| **Amount** | {{submitted_amount}} {{currency}} |\\n| **Category** | {{category}} |\\n| **Description** | {{description}} |\\n\\n:::form\\n**Manager Review**\\n\\n- **Decision**: {type: radio, options: [\\\"Approve\\\", \\\"Reject\\\"], required: true}\\n- **Comment**: {type: textarea, placeholder: \\\"Provide reasoning (required for rejection)...\\\"}\\n\\n[Submit Decision]({{webhook:PROCESS_DECISION}})\\n:::\\n\\n---\\n\\n## 3. Final Status\\n*Once a decision is reached, the status is updated here.*\\n\\n:::status\\n**Current Status: {{status}}**\\n{{status_message}}\\n:::\\n\\n# Workflow Legend\\n- 🟢 **Approved**: The amount will be processed by Payroll.\\n- 🔴 **Rejected**: The employee will be notified of the reason for rejection.\\n- 🟡 **Pending**: Awaiting manager action.\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 715,
+            "prompt": 231,
+            "completion": 484,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 4042,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "2780",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:51 GMT",
+                "modal-function-call-id": "fc-01KWBZ2DSX15TD25S7F534B86X",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Expense approval workflow calls generate_mdma",
+          "vars": {
+            "request": "Make an expense reimbursement approval workflow: the employee submits amount and category, then a manager approves or rejects with a comment.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 4,
+        "vars": {
+          "request": "Make an expense reimbursement approval workflow: the employee submits amount and category, then a manager approves or rejects with a comment.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "2780",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:51 GMT",
+              "modal-function-call-id": "fc-01KWBZ2DSX15TD25S7F534B86X",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "4cbc03d2-9d16-4374-82de-3ef5af1cd88f",
+        "latencyMs": 6649,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Build a sales pipeline dashboard showing deals grouped by stage with a bar chart of revenue by month.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-9bf10d800c3a3247",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# 📈 Sales Pipeline Dashboard\\n\\n> **Status Update:** All regional sales targets are currently on track. Q3 projections show a 15% increase compared to Q2.\\n\\n---\\n\\n## 📊 Revenue Projections\\n*Monthly revenue tracking against quarterly goals.*\\n\\n```mermaid\\n{\\n  \\\"type\\\": \\\"bar\\\",\\n  \\\"data\\\": {\\n    \\\"labels\\\": [\\\"Jan\\\", \\\"Feb\\\", \\\"Mar\\\", \\\"Apr\\\", \\\"May\\\", \\\"Jun\\\"],\\n    \\\"datasets\\\": [\\n      {\\n        \\\"label\\\": \\\"Projected Revenue ($)\\\",\\n        \\\"data\\\": [45000, 52000, 48000, 61000, 59000, 75000],\\n        \\\"backgroundColor\\\": \\\"#3b82f6\\\"\\n      }\\n    ]\\n  },\\n  \\\"options\\\": {\\n    \\\"scales\\\": {\\n      \\\"y\\\": { \\\"beginAtZero\\\": true }\\n    }\\n  }\\n}\\n```\\n\\n---\\n\\n## 📑 Active Deals by Stage\\n\\n| Deal Name | Primary Contact | Value | Stage | Owner | Action |\\n| :--- | :--- | :--- | :--- | :--- | :--- |\\n| **Acme Corp Expansion** | Jane Doe | $25,000 | `Discovery` | @sarah_sales | [Edit Deal] |\\n| **Globex Tech License** | John Smith | $45,000 | `Proposal` | @mike_deals | [Edit Deal] |\\n| **Stark Industries Cloud** | Pepper Potts | $120,000 | `Negotiation` | @sarah_sales | [Edit Deal] |\\n| **Wayne Enterprises HQ** | Bruce Wayne | $15,000 | `Contracting` | @mike_deals | [Edit Deal] |\\n| **Cyberdyne Systems** | Sarah Connor | $60,000 | `Discovery` | @mike_deals | [Edit Deal] |\\n\\n---\\n\\n## ⚙️ Pipeline Management\\n\\n### 🚀 Quick Actions\\nUse these buttons to perform bulk actions on the current view.\\n\\n<button variant=\\\"primary\\\" onclick=\\\"webhook('bulk_move_stage', {stage: 'Negotiation'})\\\">Move Selected to Negotiation</button>\\n<button variant=\\\"secondary\\\" onclick=\\\"webhook('close_won', {selected: true})\\\">Mark Selected as Won</button>\\n<button variant=\\\"danger\\\" onclick=\\\"confirm('Are you sure you want to delete these deals?')\\\">Delete Selected</button>\\n\\n### ✅ Daily Sales Tasks\\n*Keep the pipeline clean to ensure accurate forecasting.*\\n\\n- [ ] Follow up on all \\\"Discovery\\\" stage leads older than 3 days\\n- [ ] Review pending contracts in the \\\"Contracting\\\" phase\\n- [ ] Update forecast notes for any deal >$50k\\n- [ ] Sync weekly activity report to CRM\\n\\n---\\n\\n### 🛡️ Approval Gates\\n*Sensitive deals requiring manager oversight before closing.*\\n\\n:::callout type=\\\"warning\\\"\\n### ⚠️ Pending Approvals Needed\\nThe following deals require management approval before the contract can be issued:\\n1. **Stark Industries Cloud** ($120,000) - *Reason: High discount requested (20%)*\\n2. **Cyberdyne Systems** ($60,000) - *Reason: Custom SLA terms*\\n\\n[Review Pending Approvals]\\n:::\\n\\n:::webhook action=\\\"request_approval_workflow\\\" payload='{\\\"deal_id\\\": \\\"stark_cloud_123\\\", \\\"reason\\\": \\\"high_discount\\\"}':::\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 1018,
+            "prompt": 226,
+            "completion": 792,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 6649,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "3674",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:51:55 GMT",
+                "modal-function-call-id": "fc-01KWBZ2HS4CT0TDHFGFWSCKQZW",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Sales dashboard request calls generate_mdma",
+          "vars": {
+            "request": "Build a sales pipeline dashboard showing deals grouped by stage with a bar chart of revenue by month.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 5,
+        "vars": {
+          "request": "Build a sales pipeline dashboard showing deals grouped by stage with a bar chart of revenue by month.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "3674",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:51:55 GMT",
+              "modal-function-call-id": "fc-01KWBZ2HS4CT0TDHFGFWSCKQZW",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "9c617098-2a07-4109-a832-8755d38cf4f0",
+        "latencyMs": 5099,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Create a document upload form for medical records with patient name, date of birth, and a file upload field.\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-8c771d3adcfe1c6a",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# 🏥 Medical Record Upload Portal\\n\\nPlease use the form below to securely upload medical documentation. Ensure all files are clear and legible.\\n\\n---\\n\\n### 📄 Upload Form\\n\\n<form>\\n  <fieldset>\\n    <legend>Patient Information</legend>\\n    \\n    <label for=\\\"patient-name\\\">Full Patient Name</label>\\n    <input type=\\\"text\\\" id=\\\"patient-name\\\" name=\\\"patient-name\\\" placeholder=\\\"e.g. John Doe\\\" required />\\n    <p class=\\\"error-msg\\\">This field is required.</p>\\n\\n    <label for=\\\"dob\\\">Date of Birth</label>\\n    <input type=\\\"date\\\" id=\\\"dob\\\" name=\\\"dob\\\" required />\\n    <p class=\\\"error-msg\\\">Please select a valid date.</p>\\n  </fieldset>\\n\\n  <fieldset>\\n    <legend>Document Details</legend>\\n    \\n    <label for=\\\"record-type\\\">Record Type</label>\\n    <select id=\\\"record-type\\\" name=\\\"record-type\\\">\\n      <option value=\\\"lab-results\\\">Lab Results</option>\\n      <option value=\\\"imaging\\\">Imaging (X-Ray, MRI, etc.)</option>\\n      <option value=\\\"physician-notes\\\">Physician Notes</option>\\n      <option value=\\\"immunization\\\">Immunization Records</option>\\n      <option value=\\\"other\\\">Other</option>\\n    </select>\\n\\n    <label for=\\\"file-upload\\\">Upload Medical Files</label>\\n    <input type=\\\"file\\\" id=\\\"file-upload\\\" name=\\\"file-upload\\\" multiple required />\\n    <p class=\\\"hint\\\">Accepted formats: PDF, JPG, PNG. Max file size: 10MB.</p>\\n  </fieldset>\\n\\n  <div class=\\\"actions\\\">\\n    <button type=\\\"submit\\\" variant=\\\"primary\\\">Submit Records</button>\\n    <button type=\\\"reset\\\" variant=\\\"secondary\\\">Clear Form</button>\\n  </div>\\n</form>\\n\\n---\\n\\n> [!IMPORTANT]\\n> **Privacy Notice:** All documents uploaded are encrypted and handled in accordance with HIPAA regulations. Do not upload documents that do not belong to the patient specified above.\\n\\n<webhook url=\\\"/api/v1/medical-records/upload\\\" method=\\\"POST\\\" />\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 735,
+            "prompt": 229,
+            "completion": 506,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 5099,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "2818",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:02 GMT",
+                "modal-function-call-id": "fc-01KWBZ2RA29BWRDDYR6D2M7Y01",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "File upload form calls generate_mdma",
+          "vars": {
+            "request": "Create a document upload form for medical records with patient name, date of birth, and a file upload field."
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 6,
+        "vars": {
+          "request": "Create a document upload form for medical records with patient name, date of birth, and a file upload field."
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "2818",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:02 GMT",
+              "modal-function-call-id": "fc-01KWBZ2RA29BWRDDYR6D2M7Y01",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly called generate_mdma tool",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs"
+              }
+            }
+          ]
+        },
+        "id": "e969d7e6-262d-4f7f-90a1-72a4983e26f7",
+        "latencyMs": 5161,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"I need a KYC form that collects full name, date of birth, national ID number, residential address, and a document upload for ID verification.\\n\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": [
+            {
+              "id": "chatcmpl-tool-95366ab5cfa51291",
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "arguments": "{\"document\": \"# KYC Verification Form\\n\\nPlease complete the following details to verify your identity. Ensure all information matches your legal documentation.\\n\\n---\\n\\n## 👤 Personal Information\\n\\n<form>\\n  <section>\\n    ### Basic Identity\\n    **Full Name**\\n    *As it appears on your legal documents*\\n    <input type=\\\"text\\\" name=\\\"full_name\\\" placeholder=\\\"e.g. John Doe\\\" required />\\n\\n    **Date of Birth**\\n    <input type=\\\"date\\\" name=\\\"dob\\\" required />\\n\\n    **National ID Number**\\n    <input type=\\\"text\\\" name=\\\"national_id\\\" placeholder=\\\"Enter ID number\\\" required />\\n  </section>\\n\\n  <section>\\n    ### Residential Address\\n    **Street Address**\\n    <input type=\\\"text\\\" name=\\\"address_line1\\\" placeholder=\\\"House No, Street Name\\\" required />\\n\\n    **City**\\n    <input type=\\\"text\\\" name=\\\"city\\\" required />\\n\\n    **Postal Code**\\n    <input type=\\\"text\\\" name=\\\"postal_code\\\" required />\\n\\n    **Country**\\n    <select name=\\\"country\\\" required>\\n      <option value=\\\"\\\">Select a country</option>\\n      <option value=\\\"US\\\">United States</option>\\n      <option value=\\\"GB\\\">United Kingdom</option>\\n      <option value=\\\"CA\\\">Canada</option>\\n      <option value=\\\"AU\\\">Australia</option>\\n      <!-- Add more options as needed -->\\n    </select>\\n  </section>\\n\\n  <section>\\n    ### Document Upload\\n    **Upload Identification Document**\\n    *Please upload a clear, color photo of your Passport, Driver's License, or National ID Card.*\\n    <file-upload name=\\\"id_document\\\" accept=\\\"image/*,.pdf\\\" required />\\n  </section>\\n\\n  <button type=\\\"submit\\\" variant=\\\"primary\\\">Submit Verification</button>\\n</form>\\n\\n> [!IMPORTANT]\\n> By submitting this form, you consent to the processing of your personal data for identity verification purposes in accordance with our Privacy Policy.\\n\\n---\\n\\n## 🛠️ Next Steps\\n1. **Automated Check**: Your details will be run against global sanctions and PEP (Politically Exposed Persons) lists.\\n2. **Manual Review**: A compliance officer will review your uploaded document.\\n3. **Notification**: You will receive an email once your verification is complete.\\n\"}"
+              }
+            }
+          ],
+          "tokenUsage": {
+            "total": 761,
+            "prompt": 236,
+            "completion": 525,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 5161,
+          "finishReason": "tool_calls",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "3076",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:07 GMT",
+                "modal-function-call-id": "fc-01KWBZ2X9VTDZPW9GW0RQ5MNP6",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "KYC verification form calls generate_mdma",
+          "vars": {
+            "request": "I need a KYC form that collects full name, date of birth, national ID number, residential address, and a document upload for ID verification.\n"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs"
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 7,
+        "vars": {
+          "request": "I need a KYC form that collects full name, date of birth, national ID number, residential address, and a document upload for ID verification.\n"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "3076",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:07 GMT",
+              "modal-function-call-id": "fc-01KWBZ2X9VTDZPW9GW0RQ5MNP6",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "cbbc7d58-3854-4fa3-90d9-f0f8a8c43656",
+        "latencyMs": 2438,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"What kind of interactive documents can MDMA format represent?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "MDMA is a highly versatile format designed to transform static documentation into interactive user interfaces. It can represent a wide range of dynamic components, including:\n\n### 🛠️ Input & Decision Making\n*   **Forms:** Collect structured data from users with various input types.\n*   **Approval Gates:** Embed decision-making workflows where users can approve or reject specific items.\n*   **Buttons:** Trigger immediate actions or navigate users to specific contexts.\n\n### 📊 Data Visualization & Organization\n*   **Tables:** Display complex datasets in organized, readable grids.\n*   **Charts:** Turn raw numbers into interactive visual representations (bar charts, line graphs, etc.).\n*   **Tasklists:** Manage actionable items with checkboxes to track progress.\n\n### 🔔 Communication & Alerts\n*   **Callouts:** Highlight critical information, warnings, or notes to grab user attention.\n*   **Webhooks:** Integrate with external systems by sending data or triggering events to other services upon user interaction.\n\nEssentially, MDMA allows you to move beyond \"reading\" a document to \"operating\" within it.",
+          "tokenUsage": {
+            "total": 444,
+            "prompt": 218,
+            "completion": 226,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 2438,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "1771",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:12 GMT",
+                "modal-function-call-id": "fc-01KWBZ32C7WWFAVDYH31KGJ5SN",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Informational question does not call generate_mdma",
+          "vars": {
+            "request": "What kind of interactive documents can MDMA format represent?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 8,
+        "vars": {
+          "request": "What kind of interactive documents can MDMA format represent?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "1771",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:12 GMT",
+              "modal-function-call-id": "fc-01KWBZ32C7WWFAVDYH31KGJ5SN",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "69b43e2c-28cf-4243-bdf5-9b6abbaaa0dd",
+        "latencyMs": 6814,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Can you explain the difference between a form and a steps component in MDMA?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "In MDMA, both **Forms** and **Steps** are used to guide users through data entry or processes, but they serve very different structural and functional purposes.\n\nHere is the breakdown of the differences:\n\n### 1. The Form Component\nA **Form** is a collection of input fields used to **gather and submit data**. It is a \"data-centric\" component.\n\n*   **Purpose:** To capture specific information (like text, numbers, dates, or selections) from a user.\n*   **Structure:** It contains individual inputs (text fields, dropdowns, checkboxes, etc.) and is usually submitted as a single transactional unit.\n*   **Interaction Pattern:** The user fills out the fields and then clicks a \"Submit\" button to send the collected data to a backend or webhook.\n*   **Use Case:** A \"New User Registration\" form, a \"Bug Report\" form, or a \"Customer Feedback\" form.\n\n### 2. The Steps Component\nA **Steps** component is a **workflow navigator**. It is a \"process-centric\" component.\n\n*   **Purpose:** To break down a complex, multi-part task into digestible, sequential stages. It visualizes progress and controls the \"journey\" through a task.\n*   **Structure:** It consists of a series of \"nodes\" or stages (e.g., Step 1: Information, Step 2: Review, Step 3: Confirmation). \n*   **Interaction Pattern:** The user clicks through steps to move forward or backward. Unlike a form, \"Steps\" do not necessarily *contain* the data itself; rather, they act as a container that orchestrates when certain parts of a process are visible or actionable.\n*   **Use Case:** An \"Onboarding Wizard,\" a \"Multi-stage Checkout,\" or a \"Complex Project Setup\" where the user shouldn't see all the complexity at once.\n\n---\n\n### Comparison Summary\n\n| Feature | Form | Steps |\n| :--- | :--- | :--- |\n| **Primary Goal** | Data Capture | Process Navigation |\n| **Focus** | *What* information is being collected | *How* the user moves through a process |\n| **Granularity** | Low-level (individual inputs) | High-level (the entire workflow) |\n| **Mental Model** | \"Fill this out and send it.\" | \"First do this, then do that.\" |\n| **Dependency** | An input field is part of a form. | A form is often *contained within* a step. |\n\n### How they work together\nIn a professional MDMA implementation, you rarely choose one *over* the other. Instead, you **nest Forms inside Steps**.\n\n**Example Scenario: Buying a subscription**\n1.  **Step 1 (Form):** User fills out a `plan_selection_form` (dropdowns/toggles).\n2.  **Step 2 (Form):** User fills out a `payment_details_form` (credit card/address inputs).\n3.  **Step 3 (Review):** A summary view (not a form) showing all gathered data.\n4.  **Final Action:** A single `submit` button that triggers a webhook with the combined data from all previous steps.",
+          "tokenUsage": {
+            "total": 918,
+            "prompt": 223,
+            "completion": 695,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 6814,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "3444",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:15 GMT",
+                "modal-function-call-id": "fc-01KWBZ34S2HHJM6G3STZ5TWK1N",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Follow-up clarification does not call generate_mdma",
+          "vars": {
+            "request": "Can you explain the difference between a form and a steps component in MDMA?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 9,
+        "vars": {
+          "request": "Can you explain the difference between a form and a steps component in MDMA?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "3444",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:15 GMT",
+              "modal-function-call-id": "fc-01KWBZ34S2HHJM6G3STZ5TWK1N",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "e5947d4e-c966-4b54-9fd5-db07c4b6bf94",
+        "latencyMs": 998,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Thank you, the form looks great!\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "You're very welcome! I'm glad the form meets your needs.\n\nIf you need any adjustments—like adding new fields, changing the layout, adding validation, or even turning it into a different type of document (like a dashboard or a tasklist)—just let me know. I'm here to help!",
+          "tokenUsage": {
+            "total": 282,
+            "prompt": 215,
+            "completion": 67,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 998,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "906",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:21 GMT",
+                "modal-function-call-id": "fc-01KWBZ3BEVTPWA1KGQKX5XTQ5K",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "User acknowledgement does not call generate_mdma",
+          "vars": {
+            "request": "Thank you, the form looks great!"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 10,
+        "vars": {
+          "request": "Thank you, the form looks great!"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "906",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:21 GMT",
+              "modal-function-call-id": "fc-01KWBZ3BEVTPWA1KGQKX5XTQ5K",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "19288cda-e8d6-4443-ad15-c55b5c0426f9",
+        "latencyMs": 2148,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"How many components can I put in a single MDMA document?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "There is no hard limit on the number of components you can include in a single MDMA document. You can combine as many different types of interactive elements as you need to represent a complex workflow or interface.\n\nFor example, a single document could contain:\n*   **Form** for data entry\n*   **Table** to display current records\n*   **Tasklist** to track progress\n*   **Chart** for visual data analysis\n*   **Approval-gate** to trigger a workflow\n*   **Callout** to provide instructions\n\nThe only practical constraints are **readability** (ensuring the UI remains intuitive for the user) and the **token limit** of the underlying model (the document structure itself must fit within a single message's context). \n\nIf you have a complex use case in mind, I can help you design a layout that balances density with clarity.",
+          "tokenUsage": {
+            "total": 404,
+            "prompt": 220,
+            "completion": 184,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 2148,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "1465",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:22 GMT",
+                "modal-function-call-id": "fc-01KWBZ3CEVY0KDQQSTAXB9EYCE",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "MDMA capability question does not call generate_mdma",
+          "vars": {
+            "request": "How many components can I put in a single MDMA document?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 11,
+        "vars": {
+          "request": "How many components can I put in a single MDMA document?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "1465",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:22 GMT",
+              "modal-function-call-id": "fc-01KWBZ3CEVY0KDQQSTAXB9EYCE",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "4157957e-3d05-4fd8-99c1-b2927dfa7ebf",
+        "latencyMs": 888,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Can you remind me what fields were in the last form you created?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "I haven't created any forms in our current conversation yet. If you'd like me to build one for you, just let me know what information you need to collect, and I can generate an interactive form for you right away!",
+          "tokenUsage": {
+            "total": 270,
+            "prompt": 221,
+            "completion": 49,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 888,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "842",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:25 GMT",
+                "modal-function-call-id": "fc-01KWBZ3EJQE6E8ZT34VVQBAJAZ",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Follow-up about previous document does not call generate_mdma",
+          "vars": {
+            "request": "Can you remind me what fields were in the last form you created?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 12,
+        "vars": {
+          "request": "Can you remind me what fields were in the last form you created?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "842",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:25 GMT",
+              "modal-function-call-id": "fc-01KWBZ3EJQE6E8ZT34VVQBAJAZ",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "72ab0fd2-8677-4d54-85c4-792cfe800040",
+        "latencyMs": 3786,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Does MDMA support conditional field visibility based on other field values?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "No, the MDMA (Markdown Document Model Architecture) specification **does not currently support conditional field visibility** or dynamic \"show/hide\" logic within forms.\n\nIn MDMA, all fields defined within a form component are rendered statically on the page once the document is loaded. \n\n### How to handle logic-heavy requirements:\n\nWhile you cannot hide a field based on another's value, you can achieve similar outcomes using these patterns:\n\n1.  **Use Conditional Approval Gates:** Instead of hiding a field, use an `approval-gate` that only becomes actionable once certain criteria are met, or use `webhooks` to trigger external workflows that handle branching logic outside the document.\n2.  **Information Architecture:** Design your forms linearly. If a user's answer to Question A changes the context of the rest of the form, use a **Callout** or a **Step-based approach** (multiple small documents/pages) to guide them through the specific path they need.\n3.  **Validation instead of Visibility:** Use the `validation` property on fields to prevent incorrect data entry. This doesn't hide the field, but it prevents the user from progressing until the input matches the required context.\n\n**Summary Table**\n\n| Feature | Supported? | Workaround |\n| :--- | :--- | :--- |\n| **Conditional Field Visibility** | ❌ No | Use linear design or step-based flows. |\n| **Dynamic UI Changes** | ❌ No | Handle branching logic via backend webhooks. |\n| **Data Validation** | ✅ Yes | Use `regex` or `enum` to enforce correct inputs. |\n| **Form Submission** | ✅ Yes | Send data to an external endpoint via `webhook`. |",
+          "tokenUsage": {
+            "total": 586,
+            "prompt": 220,
+            "completion": 366,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 3786,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "2268",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:26 GMT",
+                "modal-function-call-id": "fc-01KWBZ3FGKK3CZTWCB4D6MVR3T",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "General question about MDMA spec does not call generate_mdma",
+          "vars": {
+            "request": "Does MDMA support conditional field visibility based on other field values?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 13,
+        "vars": {
+          "request": "Does MDMA support conditional field visibility based on other field values?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "2268",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:26 GMT",
+              "modal-function-call-id": "fc-01KWBZ3FGKK3CZTWCB4D6MVR3T",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 0,
+            "prompt": 0,
+            "completion": 0,
+            "cached": 0,
+            "numRequests": 0
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Model correctly did not call generate_mdma for a non-document request",
+              "assertion": {
+                "type": "javascript",
+                "value": "file://assertions/calls-generate-mdma.mjs",
+                "config": {
+                  "shouldCall": false
+                }
+              }
+            }
+          ]
+        },
+        "id": "547b67aa-3825-4965-b118-1281437608ec",
+        "latencyMs": 2793,
+        "namedScores": {},
+        "prompt": {
+          "raw": "[{\"role\":\"system\",\"content\":\"You are an assistant with a `generate_mdma` tool that produces interactive MDMA documents (forms, tables, charts, tasklists, callouts, approval-gates, buttons, webhooks). Call `generate_mdma` whenever the user asks you to create, build, design, or update an interactive document or UI. For greetings, questions about capabilities, explanations, or other conversational replies, respond normally and do NOT call the tool.\"},{\"role\":\"user\",\"content\":\"Hi, what can you help me with?\"}]",
+          "label": "own-model/prompt-guidance.mjs",
+          "config": {}
+        },
+        "promptId": "dad324a502f63223c6d6d3b28645b0d430643b6142b146bddcff50439ede05ab",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:chat:mdma-26b",
+          "label": ""
+        },
+        "response": {
+          "output": "I can help you with a wide range of tasks, from standard conversational assistance to generating sophisticated, interactive business documents.\n\nWhile I can answer questions, write code, analyze data, and help with creative writing, my specialty is creating **MDMA (Markdown Dynamic Management Application)** documents.\n\nI can build interactive, \"living\" documents that include:\n\n*   **Forms & Data Entry:** Create structured forms for data collection and surveys.\n*   **Interactive Tables:** Build tables that include checkboxes, status tags, and editable fields.\n*   **Tasklists & Project Management:** Design dynamic taskboards with progress tracking.\n*   **Approval Gates:** Insert workflow \"gates\" where you (or a teammate) can digitally approve or reject steps in a process.\n*   **Buttons & Webhooks:** Create actionable buttons that can trigger real-world automations or external APIs.\n*   **Data Visualization:** Generate interactive charts and graphs to make sense of your numbers.\n*   **Decision-Making Tools:** Design complex UI components like callouts and approval workflows for business processes.\n\n**In short: If you need to turn a static piece of information into a functional tool or an interactive workflow, I am here to build it for you!**\n\nHow can I help you get started today?",
+          "tokenUsage": {
+            "total": 482,
+            "prompt": 216,
+            "completion": 266,
+            "numRequests": 1
+          },
+          "cached": false,
+          "latencyMs": 2793,
+          "finishReason": "stop",
+          "guardrails": {
+            "flagged": false
+          },
+          "metadata": {
+            "http": {
+              "status": 200,
+              "statusText": "OK",
+              "headers": {
+                "alt-svc": "h3=\":443\"; ma=2592000",
+                "content-length": "1947",
+                "content-type": "application/json",
+                "date": "Tue, 30 Jun 2026 09:52:29 GMT",
+                "modal-function-call-id": "fc-01KWBZ3K6CWF46DB92M96BC5MF",
+                "vary": "accept-encoding"
+              }
+            }
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "description": "Greeting does not call generate_mdma",
+          "vars": {
+            "request": "Hi, what can you help me with?"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "file://assertions/calls-generate-mdma.mjs",
+              "config": {
+                "shouldCall": false
+              }
+            }
+          ],
+          "options": {},
+          "metadata": {}
+        },
+        "testIdx": 14,
+        "vars": {
+          "request": "Hi, what can you help me with?"
+        },
+        "metadata": {
+          "http": {
+            "status": 200,
+            "statusText": "OK",
+            "headers": {
+              "alt-svc": "h3=\":443\"; ma=2592000",
+              "content-length": "1947",
+              "content-type": "application/json",
+              "date": "Tue, 30 Jun 2026 09:52:29 GMT",
+              "modal-function-call-id": "fc-01KWBZ3K6CWF46DB92M96BC5MF",
+              "vary": "accept-encoding"
+            }
+          },
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      }
+    ],
+    "stats": {
+      "successes": 15,
+      "failures": 0,
+      "errors": 0,
+      "tokenUsage": {
+        "prompt": 3369,
+        "completion": 6062,
+        "cached": 0,
+        "total": 9431,
+        "numRequests": 15,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0
+        },
+        "assertions": {
+          "total": 0,
+          "prompt": 0,
+          "completion": 0,
+          "cached": 0,
+          "numRequests": 0,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0,
+            "cacheReadInputTokens": 0,
+            "cacheCreationInputTokens": 0
+          }
+        }
+      },
+      "durationMs": 57455,
+      "evaluationDurationMs": 57455
+    }
+  },
+  "config": {
+    "tags": {},
+    "description": "MDMA Agent Guidance Eval (tool-calling) — own model",
+    "prompts": [
+      "file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-guidance.mjs"
+    ],
+    "providers": [
+      {
+        "id": "openai:chat:mdma-26b",
+        "config": {
+          "apiBaseUrl": "https://REDACTED.modal.run/v1",
+          "apiKey": "[REDACTED]",
+          "temperature": 1,
+          "max_tokens": 1024,
+          "chat_template_kwargs": {
+            "enable_thinking": false
+          },
+          "tool_choice": "auto",
+          "tools": [
+            {
+              "type": "function",
+              "function": {
+                "name": "generate_mdma",
+                "description": "Generate an MDMA Markdown document to present structured interactive content to the user (forms, tables, tasklists, approval gates, charts, callouts, buttons, webhooks).\n",
+                "parameters": {
+                  "type": "object",
+                  "properties": {
+                    "document": {
+                      "type": "string",
+                      "description": "The complete MDMA Markdown document."
+                    }
+                  },
+                  "required": [
+                    "document"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    ],
+    "tests": [
+      {
+        "description": "Contact form request calls generate_mdma",
+        "vars": {
+          "request": "Create a contact form with fields for full name, email address, and a message."
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Onboarding flow request calls generate_mdma",
+        "vars": {
+          "request": "Build an employee onboarding flow with three steps: personal information, IT equipment setup, and policy acknowledgment.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Bug report form calls generate_mdma",
+        "vars": {
+          "request": "I need a bug report form for my engineering team. It should capture the title, severity, steps to reproduce, and an optional file attachment.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Customer satisfaction survey calls generate_mdma",
+        "vars": {
+          "request": "Create a customer satisfaction survey with rating questions for product quality, support experience, and likelihood to recommend.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Expense approval workflow calls generate_mdma",
+        "vars": {
+          "request": "Make an expense reimbursement approval workflow: the employee submits amount and category, then a manager approves or rejects with a comment.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Sales dashboard request calls generate_mdma",
+        "vars": {
+          "request": "Build a sales pipeline dashboard showing deals grouped by stage with a bar chart of revenue by month.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "File upload form calls generate_mdma",
+        "vars": {
+          "request": "Create a document upload form for medical records with patient name, date of birth, and a file upload field."
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "KYC verification form calls generate_mdma",
+        "vars": {
+          "request": "I need a KYC form that collects full name, date of birth, national ID number, residential address, and a document upload for ID verification.\n"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs"
+          }
+        ]
+      },
+      {
+        "description": "Informational question does not call generate_mdma",
+        "vars": {
+          "request": "What kind of interactive documents can MDMA format represent?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "Follow-up clarification does not call generate_mdma",
+        "vars": {
+          "request": "Can you explain the difference between a form and a steps component in MDMA?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "User acknowledgement does not call generate_mdma",
+        "vars": {
+          "request": "Thank you, the form looks great!"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "MDMA capability question does not call generate_mdma",
+        "vars": {
+          "request": "How many components can I put in a single MDMA document?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "Follow-up about previous document does not call generate_mdma",
+        "vars": {
+          "request": "Can you remind me what fields were in the last form you created?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "General question about MDMA spec does not call generate_mdma",
+        "vars": {
+          "request": "Does MDMA support conditional field visibility based on other field values?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      },
+      {
+        "description": "Greeting does not call generate_mdma",
+        "vars": {
+          "request": "Hi, what can you help me with?"
+        },
+        "assert": [
+          {
+            "type": "javascript",
+            "value": "file://assertions/calls-generate-mdma.mjs",
+            "config": {
+              "shouldCall": false
+            }
+          }
+        ]
+      }
+    ],
+    "scenarios": [],
+    "env": {},
+    "outputPath": [
+      "own-model/results-guidance.json"
+    ],
+    "extensions": [],
+    "metadata": {},
+    "evaluateOptions": {}
+  },
+  "shareableUrl": null,
+  "metadata": {
+    "promptfooVersion": "0.121.9",
+    "nodeVersion": "v22.22.0",
+    "platform": "darwin",
+    "arch": "arm64",
+    "exportedAt": "2026-06-30T09:52:33.199Z",
+    "evaluationCreatedAt": "2026-06-30T09:51:35.646Z"
+  }
+}
