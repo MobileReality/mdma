@@ -11,6 +11,7 @@ import {
 import { validate } from '@mobile-reality/mdma-validator';
 import {
   streamAgentMessages,
+  OWN_MODEL_DEFAULT_BASE_URL,
   type AnthropicConfig,
   type ApiMessage,
   type ApiAssistantBlock,
@@ -75,10 +76,16 @@ const GENERATE_MDMA_TOOL_BRIEF = {
 // generate_mdma via tool_choice:auto), so no third-party model is called.
 // Auth is off (placeholder key); enable_thinking must be false; temperature 1
 // for agentic/conversational use.
-const OWN_MODEL_BASE_URL =
-  import.meta.env.VITE_OWN_MODEL_BASE_URL ??
-  'https://REDACTED.modal.run/v1';
 const OWN_MODEL_NAME = import.meta.env.VITE_OWN_MODEL_NAME ?? 'mdma-26b';
+
+// The own-model endpoint is user-configurable in Agent Settings. Normalise what
+// they type: trim trailing slashes and append the OpenAI-compatible `/v1` suffix
+// if missing. Empty → fall back to the build-time default.
+function normalizeOwnModelBaseUrl(raw?: string): string {
+  const url = (raw ?? '').trim().replace(/\/+$/, '');
+  if (!url) return OWN_MODEL_DEFAULT_BASE_URL;
+  return url.endsWith('/v1') ? url : `${url}/v1`;
+}
 
 // Extra OpenAI-request body our endpoint needs (merged in by the OpenAI client).
 // `max_tokens` bounds the response server-side so a runaway reasoning channel
@@ -234,8 +241,7 @@ async function callAuthorOpenAI(
   brief: string,
   signal: AbortSignal,
 ): Promise<string> {
-  const provider = config.provider ?? 'openai';
-  const baseUrl = OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const baseUrl = getBaseUrlForProvider(config);
   const apiKey = getApiKeyForProvider(config);
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
@@ -465,8 +471,18 @@ async function runAgentLoop(
 const OPENAI_COMPAT_BASE_URLS: Partial<Record<NonNullable<AnthropicConfig['provider']>, string>> = {
   openai: 'https://api.openai.com/v1',
   openrouter: 'https://openrouter.ai/api/v1',
-  'own-model': OWN_MODEL_BASE_URL,
 };
+
+/**
+ * Resolve the OpenAI-compatible base URL for the configured provider. For
+ * 'own-model' this is the user-supplied endpoint (Agent Settings), normalised
+ * and falling back to the build-time default; otherwise the static map.
+ */
+function getBaseUrlForProvider(config: AnthropicConfig): string {
+  const provider = config.provider ?? 'openai';
+  if (provider === 'own-model') return normalizeOwnModelBaseUrl(config.ownModelBaseUrl);
+  return OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+}
 
 function getApiKeyForProvider(config: AnthropicConfig): string {
   switch (config.provider) {
@@ -499,7 +515,7 @@ async function chatOnce(
   if (provider === 'anthropic') return callAuthorAnthropic(config, system, user, signal);
 
   const isOwn = provider === 'own-model';
-  const baseUrl = OPENAI_COMPAT_BASE_URLS[provider] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const baseUrl = getBaseUrlForProvider(config);
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${getApiKeyForProvider(config)}` },
@@ -566,8 +582,7 @@ async function runOpenAIAgentLoop(
   subAgent: AuthorSubAgent | null,
 ): Promise<void> {
   const isOwnModel = config.provider === 'own-model';
-  const baseUrl =
-    OPENAI_COMPAT_BASE_URLS[config.provider ?? 'openai'] ?? OPENAI_COMPAT_BASE_URLS.openai!;
+  const baseUrl = getBaseUrlForProvider(config);
   const apiKey = getApiKeyForProvider(config);
   const model = isOwnModel ? OWN_MODEL_NAME : config.model;
   const extraBody = isOwnModel ? OWN_MODEL_EXTRA_BODY : undefined;

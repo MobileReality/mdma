@@ -17,11 +17,26 @@ export interface AnthropicConfig {
   openaiApiKey?: string;
   /** OpenRouter API key */
   openrouterApiKey?: string;
+  /**
+   * Base URL of the self-hosted MDMA model endpoint (OpenAI-compatible).
+   * Only used when provider is 'own-model'; falls back to
+   * OWN_MODEL_DEFAULT_BASE_URL when empty.
+   */
+  ownModelBaseUrl?: string;
   model: string;
   /** Token budget for extended thinking. Only used when provider is 'anthropic'. */
   thinkingBudget?: number;
   systemPromptId?: string;
 }
+
+/**
+ * Default endpoint for the self-hosted MDMA model, used when the user hasn't
+ * entered their own URL in Agent Settings. Overridable at build time via
+ * VITE_OWN_MODEL_BASE_URL.
+ */
+export const OWN_MODEL_DEFAULT_BASE_URL =
+  import.meta.env.VITE_OWN_MODEL_BASE_URL ??
+  'https://REDACTED.modal.run/v1';
 
 export interface ToolDefinition {
   name: string;

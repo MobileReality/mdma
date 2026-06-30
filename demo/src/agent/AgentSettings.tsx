@@ -3,6 +3,8 @@ import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
 import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import type { AnthropicConfig } from './anthropic-client.js';
 
+const OWN_MODEL_URL_PLACEHOLDER = 'https://your-deployment.example.com/v1';
+
 const PROVIDER_MODELS: Record<string, Array<{ value: string; label: string }>> = {
   anthropic: [
     { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
@@ -38,14 +40,14 @@ const PROVIDER_MODELS: Record<string, Array<{ value: string; label: string }>> =
     { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
     { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
   ],
-  'own-model': [{ value: 'mdma-26b', label: 'mdma-26b (our model)' }],
+  'own-model': [{ value: 'mdma-26b', label: 'mdma-26b (our MDMA model)' }],
 };
 
 const PROVIDER_LABELS: Record<string, string> = {
   anthropic: 'anthropic',
   openai: 'openai',
   openrouter: 'openrouter',
-  'own-model': 'own model',
+  'own-model': 'own MDMA model',
 };
 
 const DEFAULT_MODELS: Record<string, string> = {
@@ -143,10 +145,17 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
                 />
               </label>
             ) : (
-              <div className="ai-setting">
-                <span>Endpoint</span>
-                <input type="text" value="mdma-26b · self-hosted (no key)" readOnly disabled />
-              </div>
+              <label className="ai-setting">
+                <span>Model endpoint URL</span>
+                <input
+                  type="text"
+                  value={config.ownModelBaseUrl ?? ''}
+                  onChange={(e) => onUpdate({ ownModelBaseUrl: e.target.value })}
+                  placeholder={OWN_MODEL_URL_PLACEHOLDER}
+                  spellCheck={false}
+                  autoComplete="off"
+                />
+              </label>
             )}
             <div className="ai-setting">
               <span>Model</span>
@@ -180,31 +189,40 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
                 />
               </label>
             )}
-            <label className="ai-setting">
+            <div className="ai-setting">
               <span>System prompt variant</span>
-              <select
-                aria-label="System prompt variant"
-                value={config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id}
-                onChange={(e) => onUpdate({ systemPromptId: e.target.value })}
-                title={
-                  AUTHOR_PROMPT_VARIANTS.find(
-                    (v) => v.id === (config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id),
-                  )?.description
-                }
-              >
-                {AUTHOR_PROMPT_VARIANTS.map((v) => (
-                  <option key={v.id} value={v.id} title={v.description}>
-                    {v.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+              {provider === 'own-model' ? (
+                // The own MDMA model uses its own fixed Gemma-aligned prompt, so
+                // the variant is locked.
+                <select aria-label="System prompt variant" value="mdma-dsl" disabled>
+                  <option value="mdma-dsl">MDMA DSL Variant</option>
+                </select>
+              ) : (
+                <select
+                  aria-label="System prompt variant"
+                  value={config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id}
+                  onChange={(e) => onUpdate({ systemPromptId: e.target.value })}
+                  title={
+                    AUTHOR_PROMPT_VARIANTS.find(
+                      (v) => v.id === (config.systemPromptId ?? AUTHOR_PROMPT_VARIANTS[0].id),
+                    )?.description
+                  }
+                >
+                  {AUTHOR_PROMPT_VARIANTS.map((v) => (
+                    <option key={v.id} value={v.id} title={v.description}>
+                      {v.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
           {provider === 'own-model' && (
             <p className="agent-settings-note">
-              The entire agent runs on our self-hosted <strong>mdma-26b</strong> endpoint
-              (tool-calling enabled) — no third-party model is called. First message after idle can
-              take ~6–10&nbsp;min (cold start).
+              The entire agent runs on your self-hosted <strong>MDMA model</strong> endpoint
+              (OpenAI-compatible, tool-calling enabled) — no third-party model is called. Enter the
+              deployed model URL above; leave it blank to use the default. The{' '}
+              <code>/v1</code> suffix is added automatically.
             </p>
           )}
           <p className="agent-settings-note agent-settings-note--storage">
