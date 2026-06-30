@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-cli
 
+## 0.2.7
+
+### Patch Changes
+
+- Updated dependencies [4a04d6f]
+  - @mobile-reality/mdma-prompt-pack@0.4.0
+
 ## 0.2.6
 
 ### Patch Changes
