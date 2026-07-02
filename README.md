@@ -53,6 +53,7 @@ fields:
     type: textarea
     label: "Reason for Visit"
     required: true
+onSubmit: submit-intake
 ```
 
 ```mdma
@@ -189,7 +190,7 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 
 | Component | Type key | Description |
 |-----------|----------|-------------|
-| **Form** | `form` | Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
+| **Form** | `form` | Multi-field forms with text, number, email, date, select, checkbox, textarea, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
 | **Button** | `button` | Action buttons with `primary`, `secondary`, and `danger` variants. |
 | **Tasklist** | `tasklist` | Interactive checkbox task items with labels. |
 | **Table** | `table` | Data tables with typed columns and row data. |
@@ -321,6 +322,7 @@ fields:
   - name: actual
     type: textarea
     label: "Actual Behavior"
+onSubmit: submit-bug-report
 \`\`\``,
 });
 
@@ -367,7 +369,6 @@ function App({ ast, store }) {
 | `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
 | `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
-| `@mobile-reality/mdma-evals` | LLM evaluation suite built on promptfoo with 4 test suites: base generation quality (25 tests), custom prompt compliance (10 tests), multi-turn conversation handling (11 conversations, 25 turns), and prompt builder verification (25 tests). Validates that AI-generated MDMA documents are structurally correct and semantically appropriate. |
 
 ## Architecture
 
@@ -381,7 +382,6 @@ function App({ ast, store }) {
               └── @mobile-reality/mdma-renderer-react   React components
 @mobile-reality/mdma-cli                   CLI prompt builder + validation
 @mobile-reality/mdma-mcp                   MCP server for AI assistants
-@mobile-reality/mdma-evals                 LLM evaluation suite (promptfoo)
 ```
 
 ## Getting Started
@@ -453,7 +453,7 @@ const result = validate(markdown, {
 | `duplicate-ids` | error | yes | All component IDs are unique. Auto-fix appends `-1`, `-2` suffixes. |
 | `id-format` | warning | yes | IDs follow kebab-case (`my-component-id`). Auto-fix converts camelCase, snake_case, PascalCase and updates all references. |
 | `binding-syntax` | error/warning | yes | `{{binding}}` expressions are well-formed. Catches empty `{{ }}`, extra whitespace `{{ path }}`, and single-brace `{path}`. |
-| `action-references` | warning | yes | `onSubmit`, `onAction`, `onComplete`, `onApprove`, `onDeny`, `trigger` reference existing component IDs. Suggests near-matches for typos. |
+| `form-submit-action` | error | -- | Every `type: form` component declares a non-empty `onSubmit` action. |
 | `sensitive-flags` | warning | yes | Form fields and table columns with PII-like names (email, phone, ssn, address, etc.) have `sensitive: true`. Supports custom PII patterns. |
 | `required-markers` | info | -- | Suggests `required: true` for fields named `name`, `email`, `title`, `summary`. |
 | `thinking-block` | warning/info | -- | If a thinking block is present, it should be the first component and only one should exist. |
@@ -461,18 +461,19 @@ const result = validate(markdown, {
 | `select-options` | warning | -- | `type: select` fields have `options` defined as `[{label, value}]` objects. |
 | `chart-validation` | warning | -- | Chart CSV data has headers + data rows. `xAxis`/`yAxis` reference actual CSV column headers. |
 | `placeholder-content` | info | -- | Catches `TODO`, `TBD`, `FIXME`, `...`, `lorem ipsum` in content fields. |
-| `flow-ordering` | error/info | -- | Forward-only action references, no circular refs, one interactive component type per message. Detects regenerated components from prior conversation turns. |
+| `flow-ordering` | warning | -- | Forward-only action references (targets defined later in the document), no circular refs, and multi-step flows flagged to be split across messages. |
+| `single-interactive-component` | warning | -- | At most one interactive component (form, button, webhook, approval-gate, tasklist) per message. |
 | `expected-components` | error | -- | Verifies that components present in the message match their expected types, form fields, and table columns. Components not in the message are silently skipped — useful for multi-turn flows where you pass all expected components upfront. |
 
 ### Auto-fix Pipeline
 
 When `autoFix: true` (default), 6 fix strategies run in strict dependency order:
 
-1. **id-format** — normalize IDs to kebab-case, update all cross-references
-2. **duplicate-ids** — deduplicate after normalization
-3. **binding-syntax** — fix `{x}` -> `{{x}}`, strip whitespace
-4. **sensitive-flags** — add `sensitive: true` to PII fields
-5. **action-references** — remove invalid references
+1. **thinking-block** — merge stray thinking blocks into one and move it to the top
+2. **id-format** — normalize IDs to kebab-case, update all cross-references
+3. **duplicate-ids** — deduplicate after normalization
+4. **binding-syntax** — fix `{x}` -> `{{x}}`, strip whitespace
+5. **sensitive-flags** — add `sensitive: true` to PII fields
 6. **schema-conformance** — patch missing labels/headers/content, infer field types, wrap bare bindings, re-validate with Zod
 
 ### Expected Components
