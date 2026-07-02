@@ -31,11 +31,21 @@ export interface AguiTextMessageContentEvent {
 }
 
 /**
- * Params handed to `onTextMessageContentEvent`. Crucially `textMessageBuffer` is the
- * *accumulated* message text (not the delta), so the adapter never does delta bookkeeping.
+ * Params handed to `onTextMessageContentEvent`. `textMessageBuffer` is the accumulated message
+ * text — but note AG-UI passes it *before* appending the current delta, so during streaming it
+ * lags one delta behind. The complete text only arrives via {@link AguiTextMessageEndParams}.
  */
 export interface AguiTextMessageContentParams {
   event: AguiTextMessageContentEvent;
+  textMessageBuffer: string;
+}
+
+/**
+ * Params handed to `onTextMessageEndEvent`. Here `textMessageBuffer` is the **complete** message
+ * text (every delta applied), so the bridge parses it to guarantee the final render is whole.
+ */
+export interface AguiTextMessageEndParams {
+  event: { messageId: string };
   textMessageBuffer: string;
 }
 
@@ -46,6 +56,7 @@ export interface AguiTextMessageContentParams {
  */
 export interface AguiSubscriber {
   onTextMessageContentEvent?(params: AguiTextMessageContentParams): void | Promise<void>;
+  onTextMessageEndEvent?(params: AguiTextMessageEndParams): void | Promise<void>;
   onRunFinishedEvent?(params: unknown): void | Promise<void>;
   onRunFailedEvent?(params: unknown): void | Promise<void>;
 }

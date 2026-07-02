@@ -2,12 +2,7 @@ import type { AttachableRegistry, DocumentStore } from '@mobile-reality/mdma-run
 import type { MdmaRoot, StoreAction } from '@mobile-reality/mdma-spec';
 import { containsMdma } from './contains-mdma.js';
 import { parseMdma } from './parse.js';
-import type {
-  AguiAgent,
-  AguiSubscriber,
-  AguiSubscription,
-  AguiTextMessageContentParams,
-} from './types.js';
+import type { AguiAgent, AguiSubscriber, AguiSubscription } from './types.js';
 
 /** The store actions that represent a user decision worth routing back to the agent. */
 export type MdmaActionEvent = Extract<
@@ -158,11 +153,8 @@ export function createMdmaAgentBridge(
     await agent.runAgent();
   }
 
-  function onContent(params: AguiTextMessageContentParams): void {
-    if (disposed) return;
-    const messageId = params.event.messageId;
-    const content = params.textMessageBuffer;
-    if (!containsMdma(content)) return;
+  function ingest(messageId: string, content: string, immediate: boolean): void {
+    if (disposed || !containsMdma(content)) return;
 
     let buf = pending.get(messageId);
     if (!buf) {
@@ -170,6 +162,15 @@ export function createMdmaAgentBridge(
       pending.set(messageId, buf);
     } else {
       buf.latest = content;
+    }
+
+    if (immediate) {
+      if (buf.timer) {
+        clearTimeout(buf.timer);
+        buf.timer = null;
+      }
+      void reparse(messageId);
+      return;
     }
 
     const elapsed = now() - buf.lastParseAt;
@@ -184,8 +185,13 @@ export function createMdmaAgentBridge(
   }
 
   const subscriber: AguiSubscriber = {
-    onTextMessageContentEvent: onContent,
-    // On run end, force a final parse so the last delta is never left un-rendered by the throttle.
+    // During streaming, AG-UI's content buffer lags one delta behind — good enough for a live
+    // (slightly-behind) render, throttled to avoid re-parsing every token.
+    onTextMessageContentEvent: (params) => ingest(params.event.messageId, params.textMessageBuffer, false),
+    // The end buffer is the COMPLETE message, so parse it immediately — this is what guarantees
+    // the final render isn't a truncated tail (content events never carry the last delta).
+    onTextMessageEndEvent: (params) => ingest(params.event.messageId, params.textMessageBuffer, true),
+    // Belt-and-suspenders: a run that ends without a text-end (e.g. tool transport) still flushes.
     onRunFinishedEvent: () => flush(),
     onRunFailedEvent: () => flush(),
   };

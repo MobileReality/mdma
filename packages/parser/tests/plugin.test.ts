@@ -117,6 +117,36 @@ describe('remarkMdma plugin', () => {
     });
   });
 
+  describe('streaming (unterminated fence)', () => {
+    const FENCE = '```';
+
+    it('keeps an unknown-type block pending while its fence is still open', () => {
+      // Mid-stream: `approval-gat` is a truncated `approval-gate` and the closing fence hasn't
+      // arrived yet. It must NOT become a block (which would flash "Unknown component type").
+      const streaming = `intro\n\n${FENCE}mdma\nid: g\ntype: approval-gat`;
+      const { root } = parse(streaming);
+      expect(getMdmaBlocks(root)).toHaveLength(0);
+      expect(root.children.some((c) => (c as { type: string }).type === 'code')).toBe(true);
+    });
+
+    it('converts the unknown-type block once the fence closes (real error surfaces)', () => {
+      const done = `intro\n\n${FENCE}mdma\nid: g\ntype: totally-unknown\n${FENCE}\n`;
+      const { root } = parse(done);
+      const blocks = getMdmaBlocks(root);
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].component.type).toBe('totally-unknown');
+    });
+
+    it('still renders a KNOWN valid type live, even with the fence open', () => {
+      // We only withhold unknown types — valid known types keep rendering live during streaming.
+      const streaming = `${FENCE}mdma\nid: b\ntype: button\ntext: Go\nonAction: go`;
+      const { root } = parse(streaming);
+      const blocks = getMdmaBlocks(root);
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].component.type).toBe('button');
+    });
+  });
+
   describe('edge cases', () => {
     it('ignores non-mdma code blocks', () => {
       const md = '```javascript\nconsole.log("hello");\n```';

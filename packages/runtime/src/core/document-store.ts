@@ -268,10 +268,15 @@ export function createDocumentStore(
         if (!isMdmaBlock(child)) continue;
         const comp = child.component;
 
-        // If this component already exists, keep its state
-        if (state.components.has(comp.id)) continue;
+        // If this component already exists with the same type, keep its state — this preserves
+        // in-flight values/touched/focus across streamed re-parses. If the type changed, an
+        // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
+        // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
+        const existing = state.components.get(comp.id);
+        if (existing && existing.type === comp.type) continue;
+        redactionCtx.sensitiveComponents.delete(comp.id);
 
-        // New component — initialize with defaults
+        // New (or retyped) component — initialize with defaults
         const compState: ComponentState = {
           id: comp.id,
           type: comp.type,

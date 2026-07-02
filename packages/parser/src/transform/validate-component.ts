@@ -9,7 +9,7 @@ import { ErrorCodes } from '../errors/error-codes.js';
 import type { Point } from 'unist';
 
 export type ValidateComponentResult =
-  | { ok: true; component: MdmaComponent }
+  | { ok: true; component: MdmaComponent; unknownType?: boolean }
   | { ok: false; errors: MdmaParseError[] };
 
 export function validateComponent(
@@ -58,6 +58,7 @@ export function validateComponent(
   if (!componentSchemaRegistry.has(type)) {
     return {
       ok: true,
+      unknownType: true,
       component: {
         id: typeof data.id === 'string' ? data.id : `unknown-${type}`,
         type,

@@ -44,6 +44,19 @@ class FakeAgent implements AguiAgent {
       textMessageBuffer,
     });
   }
+
+  emitEnd(messageId: string, textMessageBuffer: string): void | Promise<void> {
+    return this.subscriber?.onTextMessageEndEvent?.({ event: { messageId }, textMessageBuffer });
+  }
+}
+
+function astBlockTypes(state: MdmaMessageState | undefined): string[] {
+  if (!state) return [];
+  return state.ast.children
+    .filter((c): c is { type: 'mdmaBlock'; component: { type: string } } =>
+      (c as { type?: string }).type === 'mdmaBlock',
+    )
+    .map((c) => c.component.type);
 }
 
 describe('parseMdma', () => {
@@ -70,6 +83,27 @@ describe('createMdmaAgentBridge', () => {
 
     expect(bridge.documents.has('m1')).toBe(true);
     expect(seen.at(-1)?.store.getComponentState('gate1')?.type).toBe('approval-gate');
+    bridge.dispose();
+  });
+
+  it('parses the complete text on message-end (AG-UI content buffers lag one delta)', async () => {
+    const agent = new FakeAgent();
+    const bridge = createMdmaAgentBridge(agent, { throttleMs: 0 });
+
+    // Simulate AG-UI: content events carry the buffer *before* the latest delta, so the last
+    // chunk (here the tail of `approval-gate` + the rest of the doc) never arrives via content.
+    const lagging = APPROVAL_DOC.slice(0, APPROVAL_DOC.indexOf('approval-gate') + 'approval-gat'.length);
+    agent.emitContent('m1', lagging);
+    await bridge.flush();
+
+    // Mid-stream the fence is still open, so the truncated block stays pending (no bogus block is
+    // rendered — this is what prevents the "Unknown component type" flash).
+    expect(astBlockTypes(bridge.documents.get('m1'))).toHaveLength(0);
+
+    // TEXT_MESSAGE_END carries the complete text → the final render is whole.
+    agent.emitEnd('m1', APPROVAL_DOC);
+    await bridge.flush();
+    expect(astBlockTypes(bridge.documents.get('m1'))).toContain('approval-gate');
     bridge.dispose();
   });
 

@@ -28,7 +28,9 @@ export async function parseMdma(
   options: { existingStore?: DocumentStore; createRegistry?: () => AttachableRegistry } = {},
 ): Promise<{ ast: MdmaRoot; store: DocumentStore }> {
   const tree = processor.parse(markdown);
-  const ast = (await processor.run(tree)) as MdmaRoot;
+  // Pass the source to run() so the mdma transform can see the raw fences — it needs them to tell a
+  // still-streaming (unterminated) block from a complete one and avoid flashing "Unknown component".
+  const ast = (await processor.run(tree, markdown)) as MdmaRoot;
   if (options.existingStore) {
     options.existingStore.updateAst(ast);
     return { ast, store: options.existingStore };

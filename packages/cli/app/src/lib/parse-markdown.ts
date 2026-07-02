@@ -22,7 +22,9 @@ export async function parseMarkdown(
   existingStore?: DocumentStore,
 ): Promise<{ ast: MdmaRoot; store: DocumentStore }> {
   const tree = processor.parse(markdown);
-  const ast = (await processor.run(tree)) as MdmaRoot;
+  // Pass the source to run() so the mdma transform can distinguish a still-streaming (unterminated)
+  // fence from a complete block and avoid flashing "Unknown component type" mid-stream.
+  const ast = (await processor.run(tree, markdown)) as MdmaRoot;
   if (existingStore) {
     existingStore.updateAst(ast);
     return { ast, store: existingStore };

@@ -14,4 +14,5 @@ export type {
   AguiMessage,
   AguiTextMessageContentEvent,
   AguiTextMessageContentParams,
+  AguiTextMessageEndParams,
 } from './types.js';
