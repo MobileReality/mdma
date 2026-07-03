@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-cli
 
+## 0.2.8
+
+### Patch Changes
+
+- @mobile-reality/mdma-validator@0.3.1
+
 ## 0.2.7
 
 ### Patch Changes

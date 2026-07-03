@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-validator
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [d262328]
+  - @mobile-reality/mdma-parser@0.2.4
+
 ## 0.3.0
 
 ### Minor Changes

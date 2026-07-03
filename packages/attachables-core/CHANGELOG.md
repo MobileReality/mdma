@@ -1,5 +1,17 @@
 # @mobile-reality/mdma-attachables-core
 
+## 0.2.4
+
+### Patch Changes
+
+- b03ad21: Remove the unused `onAction` methods from the core attachable handlers (form, button, tasklist,
+  table, callout, approval-gate, webhook). They were never invoked — renderers dispatch store actions
+  directly — so this is a dead-code cleanup with no behavioral change. Each handler's `definition` and
+  `initialize` are unchanged.
+- Updated dependencies [b03ad21]
+- Updated dependencies [d262328]
+  - @mobile-reality/mdma-runtime@0.3.0
+
 ## 0.2.3
 
 ### Patch Changes
