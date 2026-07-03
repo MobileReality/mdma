@@ -5430,6 +5430,125 @@ body {
   overflow-y: auto;
 }
 
+.docs-example-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3730a3;
+  background: #e0e7ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.docs-example-toggle:hover {
+  background: #c7d2fe;
+}
+
+.docs-example-toggle:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.docs-example-toggle--active {
+  background: #3730a3;
+  color: #fff;
+  border-color: #3730a3;
+}
+
+/* ── Restoring-state conversation preview ── */
+.docs-convo-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  flex-shrink: 0;
+}
+
+.docs-convo-status {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.docs-convo-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.docs-convo-msg {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.docs-convo-msg--user {
+  flex-direction: row-reverse;
+}
+
+.docs-convo-avatar {
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: #3730a3;
+  color: #fff;
+}
+
+.docs-convo-avatar--user {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.docs-convo-bubble {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: #111827;
+  min-width: 0;
+}
+
+.docs-convo-msg--user .docs-convo-bubble {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+}
+
+.docs-convo-bubble > p {
+  margin: 0 0 8px;
+}
+
+.docs-convo-form--flash {
+  animation: docs-convo-flash 1.3s ease;
+  border-radius: 8px;
+}
+
+@keyframes docs-convo-flash {
+  0% {
+    box-shadow: 0 0 0 2px #a5b4fc;
+    background: #eef2ff;
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
+    background: transparent;
+  }
+}
+
 .docs-preview-panel-header {
   display: flex;
   align-items: center;

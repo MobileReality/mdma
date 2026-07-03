@@ -1,6 +1,18 @@
+import { useEffect, useRef, useState } from 'react';
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
+import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { Code } from '../Code.js';
 
-export function Usage() {
+export interface UsageProps {
+  /** Whether the right-side hydration preview is open (owned by DocsView). */
+  exampleOpen?: boolean;
+  /** Toggle the hydration preview panel. */
+  onToggleExample?: () => void;
+}
+
+export function Usage({ exampleOpen, onToggleExample }: UsageProps = {}) {
   return (
     <>
       <h2>Basic Usage</h2>
@@ -33,6 +45,51 @@ store.dispatch({
   field: 'patient-name',
   value: 'Jane Doe',
 });`}</Code>
+
+      <h2>Restoring State</h2>
+      <p>
+        When you reload a past conversation, the MDMA documents re-parse from scratch, so their
+        forms, approvals, and checklists come back empty. To render them pre-populated with what the
+        user previously entered, snapshot the state to your backend and pass it back in via the{' '}
+        <code>initialState</code> option — a <code>{'{ [componentId]: values }'}</code> map,
+        symmetric with <code>getState()</code>.
+      </p>
+      <p>
+        Hydration overlays the AST defaults <strong>without emitting audit events or marking fields{' '}
+        <code>touched</code></strong>, so a restore never looks like fresh user activity in the
+        tamper-evident log. It applies only to freshly-created components, so a later streamed
+        re-parse never clobbers an in-flight edit.
+      </p>
+      <Code lang="ts">{`// 1. Persist — snapshot each component's values on the way out
+const snapshot = Object.fromEntries(
+  [...store.getState().components].map(([id, c]) => [id, c.values]),
+);
+// → { 'intake-form': { 'patient-name': 'Jane Doe' }, 'approve-1': { status: 'approved' } }
+await fetch('/api/conversations/42/state', {
+  method: 'PUT',
+  body: JSON.stringify(snapshot),
+});
+
+// 2. Restore — fetch the snapshot on reload and seed the store
+const initialState = await fetch('/api/conversations/42/state').then((r) => r.json());
+
+const store = createDocumentStore(ast, {
+  documentId: 'my-doc',
+  initialState, // component values are hydrated during store creation
+});`}</Code>
+      {onToggleExample && (
+        <button
+          type="button"
+          className={`docs-example-toggle${exampleOpen ? ' docs-example-toggle--active' : ''}`}
+          onClick={onToggleExample}
+        >
+          {exampleOpen ? 'Hide live example ✕' : 'Show live example →'}
+        </button>
+      )}
+      <p className="docs-note">
+        Using the AG-UI adapter? Pass the same map to <code>&lt;MdmaAgentView initialState={'{…}'}
+        /&gt;</code> — each replayed message hydrates only the component ids it contains.
+      </p>
 
       <h2>In a Chat</h2>
       <Code lang="ts">{`import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
@@ -210,6 +267,131 @@ function AgentView() {
     ? <MdmaDocument ast={doc.ast} store={doc.store} />
     : <p>Waiting for the model…</p>;
 }`}</Code>
+    </>
+  );
+}
+
+// ─── Restoring-state live preview (rendered in the right-side panel by DocsView) ──────────────
+
+const HYDRATION_EXAMPLE = `\`\`\`mdma
+type: form
+id: intake-form
+onSubmit: submit-intake
+fields:
+  - name: full-name
+    type: text
+    label: "Full Name"
+  - name: email
+    type: email
+    label: "Email"
+    sensitive: true
+  - name: reason
+    type: textarea
+    label: "Reason for Visit"
+\`\`\``;
+
+/** Snapshot as it would come back from a backend for a re-opened conversation. */
+const HYDRATION_SNAPSHOT = {
+  'intake-form': {
+    'full-name': 'Jane Doe',
+    email: 'jane@clinic.example',
+    reason: 'Annual check-up — mild recurring headaches.',
+  },
+};
+
+type HydrationPhase = 'empty' | 'loading' | 'hydrated';
+
+export function UsageHydrationPreview() {
+  const [ast, setAst] = useState<MdmaRoot | null>(null);
+  const [store, setStore] = useState<DocumentStore | null>(null);
+  const [phase, setPhase] = useState<HydrationPhase>('empty');
+  const cancelRef = useRef(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // The conversation re-opens with an EMPTY store — its values live in the backend.
+  useEffect(() => {
+    cancelRef.current = false;
+    parseMarkdown(HYDRATION_EXAMPLE).then((result) => {
+      if (cancelRef.current) return;
+      setAst(result.ast);
+      setStore(result.store);
+    });
+    return () => {
+      cancelRef.current = true;
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
+  function fetchState() {
+    if (!ast || phase === 'loading') return;
+    setPhase('loading');
+    // Simulate the backend round-trip, then rebuild the store hydrated from the snapshot — the
+    // exact call the docs describe: createDocumentStore(ast, { initialState }).
+    timerRef.current = setTimeout(() => {
+      setStore(createDocumentStore(ast, { initialState: HYDRATION_SNAPSHOT }));
+      setPhase('hydrated');
+    }, 2000);
+  }
+
+  function reset() {
+    if (!ast) return;
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setStore(createDocumentStore(ast));
+    setPhase('empty');
+  }
+
+  const status: Record<HydrationPhase, string> = {
+    empty: 'Form is empty — its values live in your backend.',
+    loading: 'GET /api/conversations/42/state …',
+    hydrated: 'Applied via initialState — no forged audit events.',
+  };
+
+  return (
+    <>
+      <div className="docs-preview-panel-header">
+        <span className="docs-preview-panel-label">Re-opened conversation</span>
+        <code className="docs-preview-panel-type">initialState</code>
+      </div>
+      <div className="docs-preview-panel-body">
+        <div className="docs-convo-toolbar">
+          <button
+            type="button"
+            className="docs-example-toggle"
+            onClick={phase === 'hydrated' ? reset : fetchState}
+            disabled={phase === 'loading' || !ast}
+          >
+            {phase === 'loading'
+              ? 'Fetching…'
+              : phase === 'hydrated'
+                ? 'Reset'
+                : 'Fetch saved state →'}
+          </button>
+          <span className="docs-convo-status">{status[phase]}</span>
+        </div>
+
+        <div className="docs-convo-thread">
+          <div className="docs-convo-msg docs-convo-msg--agent">
+            <div className="docs-convo-avatar">AI</div>
+            <div className="docs-convo-bubble">
+              <p>Welcome back! Here's the intake form from our last chat:</p>
+              <div
+                className={`docs-convo-form${phase === 'hydrated' ? ' docs-convo-form--flash' : ''}`}
+              >
+                {store && ast ? (
+                  <MdmaDocument key={phase} ast={ast} store={store} />
+                ) : (
+                  <span className="docs-preview-panel-loading">Loading…</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="docs-convo-msg docs-convo-msg--user">
+            <div className="docs-convo-bubble">Yep, those are my details — thanks!</div>
+            <div className="docs-convo-avatar docs-convo-avatar--user">You</div>
+          </div>
+        </div>
+      </div>
     </>
   );
 }

@@ -11,7 +11,7 @@ import { PromptMatrix } from './sections/PromptMatrix.js';
 import { Integrations, INTEGRATIONS } from './sections/Integrations.js';
 import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
 import { IntegrationAgui } from './sections/IntegrationAgui.js';
-import { Usage } from './sections/Usage.js';
+import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
 const INTEGRATION_COMPONENTS: Record<string, React.ComponentType> = {
@@ -56,6 +56,7 @@ function navigateDocs(slug: string) {
 export function DocsView() {
   const [active, setActiveState] = useState(getDocsSlug);
   const [selectedComponent, setSelectedComponent] = useState('form');
+  const [usageExampleOpen, setUsageExampleOpen] = useState(false);
 
   useEffect(() => {
     function sync() {
@@ -70,7 +71,9 @@ export function DocsView() {
     setActiveState(slug);
   }
 
-  const showPreview = active === 'components';
+  const showComponentsPreview = active === 'components';
+  const showUsagePreview = active === 'usage' && usageExampleOpen;
+  const showPreview = showComponentsPreview || showUsagePreview;
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
@@ -93,8 +96,15 @@ export function DocsView() {
   const SectionContent = section?.component ?? null;
 
   function renderContent() {
-    if (showPreview)
+    if (showComponentsPreview)
       return <Components selected={selectedComponent} onSelect={setSelectedComponent} />;
+    if (active === 'usage')
+      return (
+        <Usage
+          exampleOpen={usageExampleOpen}
+          onToggleExample={() => setUsageExampleOpen((v) => !v)}
+        />
+      );
     if (activePackage) return <PackageDetail pkg={activePackage} onNavigate={setActive} />;
     if (active === 'packages') return <Packages onNavigate={setActive} />;
     if (ActiveIntegration) return <ActiveIntegration />;
@@ -159,7 +169,11 @@ export function DocsView() {
 
       {showPreview && (
         <aside className="docs-preview-panel">
-          <ComponentPreview key={selectedComponent} entry={previewEntry} />
+          {showComponentsPreview ? (
+            <ComponentPreview key={selectedComponent} entry={previewEntry} />
+          ) : (
+            <UsageHydrationPreview />
+          )}
         </aside>
       )}
     </div>
