@@ -8,6 +8,12 @@ const INTEGRATIONS = [
     label: 'LangChain.js',
     description: 'Use MDMA inside a LangChain chain or agent — backend Node.js service.',
   },
+  {
+    slug: 'ag-ui',
+    label: 'AG-UI',
+    description:
+      'Stream MDMA over the AG-UI protocol and resume the agent run on user actions — human-in-the-loop.',
+  },
 ];
 
 export function Integrations({ onNavigate }: IntegrationsProps) {

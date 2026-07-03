@@ -136,6 +136,50 @@ describe('createMdmaAgentBridge', () => {
     bridge.dispose();
   });
 
+  it('routes a webhook INTEGRATION_CALLED back into the agent by default', async () => {
+    const agent = new FakeAgent();
+    const bridge = createMdmaAgentBridge(agent, { throttleMs: 0 });
+
+    agent.emitContent('m1', APPROVAL_DOC);
+    await bridge.flush();
+
+    const store = bridge.documents.get('m1')!.store;
+    store.dispatch({
+      type: 'INTEGRATION_CALLED',
+      componentId: 'hook1',
+      integrationId: 'webhook',
+      result: { status: 'triggered' },
+    });
+    await Promise.resolve();
+
+    expect(agent.runs).toBe(1);
+    expect(agent.added).toHaveLength(1);
+    const payload = JSON.parse(agent.added[0].content as string);
+    expect(payload).toMatchObject({
+      kind: 'integration',
+      componentId: 'hook1',
+      integrationId: 'webhook',
+    });
+    bridge.dispose();
+  });
+
+  it('routes a tasklist completion (ACTION_TRIGGERED) back into the agent by default', async () => {
+    const agent = new FakeAgent();
+    const bridge = createMdmaAgentBridge(agent, { throttleMs: 0 });
+
+    agent.emitContent('m1', APPROVAL_DOC);
+    await bridge.flush();
+
+    const store = bridge.documents.get('m1')!.store;
+    store.dispatch({ type: 'ACTION_TRIGGERED', componentId: 'checklist1', actionId: 'done' });
+    await Promise.resolve();
+
+    expect(agent.runs).toBe(1);
+    const payload = JSON.parse(agent.added[0].content as string);
+    expect(payload).toMatchObject({ kind: 'action', componentId: 'checklist1', actionId: 'done' });
+    bridge.dispose();
+  });
+
   it('lets the host take over resumption when onAction returns false', async () => {
     const agent = new FakeAgent();
     const bridge = createMdmaAgentBridge(agent, {

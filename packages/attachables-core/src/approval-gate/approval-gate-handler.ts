@@ -25,25 +25,4 @@ export const approvalGateHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string, payload: unknown) {
-    const data = payload as { actor: { id: string; role?: string }; reason?: string };
-
-    if (actionId === 'approve') {
-      ctx.policy.enforce('approval_grant');
-      ctx.dispatch({
-        type: 'APPROVAL_GRANTED',
-        componentId: ctx.componentId,
-        actor: data.actor,
-      });
-    } else if (actionId === 'deny') {
-      ctx.policy.enforce('approval_deny');
-      ctx.dispatch({
-        type: 'APPROVAL_DENIED',
-        componentId: ctx.componentId,
-        actor: data.actor,
-        reason: data.reason ?? '',
-      });
-    }
-  },
 };

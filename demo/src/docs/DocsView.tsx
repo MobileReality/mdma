@@ -10,11 +10,13 @@ import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { Integrations, INTEGRATIONS } from './sections/Integrations.js';
 import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
+import { IntegrationAgui } from './sections/IntegrationAgui.js';
 import { Usage } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
 const INTEGRATION_COMPONENTS: Record<string, React.ComponentType> = {
   langchain: IntegrationLangchain,
+  'ag-ui': IntegrationAgui,
 };
 
 interface Section {

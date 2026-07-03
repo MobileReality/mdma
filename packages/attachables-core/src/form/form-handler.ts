@@ -29,14 +29,4 @@ export const formHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string) {
-    if (actionId === 'submit') {
-      ctx.dispatch({
-        type: 'ACTION_TRIGGERED',
-        componentId: ctx.componentId,
-        actionId: 'submit',
-      });
-    }
-  },
 };

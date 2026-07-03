@@ -25,12 +25,4 @@ export const buttonHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string) {
-    ctx.dispatch({
-      type: 'ACTION_TRIGGERED',
-      componentId: ctx.componentId,
-      actionId,
-    });
-  },
 };

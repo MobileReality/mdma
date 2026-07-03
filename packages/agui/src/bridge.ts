@@ -7,13 +7,14 @@ import type { AguiAgent, AguiSubscriber, AguiSubscription } from './types.js';
 /** The store actions that represent a user decision worth routing back to the agent. */
 export type MdmaActionEvent = Extract<
   StoreAction,
-  { type: 'ACTION_TRIGGERED' | 'APPROVAL_GRANTED' | 'APPROVAL_DENIED' }
+  { type: 'ACTION_TRIGGERED' | 'APPROVAL_GRANTED' | 'APPROVAL_DENIED' | 'INTEGRATION_CALLED' }
 >;
 
 const ACTION_TYPES = new Set<StoreAction['type']>([
-  'ACTION_TRIGGERED',
+  'ACTION_TRIGGERED', // button click, form submit, tasklist completion
   'APPROVAL_GRANTED',
   'APPROVAL_DENIED',
+  'INTEGRATION_CALLED', // webhook trigger / execution result
 ]);
 
 /** Live render state for a single streamed assistant message. */
@@ -35,8 +36,9 @@ export interface MdmaAgentBridgeOptions {
    */
   onDocument?: (message: MdmaMessageState) => void;
   /**
-   * Called when the user triggers an action (submit / approve / deny) inside a rendered
-   * document. Return `false` to take over resumption yourself (e.g. resolve an AG-UI interrupt
+   * Called when the user triggers a decision (form submit / button / tasklist completion /
+   * approve / deny / webhook trigger) inside a rendered document. Return `false` to take over
+   * resumption yourself (e.g. resolve an AG-UI interrupt
    * so the parked run continues with state intact); return `true` or nothing to let the bridge
    * perform its default resume (`addMessage` + `runAgent`).
    */
@@ -247,6 +249,13 @@ function serializeAction(action: MdmaActionEvent): Record<string, unknown> {
         componentId: action.componentId,
         actor: action.actor,
         reason: action.reason,
+      };
+    case 'INTEGRATION_CALLED':
+      return {
+        kind: 'integration',
+        componentId: action.componentId,
+        integrationId: action.integrationId,
+        result: action.result,
       };
   }
 }
