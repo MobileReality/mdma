@@ -5492,7 +5492,7 @@ body {
 }
 
 .docs-convo-msg--user {
-  flex-direction: row-reverse;
+  justify-content: flex-end;
 }
 
 .docs-convo-avatar {
