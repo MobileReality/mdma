@@ -39,11 +39,11 @@
   "peerDependencies": {
     "@ag-ui/client": ">=0.0.30 <0.1.0",
     "@ag-ui/core": ">=0.0.30 <0.1.0",
-    "@mobile-reality/mdma-attachables-core": "workspace:*",
-    "@mobile-reality/mdma-parser": "workspace:*",
-    "@mobile-reality/mdma-renderer-react": "workspace:*",
-    "@mobile-reality/mdma-runtime": "workspace:*",
-    "@mobile-reality/mdma-spec": "workspace:*",
+    "@mobile-reality/mdma-attachables-core": "*",
+    "@mobile-reality/mdma-parser": "*",
+    "@mobile-reality/mdma-renderer-react": "*",
+    "@mobile-reality/mdma-runtime": "*",
+    "@mobile-reality/mdma-spec": "*",
     "react": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
