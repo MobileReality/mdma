@@ -37,6 +37,7 @@ export function useMdmaAgentStream(
       // Bridge-level config that shouldn't change per render — read once.
       throttleMs: optionsRef.current.throttleMs,
       createRegistry: optionsRef.current.createRegistry,
+      initialState: optionsRef.current.initialState,
       now: optionsRef.current.now,
       onDocument: (message) => {
         if (!order.includes(message.messageId)) order.push(message.messageId);

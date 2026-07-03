@@ -20,6 +20,21 @@ const APPROVAL_DOC = [
   '',
 ].join('\n');
 
+const FORM_DOC = [
+  'Here is your form.',
+  '',
+  `${FENCE}mdma`,
+  'id: form1',
+  'type: form',
+  'fields:',
+  '  - name: email',
+  '    type: email',
+  '    label: Email',
+  'onSubmit: submit-form1',
+  FENCE,
+  '',
+].join('\n');
+
 /** Minimal in-memory AG-UI agent for exercising the bridge. */
 class FakeAgent implements AguiAgent {
   subscriber: AguiSubscriber | null = null;
@@ -133,6 +148,21 @@ describe('createMdmaAgentBridge', () => {
     expect(agent.added).toHaveLength(1);
     const payload = JSON.parse(agent.added[0].content as string);
     expect(payload).toMatchObject({ kind: 'approval', decision: 'granted', componentId: 'gate1' });
+    bridge.dispose();
+  });
+
+  it('hydrates a streamed message store from initialState', async () => {
+    const agent = new FakeAgent();
+    const bridge = createMdmaAgentBridge(agent, {
+      throttleMs: 0,
+      initialState: { form1: { email: 'restored@b.com' } },
+    });
+
+    agent.emitContent('m1', FORM_DOC);
+    await bridge.flush();
+
+    const store = bridge.documents.get('m1')!.store;
+    expect(store.getComponentState('form1')?.values.email).toBe('restored@b.com');
     bridge.dispose();
   });
 

@@ -25,7 +25,12 @@ export function createDefaultRegistry(): AttachableRegistry {
  */
 export async function parseMdma(
   markdown: string,
-  options: { existingStore?: DocumentStore; createRegistry?: () => AttachableRegistry } = {},
+  options: {
+    existingStore?: DocumentStore;
+    createRegistry?: () => AttachableRegistry;
+    /** Seed fresh component values (e.g. restoring a persisted conversation from a backend). */
+    initialState?: Record<string, Record<string, unknown>>;
+  } = {},
 ): Promise<{ ast: MdmaRoot; store: DocumentStore }> {
   const tree = processor.parse(markdown);
   // Pass the source to run() so the mdma transform can see the raw fences — it needs them to tell a
@@ -36,5 +41,11 @@ export async function parseMdma(
     return { ast, store: options.existingStore };
   }
   const createRegistry = options.createRegistry ?? createDefaultRegistry;
-  return { ast, store: createDocumentStore(ast, { registry: createRegistry() }) };
+  return {
+    ast,
+    store: createDocumentStore(ast, {
+      registry: createRegistry(),
+      initialState: options.initialState,
+    }),
+  };
 }

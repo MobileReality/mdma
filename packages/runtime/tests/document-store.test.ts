@@ -33,6 +33,54 @@ describe('DocumentStore', () => {
     expect(state.components.get('form1')?.type).toBe('form');
   });
 
+  it('hydrates component values from initialState without forging audit events', () => {
+    const ast = makeAst([
+      {
+        id: 'form1',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        fields: [
+          { name: 'email', type: 'email', label: 'Email' },
+          { name: 'name', type: 'text', label: 'Name' },
+        ],
+      },
+    ]);
+
+    const store = createDocumentStore(ast, {
+      initialState: { form1: { email: 'a@b.com', name: 'Alice' } },
+    });
+
+    const comp = store.getComponentState('form1');
+    expect(comp?.values.email).toBe('a@b.com');
+    expect(comp?.values.name).toBe('Alice');
+    // Hydration is a restore, not a user interaction — no touched flag, no forged events.
+    expect(comp?.touched).toBe(false);
+    expect(store.resolveBinding('{{email}}')).toBe('a@b.com');
+    expect(store.getEventLog().entries()).toHaveLength(0);
+  });
+
+  it('preserves hydrated values across a streaming updateAst re-parse', () => {
+    const comps = [
+      {
+        id: 'form1',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        fields: [{ name: 'email', type: 'email', label: 'Email' }],
+      },
+    ];
+    const store = createDocumentStore(makeAst(comps), {
+      initialState: { form1: { email: 'a@b.com' } },
+    });
+
+    // A later streamed re-parse of the same document must not wipe the hydrated value.
+    store.updateAst(makeAst(comps));
+    expect(store.getComponentState('form1')?.values.email).toBe('a@b.com');
+  });
+
   it('dispatches FIELD_CHANGED and updates state', () => {
     const ast = makeAst([
       {

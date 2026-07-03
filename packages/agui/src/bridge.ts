@@ -31,6 +31,14 @@ export interface MdmaAgentBridgeOptions {
   /** Registry factory for the document store (defaults to the core attachables). */
   createRegistry?: () => AttachableRegistry;
   /**
+   * Seed component values when a message's store is first created — e.g. restoring a persisted
+   * conversation fetched from a backend so its forms/approvals/tasklists render pre-populated.
+   * Keyed by component id → its `values` map (the shape under `getState().components`). Applies
+   * only to freshly-created components across the whole conversation; ids absent from a given
+   * message are ignored.
+   */
+  initialState?: Record<string, Record<string, unknown>>;
+  /**
    * Called whenever a message's store is created or updated from newly parsed MDMA — the hook
    * point for a UI to (re)render. Fires with the same store instance across a message's lifetime.
    */
@@ -107,6 +115,7 @@ export function createMdmaAgentBridge(
       result = await parseMdma(content, {
         existingStore: existing?.store,
         createRegistry: options.createRegistry,
+        initialState: options.initialState,
       });
     } catch {
       // Partial/invalid MDMA mid-stream is expected; keep the last good render.
