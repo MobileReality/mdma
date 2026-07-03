@@ -25,15 +25,4 @@ export const calloutHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string) {
-    if (actionId === 'dismiss') {
-      ctx.dispatch({
-        type: 'FIELD_CHANGED',
-        componentId: ctx.componentId,
-        field: 'dismissed',
-        value: true,
-      });
-    }
-  },
 };

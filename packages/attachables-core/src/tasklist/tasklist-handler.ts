@@ -29,16 +29,4 @@ export const tasklistHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string, payload: unknown) {
-    if (actionId === 'toggle') {
-      const { itemId, checked } = payload as { itemId: string; checked: boolean };
-      ctx.dispatch({
-        type: 'FIELD_CHANGED',
-        componentId: ctx.componentId,
-        field: itemId,
-        value: checked,
-      });
-    }
-  },
 };

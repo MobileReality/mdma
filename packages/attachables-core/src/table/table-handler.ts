@@ -29,22 +29,4 @@ export const tableHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string, payload: unknown) {
-    if (actionId === 'sort') {
-      const { column, direction } = payload as { column: string; direction: string };
-      ctx.dispatch({
-        type: 'FIELD_CHANGED',
-        componentId: ctx.componentId,
-        field: 'sortColumn',
-        value: column,
-      });
-      ctx.dispatch({
-        type: 'FIELD_CHANGED',
-        componentId: ctx.componentId,
-        field: 'sortDirection',
-        value: direction,
-      });
-    }
-  },
 };

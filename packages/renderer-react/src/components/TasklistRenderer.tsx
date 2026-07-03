@@ -18,14 +18,32 @@ export const TasklistRenderer = memo(function TasklistRenderer({
               <input
                 type="checkbox"
                 checked={Boolean(componentState?.values[item.id])}
-                onChange={(e) =>
+                onChange={(e) => {
+                  const checked = e.target.checked;
                   dispatch({
                     type: 'FIELD_CHANGED',
                     componentId: component.id,
                     field: item.id,
-                    value: e.target.checked,
-                  })
-                }
+                    value: checked,
+                  });
+                  // Fire onComplete only on the transition into all-items-checked, mirroring
+                  // how FormRenderer emits ACTION_TRIGGERED on submit.
+                  if (component.onComplete) {
+                    const wasComplete = component.items.every((it) =>
+                      Boolean(componentState?.values[it.id]),
+                    );
+                    const isComplete = component.items.every((it) =>
+                      it.id === item.id ? checked : Boolean(componentState?.values[it.id]),
+                    );
+                    if (!wasComplete && isComplete) {
+                      dispatch({
+                        type: 'ACTION_TRIGGERED',
+                        componentId: component.id,
+                        actionId: component.onComplete,
+                      });
+                    }
+                  }
+                }}
               />
               <span>{item.text}</span>
             </label>

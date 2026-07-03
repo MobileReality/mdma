@@ -1,0 +1,81 @@
+{
+  "name": "@mobile-reality/mdma-agui",
+  "version": "0.1.0",
+  "description": "Bridge that renders MDMA interactive documents streamed over the AG-UI protocol and routes user actions back into the agent run.",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "ag-ui",
+    "agent",
+    "generative-ui",
+    "human-in-the-loop"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./react": {
+      "import": "./dist/react/index.js",
+      "types": "./dist/react/index.d.ts",
+      "default": "./dist/react/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "biome lint src/",
+    "typecheck": "tsc -p tsconfig.typecheck.json"
+  },
+  "dependencies": {
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.0"
+  },
+  "peerDependencies": {
+    "@ag-ui/client": ">=0.0.30 <0.1.0",
+    "@ag-ui/core": ">=0.0.30 <0.1.0",
+    "@mobile-reality/mdma-attachables-core": "*",
+    "@mobile-reality/mdma-parser": "*",
+    "@mobile-reality/mdma-renderer-react": "*",
+    "@mobile-reality/mdma-runtime": "*",
+    "@mobile-reality/mdma-spec": "*",
+    "react": "^18.0.0 || ^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@mobile-reality/mdma-renderer-react": {
+      "optional": true
+    },
+    "react": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@ag-ui/client": "^0.0.57",
+    "@ag-ui/core": "^0.0.57",
+    "@mobile-reality/mdma-attachables-core": "workspace:*",
+    "@mobile-reality/mdma-parser": "workspace:*",
+    "@mobile-reality/mdma-renderer-react": "workspace:*",
+    "@mobile-reality/mdma-runtime": "workspace:*",
+    "@mobile-reality/mdma-spec": "workspace:*",
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobileReality/mdma.git",
+    "directory": "packages/agui"
+  }
+}

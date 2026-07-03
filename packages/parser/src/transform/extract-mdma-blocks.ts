@@ -14,6 +14,7 @@ export interface ExtractOptions {
 
 export function extractMdmaBlocks(tree: Root, file: VFile, options: ExtractOptions = {}): MdmaRoot {
   const ids = new Set<string>();
+  const source = typeof file.value === 'string' ? file.value : String(file.value ?? '');
 
   visit(tree, 'code', (node: Code, index, parent) => {
     if (node.lang !== MDMA_LANG_TAG) return;
@@ -41,6 +42,15 @@ export function extractMdmaBlocks(tree: Root, file: VFile, options: ExtractOptio
       return;
     }
 
+    // 2b. While the fence is still open (streaming), a valid-YAML-but-unknown-type block is almost
+    // always a half-streamed type name (e.g. `approval-gat` before `approval-gate` completes).
+    // Leave it as a pending code node so the renderer shows a loading skeleton instead of flashing
+    // "Unknown component type". Once the fence closes, a still-unknown type falls through and
+    // renders the proper error.
+    if (validation.unknownType && !isFenceTerminated(node, source)) {
+      return;
+    }
+
     // 3. Check for duplicate IDs
     const id = validation.component.id;
     if (ids.has(id)) {
@@ -62,4 +72,26 @@ export function extractMdmaBlocks(tree: Root, file: VFile, options: ExtractOptio
   });
 
   return tree as unknown as MdmaRoot;
+}
+
+/**
+ * Is the fenced code block terminated by a closing fence? During streaming, remark auto-closes an
+ * open fence at EOF, so the mdast `code` node exists before its closing ``` has arrived. We detect
+ * that by slicing the original source for this node and checking whether its last non-empty line is
+ * a bare fence. Defaults to `true` when position offsets are unavailable, so non-streaming parses
+ * (and any consumer without position tracking) are unaffected.
+ */
+function isFenceTerminated(node: Code, source: string): boolean {
+  const start = node.position?.start?.offset;
+  const end = node.position?.end?.offset;
+  if (start == null || end == null || !source) return true;
+
+  const block = source.slice(start, end);
+  const lines = block.split('\n');
+  for (let i = lines.length - 1; i >= 1; i--) {
+    const trimmed = lines[i].trim();
+    if (trimmed === '') continue;
+    return /^(`{3,}|~{3,})$/.test(trimmed);
+  }
+  return false;
 }

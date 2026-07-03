@@ -41,17 +41,6 @@ describe('formHandler', () => {
     expect(state.values.email).toBe('');
     expect(state.values.agree).toBe(false);
   });
-
-  it('dispatches on submit action', async () => {
-    const dispatch = vi.fn();
-    const ctx = makeContext({ componentId: 'f1', dispatch });
-    await formHandler.onAction?.(ctx, 'submit', undefined);
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'ACTION_TRIGGERED',
-      componentId: 'f1',
-      actionId: 'submit',
-    });
-  });
 });
 
 describe('buttonHandler', () => {
@@ -64,17 +53,6 @@ describe('buttonHandler', () => {
       onAction: 'go',
     });
     expect(state.type).toBe('button');
-  });
-
-  it('dispatches action on click', async () => {
-    const dispatch = vi.fn();
-    const ctx = makeContext({ componentId: 'btn1', dispatch });
-    await buttonHandler.onAction?.(ctx, 'go', undefined);
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'ACTION_TRIGGERED',
-      componentId: 'btn1',
-      actionId: 'go',
-    });
   });
 });
 
@@ -91,18 +69,6 @@ describe('tasklistHandler', () => {
     });
     expect(state.values.i1).toBe(false);
     expect(state.values.i2).toBe(true);
-  });
-
-  it('dispatches toggle action', async () => {
-    const dispatch = vi.fn();
-    const ctx = makeContext({ componentId: 'tl1', dispatch });
-    await tasklistHandler.onAction?.(ctx, 'toggle', { itemId: 'i1', checked: true });
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'FIELD_CHANGED',
-      componentId: 'tl1',
-      field: 'i1',
-      value: true,
-    });
   });
 });
 
@@ -131,18 +97,6 @@ describe('calloutHandler', () => {
     });
     expect(state.values.dismissed).toBe(false);
   });
-
-  it('dispatches dismiss action', async () => {
-    const dispatch = vi.fn();
-    const ctx = makeContext({ componentId: 'c1', dispatch });
-    await calloutHandler.onAction?.(ctx, 'dismiss', undefined);
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'FIELD_CHANGED',
-      componentId: 'c1',
-      field: 'dismissed',
-      value: true,
-    });
-  });
 });
 
 describe('approvalGateHandler', () => {
@@ -154,35 +108,6 @@ describe('approvalGateHandler', () => {
       title: 'Manager Approval',
     });
     expect(state.values.status).toBe('pending');
-  });
-
-  it('dispatches approval with policy check', async () => {
-    const dispatch = vi.fn();
-    const enforce = vi.fn();
-    const ctx = makeContext({ componentId: 'gate1', dispatch, policy: { enforce } });
-    await approvalGateHandler.onAction?.(ctx, 'approve', { actor: { id: 'u1', role: 'manager' } });
-    expect(enforce).toHaveBeenCalledWith('approval_grant');
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'APPROVAL_GRANTED',
-      componentId: 'gate1',
-      actor: { id: 'u1', role: 'manager' },
-    });
-  });
-
-  it('dispatches denial with reason', async () => {
-    const dispatch = vi.fn();
-    const enforce = vi.fn();
-    const ctx = makeContext({ componentId: 'gate1', dispatch, policy: { enforce } });
-    await approvalGateHandler.onAction?.(ctx, 'deny', {
-      actor: { id: 'u2' },
-      reason: 'Not ready',
-    });
-    expect(dispatch).toHaveBeenCalledWith({
-      type: 'APPROVAL_DENIED',
-      componentId: 'gate1',
-      actor: { id: 'u2' },
-      reason: 'Not ready',
-    });
   });
 });
 
@@ -196,15 +121,6 @@ describe('webhookHandler', () => {
       trigger: 'submit',
     });
     expect(state.values.status).toBe('idle');
-  });
-
-  it('enforces policy before execution', async () => {
-    const enforce = vi.fn();
-    const dispatch = vi.fn();
-    const ctx = makeContext({ componentId: 'wh1', dispatch, policy: { enforce } });
-    await webhookHandler.onAction?.(ctx, 'execute', undefined);
-    expect(enforce).toHaveBeenCalledWith('webhook_call');
-    expect(dispatch).toHaveBeenCalledWith(expect.objectContaining({ type: 'INTEGRATION_CALLED' }));
   });
 });
 

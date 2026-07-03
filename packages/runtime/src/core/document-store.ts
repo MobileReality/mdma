@@ -18,6 +18,14 @@ export interface DocumentStoreOptions {
   environment?: string;
   policy?: import('@mobile-reality/mdma-spec').Policy;
   registry?: AttachableRegistry;
+  /**
+   * Seed component values when the store is created (e.g. restoring a persisted conversation
+   * fetched from a backend). Keyed by component id → its `values` map, mirroring the shape under
+   * each entry of `getState().components`. Overlays onto AST defaults without emitting audit
+   * events, and is applied only to freshly-created components, so it never clobbers in-flight
+   * edits during streaming re-parses.
+   */
+  initialState?: Record<string, Record<string, unknown>>;
 }
 
 export interface DocumentStore {
@@ -50,6 +58,28 @@ export function createDocumentStore(
     bindings: {},
     components: new Map(),
   };
+
+  const initialState = options.initialState;
+
+  /**
+   * Overlay hydrated values (e.g. restored from a persisted conversation) onto a freshly-built
+   * component, seeding both its `values` and the matching bindings the same way a `FIELD_CHANGED`
+   * would — but without emitting an audit event or marking the component `touched`.
+   */
+  function applyInitialState(compState: ComponentState) {
+    const hydrated = initialState?.[compState.id];
+    if (!hydrated) return;
+    if (!state.bindings[compState.id] || typeof state.bindings[compState.id] !== 'object') {
+      state.bindings[compState.id] = {};
+    }
+    const nested = state.bindings[compState.id] as Record<string, unknown>;
+    for (const [key, value] of Object.entries(hydrated)) {
+      compState.values[key] = value;
+      nested[key] = value;
+      // Flat binding is legacy back-compat; don't clobber a name another component already claimed.
+      if (!(key in state.bindings)) state.bindings[key] = value;
+    }
+  }
 
   // Build redaction context from AST
   const redactionCtx: RedactionContext = {
@@ -92,6 +122,7 @@ export function createDocumentStore(
         }
       }
 
+      applyInitialState(compState);
       state.components.set(comp.id, compState);
     }
   }
@@ -268,10 +299,15 @@ export function createDocumentStore(
         if (!isMdmaBlock(child)) continue;
         const comp = child.component;
 
-        // If this component already exists, keep its state
-        if (state.components.has(comp.id)) continue;
+        // If this component already exists with the same type, keep its state — this preserves
+        // in-flight values/touched/focus across streamed re-parses. If the type changed, an
+        // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
+        // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
+        const existing = state.components.get(comp.id);
+        if (existing && existing.type === comp.type) continue;
+        redactionCtx.sensitiveComponents.delete(comp.id);
 
-        // New component — initialize with defaults
+        // New (or retyped) component — initialize with defaults
         const compState: ComponentState = {
           id: comp.id,
           type: comp.type,
@@ -308,6 +344,7 @@ export function createDocumentStore(
           }
         }
 
+        applyInitialState(compState);
         state.components.set(comp.id, compState);
       }
 

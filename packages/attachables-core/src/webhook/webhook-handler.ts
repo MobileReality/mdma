@@ -25,16 +25,4 @@ export const webhookHandler: AttachableHandler = {
       disabled: false,
     };
   },
-
-  async onAction(ctx: AttachableContext, actionId: string) {
-    if (actionId === 'execute') {
-      ctx.policy.enforce('webhook_call');
-      ctx.dispatch({
-        type: 'INTEGRATION_CALLED',
-        componentId: ctx.componentId,
-        integrationId: 'webhook',
-        result: { status: 'mocked', message: 'Webhook execution placeholder' },
-      });
-    }
-  },
 };
