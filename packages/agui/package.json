@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-agui",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Bridge that renders MDMA interactive documents streamed over the AG-UI protocol and routes user actions back into the agent run.",
   "keywords": [
     "mdma",

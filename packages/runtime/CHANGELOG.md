@@ -1,5 +1,25 @@
 # @mobile-reality/mdma-runtime
 
+## 0.3.0
+
+### Minor Changes
+
+- b03ad21: Add an `initialState` option to `createDocumentStore` for hydrating component values at store
+  creation — e.g. restoring a persisted conversation fetched from a backend. Keyed by component id →
+  its `values` map (symmetric with `getState()`), it overlays AST defaults **without emitting audit
+  events or marking fields `touched`**, and applies only to freshly-created components so a streaming
+  re-parse never clobbers in-flight edits. `mdma-agui` threads `initialState` through `parseMdma`,
+  the bridge, and `MdmaAgentView`/`useMdmaAgentStream`, so re-opened conversations render
+  pre-populated.
+
+### Patch Changes
+
+- d262328: Fix `DocumentStore.updateAst` freezing a component's `type` for the lifetime of its id. During
+  streaming, an early partial parse can produce a placeholder/truncated type (e.g. `approval-gat`
+  before `approval-gate` finishes streaming); `updateAst` now re-initializes a component when its
+  type changes between parses, while still preserving in-flight state (values, touched) when the
+  type is unchanged.
+
 ## 0.2.3
 
 ### Patch Changes
