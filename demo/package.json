@@ -12,12 +12,14 @@
     "@mobile-reality/mdma-parser": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-renderer-react": "workspace:*",
+    "@mobile-reality/mdma-renderer-react-native": "workspace:*",
     "@mobile-reality/mdma-runtime": "workspace:*",
     "@mobile-reality/mdma-spec": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
     "highlight.js": "^11.11.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-native-web": "^0.19.13",
     "recharts": "^3.7.0",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.0",
@@ -28,6 +30,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
+    "react-native": "0.76.9",
     "typescript": "^5.7.0",
     "vite": "^6.0.0"
   }

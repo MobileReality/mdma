@@ -1,16 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Cli } from './sections/Cli.js';
 import { COMPONENTS, ComponentPreview, Components } from './sections/Components.js';
 import { CustomPromptBestPractices } from './sections/CustomPromptBestPractices.js';
 import { Installation } from './sections/Installation.js';
+import { IntegrationAgui } from './sections/IntegrationAgui.js';
+import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
+import { INTEGRATIONS, Integrations } from './sections/Integrations.js';
 import { Introduction } from './sections/Introduction.js';
 import { Mcp } from './sections/Mcp.js';
 import { PACKAGES, PackageDetail } from './sections/PackageDetail.js';
 import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
-import { Integrations, INTEGRATIONS } from './sections/Integrations.js';
-import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
-import { IntegrationAgui } from './sections/IntegrationAgui.js';
+import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
 import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
@@ -32,6 +33,7 @@ const SECTIONS: Section[] = [
   { slug: 'usage', label: 'Usage', component: Usage },
   { slug: 'integrations', label: 'Integrations' },
   { slug: 'components', label: 'Components' },
+  { slug: 'react-native', label: 'React Native', component: ReactNative },
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
   { slug: 'cli', label: 'CLI', component: Cli },
@@ -73,7 +75,8 @@ export function DocsView() {
 
   const showComponentsPreview = active === 'components';
   const showUsagePreview = active === 'usage' && usageExampleOpen;
-  const showPreview = showComponentsPreview || showUsagePreview;
+  const showRnPreview = active === 'react-native';
+  const showPreview = showComponentsPreview || showUsagePreview || showRnPreview;
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
@@ -119,7 +122,11 @@ export function DocsView() {
     (s.slug === 'integrations' && isIntegrationsActive);
 
   return (
-    <div className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}`}>
+    <div
+      className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}${
+        showRnPreview ? ' docs-layout--rn' : ''
+      }`}
+    >
       <nav className="docs-nav">
         <div className="docs-nav-title">Documentation</div>
         {SECTIONS.map((s) => (
@@ -171,6 +178,8 @@ export function DocsView() {
         <aside className="docs-preview-panel">
           {showComponentsPreview ? (
             <ComponentPreview key={selectedComponent} entry={previewEntry} />
+          ) : showRnPreview ? (
+            <ReactNativeSnack />
           ) : (
             <UsageHydrationPreview />
           )}

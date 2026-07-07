@@ -6158,3 +6158,57 @@ body {
     flex: 1 1 50%;
   }
 }
+
+/* ── React Native docs — embedded Expo Snack (right preview panel) ──────────── */
+
+/* Give the Snack more room than the component preview: narrower content column,
+   wider preview panel. */
+.docs-layout--rn .docs-content {
+  flex: 0 1 620px;
+}
+.docs-layout--rn .docs-preview-panel {
+  min-width: 440px;
+}
+
+.rn-preview-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  min-height: 0;
+}
+
+.rn-open-snack {
+  align-self: flex-end;
+  font-size: 13px;
+  font-weight: 600;
+  color: #3730a3;
+  background: #e0e7ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 6px;
+  padding: 6px 12px;
+  text-decoration: none;
+}
+.rn-open-snack:hover {
+  background: #c7d2fe;
+}
+
+/* Phone frame holding the live react-native-web preview. */
+.rn-phone {
+  width: 100%;
+  max-width: 390px;
+  flex: 1;
+  min-height: 520px;
+  display: flex;
+  border: 10px solid #111827;
+  border-radius: 28px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.rn-snack-note {
+  font-size: 13px;
+  color: #6b7280;
+}
