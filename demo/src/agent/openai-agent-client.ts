@@ -289,8 +289,7 @@ export async function* streamOpenAIAgentMessages(
             reader.cancel().catch(() => {});
             yield {
               type: 'stream_error',
-              message:
-                'The model got stuck repeating itself and was stopped. Please try again.',
+              message: 'The model got stuck repeating itself and was stopped. Please try again.',
             };
             return;
           }

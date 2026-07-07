@@ -10,8 +10,8 @@ export function IntegrationAgui() {
           AG-UI
         </a>{' '}
         agent and route the user's decisions back into the run. AG-UI is the{' '}
-        <strong>transport</strong> (suspend/resume via its <code>interrupt</code> primitive); MDMA is
-        the <strong>payload</strong> (validated, audited, PII-aware components).{' '}
+        <strong>transport</strong> (suspend/resume via its <code>interrupt</code> primitive); MDMA
+        is the <strong>payload</strong> (validated, audited, PII-aware components).{' '}
         <code>@mobile-reality/mdma-agui</code> is the seam between them — a community-maintained
         adapter, not a framework integration.
       </p>

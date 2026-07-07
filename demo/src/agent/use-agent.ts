@@ -518,7 +518,10 @@ async function chatOnce(
   const baseUrl = getBaseUrlForProvider(config);
   const response = await fetch(`${baseUrl}/chat/completions`, {
     method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${getApiKeyForProvider(config)}` },
+    headers: {
+      'content-type': 'application/json',
+      authorization: `Bearer ${getApiKeyForProvider(config)}`,
+    },
     body: JSON.stringify({
       model: isOwn ? OWN_MODEL_NAME : config.model,
       messages: [

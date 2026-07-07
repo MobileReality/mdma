@@ -1636,7 +1636,7 @@ body {
   gap: 10px;
 }
 
-.ai-setting--toggle input[type='checkbox'] {
+.ai-setting--toggle input[type="checkbox"] {
   appearance: none;
   -webkit-appearance: none;
   flex: 0 0 auto;
@@ -1651,8 +1651,8 @@ body {
   transition: background 0.15s;
 }
 
-.ai-setting--toggle input[type='checkbox']::after {
-  content: '';
+.ai-setting--toggle input[type="checkbox"]::after {
+  content: "";
   position: absolute;
   top: 2px;
   left: 2px;
@@ -1663,11 +1663,11 @@ body {
   transition: transform 0.15s;
 }
 
-.ai-setting--toggle input[type='checkbox']:checked {
+.ai-setting--toggle input[type="checkbox"]:checked {
   background: #6c5ce7;
 }
 
-.ai-setting--toggle input[type='checkbox']:checked::after {
+.ai-setting--toggle input[type="checkbox"]:checked::after {
   transform: translateX(16px);
 }
 
@@ -1835,9 +1835,7 @@ body {
   border-radius: 5px;
   padding: 2px 7px;
   cursor: pointer;
-  transition:
-    background 0.15s,
-    color 0.15s;
+  transition: background 0.15s, color 0.15s;
 }
 
 .agent-raw-toggle:hover {

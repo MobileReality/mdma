@@ -125,7 +125,9 @@ export const MdastRenderer = memo(function MdastRenderer({ node }: MdastRenderer
                 {node.ordered ? `${i + 1}. ` : '• '}
               </Text>
               <Text style={{ color: colors.text, fontSize: fontSize.body, flex: 1 }}>
-                {item.children?.flatMap((c) => c.children ?? [c]).map((c, j) => renderInline(c, theme, j))}
+                {item.children
+                  ?.flatMap((c) => c.children ?? [c])
+                  .map((c, j) => renderInline(c, theme, j))}
               </Text>
             </View>
           ))}
@@ -148,9 +150,7 @@ export const MdastRenderer = memo(function MdastRenderer({ node }: MdastRenderer
       );
     case 'thematicBreak':
       return (
-        <View
-          style={{ height: 1, backgroundColor: colors.border, marginVertical: spacing.md }}
-        />
+        <View style={{ height: 1, backgroundColor: colors.border, marginVertical: spacing.md }} />
       );
     case 'blockquote':
       return (
@@ -162,7 +162,9 @@ export const MdastRenderer = memo(function MdastRenderer({ node }: MdastRenderer
             marginVertical: spacing.xs,
           }}
         >
-          {node.children?.map((c, i) => <MdastRenderer key={i} node={c} />)}
+          {node.children?.map((c, i) => (
+            <MdastRenderer key={i} node={c} />
+          ))}
         </View>
       );
     default:

@@ -77,9 +77,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -91,10 +89,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -177,19 +172,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -252,9 +242,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -266,10 +254,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -352,19 +337,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -427,9 +407,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -441,10 +419,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -527,19 +502,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -602,9 +572,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -616,10 +584,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -711,19 +676,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -790,9 +750,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -804,10 +762,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -890,19 +845,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -965,9 +915,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -979,11 +927,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "chart",
-                    "callout",
-                    "table"
-                  ]
+                  "allowed": ["chart", "callout", "table"]
                 }
               }
             },
@@ -1057,20 +1001,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "chart",
-                  "callout",
-                  "table"
-                ]
+                "allowed": ["chart", "callout", "table"]
               }
             },
             {
@@ -1129,9 +1067,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -1143,10 +1079,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -1226,19 +1159,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -1298,9 +1226,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -1312,10 +1238,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -1398,19 +1321,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -1473,9 +1391,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -1487,11 +1403,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "chart",
-                    "callout",
-                    "form"
-                  ]
+                  "allowed": ["chart", "callout", "form"]
                 }
               }
             },
@@ -1565,20 +1477,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "chart",
-                  "callout",
-                  "form"
-                ]
+                "allowed": ["chart", "callout", "form"]
               }
             },
             {
@@ -1637,9 +1543,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -1651,13 +1555,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "table",
-                    "callout",
-                    "tasklist",
-                    "chart",
-                    "button"
-                  ]
+                  "allowed": ["table", "callout", "tasklist", "chart", "button"]
                 }
               }
             },
@@ -1731,22 +1629,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "table",
-                  "callout",
-                  "tasklist",
-                  "chart",
-                  "button"
-                ]
+                "allowed": ["table", "callout", "tasklist", "chart", "button"]
               }
             },
             {
@@ -1805,9 +1695,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -1819,10 +1707,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -1917,19 +1802,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -1999,9 +1879,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -2013,10 +1891,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -2108,19 +1983,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -2187,9 +2057,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -2201,10 +2069,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -2299,19 +2164,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -2381,9 +2241,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -2395,10 +2253,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -2490,19 +2345,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -2569,9 +2419,7 @@
                 "type": "javascript",
                 "value": "file://assertions/validate-mdma.mjs",
                 "config": {
-                  "exclude": [
-                    "flow-ordering"
-                  ]
+                  "exclude": ["flow-ordering"]
                 }
               }
             },
@@ -2583,10 +2431,7 @@
                 "type": "javascript",
                 "value": "file://assertions/only-components.mjs",
                 "config": {
-                  "allowed": [
-                    "form",
-                    "callout"
-                  ]
+                  "allowed": ["form", "callout"]
                 }
               }
             },
@@ -2678,19 +2523,14 @@
               "type": "javascript",
               "value": "file://assertions/validate-mdma.mjs",
               "config": {
-                "exclude": [
-                  "flow-ordering"
-                ]
+                "exclude": ["flow-ordering"]
               }
             },
             {
               "type": "javascript",
               "value": "file://assertions/only-components.mjs",
               "config": {
-                "allowed": [
-                  "form",
-                  "callout"
-                ]
+                "allowed": ["form", "callout"]
               }
             },
             {
@@ -2774,9 +2614,7 @@
   "config": {
     "tags": {},
     "description": "MDMA Example Flows Eval (DSL) — own model",
-    "prompts": [
-      "file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-custom.mjs"
-    ],
+    "prompts": ["file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-custom.mjs"],
     "providers": [
       {
         "id": "openai:chat:mdma-26b",
@@ -2805,10 +2643,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -2835,10 +2670,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -2865,10 +2697,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -2895,10 +2724,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -2929,10 +2755,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -2959,11 +2782,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "chart",
-                "callout",
-                "table"
-              ]
+              "allowed": ["chart", "callout", "table"]
             }
           },
           {
@@ -2986,10 +2805,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3013,10 +2829,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3043,11 +2856,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "chart",
-                "callout",
-                "form"
-              ]
+              "allowed": ["chart", "callout", "form"]
             }
           },
           {
@@ -3070,13 +2879,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "table",
-                "callout",
-                "tasklist",
-                "chart",
-                "button"
-              ]
+              "allowed": ["table", "callout", "tasklist", "chart", "button"]
             }
           },
           {
@@ -3099,10 +2902,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3136,10 +2936,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3170,10 +2967,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3207,10 +3001,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3241,10 +3032,7 @@
             "type": "javascript",
             "value": "file://assertions/only-components.mjs",
             "config": {
-              "allowed": [
-                "form",
-                "callout"
-              ]
+              "allowed": ["form", "callout"]
             }
           },
           {
@@ -3273,9 +3061,7 @@
           "type": "javascript",
           "value": "file://assertions/validate-mdma.mjs",
           "config": {
-            "exclude": [
-              "flow-ordering"
-            ]
+            "exclude": ["flow-ordering"]
           }
         }
       ],
@@ -3283,9 +3069,7 @@
       "options": {},
       "metadata": {}
     },
-    "outputPath": [
-      "own-model/results-flows.json"
-    ],
+    "outputPath": ["own-model/results-flows.json"],
     "extensions": [],
     "metadata": {},
     "evaluateOptions": {}

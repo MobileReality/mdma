@@ -113,7 +113,7 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     id: 'google/gemma',
     label: 'Google — Gemma',
     description:
-      "Open-weights Gemma family (Gemma 4 26B-a4b / 31B, Gemma 3n 4B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the open-model tier.",
+      'Open-weights Gemma family (Gemma 4 26B-a4b / 31B, Gemma 3n 4B). Gemini-native Markdown framing with all defensive blocks bundled (fence closing, scope discipline, string select values) for the open-model tier.',
     prompt: MDMA_AUTHOR_PROMPT_GEMMA,
   },
   {
