@@ -1,0 +1,14 @@
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+
+/** A canned agent response: a keyword match, a reply to stream, and the
+ *  pre-parsed (component-only) MDMA document to render. */
+export interface RnResponse {
+  match: string[];
+  reply: string;
+  ast: MdmaRoot;
+}
+
+// Pre-parsed at build time (see the RN docs section) so nothing needs the
+// markdown parser at runtime — used both by the live react-native-web preview
+// and to seed the "Open in Expo Snack" program.
+export const RN_RESPONSES = [{"match":["form","contact"],"reply":"Sure — here is a contact form with name, email, and message fields. Fill it in and hit submit.","ast":{"type":"root","children":[{"type":"mdmaBlock","component":{"id":"contact-form","type":"form","sensitive":false,"disabled":false,"visible":true,"fields":[{"name":"full_name","type":"text","label":"Full Name","required":true,"sensitive":false},{"name":"email","type":"email","label":"Email","required":true,"sensitive":true},{"name":"message","type":"textarea","label":"Message","required":false,"sensitive":false}],"onSubmit":"submit-contact"}}]}},{"match":["task","checklist","todo","release"],"reply":"Here is a release checklist you can tick through before shipping.","ast":{"type":"root","children":[{"type":"mdmaBlock","component":{"id":"preflight","type":"tasklist","label":"Release checklist","sensitive":false,"disabled":false,"visible":true,"items":[{"id":"tests","text":"All tests green","checked":false,"required":false},{"id":"changelog","text":"Changelog updated","checked":false,"required":false},{"id":"docs","text":"Docs reviewed","checked":false,"required":false}],"onComplete":"preflight-done"}}]}},{"match":["table","data","metric","number"],"reply":"Here are the adoption numbers by platform, rendered as a native table.","ast":{"type":"root","children":[{"type":"mdmaBlock","component":{"id":"metrics","type":"table","label":"Adoption","sensitive":false,"disabled":false,"visible":true,"columns":[{"key":"platform","header":"Platform","sortable":false,"sensitive":false},{"key":"installs","header":"Installs","sortable":false,"sensitive":false},{"key":"rating","header":"Rating","sortable":false,"sensitive":false}],"data":[{"platform":"iOS","installs":12400,"rating":4.7},{"platform":"Android","installs":18800,"rating":4.5},{"platform":"Web","installs":6100,"rating":4.6}],"sortable":false,"filterable":false}}]}},{"match":["approv","gate","deploy","ship"],"reply":"Here is an approval gate — approve or deny the deployment when you are ready.","ast":{"type":"root","children":[{"type":"mdmaBlock","component":{"id":"gate","type":"approval-gate","sensitive":false,"disabled":false,"visible":true,"title":"Ship v1.0","description":"Approve to cut the release.","requiredApprovers":1,"onApprove":"do-release","onDeny":"hold-release","requireReason":false}}]}}] as unknown as RnResponse[];
