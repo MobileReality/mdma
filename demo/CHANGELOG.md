@@ -1,5 +1,17 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.13
+
+### Patch Changes
+
+- Updated dependencies [d55f0ab]
+  - @mobile-reality/mdma-runtime@0.3.1
+  - @mobile-reality/mdma-spec@0.3.1
+  - @mobile-reality/mdma-renderer-react@0.4.1
+  - @mobile-reality/mdma-parser@0.2.5
+  - @mobile-reality/mdma-prompt-pack@0.4.1
+  - @mobile-reality/mdma-validator@0.3.2
+
 ## 0.0.12
 
 ### Patch Changes
