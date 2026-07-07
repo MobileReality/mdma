@@ -1,5 +1,12 @@
 # @mobile-reality/mdma-prompt-pack
 
+## 0.4.1
+
+### Patch Changes
+
+- Updated dependencies [d55f0ab]
+  - @mobile-reality/mdma-spec@0.3.1
+
 ## 0.4.0
 
 ### Minor Changes

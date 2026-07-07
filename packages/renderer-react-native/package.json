@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-renderer-react-native",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "keywords": [
     "mdma",
     "markdown",
@@ -46,7 +46,9 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },

@@ -1,7 +1,16 @@
 {
   "name": "@mobile-reality/mdma-renderer-react",
-  "version": "0.4.0",
-  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "react", "forms", "ui"],
+  "version": "0.4.1",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "react",
+    "forms",
+    "ui"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -29,7 +38,10 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist", "styles.css"],
+  "files": [
+    "dist",
+    "styles.css"
+  ],
   "publishConfig": {
     "access": "public"
   },

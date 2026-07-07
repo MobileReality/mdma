@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-runtime",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "keywords": [
     "mdma",
     "markdown",
@@ -36,7 +36,9 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   },
