@@ -36,6 +36,7 @@ Places where MDMA's MCP server is published or should be published. Each venue h
 | **Glama** | [`MobileReality/mdma`](https://glama.ai/mcp/servers/MobileReality/mdma) | Quality + Security scores auto-evaluated periodically. Docker build config lives in the Glama admin page — re-deploy + re-release when bumping. |
 | **awesome-mcp-servers** | `punkpeye/awesome-mcp-servers` | Entry sits under **Developer Tools** alphabetically. |
 | **Smithery Skills** | `mobilereality/mdma` | Skills surface — not the MCP surface (Smithery's MCP flow is HTTP-only, unusable for stdio). |
+| **MCP.so** | [`mcp.so/server/mdma`](https://mcp.so/server/mdma) | Self-serve listing. Manual edit of Title / Description / Tags / Content on the Edit Server page. No versioned republish needed — just refresh the description if the tool set changes. |
 | **MCPB Desktop Extensions** | Anthropic intake form | Partner queue at Anthropic. Bundle built locally; not shipped in this repo. |
 
 ## Release checklist — when bumping the version
@@ -86,6 +87,7 @@ Output: `<name>-<version>.mcpb`. Test-install in Claude Desktop, then attach as 
 
 - [ ] Update the MCP tools table in the root [README.md](../../README.md) if tools were added / renamed / removed.
 - [ ] Update this package's own tools table (above) the same way.
+- [ ] If tools changed: refresh the manual listing on [MCP.so](https://mcp.so/server/mdma) (Edit Server → Description / Content).
 - [ ] If a breaking change: note in the changeset; update consumers of `createMdmaMcpServer()` if any.
 
 ## Troubleshooting
