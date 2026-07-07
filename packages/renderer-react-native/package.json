@@ -1,0 +1,55 @@
+{
+  "name": "@mobile-reality/mdma-renderer-react-native",
+  "version": "0.1.0",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "react-native",
+    "ios",
+    "android",
+    "forms",
+    "ui"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "biome lint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mobile-reality/mdma-spec": "workspace:*",
+    "@mobile-reality/mdma-runtime": "workspace:*"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-native": ">=0.74.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "react": "^19.0.0",
+    "react-native": "^0.76.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.2.0"
+  },
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobileReality/mdma.git",
+    "directory": "packages/renderer-react-native"
+  }
+}

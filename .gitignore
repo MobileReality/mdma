@@ -21,3 +21,7 @@ evals/results*.json
 
 # MCPB bundle build artifacts
 *.mcpb
+
+# Expo (local dev cache + export output)
+**/.expo/
+demo-native/dist
