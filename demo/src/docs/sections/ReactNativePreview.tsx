@@ -1,20 +1,20 @@
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-react-native';
+import { type DocumentStore, createDocumentStore } from '@mobile-reality/mdma-runtime';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 // Renders live in the browser: `react-native` is aliased to `react-native-web`
 // (see vite.config.ts), so this is the exact renderer-react-native code running
 // as a web preview — the "emulator" shown in the docs. No code editor, no API
 // key; the four responses are pre-parsed and matched by keyword.
 import { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  TextInput,
+  ActivityIndicator,
   Pressable,
   ScrollView,
-  ActivityIndicator,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from 'react-native';
-import { MdmaDocument } from '@mobile-reality/mdma-renderer-react-native';
-import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
-import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import { RN_RESPONSES } from './rn-responses.js';
 
 interface Msg {

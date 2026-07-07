@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Cli } from './sections/Cli.js';
 import { COMPONENTS, ComponentPreview, Components } from './sections/Components.js';
 import { CustomPromptBestPractices } from './sections/CustomPromptBestPractices.js';
 import { Installation } from './sections/Installation.js';
+import { IntegrationAgui } from './sections/IntegrationAgui.js';
+import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
+import { INTEGRATIONS, Integrations } from './sections/Integrations.js';
 import { Introduction } from './sections/Introduction.js';
 import { Mcp } from './sections/Mcp.js';
 import { PACKAGES, PackageDetail } from './sections/PackageDetail.js';
 import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
-import { Integrations, INTEGRATIONS } from './sections/Integrations.js';
-import { IntegrationLangchain } from './sections/IntegrationLangchain.js';
-import { IntegrationAgui } from './sections/IntegrationAgui.js';
-import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
+import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
 const INTEGRATION_COMPONENTS: Record<string, React.ComponentType> = {

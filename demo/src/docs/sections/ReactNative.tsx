@@ -220,9 +220,9 @@ export function ReactNative() {
 
       <h2>Usage</h2>
       <p>
-        Parse a document to an AST + store (with <code>@mobile-reality/mdma-parser</code>), then hand
-        both to <code>MdmaDocument</code>. Interactions dispatch the same store actions as the web
-        renderer.
+        Parse a document to an AST + store (with <code>@mobile-reality/mdma-parser</code>), then
+        hand both to <code>MdmaDocument</code>. Interactions dispatch the same store actions as the
+        web renderer.
       </p>
       <Code lang="tsx">{`import { unified } from 'unified';
 import remarkParse from 'remark-parse';
@@ -258,10 +258,10 @@ export function Screen({ markdown }: { markdown: string }) {
       <h2>Try it</h2>
       <p>
         The panel on the right is the actual <code>renderer-react-native</code> running live (via{' '}
-        <code>react-native-web</code>) — send a message or tap a suggestion and the reply streams in,
-        then one of four sample MDMA documents renders and stays interactive. No agent, no API key.
-        Use <strong>Open in Expo Snack</strong> to see the code and run it on a real device with Expo
-        Go.
+        <code>react-native-web</code>) — send a message or tap a suggestion and the reply streams
+        in, then one of four sample MDMA documents renders and stays interactive. No agent, no API
+        key. Use <strong>Open in Expo Snack</strong> to see the code and run it on a real device
+        with Expo Go.
       </p>
       <p className="rn-snack-note">
         The full app (a real MDMA agent with streaming generation) lives at{' '}

@@ -1,6 +1,6 @@
 import { createRequire } from 'node:module';
-import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 // The React Native docs page renders `@mobile-reality/mdma-renderer-react-native`
 // live in the browser by aliasing `react-native` → `react-native-web`. Resolve
