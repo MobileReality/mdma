@@ -16,7 +16,12 @@ export interface MdmaAgentViewProps extends MdmaAgentBridgeOptions {
  * Drop-in view: subscribes to an AG-UI agent and renders every MDMA document it streams, with
  * approvals/forms wired back into the run. For finer control, use {@link useMdmaAgentStream}.
  */
-export function MdmaAgentView({ agent, customizations, className, ...options }: MdmaAgentViewProps) {
+export function MdmaAgentView({
+  agent,
+  customizations,
+  className,
+  ...options
+}: MdmaAgentViewProps) {
   const { documents } = useMdmaAgentStream(agent, options);
   return (
     <div className={className}>

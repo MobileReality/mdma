@@ -68,20 +68,44 @@ export const ChartRenderer = memo(function ChartRenderer({
       {data.rows.length === 0 ? (
         <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>No chart data</Text>
       ) : (
-        <ScrollView horizontal style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}>
+        <ScrollView
+          horizontal
+          style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}
+        >
           <View>
             <View style={{ flexDirection: 'row', backgroundColor: colors.surface }}>
               {data.headers.map((h) => (
-                <View key={h} style={{ paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, minWidth: 100 }}>
-                  <Text style={{ fontWeight: '700', color: colors.text, fontSize: fontSize.small }}>{h}</Text>
+                <View
+                  key={h}
+                  style={{
+                    paddingVertical: spacing.xs,
+                    paddingHorizontal: spacing.sm,
+                    minWidth: 100,
+                  }}
+                >
+                  <Text style={{ fontWeight: '700', color: colors.text, fontSize: fontSize.small }}>
+                    {h}
+                  </Text>
                 </View>
               ))}
             </View>
             {data.rows.map((row, i) => (
-              <View key={i} style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}>
+              <View
+                key={i}
+                style={{ flexDirection: 'row', borderTopWidth: 1, borderTopColor: colors.border }}
+              >
                 {data.headers.map((h) => (
-                  <View key={h} style={{ paddingVertical: spacing.xs, paddingHorizontal: spacing.sm, minWidth: 100 }}>
-                    <Text style={{ color: colors.text, fontSize: fontSize.small }}>{String(row[h] ?? '')}</Text>
+                  <View
+                    key={h}
+                    style={{
+                      paddingVertical: spacing.xs,
+                      paddingHorizontal: spacing.sm,
+                      minWidth: 100,
+                    }}
+                  >
+                    <Text style={{ color: colors.text, fontSize: fontSize.small }}>
+                      {String(row[h] ?? '')}
+                    </Text>
                   </View>
                 ))}
               </View>

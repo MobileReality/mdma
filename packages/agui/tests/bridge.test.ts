@@ -1,12 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createMdmaAgentBridge, type MdmaMessageState } from '../src/bridge.js';
 import { parseMdma } from '../src/parse.js';
-import type {
-  AguiAgent,
-  AguiMessage,
-  AguiSubscriber,
-  AguiSubscription,
-} from '../src/types.js';
+import type { AguiAgent, AguiMessage, AguiSubscriber, AguiSubscription } from '../src/types.js';
 
 const FENCE = '```';
 const APPROVAL_DOC = [
@@ -68,8 +63,9 @@ class FakeAgent implements AguiAgent {
 function astBlockTypes(state: MdmaMessageState | undefined): string[] {
   if (!state) return [];
   return state.ast.children
-    .filter((c): c is { type: 'mdmaBlock'; component: { type: string } } =>
-      (c as { type?: string }).type === 'mdmaBlock',
+    .filter(
+      (c): c is { type: 'mdmaBlock'; component: { type: string } } =>
+        (c as { type?: string }).type === 'mdmaBlock',
     )
     .map((c) => c.component.type);
 }
@@ -107,7 +103,10 @@ describe('createMdmaAgentBridge', () => {
 
     // Simulate AG-UI: content events carry the buffer *before* the latest delta, so the last
     // chunk (here the tail of `approval-gate` + the rest of the doc) never arrives via content.
-    const lagging = APPROVAL_DOC.slice(0, APPROVAL_DOC.indexOf('approval-gate') + 'approval-gat'.length);
+    const lagging = APPROVAL_DOC.slice(
+      0,
+      APPROVAL_DOC.indexOf('approval-gate') + 'approval-gat'.length,
+    );
     agent.emitContent('m1', lagging);
     await bridge.flush();
 
@@ -221,7 +220,12 @@ describe('createMdmaAgentBridge', () => {
     await bridge.flush();
 
     const store = bridge.documents.get('m1')!.store;
-    store.dispatch({ type: 'APPROVAL_DENIED', componentId: 'gate1', actor: { id: 'u' }, reason: 'no' });
+    store.dispatch({
+      type: 'APPROVAL_DENIED',
+      componentId: 'gate1',
+      actor: { id: 'u' },
+      reason: 'no',
+    });
     await Promise.resolve();
 
     expect(agent.runs).toBe(0);

@@ -254,7 +254,9 @@ describe('DocumentStore.updateAst', () => {
 
     // Re-parse of the same component (e.g. a later streamed chunk) must not wipe user input.
     store.updateAst(
-      makeAst([{ id: 'f', type: 'form', fields: [{ name: 'x', type: 'text', label: 'X changed' }] }]),
+      makeAst([
+        { id: 'f', type: 'form', fields: [{ name: 'x', type: 'text', label: 'X changed' }] },
+      ]),
     );
     expect(store.getComponentState('f')?.values.x).toBe('typed');
   });
@@ -265,7 +267,9 @@ describe('DocumentStore.updateAst', () => {
     expect(store.getComponentState('deploy-gate')?.type).toBe('approval-gat');
 
     // A later parse resolves the real type — the store must adopt it, not freeze the placeholder.
-    store.updateAst(makeAst([{ id: 'deploy-gate', type: 'approval-gate', title: 'Approve deploy' }]));
+    store.updateAst(
+      makeAst([{ id: 'deploy-gate', type: 'approval-gate', title: 'Approve deploy' }]),
+    );
     expect(store.getComponentState('deploy-gate')?.type).toBe('approval-gate');
   });
 });

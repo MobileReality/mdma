@@ -55,10 +55,13 @@ store.dispatch({
         symmetric with <code>getState()</code>.
       </p>
       <p>
-        Hydration overlays the AST defaults <strong>without emitting audit events or marking fields{' '}
-        <code>touched</code></strong>, so a restore never looks like fresh user activity in the
-        tamper-evident log. It applies only to freshly-created components, so a later streamed
-        re-parse never clobbers an in-flight edit.
+        Hydration overlays the AST defaults{' '}
+        <strong>
+          without emitting audit events or marking fields <code>touched</code>
+        </strong>
+        , so a restore never looks like fresh user activity in the tamper-evident log. It applies
+        only to freshly-created components, so a later streamed re-parse never clobbers an in-flight
+        edit.
       </p>
       <Code lang="ts">{`// 1. Persist — snapshot each component's values on the way out
 const snapshot = Object.fromEntries(
@@ -87,8 +90,12 @@ const store = createDocumentStore(ast, {
         </button>
       )}
       <p className="docs-note">
-        Using the AG-UI adapter? Pass the same map to <code>&lt;MdmaAgentView initialState={'{…}'}
-        /&gt;</code> — each replayed message hydrates only the component ids it contains.
+        Using the AG-UI adapter? Pass the same map to{' '}
+        <code>
+          &lt;MdmaAgentView initialState={'{…}'}
+          /&gt;
+        </code>{' '}
+        — each replayed message hydrates only the component ids it contains.
       </p>
 
       <h2>In a Chat</h2>

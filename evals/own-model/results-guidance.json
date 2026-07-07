@@ -1798,9 +1798,7 @@
   "config": {
     "tags": {},
     "description": "MDMA Agent Guidance Eval (tool-calling) — own model",
-    "prompts": [
-      "file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-guidance.mjs"
-    ],
+    "prompts": ["file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-guidance.mjs"],
     "providers": [
       {
         "id": "openai:chat:mdma-26b",
@@ -1829,9 +1827,7 @@
                       "description": "The complete MDMA Markdown document."
                     }
                   },
-                  "required": [
-                    "document"
-                  ]
+                  "required": ["document"]
                 }
               }
             }
@@ -2044,9 +2040,7 @@
     ],
     "scenarios": [],
     "env": {},
-    "outputPath": [
-      "own-model/results-guidance.json"
-    ],
+    "outputPath": ["own-model/results-guidance.json"],
     "extensions": [],
     "metadata": {},
     "evaluateOptions": {}

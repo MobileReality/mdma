@@ -65,7 +65,12 @@ export const TasklistRenderer = memo(function TasklistRenderer({
             accessibilityRole="checkbox"
             accessibilityState={{ checked }}
             onPress={() => onToggle(!checked)}
-            style={{ flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.xs }}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: spacing.sm,
+              paddingVertical: spacing.xs,
+            }}
           >
             <Switch value={checked} onValueChange={onToggle} />
             <Text

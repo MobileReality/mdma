@@ -38,7 +38,11 @@ export const TableRenderer = memo(function TableRenderer({
           {component.label}
         </Text>
       ) : null}
-      <ScrollView horizontal showsHorizontalScrollIndicator style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator
+        style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}
+      >
         <View>
           {/* Header */}
           <View style={{ flexDirection: 'row', backgroundColor: colors.surface }}>

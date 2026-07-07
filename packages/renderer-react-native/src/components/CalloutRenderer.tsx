@@ -39,7 +39,9 @@ export const CalloutRenderer = memo(function CalloutRenderer({
             {component.title}
           </Text>
         ) : null}
-        <Text style={{ color: colors.text, fontSize: fontSize.body, lineHeight: fontSize.body * 1.5 }}>
+        <Text
+          style={{ color: colors.text, fontSize: fontSize.body, lineHeight: fontSize.body * 1.5 }}
+        >
           {component.content}
         </Text>
       </View>
