@@ -2,4 +2,5 @@ packages:
   - "packages/*"
   - "blueprints/*"
   - "demo"
+  - "demo-native"
   - "evals"
