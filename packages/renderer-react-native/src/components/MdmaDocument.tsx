@@ -40,8 +40,13 @@ export interface MdmaDocumentProps {
 
 function isComponentConfig(
   entry: ComponentEntry,
-): entry is { renderer?: ComponentType<MdmaBlockRendererProps>; elements?: Record<string, unknown> } {
-  return typeof entry === 'object' && entry !== null && ('renderer' in entry || 'elements' in entry);
+): entry is {
+  renderer?: ComponentType<MdmaBlockRendererProps>;
+  elements?: Record<string, unknown>;
+} {
+  return (
+    typeof entry === 'object' && entry !== null && ('renderer' in entry || 'elements' in entry)
+  );
 }
 
 /** Reduce the unified `components` map to a plain renderer record. */

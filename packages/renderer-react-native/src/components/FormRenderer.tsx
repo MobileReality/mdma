@@ -94,7 +94,12 @@ export const FormRenderer = memo(function FormRenderer({
                         backgroundColor: selected ? colors.primary : colors.background,
                       }}
                     >
-                      <Text style={{ color: selected ? colors.onPrimary : colors.text, fontSize: fontSize.body }}>
+                      <Text
+                        style={{
+                          color: selected ? colors.onPrimary : colors.text,
+                          fontSize: fontSize.body,
+                        }}
+                      >
                         {opt.label}
                       </Text>
                     </Pressable>

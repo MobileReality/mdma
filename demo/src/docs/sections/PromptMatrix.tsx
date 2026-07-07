@@ -157,14 +157,12 @@ export function PromptMatrix() {
         variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose
         prepended to every response. The eval config sets{' '}
         <code>passthrough.reasoning.exclude: true</code> (and the demo's{' '}
-        <code>usePreviewValidation</code> does the same per-provider) to strip reasoning tokens
-        from the response body at the API layer rather than the prompt layer.
+        <code>usePreviewValidation</code> does the same per-provider) to strip reasoning tokens from
+        the response body at the API layer rather than the prompt layer.
       </p>
 
       <h2>In Progress</h2>
-      <p>
-        The following prompt still ships without model-specific variants and is on the roadmap:
-      </p>
+      <p>The following prompt still ships without model-specific variants and is on the roadmap:</p>
       <div className="docs-inprogress-list">
         {[
           {

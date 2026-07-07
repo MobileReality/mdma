@@ -88,7 +88,9 @@ export function App() {
   // Mutate the blocks of a specific assistant message.
   const editBlocks = useCallback((botId: number, fn: (blocks: Block[]) => Block[]) => {
     setMessages((prev) =>
-      prev.map((m) => (m.id === botId && m.role === 'assistant' ? { ...m, blocks: fn(m.blocks) } : m)),
+      prev.map((m) =>
+        m.id === botId && m.role === 'assistant' ? { ...m, blocks: fn(m.blocks) } : m,
+      ),
     );
   }, []);
 
@@ -191,7 +193,10 @@ export function App() {
           // user stopped — leave partial output as-is
         } else {
           const message = e instanceof Error ? e.message : String(e);
-          editBlocks(botId, (blocks) => [...blocks, { id: nextBlockId(), kind: 'text', text: `⚠️ ${message}` }]);
+          editBlocks(botId, (blocks) => [
+            ...blocks,
+            { id: nextBlockId(), kind: 'text', text: `⚠️ ${message}` },
+          ]);
         }
       } finally {
         abortRef.current = null;
@@ -224,14 +229,22 @@ export function App() {
         <View style={{ flex: 1 }}>
           <Text style={[styles.title, { color: c.text }]}>MDMA Agent</Text>
           <Text style={[styles.subtitle, { color: live ? c.accent : '#dc2626' }]} numberOfLines={1}>
-            {live ? `${providerLabel} · ${model}` : `No key · set ${PROVIDERS.find((p) => p.id === provider)?.envVar}`}
+            {live
+              ? `${providerLabel} · ${model}`
+              : `No key · set ${PROVIDERS.find((p) => p.id === provider)?.envVar}`}
           </Text>
         </View>
         <View style={styles.headerActions}>
-          <Pressable onPress={() => setShowSettings((v) => !v)} style={[styles.iconBtn, { borderColor: c.border }]}>
+          <Pressable
+            onPress={() => setShowSettings((v) => !v)}
+            style={[styles.iconBtn, { borderColor: c.border }]}
+          >
             <Text style={{ color: c.text, fontSize: 13 }}>⚙️</Text>
           </Pressable>
-          <Pressable onPress={() => setTheme(dark ? 'light' : 'dark')} style={[styles.iconBtn, { borderColor: c.border }]}>
+          <Pressable
+            onPress={() => setTheme(dark ? 'light' : 'dark')}
+            style={[styles.iconBtn, { borderColor: c.border }]}
+          >
             <Text style={{ color: c.text, fontSize: 13 }}>{dark ? '☀️' : '🌙'}</Text>
           </Pressable>
           <Pressable onPress={reset} style={[styles.iconBtn, { borderColor: c.border }]}>
@@ -242,7 +255,9 @@ export function App() {
 
       {/* Settings — provider + model. Keys come from .env (EXPO_PUBLIC_*). */}
       {showSettings ? (
-        <View style={[styles.settings, { backgroundColor: c.chromeBg, borderBottomColor: c.border }]}>
+        <View
+          style={[styles.settings, { backgroundColor: c.chromeBg, borderBottomColor: c.border }]}
+        >
           <Text style={[styles.settingsLabel, { color: c.muted }]}>Provider</Text>
           <View style={styles.row}>
             {PROVIDERS.map((p) => {
@@ -252,7 +267,11 @@ export function App() {
                 <Pressable
                   key={p.id}
                   onPress={() => pickProvider(p.id)}
-                  style={[styles.chip, { borderColor: active ? c.accent : c.border }, active && { backgroundColor: c.accent }]}
+                  style={[
+                    styles.chip,
+                    { borderColor: active ? c.accent : c.border },
+                    active && { backgroundColor: c.accent },
+                  ]}
                 >
                   <Text style={{ color: active ? '#fff' : c.text, fontSize: 13 }}>
                     {hasKey ? '● ' : '○ '}
@@ -268,11 +287,14 @@ export function App() {
             onChangeText={setModel}
             autoCapitalize="none"
             autoCorrect={false}
-            style={[styles.settingsInput, { color: c.text, borderColor: c.border, backgroundColor: c.pageBg }]}
+            style={[
+              styles.settingsInput,
+              { color: c.text, borderColor: c.border, backgroundColor: c.pageBg },
+            ]}
           />
           <Text style={[styles.settingsHint, { color: c.muted }]}>
-            ● = key present. Set keys in demo-native/.env (EXPO_PUBLIC_…_API_KEY) and rebuild — they are
-            never entered in the app.
+            ● = key present. Set keys in demo-native/.env (EXPO_PUBLIC_…_API_KEY) and rebuild — they
+            are never entered in the app.
           </Text>
         </View>
       ) : null}
@@ -299,7 +321,10 @@ export function App() {
               <Text style={{ color: '#fff', fontSize: 15 }}>{m.text}</Text>
             </View>
           ) : (
-            <View key={m.id} style={[styles.botBubble, { backgroundColor: c.botBg, borderColor: c.border }]}>
+            <View
+              key={m.id}
+              style={[styles.botBubble, { backgroundColor: c.botBg, borderColor: c.border }]}
+            >
               {m.blocks.length === 0 ? (
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                   <ActivityIndicator size="small" color={c.muted} />
@@ -312,9 +337,23 @@ export function App() {
                     {b.text}
                   </Text>
                 ) : b.doc ? (
-                  <MdmaDocument key={b.id} ast={b.doc.ast} store={b.doc.store} theme={theme} style={{ gap: 8 }} />
+                  <MdmaDocument
+                    key={b.id}
+                    ast={b.doc.ast}
+                    store={b.doc.store}
+                    theme={theme}
+                    style={{ gap: 8 }}
+                  />
                 ) : (
-                  <View key={b.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 }}>
+                  <View
+                    key={b.id}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 8,
+                      paddingVertical: 6,
+                    }}
+                  >
                     <ActivityIndicator size="small" color={c.muted} />
                     <Text style={{ color: c.muted, fontSize: 13 }}>
                       {b.text ?? 'Generating document…'}
@@ -356,7 +395,10 @@ export function App() {
           editable={!busy}
           onSubmitEditing={() => send(input)}
           returnKeyType="send"
-          style={[styles.textInput, { color: c.text, borderColor: c.border, backgroundColor: c.pageBg }]}
+          style={[
+            styles.textInput,
+            { color: c.text, borderColor: c.border, backgroundColor: c.pageBg },
+          ]}
         />
         {busy ? (
           <Pressable onPress={stop} style={[styles.sendBtn, { backgroundColor: '#dc2626' }]}>
@@ -415,8 +457,19 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   iconBtn: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 8, borderWidth: 1 },
   settings: { padding: 12, gap: 6, borderBottomWidth: StyleSheet.hairlineWidth },
-  settingsLabel: { fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.4 },
-  settingsInput: { borderWidth: 1, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14 },
+  settingsLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+  },
+  settingsInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    fontSize: 14,
+  },
   settingsHint: { fontSize: 12, marginTop: 2, lineHeight: 17 },
   empty: { paddingVertical: 48, paddingHorizontal: 12, gap: 8 },
   emptyTitle: { fontSize: 16, fontWeight: '700', textAlign: 'center' },

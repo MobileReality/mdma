@@ -54,7 +54,9 @@ export const ButtonRenderer = memo(function ButtonRenderer({
         marginVertical: spacing.xs,
       }}
     >
-      <Text style={{ color: fg, fontWeight: '600', fontSize: fontSize.body }}>{component.text}</Text>
+      <Text style={{ color: fg, fontWeight: '600', fontSize: fontSize.body }}>
+        {component.text}
+      </Text>
     </Pressable>
   );
 });

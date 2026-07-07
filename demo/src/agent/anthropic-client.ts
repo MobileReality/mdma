@@ -35,8 +35,7 @@ export interface AnthropicConfig {
  * VITE_OWN_MODEL_BASE_URL.
  */
 export const OWN_MODEL_DEFAULT_BASE_URL =
-  import.meta.env.VITE_OWN_MODEL_BASE_URL ??
-  'https://REDACTED.modal.run/v1';
+  import.meta.env.VITE_OWN_MODEL_BASE_URL ?? 'https://REDACTED.modal.run/v1';
 
 export interface ToolDefinition {
   name: string;

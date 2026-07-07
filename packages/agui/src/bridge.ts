@@ -198,10 +198,12 @@ export function createMdmaAgentBridge(
   const subscriber: AguiSubscriber = {
     // During streaming, AG-UI's content buffer lags one delta behind — good enough for a live
     // (slightly-behind) render, throttled to avoid re-parsing every token.
-    onTextMessageContentEvent: (params) => ingest(params.event.messageId, params.textMessageBuffer, false),
+    onTextMessageContentEvent: (params) =>
+      ingest(params.event.messageId, params.textMessageBuffer, false),
     // The end buffer is the COMPLETE message, so parse it immediately — this is what guarantees
     // the final render isn't a truncated tail (content events never carry the last delta).
-    onTextMessageEndEvent: (params) => ingest(params.event.messageId, params.textMessageBuffer, true),
+    onTextMessageEndEvent: (params) =>
+      ingest(params.event.messageId, params.textMessageBuffer, true),
     // Belt-and-suspenders: a run that ends without a text-end (e.g. tool transport) still flushes.
     onRunFinishedEvent: () => flush(),
     onRunFailedEvent: () => flush(),
@@ -250,7 +252,12 @@ function serializeAction(action: MdmaActionEvent): Record<string, unknown> {
         payload: action.payload,
       };
     case 'APPROVAL_GRANTED':
-      return { kind: 'approval', decision: 'granted', componentId: action.componentId, actor: action.actor };
+      return {
+        kind: 'approval',
+        decision: 'granted',
+        componentId: action.componentId,
+        actor: action.actor,
+      };
     case 'APPROVAL_DENIED':
       return {
         kind: 'approval',

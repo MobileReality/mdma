@@ -221,8 +221,8 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
             <p className="agent-settings-note">
               The entire agent runs on your self-hosted <strong>MDMA model</strong> endpoint
               (OpenAI-compatible, tool-calling enabled) — no third-party model is called. Enter the
-              deployed model URL above; leave it blank to use the default. The{' '}
-              <code>/v1</code> suffix is added automatically.
+              deployed model URL above; leave it blank to use the default. The <code>/v1</code>{' '}
+              suffix is added automatically.
             </p>
           )}
           <p className="agent-settings-note agent-settings-note--storage">

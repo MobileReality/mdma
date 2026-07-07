@@ -4,10 +4,7 @@ import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
 
 // RN has no <details>; enable the LayoutAnimation collapse on Android.
-if (
-  Platform.OS === 'android' &&
-  UIManager.setLayoutAnimationEnabledExperimental
-) {
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -65,7 +62,9 @@ export const ThinkingRenderer = memo(function ThinkingRenderer({
       </Pressable>
       {!collapsed ? (
         <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.md }}>
-          <Text style={{ color: colors.text, fontSize: fontSize.body, lineHeight: fontSize.body * 1.5 }}>
+          <Text
+            style={{ color: colors.text, fontSize: fontSize.body, lineHeight: fontSize.body * 1.5 }}
+          >
             {component.content}
           </Text>
         </View>

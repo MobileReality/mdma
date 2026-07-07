@@ -34,7 +34,8 @@ const convs = new Map();
 for (const t of turns) {
   const id = t.metadata?.conversationId ?? 'default';
   if (!convs.has(id)) convs.set(id, []);
-  const allowed = t.assert?.find((a) => String(a.value).includes('only-components'))?.config?.allowed ?? [];
+  const allowed =
+    t.assert?.find((a) => String(a.value).includes('only-components'))?.config?.allowed ?? [];
   convs.get(id).push({
     desc: t.description,
     dsl: String(t.vars.message).trim(),
@@ -97,10 +98,18 @@ for (const [cid, ts] of convs) {
     if (ok) pass++;
     const notes = [];
     if (!v.ok)
-      notes.push(`invalid: ${v.issues.filter((i) => i.severity === 'error').map((i) => i.ruleId).join(',')}`);
-    if (!onlyExpected) notes.push(`emitted: ${types.join(',') || 'none'}; expected ${turn.allowedType}`);
+      notes.push(
+        `invalid: ${v.issues
+          .filter((i) => i.severity === 'error')
+          .map((i) => i.ruleId)
+          .join(',')}`,
+      );
+    if (!onlyExpected)
+      notes.push(`emitted: ${types.join(',') || 'none'}; expected ${turn.allowedType}`);
     if (contaminated.length) notes.push(`RE-EMITTED prior: ${contaminated.join(',')}`);
-    console.log(`  ${ok ? 'PASS' : 'FAIL'} ${turn.desc}${notes.length ? ` [${notes.join('] [')}]` : ''}`);
+    console.log(
+      `  ${ok ? 'PASS' : 'FAIL'} ${turn.desc}${notes.length ? ` [${notes.join('] [')}]` : ''}`,
+    );
     if (turn.id) priorIds.push(turn.id);
   }
 }

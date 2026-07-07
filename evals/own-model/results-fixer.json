@@ -99,9 +99,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: button\nid: action-btn\nvariant: primary\n",
-                  "hasFields": [
-                    "text"
-                  ]
+                  "hasFields": ["text"]
                 }
               }
             }
@@ -174,9 +172,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: button\nid: action-btn\nvariant: primary\n",
-                "hasFields": [
-                  "text"
-                ]
+                "hasFields": ["text"]
               }
             }
           ],
@@ -249,9 +245,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: callout\nid: status-notice\nvariant: info\ntitle: System Status\n",
-                  "hasFields": [
-                    "content"
-                  ]
+                  "hasFields": ["content"]
                 }
               }
             }
@@ -324,9 +318,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: callout\nid: status-notice\nvariant: info\ntitle: System Status\n",
-                "hasFields": [
-                  "content"
-                ]
+                "hasFields": ["content"]
               }
             }
           ],
@@ -565,10 +557,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: callout\nid: welcome-callout\nvariant: info\n",
-                  "hasFields": [
-                    "title",
-                    "content"
-                  ]
+                  "hasFields": ["title", "content"]
                 }
               }
             }
@@ -645,10 +634,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: callout\nid: welcome-callout\nvariant: info\n",
-                "hasFields": [
-                  "title",
-                  "content"
-                ]
+                "hasFields": ["title", "content"]
               }
             }
           ],
@@ -865,9 +851,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: button\nid: refresh-btn\nonAction: refresh-stats\n",
-                  "hasFields": [
-                    "text"
-                  ]
+                  "hasFields": ["text"]
                 }
               }
             }
@@ -940,9 +924,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: button\nid: refresh-btn\nonAction: refresh-stats\n",
-                "hasFields": [
-                  "text"
-                ]
+                "hasFields": ["text"]
               }
             }
           ],
@@ -1015,9 +997,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: form\nid: profile-form\n",
-                  "hasFields": [
-                    "onSubmit"
-                  ]
+                  "hasFields": ["onSubmit"]
                 }
               }
             }
@@ -1090,9 +1070,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: form\nid: profile-form\n",
-                "hasFields": [
-                  "onSubmit"
-                ]
+                "hasFields": ["onSubmit"]
               }
             }
           ],
@@ -1955,9 +1933,7 @@
                 "value": "file://assertions/fixer-contains-component.mjs",
                 "config": {
                   "expected": "type: form\nid: employee-form\n",
-                  "hasFields": [
-                    "onSubmit"
-                  ]
+                  "hasFields": ["onSubmit"]
                 }
               }
             }
@@ -2038,9 +2014,7 @@
               "value": "file://assertions/fixer-contains-component.mjs",
               "config": {
                 "expected": "type: form\nid: employee-form\n",
-                "hasFields": [
-                  "onSubmit"
-                ]
+                "hasFields": ["onSubmit"]
               }
             }
           ],
@@ -2384,9 +2358,7 @@
   "config": {
     "tags": {},
     "description": "MDMA Fixer Eval (capability probe) — own model",
-    "prompts": [
-      "file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-fixer.mjs"
-    ],
+    "prompts": ["file:///Users/marcinsadowski/GIT/mr-mdma/evals/own-model/prompt-fixer.mjs"],
     "providers": [
       {
         "id": "openai:chat:mdma-26b",
@@ -2426,9 +2398,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: button\nid: action-btn\nvariant: primary\n",
-              "hasFields": [
-                "text"
-              ]
+              "hasFields": ["text"]
             }
           }
         ]
@@ -2455,9 +2425,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: callout\nid: status-notice\nvariant: info\ntitle: System Status\n",
-              "hasFields": [
-                "content"
-              ]
+              "hasFields": ["content"]
             }
           }
         ]
@@ -2518,10 +2486,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: callout\nid: welcome-callout\nvariant: info\n",
-              "hasFields": [
-                "title",
-                "content"
-              ]
+              "hasFields": ["title", "content"]
             }
           }
         ]
@@ -2574,9 +2539,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: button\nid: refresh-btn\nonAction: refresh-stats\n",
-              "hasFields": [
-                "text"
-              ]
+              "hasFields": ["text"]
             }
           }
         ]
@@ -2603,9 +2566,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: form\nid: profile-form\n",
-              "hasFields": [
-                "onSubmit"
-              ]
+              "hasFields": ["onSubmit"]
             }
           }
         ]
@@ -2786,9 +2747,7 @@
             "value": "file://assertions/fixer-contains-component.mjs",
             "config": {
               "expected": "type: form\nid: employee-form\n",
-              "hasFields": [
-                "onSubmit"
-              ]
+              "hasFields": ["onSubmit"]
             }
           }
         ]
@@ -2842,9 +2801,7 @@
     ],
     "scenarios": [],
     "env": {},
-    "outputPath": [
-      "own-model/results-fixer.json"
-    ],
+    "outputPath": ["own-model/results-fixer.json"],
     "extensions": [],
     "metadata": {},
     "evaluateOptions": {}

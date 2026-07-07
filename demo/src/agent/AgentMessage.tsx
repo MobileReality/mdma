@@ -298,8 +298,8 @@ export const AgentMessage = memo(function AgentMessage({
 
   const { blocks } = turn as AssistantTurn;
 
-  const hasContent = blocks.some(
-    (b) => (b.type === 'text' || b.type === 'thinking' ? b.content : (b as ToolUseBlock).document),
+  const hasContent = blocks.some((b) =>
+    b.type === 'text' || b.type === 'thinking' ? b.content : (b as ToolUseBlock).document,
   );
 
   return (
