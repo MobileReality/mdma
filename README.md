@@ -358,6 +358,18 @@ function App({ ast, store }) {
 
 > **Note:** The `styles.css` import provides default styling for all MDMA components (forms, tables, callouts, animations, etc.). It's optional — you can write your own styles targeting the `.mdma-*` CSS classes instead.
 
+### Theming
+
+Both renderers accept a `theme` prop on `MdmaDocument`, so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
+
+```tsx
+<MdmaDocument ast={ast} store={store} theme="dark" />   // built-in dark palette
+<MdmaDocument ast={ast} store={store} theme="auto" />   // follows OS light/dark
+<MdmaDocument ast={ast} store={store} theme={myTheme} /> // custom MdmaTheme tokens
+```
+
+The web (`renderer-react`) and native (`renderer-react-native`) renderers share the same `MdmaTheme` token shape, so a theme object is portable between them. On the web, tokens are applied as `--mdma-*` CSS variables (still fully overridable in your own CSS); on native, renderers read them via `useMdmaTheme()`. See the [Theming guide](docs/guides/theming.md) for the full token reference.
+
 ## Packages
 
 | Package | Description |

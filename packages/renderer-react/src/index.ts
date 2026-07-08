@@ -14,6 +14,18 @@ export {
   type DataSources,
 } from './context/MdmaProvider.js';
 export {
+  MdmaThemeProvider,
+  useMdmaTheme,
+  resolveThemeProps,
+  themeToCssVars,
+  lightTheme,
+  darkTheme,
+  type MdmaTheme,
+  type MdmaThemeInput,
+  type MdmaThemeProviderProps,
+  type ResolvedThemeProps,
+} from './theme/MdmaThemeProvider.js';
+export {
   ElementOverridesProvider,
   useElementOverride,
   type ElementOverrides,

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { lightTheme, darkTheme, type MdmaTheme } from '../src/theme/MdmaThemeProvider.js';
+import { lightTheme, darkTheme, type MdmaTheme } from '../src/theme/tokens.js';
 
 // Structural parity guard: the light and dark palettes must expose exactly the
 // same token shape, so a renderer styled against one never hits an undefined
