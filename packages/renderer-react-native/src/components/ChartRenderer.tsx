@@ -70,9 +70,14 @@ export const ChartRenderer = memo(function ChartRenderer({
       ) : (
         <ScrollView
           horizontal
-          style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}
+          style={{
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: radius.sm,
+            backgroundColor: colors.background,
+          }}
         >
-          <View>
+          <View style={{ backgroundColor: colors.background }}>
             <View style={{ flexDirection: 'row', backgroundColor: colors.surface }}>
               {data.headers.map((h) => (
                 <View

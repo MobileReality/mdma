@@ -128,21 +128,7 @@ export function ChatView({
                 Describe an interactive document and the AI will generate it, or try an example
                 flow:
               </p>
-              <select
-                defaultValue=""
-                onChange={handleLoadFlow}
-                style={{
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid #d1d5db',
-                  background: '#fff',
-                  color: '#374151',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  marginTop: '8px',
-                  minWidth: '220px',
-                }}
-              >
+              <select className="chat-example-select" defaultValue="" onChange={handleLoadFlow}>
                 <option value="" disabled>
                   Load an example flow…
                 </option>

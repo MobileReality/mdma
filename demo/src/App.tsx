@@ -26,7 +26,7 @@ function navigate(to: string) {
   window.location.hash = to;
 }
 
-// ── Theme (applied to the rendered MDMA examples) ─────────────────────────────
+// ── Theme (applied to the demo chrome + the rendered MDMA examples) ────────────
 
 const THEME_MODES: ThemeMode[] = ['light', 'dark', 'auto'];
 const THEME_ICON: Record<ThemeMode, string> = { light: '☀️', dark: '🌙', auto: '🖥️' };
@@ -40,6 +40,25 @@ function useThemeMode(): [ThemeMode, (m: ThemeMode) => void] {
     window.localStorage.setItem('mdma-demo-theme', mode);
   }, [mode]);
   return [mode, setMode];
+}
+
+/**
+ * Resolve `'auto'` to a concrete `'light'`/`'dark'` by watching the OS
+ * preference, so the demo can drive both its chrome and the MDMA examples off a
+ * single attribute (no `prefers-color-scheme` duplication in the CSS).
+ */
+function useResolvedTheme(mode: ThemeMode): 'light' | 'dark' {
+  const [systemDark, setSystemDark] = useState(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const sync = () => setSystemDark(mq.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  if (mode === 'auto') return systemDark ? 'dark' : 'light';
+  return mode;
 }
 
 function ThemeToggle({ mode, onChange }: { mode: ThemeMode; onChange: (m: ThemeMode) => void }) {
@@ -134,6 +153,7 @@ export function App() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const stars = useGitHubStars('MobileReality/mdma');
   const [themeMode, setThemeMode] = useThemeMode();
+  const resolvedTheme = useResolvedTheme(themeMode);
 
   useEffect(() => {
     function handleClick(e: MouseEvent) {
@@ -145,9 +165,17 @@ export function App() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
+  // Drive dark mode from the root element so the whole page (including the body
+  // background behind transparent panels) picks up the `[data-theme='dark']`
+  // chrome overrides.
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', resolvedTheme);
+    return () => document.documentElement.removeAttribute('data-theme');
+  }, [resolvedTheme]);
+
   return (
-    <DemoThemeContext.Provider value={themeMode}>
-      <div className="demo-layout">
+    <DemoThemeContext.Provider value={resolvedTheme}>
+      <div className="demo-layout" data-theme={resolvedTheme}>
         <header className="demo-header">
           <div className="demo-header-left">
             <button type="button" className="demo-title-link" onClick={() => navigate('/')}>
@@ -229,7 +257,7 @@ export function App() {
           </div>
         </header>
 
-        <MdmaThemeProvider theme={themeMode} style={{ display: 'contents' }}>
+        <MdmaThemeProvider theme={resolvedTheme} style={{ display: 'contents' }}>
           {route === '/' ? (
             <HomeView />
           ) : route.startsWith('/docs') ? (
