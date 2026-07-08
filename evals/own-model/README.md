@@ -1,7 +1,13 @@
 # Own-model eval — MDMA-IL DSL holdout gate
 
-Self-contained eval for **our own hosted model** — `google/gemma-4-E4B-it` + the
-**v3 MDMA-IL LoRA**.
+**Model:** https://huggingface.co/MobileReality/mdma-gemma4-26b-dsl-unsloth-v1
+
+Self-contained eval for **our own hosted model** —
+[`MobileReality/mdma-gemma4-26b-dsl-unsloth-v1`](https://huggingface.co/MobileReality/mdma-gemma4-26b-dsl-unsloth-v1),
+an Unsloth fine-tune of `unsloth/gemma-4-26B-A4B-it` (Gemma 4 26B-A4B — a MoE
+with ~4B active / ~27B total params) with the MDMA-IL DSL LoRA **merged into the
+base weights** (published as BF16; served INT8-quantized behind an
+OpenAI-compatible Modal endpoint).
 
 ## What this tests
 
@@ -15,40 +21,39 @@ DSL intent** as input and return an **MDMA document**. So this suite is a
   pack — DSL input grammar + authoring rules + worked form/table/chart examples.
 - **Assertion:** `validate-mdma` — every output must be a valid MDMA document.
 
-## Why a DSL-aware prompt (not a bare instruction)
+## Why a DSL-aware prompt
 
 The system prompt **must describe the MDMA-IL DSL** the model reads — a bare
 "generate MDMA" instruction is out-of-distribution, since the model's whole job
-is to interpret a DSL intent. Empirically measured against this endpoint:
+is to interpret a DSL intent:
 
 1. **The DSL grammar is required.** Without the grammar section the model
    misreads the intent and drops `type:`/`id:`, nests under a `form:` key, or
    hallucinates `type: action`.
-2. **A worked example anchors the output shape.** On the DSL holdout, validity
-   moved from ~41% (bare instruction) to ~90.5% once the prompt carried the DSL
-   grammar plus a worked example.
+2. **A worked example anchors the output shape.** The grammar plus a worked
+   example keeps outputs in-distribution.
 
-The small E4B model has only a 2048-token context (`max_model_len`), so the
-prompt stays lean while still teaching the DSL — grammar + a few examples, not a
-full spec dump.
+The model is served with `enable_thinking: false` plus a repetition guard
+(`min_p`, `repetition_penalty`) to suppress the Gemma 4 reasoning-loop failure
+mode — see `promptfooconfig.own-model.yaml` and the
+[model card](https://huggingface.co/MobileReality/mdma-gemma4-26b-dsl-unsloth-v1)
+for the full serving contract.
 
-## Observations (not conclusions)
+## Observations
 
-This is a **small model** (Gemma 4 E4B + LoRA) — prompt-sensitive, with a
-2048-token context. In short, on the DSL holdout, output validity against
-the **current** validator moved with the system prompt: ~41% (bare prompt) →
-~90.5% (DSL-aware prompt with a worked example). It is **not 100%**, and we have
-**not** concluded whether the residual gap calls for a retrain, output
-normalization, or more prompt work — that's an open question.
+On the current **26B** model the DSL-aware prompt passes **all 95 holdout
+cases** (`results.json`) against the current validator. The earlier, smaller
+Gemma 4 **E4B** model (2048-token context) topped out around ~90.5% valid on
+the same holdout.
 
 ## Configure & run
 
 Set in `../.env` (dedicated vars, not `EVAL_PROVIDER`):
 
 ```
-OWN_MODEL_PROVIDER=openai:chat:mdma-v3                              # served LoRA id
-OWN_MODEL_BASE_URL=https://…modal.run/v1                            # OpenAI-compatible base URL
-OWN_MODEL_API_KEY=EMPTY                                             # placeholder while auth is off
+OWN_MODEL_PROVIDER=openai:chat:mdma-26b                             # served model id
+OWN_MODEL_BASE_URL=https://.../v1                            # OpenAI-compatible base URL
+OWN_MODEL_API_KEY=unused                                            # placeholder while auth is off
 ```
 
 ```bash
