@@ -7672,3 +7672,214 @@ body {
 [data-theme="dark"] .theming-swatch-reset:hover {
   background: #222c3d;
 }
+
+/* ===== Mobile responsive ===== */
+
+/* Neutral borders below use rgba(128,128,128,.25) so they read acceptably in
+   both light and dark themes (never a pure-white line on a dark surface). */
+
+@media (max-width: 860px) {
+  /* Guard against any fixed-width child forcing horizontal page scroll. */
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ── Header — keep it on one row ─────────────────────────────── */
+  .demo-header {
+    padding: 10px 12px;
+  }
+  .demo-header-left {
+    gap: 8px;
+    min-width: 0;
+  }
+  .demo-header-right {
+    gap: 8px;
+    min-width: 0;
+  }
+  .demo-logo {
+    height: 48px;
+  }
+  .demo-subtitle {
+    display: none;
+  }
+  .demo-ph-badge {
+    display: none;
+  }
+  /* Keep the nav dropdown inside the viewport. */
+  .demo-nav-dropdown {
+    right: 0;
+    max-width: calc(100vw - 24px);
+  }
+
+  /* ── Docs layout → stack vertically ──────────────────────────── */
+  .docs-layout {
+    flex-direction: column;
+    overflow: auto;
+  }
+  /* Side nav becomes a horizontal, scrollable strip at the top. */
+  .docs-nav {
+    width: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-right: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+    padding: 8px 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .docs-nav-title {
+    display: none;
+  }
+  .docs-nav-item {
+    display: inline-block;
+    width: auto;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  /* Sub-item tree would break the single-row strip. */
+  .docs-nav-sub {
+    display: none;
+  }
+  /* Flow naturally in the stacked column instead of being an internal
+     scroll box (the base rule's flex:1 + overflow:auto would clip content). */
+  .docs-content {
+    padding: 24px 18px;
+    flex: none;
+    overflow: visible;
+  }
+  /* Preview panel drops below the content, full width. */
+  .docs-layout--with-preview {
+    overflow: auto;
+  }
+  .docs-preview-panel,
+  .docs-layout--rn .docs-preview-panel {
+    flex: none;
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+    min-height: 360px;
+    overflow: visible;
+  }
+  .docs-preview-panel-render {
+    max-width: 100%;
+  }
+  /* Runtime demo (doc + log) stacks too. */
+  .docs-runtime-demo {
+    flex-direction: column;
+  }
+  .docs-runtime-demo-doc {
+    border-right: none;
+    border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+  }
+  .docs-runtime-demo-log {
+    width: 100%;
+  }
+
+  /* ── Validator → stack ───────────────────────────────────────── */
+  .validator-content {
+    flex-direction: column;
+  }
+  .validator-side-panel {
+    width: 100%;
+    flex-shrink: 0;
+    border-left: none;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+  }
+  /* Variant selector already scrolls; let it wrap if it prefers. */
+  .validator-variant-selector {
+    flex-wrap: wrap;
+  }
+
+  /* ── Chat / Author + Custom settings ─────────────────────────── */
+  .chat-settings {
+    padding: 0 12px 12px;
+  }
+  .chat-settings-fields {
+    grid-template-columns: 1fr;
+  }
+  .ai-settings-presets {
+    flex-wrap: wrap;
+  }
+  .ai-setting-model-group {
+    flex-wrap: wrap;
+  }
+  .chat-input-bar {
+    padding: 12px 12px 16px;
+  }
+  /* Action-log side panel stacks under the chat instead of sitting beside it. */
+  .chat-layout--with-log {
+    flex-direction: column;
+  }
+  .chat-action-log-panel {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+  }
+
+  /* ── Fixed-width side panels / settings — clamp to viewport ───── */
+  .demo-event-panel {
+    width: 100%;
+    max-width: 100%;
+  }
+  .fixer-settings-panel {
+    max-width: 100%;
+  }
+
+  /* ── General padding reductions ──────────────────────────────── */
+  .home-view {
+    padding: 28px 16px;
+    gap: 32px;
+  }
+  .home-hero-title {
+    font-size: 26px;
+  }
+  .demo-document-panel {
+    padding: 20px 16px;
+  }
+}
+
+@media (max-width: 520px) {
+  /* Tighten the header further and drop the star count on tiny screens. */
+  .demo-header {
+    padding: 8px 10px;
+  }
+  .demo-header-right {
+    gap: 6px;
+  }
+  .demo-logo {
+    height: 40px;
+  }
+  .demo-star-count {
+    display: none;
+  }
+  .demo-star-btn {
+    padding: 6px 10px;
+  }
+  .demo-nav-trigger {
+    padding: 7px 10px;
+  }
+
+  .docs-content {
+    padding: 18px 14px;
+  }
+  .home-view {
+    padding: 20px 12px;
+  }
+  /* Preview/agent chat + pane split already stacks at 900px; give the pane a
+     minimum so it stays usable on phones. */
+  .preview-layout .preview-pane {
+    min-height: 320px;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Free room in the chat input footer so the Send button never clips. */
+  .chat-input-hint {
+    display: none;
+  }
+}
