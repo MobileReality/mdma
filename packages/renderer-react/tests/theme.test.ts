@@ -71,8 +71,14 @@ describe('resolveThemeProps', () => {
       colors: { ...lightTheme.colors, primary: '#ff0000' },
     };
     const r = resolveThemeProps(custom);
-    expect(r.dataTheme).toBeUndefined();
     expect((r.style as Record<string, string>)['--mdma-color-primary']).toBe('#ff0000');
     expect(r.theme).toBe(custom);
+  });
+
+  it('picks the light/dark base for a custom theme by its background, so internal vars match', () => {
+    const lightCustom: MdmaTheme = { ...lightTheme };
+    const darkCustom: MdmaTheme = { ...darkTheme };
+    expect(resolveThemeProps(lightCustom).dataTheme).toBe('light');
+    expect(resolveThemeProps(darkCustom).dataTheme).toBe('dark');
   });
 });

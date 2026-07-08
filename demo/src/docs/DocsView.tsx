@@ -12,7 +12,8 @@ import { PACKAGES, PackageDetail } from './sections/PackageDetail.js';
 import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
-import { Theming } from './sections/Theming.js';
+import { ReactWeb } from './sections/ReactWeb.js';
+import { Theming, ThemingPreview, ThemingProvider } from './sections/Theming.js';
 import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
@@ -27,14 +28,12 @@ interface Section {
   component?: React.ComponentType;
 }
 
-const SECTIONS: Section[] = [
+const MAIN_SECTIONS: Section[] = [
   { slug: 'introduction', label: 'Introduction', component: Introduction },
   { slug: 'packages', label: 'Packages' },
   { slug: 'installation', label: 'Installation', component: Installation },
   { slug: 'usage', label: 'Usage', component: Usage },
-  { slug: 'integrations', label: 'Integrations' },
   { slug: 'components', label: 'Components' },
-  { slug: 'react-native', label: 'React Native', component: ReactNative },
   { slug: 'theming', label: 'Theming', component: Theming },
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
@@ -46,6 +45,18 @@ const SECTIONS: Section[] = [
   },
   { slug: 'prompt-matrix', label: 'Prompt Matrix', component: PromptMatrix },
 ];
+
+const INTEGRATION_SECTIONS: Section[] = INTEGRATIONS.map((i) => ({
+  slug: `integrations/${i.slug}`,
+  label: i.label,
+}));
+
+const RENDERER_SECTIONS: Section[] = [
+  { slug: 'react', label: 'React', component: ReactWeb },
+  { slug: 'react-native', label: 'React Native', component: ReactNative },
+];
+
+const SECTIONS: Section[] = [...MAIN_SECTIONS, ...INTEGRATION_SECTIONS, ...RENDERER_SECTIONS];
 
 function getDocsSlug(): string {
   const hash = window.location.hash.slice(1); // e.g. /docs/packages/runtime
@@ -78,7 +89,9 @@ export function DocsView() {
   const showComponentsPreview = active === 'components';
   const showUsagePreview = active === 'usage' && usageExampleOpen;
   const showRnPreview = active === 'react-native';
-  const showPreview = showComponentsPreview || showUsagePreview || showRnPreview;
+  const showThemingPreview = active === 'theming';
+  const showPreview =
+    showComponentsPreview || showUsagePreview || showRnPreview || showThemingPreview;
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
@@ -123,70 +136,80 @@ export function DocsView() {
     (s.slug === 'packages' && isPackagesActive) ||
     (s.slug === 'integrations' && isIntegrationsActive);
 
-  return (
-    <div
-      className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}${
-        showRnPreview ? ' docs-layout--rn' : ''
-      }`}
-    >
-      <nav className="docs-nav">
-        <div className="docs-nav-title">Documentation</div>
-        {SECTIONS.map((s) => (
-          <div key={s.slug}>
+  const renderNavItem = (s: Section) => (
+    <div key={s.slug}>
+      <button
+        type="button"
+        className={`docs-nav-item${isNavActive(s) ? ' docs-nav-item--active' : ''}`}
+        onClick={() => setActive(s.slug)}
+      >
+        {s.label}
+      </button>
+
+      {s.slug === 'packages' && isPackagesActive && (
+        <div className="docs-nav-sub">
+          {PACKAGES.map((pkg) => (
             <button
+              key={pkg.slug}
               type="button"
-              className={`docs-nav-item${isNavActive(s) ? ' docs-nav-item--active' : ''}`}
-              onClick={() => setActive(s.slug)}
+              className={`docs-nav-sub-item${activePackageSlug === pkg.slug ? ' docs-nav-sub-item--active' : ''}`}
+              onClick={() => setActive(`packages/${pkg.slug}`)}
             >
-              {s.label}
+              {pkg.label}
             </button>
+          ))}
+        </div>
+      )}
 
-            {s.slug === 'packages' && isPackagesActive && (
-              <div className="docs-nav-sub">
-                {PACKAGES.map((pkg) => (
-                  <button
-                    key={pkg.slug}
-                    type="button"
-                    className={`docs-nav-sub-item${activePackageSlug === pkg.slug ? ' docs-nav-sub-item--active' : ''}`}
-                    onClick={() => setActive(`packages/${pkg.slug}`)}
-                  >
-                    {pkg.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {s.slug === 'integrations' && isIntegrationsActive && (
-              <div className="docs-nav-sub">
-                {INTEGRATIONS.map((integration) => (
-                  <button
-                    key={integration.slug}
-                    type="button"
-                    className={`docs-nav-sub-item${activeIntegrationSlug === integration.slug ? ' docs-nav-sub-item--active' : ''}`}
-                    onClick={() => setActive(`integrations/${integration.slug}`)}
-                  >
-                    {integration.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </nav>
-
-      <main className="docs-content">{renderContent()}</main>
-
-      {showPreview && (
-        <aside className="docs-preview-panel">
-          {showComponentsPreview ? (
-            <ComponentPreview key={selectedComponent} entry={previewEntry} />
-          ) : showRnPreview ? (
-            <ReactNativeSnack />
-          ) : (
-            <UsageHydrationPreview />
-          )}
-        </aside>
+      {s.slug === 'integrations' && isIntegrationsActive && (
+        <div className="docs-nav-sub">
+          {INTEGRATIONS.map((integration) => (
+            <button
+              key={integration.slug}
+              type="button"
+              className={`docs-nav-sub-item${activeIntegrationSlug === integration.slug ? ' docs-nav-sub-item--active' : ''}`}
+              onClick={() => setActive(`integrations/${integration.slug}`)}
+            >
+              {integration.label}
+            </button>
+          ))}
+        </div>
       )}
     </div>
+  );
+
+  return (
+    <ThemingProvider>
+      <div
+        className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}${
+          showRnPreview ? ' docs-layout--rn' : ''
+        }`}
+      >
+        <nav className="docs-nav">
+          <div className="docs-nav-title">Documentation</div>
+          {MAIN_SECTIONS.map(renderNavItem)}
+          <div className="docs-nav-title docs-nav-title--group">Integrations</div>
+          {INTEGRATION_SECTIONS.map(renderNavItem)}
+          <div className="docs-nav-title docs-nav-title--group">Renderers</div>
+          {RENDERER_SECTIONS.map(renderNavItem)}
+        </nav>
+
+        <main className="docs-content">{renderContent()}</main>
+
+        {showPreview && (
+          <aside className="docs-preview-panel">
+            {showComponentsPreview ? (
+              <ComponentPreview key={selectedComponent} entry={previewEntry} />
+            ) : showRnPreview ? (
+              <ReactNativeSnack />
+            ) : showThemingPreview ? (
+              <ThemingPreview />
+            ) : (
+              <UsageHydrationPreview />
+            )}
+          </aside>
+        )}
+      </div>
+    </ThemingProvider>
   );
 }

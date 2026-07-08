@@ -4,7 +4,6 @@ import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { ChartRenderer } from '../../chart-components.js';
-import { Code } from '../Code.js';
 
 const CUSTOMIZATIONS = {
   components: { chart: ChartRenderer },
@@ -226,8 +225,8 @@ export function Components({ selected, onSelect }: ComponentsProps) {
     <>
       <h2>Components</h2>
       <p>
-        9 built-in component types, rendered out of the box by{' '}
-        <code>@mobile-reality/mdma-renderer-react</code>. Click a row to preview.
+        9 built-in component types defined by the MDMA spec — every renderer (React, React Native)
+        renders them out of the box. Click a row to preview.
       </p>
 
       <div className="docs-table-wrap">
@@ -256,32 +255,6 @@ export function Components({ selected, onSelect }: ComponentsProps) {
           </tbody>
         </table>
       </div>
-
-      <h2>Custom Chart Renderer</h2>
-      <p>
-        The built-in chart renderer renders data as a plain table so the library stays lightweight.
-        To get actual charts, register a custom renderer:
-      </p>
-      <Code lang="tsx">{`import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import { MyRechartsRenderer } from './MyRechartsRenderer';
-
-function App({ ast, store }) {
-  return (
-    <MdmaDocument
-      ast={ast}
-      store={store}
-      customizations={{
-        components: {
-          chart: MyRechartsRenderer,
-        },
-      }}
-    />
-  );
-}`}</Code>
-      <p>
-        This pattern works for overriding any built-in component — pass a custom React component
-        under <code>customizations.components.&lt;type&gt;</code>.
-      </p>
     </>
   );
 }

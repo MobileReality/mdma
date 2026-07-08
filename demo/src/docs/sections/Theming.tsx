@@ -1,5 +1,191 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
+import {
+  MdmaDocument,
+  darkTheme,
+  lightTheme,
+  type MdmaTheme,
+} from '@mobile-reality/mdma-renderer-react';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import type { DocumentStore } from '@mobile-reality/mdma-runtime';
+import { parseMarkdown } from '../../chat/parse-markdown.js';
+import { useDemoThemeMode } from '../../theme-context.js';
 import { Code } from '../Code.js';
 import { Table } from '../Table.js';
+
+/** The five styleable tokens exposed as color pickers in the playground. */
+const TOKENS = [
+  { key: 'primary', label: 'Accent' },
+  { key: 'background', label: 'Background' },
+  { key: 'text', label: 'Text' },
+  { key: 'textMuted', label: 'Muted' },
+  { key: 'border', label: 'Border' },
+] as const;
+
+type TokenKey = (typeof TOKENS)[number]['key'];
+type Editable = Record<TokenKey, string>;
+
+function pickEditable(theme: MdmaTheme): Editable {
+  return {
+    primary: theme.colors.primary,
+    background: theme.colors.background,
+    text: theme.colors.text,
+    textMuted: theme.colors.textMuted,
+    border: theme.colors.border,
+  };
+}
+
+/** A small doc that exercises all five tokens: card backgrounds + borders
+ *  (background/border), body + header text (text/muted), and the accent
+ *  (primary) on the button, checkbox, and input focus. */
+const PLAYGROUND_DOC = `\`\`\`mdma
+type: form
+id: play-form
+label: "Create account"
+onSubmit: play-submit
+fields:
+  - name: full-name
+    type: text
+    label: "Full name"
+  - name: notify
+    type: checkbox
+    label: "Email me product updates"
+\`\`\`
+
+\`\`\`mdma
+type: button
+id: play-button
+text: "Get started"
+variant: primary
+\`\`\`
+
+\`\`\`mdma
+type: table
+id: play-table
+columns:
+  - key: plan
+    label: "Plan"
+    type: text
+  - key: seats
+    label: "Seats"
+    type: number
+data:
+  - plan: "Starter"
+    seats: 3
+  - plan: "Team"
+    seats: 12
+\`\`\``;
+
+interface ThemingCtxValue {
+  colors: Editable;
+  setColor: (key: TokenKey, value: string) => void;
+  reset: () => void;
+  theme: MdmaTheme;
+  parsed: { ast: MdmaRoot; store: DocumentStore } | null;
+}
+
+const ThemingContext = createContext<ThemingCtxValue | null>(null);
+
+function useThemingCtx(): ThemingCtxValue {
+  const ctx = useContext(ThemingContext);
+  if (!ctx) throw new Error('Theming components must be used within <ThemingProvider>');
+  return ctx;
+}
+
+/** Holds the live-editor state so the controls (in the docs content) and the
+ *  preview (in the right-hand panel) share it. */
+export function ThemingProvider({ children }: { children: ReactNode }) {
+  const mode = useDemoThemeMode();
+  const base = mode === 'dark' ? darkTheme : lightTheme;
+  const [colors, setColors] = useState<Editable>(() => pickEditable(base));
+  const [parsed, setParsed] = useState<{ ast: MdmaRoot; store: DocumentStore } | null>(null);
+  const cancelRef = useRef(false);
+
+  useEffect(() => {
+    cancelRef.current = false;
+    parseMarkdown(PLAYGROUND_DOC).then((result) => {
+      if (!cancelRef.current) setParsed(result);
+    });
+    return () => {
+      cancelRef.current = true;
+    };
+  }, []);
+
+  // Reset the pickers to the built-in palette when the light/dark toggle flips.
+  useEffect(() => {
+    setColors(pickEditable(mode === 'dark' ? darkTheme : lightTheme));
+  }, [mode]);
+
+  const theme: MdmaTheme = useMemo(
+    () => ({ ...base, colors: { ...base.colors, ...colors } }),
+    [base, colors],
+  );
+
+  const value = useMemo<ThemingCtxValue>(
+    () => ({
+      colors,
+      setColor: (key, v) => setColors((c) => ({ ...c, [key]: v })),
+      reset: () => setColors(pickEditable(base)),
+      theme,
+      parsed,
+    }),
+    [colors, base, theme, parsed],
+  );
+
+  return <ThemingContext.Provider value={value}>{children}</ThemingContext.Provider>;
+}
+
+/** The color pickers — rendered inline in the docs content. */
+function ThemingControls() {
+  const { colors, setColor, reset } = useThemingCtx();
+  return (
+    <div className="theming-pickers">
+      {TOKENS.map((t) => (
+        <label key={t.key} className="theming-picker">
+          <input
+            type="color"
+            value={colors[t.key]}
+            onChange={(e) => setColor(t.key, e.target.value)}
+          />
+          <span className="theming-picker-label">{t.label}</span>
+          <span className="theming-picker-hex">{colors[t.key]}</span>
+        </label>
+      ))}
+      <button type="button" className="theming-swatch-reset" onClick={reset}>
+        Reset
+      </button>
+    </div>
+  );
+}
+
+/** The live render — shown in the docs right-hand preview panel. */
+export function ThemingPreview() {
+  const { theme, parsed } = useThemingCtx();
+  return (
+    <>
+      <div className="docs-preview-panel-header">
+        <span className="docs-preview-panel-label">Live preview</span>
+        <code className="docs-preview-panel-type">theme</code>
+      </div>
+      <div className="docs-preview-panel-body">
+        <div className="docs-preview-panel-render">
+          {parsed ? (
+            <MdmaDocument ast={parsed.ast} store={parsed.store} theme={theme} />
+          ) : (
+            <span className="docs-preview-panel-loading">Loading…</span>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
 
 export function Theming() {
   return (
@@ -11,18 +197,15 @@ export function Theming() {
         get the built-in light palette, unchanged. When you want more, switch to a dark palette,
         follow the operating-system preference, or hand over a fully custom set of design tokens.
       </p>
+      <h2>Try it</h2>
       <p>
-        The web renderer (<code>@mobile-reality/mdma-renderer-react</code>) and the React Native
-        renderer (<code>@mobile-reality/mdma-renderer-react-native</code>) expose the{' '}
-        <strong>
-          same <code>MdmaTheme</code> token shape
-        </strong>
-        , so a custom theme object is portable between the two.
+        Pick colors for five styleable tokens — <strong>accent</strong>, <strong>background</strong>
+        , <strong>text</strong>, <strong>muted</strong>, and <strong>border</strong>. Each one is
+        written onto a custom <code>MdmaTheme</code> and the components below re-render instantly.
+        Hover a button or focus the input — the hover and focus states derive from your accent
+        automatically. Toggle the top-bar theme to reset the pickers to the light or dark palette.
       </p>
-      <p className="docs-tagline">
-        The <strong>☀️ / 🌙 / 🖥️</strong> toggle in the top bar themes every live example on this site
-        — including the components and the React Native preview.
-      </p>
+      <ThemingControls />
 
       <h2>The three modes</h2>
       <p>
@@ -31,7 +214,7 @@ export function Theming() {
       <Table
         headers={['theme value', 'Result']}
         rows={[
-          [<em key="o">(omitted)</em>, 'Default light palette — fully backward compatible.'],
+          [<em key="o">Default</em>, 'Default light palette — fully backward compatible.'],
           [<code key="l">"light"</code>, 'The built-in light palette.'],
           [<code key="d">"dark"</code>, 'The built-in dark palette.'],
           [<code key="a">"auto"</code>, 'Follows the OS preference (prefers-color-scheme).'],
@@ -71,7 +254,7 @@ export function Theming() {
       <p>
         The <code>lightTheme</code> and <code>darkTheme</code> presets are exported from both
         renderer packages, so the easiest way to build a custom theme is to spread a preset and
-        override just what you need:
+        override just what you need (exactly what the playground above does):
       </p>
       <Code lang="ts">{`import { lightTheme, type MdmaTheme } from '@mobile-reality/mdma-renderer-react';
 
@@ -126,22 +309,6 @@ function Badge() {
   return <View style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.sm }} />;
 }`}</Code>
 
-      <h2>Notes</h2>
-      <p>
-        <strong>Portable.</strong> The <code>colors</code> / <code>spacing</code> /{' '}
-        <code>radius</code> / <code>fontSize</code> shape is identical across renderers, so one
-        theme object can drive both your web and native apps — and the built-in{' '}
-        <code>lightTheme</code> / <code>darkTheme</code> palettes now match across the two.
-      </p>
-      <p>
-        <strong>Backward compatible.</strong> Existing code that never sets <code>theme</code> is
-        unaffected — the default light palette is the previous look.
-      </p>
-      <p>
-        <strong>Presentation stays in the renderer.</strong> Themes live entirely in the renderers;
-        the MDMA spec and prompts never describe appearance, so the same document renders under any
-        theme.
-      </p>
     </>
   );
 }

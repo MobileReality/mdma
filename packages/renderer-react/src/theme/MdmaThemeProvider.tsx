@@ -164,7 +164,27 @@ export function resolveThemeProps(theme: MdmaThemeInput | undefined): ResolvedTh
   // `auto` follows the OS preference at the CSS layer; the resolved token
   // object is a best-effort light default for any JS consumer of useMdmaTheme.
   if (theme === 'auto') return { dataTheme: 'auto', theme: lightTheme };
-  return { style: themeToCssVars(theme), theme };
+  // A custom theme sets the public tokens inline, but the stylesheet also has
+  // internal derived vars (heading text, code backgrounds, …) that aren't on
+  // the public type. Pick the light/dark base by the theme's own background so
+  // those derived vars match — otherwise a custom *dark* theme would render,
+  // e.g., near-black heading text on a dark surface.
+  return {
+    dataTheme: isDarkTheme(theme) ? 'dark' : 'light',
+    style: themeToCssVars(theme),
+    theme,
+  };
+}
+
+/** Heuristic: is this theme's background dark? (relative luminance < 50%). */
+function isDarkTheme(theme: MdmaTheme): boolean {
+  const hex = theme.colors.background.replace('#', '');
+  if (hex.length < 6) return false;
+  const r = Number.parseInt(hex.slice(0, 2), 16);
+  const g = Number.parseInt(hex.slice(2, 4), 16);
+  const b = Number.parseInt(hex.slice(4, 6), 16);
+  if (Number.isNaN(r + g + b)) return false;
+  return 0.299 * r + 0.587 * g + 0.114 * b < 128;
 }
 
 export interface MdmaThemeProviderProps {
