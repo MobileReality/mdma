@@ -1,7 +1,7 @@
 import type { MdmaRoot, MdmaBlock as MdmaBlockType } from '@mobile-reality/mdma-spec';
 import { MDMA_LANG_TAG } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
-import { useRef, useMemo, type ComponentType } from 'react';
+import { useRef, useMemo, useContext, type ComponentType } from 'react';
 import { MdmaProvider } from '../context/MdmaProvider.js';
 import {
   ElementOverridesProvider,
@@ -165,7 +165,13 @@ export function MdmaDocument({ ast, store, customizations, theme, className }: M
     [customizations?.components],
   );
 
-  const themeProps = useMemo(() => resolveThemeProps(theme), [theme]);
+  // Resolve our own `theme` prop, or inherit an ancestor `MdmaThemeProvider`'s
+  // theme when none is given (so a single provider can theme a whole app).
+  const inheritedTheme = useContext(MdmaThemeContext);
+  const themeProps = useMemo(
+    () => (theme !== undefined ? resolveThemeProps(theme) : inheritedTheme),
+    [theme, inheritedTheme],
+  );
 
   // Cache of successfully parsed blocks by component ID. Prevents flickering
   // during streaming when a block alternates between parsed and pending states
@@ -175,7 +181,7 @@ export function MdmaDocument({ ast, store, customizations, theme, className }: M
   return (
     <MdmaProvider store={store} dataSources={customizations?.dataSources}>
       <ElementOverridesProvider value={elementOverrides}>
-        <MdmaThemeContext.Provider value={themeProps.theme}>
+        <MdmaThemeContext.Provider value={themeProps}>
           <div
             className={`mdma-document ${className ?? ''}`}
             data-theme={themeProps.dataTheme}

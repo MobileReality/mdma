@@ -84,9 +84,6 @@
   --mdma-font-size-body: 14px;
   --mdma-font-size-label: 15px;
   --mdma-font-size-title: 18px;
-
-  color: var(--mdma-color-text);
-  font-size: var(--mdma-font-size-body);
 }
 
 /* ===== Built-in dark palette ===== */
@@ -209,6 +206,8 @@
 .mdma-document {
   max-width: 720px;
   margin: 0 auto;
+  color: var(--mdma-color-text);
+  font-size: var(--mdma-font-size-body);
 }
 
 /* ===== Entrance animation for all MDMA children ===== */

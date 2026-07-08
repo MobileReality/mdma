@@ -103,11 +103,17 @@ export const darkTheme: MdmaTheme = {
  */
 export type MdmaThemeInput = MdmaTheme | 'light' | 'dark' | 'auto';
 
-const MdmaThemeContext = createContext<MdmaTheme>(lightTheme);
+/**
+ * Nearest resolved theme. Holds the full {@link ResolvedThemeProps} (not just
+ * the tokens) so a descendant `MdmaDocument` with no `theme` prop of its own can
+ * inherit the ancestor's `data-theme` / inline variables and re-apply them to
+ * its own root. The default is the unthemed light look.
+ */
+const MdmaThemeContext = createContext<ResolvedThemeProps>({ theme: lightTheme });
 
 /** The resolved token object for the nearest theme (defaults to {@link lightTheme}). */
 export function useMdmaTheme(): MdmaTheme {
-  return useContext(MdmaThemeContext);
+  return useContext(MdmaThemeContext).theme;
 }
 
 export { MdmaThemeContext };
@@ -185,7 +191,7 @@ export function MdmaThemeProvider({ theme, className, style, children }: MdmaThe
       data-theme={resolved.dataTheme}
       style={{ ...resolved.style, ...style }}
     >
-      <MdmaThemeContext.Provider value={resolved.theme}>{children}</MdmaThemeContext.Provider>
+      <MdmaThemeContext.Provider value={resolved}>{children}</MdmaThemeContext.Provider>
     </div>
   );
 }

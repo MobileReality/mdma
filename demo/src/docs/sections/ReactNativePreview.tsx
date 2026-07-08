@@ -6,6 +6,7 @@ import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 // as a web preview — the "emulator" shown in the docs. No code editor, no API
 // key; the four responses are pre-parsed and matched by keyword.
 import { useEffect, useRef, useState } from 'react';
+import { useDemoThemeMode } from '../../theme-context.js';
 import {
   ActivityIndicator,
   Pressable,
@@ -35,6 +36,7 @@ function pick(text: string, n: number) {
 }
 
 export function ReactNativePreview() {
+  const themeMode = useDemoThemeMode();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const countRef = useRef(0);
@@ -118,7 +120,7 @@ export function ReactNativePreview() {
               )}
               {m.done && m.ast && m.store ? (
                 <View style={styles.doc}>
-                  <MdmaDocument ast={m.ast} store={m.store} theme="light" />
+                  <MdmaDocument ast={m.ast} store={m.store} theme={themeMode} />
                 </View>
               ) : null}
             </View>
