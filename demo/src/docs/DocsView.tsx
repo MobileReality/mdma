@@ -12,6 +12,7 @@ import { PACKAGES, PackageDetail } from './sections/PackageDetail.js';
 import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
+import { Theming } from './sections/Theming.js';
 import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
@@ -34,6 +35,7 @@ const SECTIONS: Section[] = [
   { slug: 'integrations', label: 'Integrations' },
   { slug: 'components', label: 'Components' },
   { slug: 'react-native', label: 'React Native', component: ReactNative },
+  { slug: 'theming', label: 'Theming', component: Theming },
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
   { slug: 'cli', label: 'CLI', component: Cli },
