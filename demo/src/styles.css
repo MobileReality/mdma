@@ -7501,3 +7501,100 @@ body {
 [data-theme="dark"] .rn-open-snack:hover {
   background: rgba(99, 102, 241, 0.25);
 }
+
+/* ===== Light mode (nav bar + side nav) =====
+ * The top nav bar and docs side nav are dark-navy by default (that's the
+ * dark-mode look). In light mode they flip to a light surface so the whole app
+ * tracks the theme toggle. `data-theme` is always set on <html> by the app. */
+
+/* --- Top nav bar --- */
+[data-theme="light"] .demo-header {
+  background: #ffffff;
+  color: #1a1a2e;
+}
+[data-theme="light"] .demo-subtitle {
+  color: #6b7280;
+  opacity: 1;
+}
+[data-theme="light"] .demo-nav-trigger {
+  background: rgba(108, 92, 231, 0.1);
+  border-color: rgba(108, 92, 231, 0.3);
+  color: #4c3fb0;
+}
+[data-theme="light"] .demo-nav-trigger:hover {
+  background: rgba(108, 92, 231, 0.18);
+  border-color: rgba(108, 92, 231, 0.5);
+}
+[data-theme="light"] .demo-nav-dropdown {
+  background: #ffffff;
+  border-color: #e5e7eb;
+  box-shadow: 0 12px 32px rgba(24, 24, 46, 0.14), 0 0 0 1px rgba(108, 92, 231, 0.06);
+}
+[data-theme="light"] .demo-nav-group + .demo-nav-group {
+  border-top-color: rgba(0, 0, 0, 0.07);
+}
+[data-theme="light"] .demo-nav-group-label {
+  color: #9ca3af;
+}
+[data-theme="light"] .demo-nav-item {
+  color: #374151;
+}
+[data-theme="light"] .demo-nav-item:hover {
+  background: rgba(108, 92, 231, 0.1);
+  color: #1a1a2e;
+}
+[data-theme="light"] .demo-nav-item--active {
+  background: rgba(108, 92, 231, 0.12);
+  color: #6c5ce7;
+}
+[data-theme="light"] .demo-nav-item--active:hover {
+  background: rgba(108, 92, 231, 0.18);
+  color: #4c3fb0;
+}
+[data-theme="light"] .demo-doc-selector {
+  background: #f8f9fa;
+  border-color: #e5e7eb;
+  color: #1a1a2e;
+}
+[data-theme="light"] .demo-doc-selector:hover {
+  background: #f0f0f5;
+}
+[data-theme="light"] .demo-doc-selector option {
+  background: #ffffff;
+  color: #1a1a2e;
+}
+
+/* --- Docs side nav --- */
+[data-theme="light"] .docs-nav {
+  background: #ffffff;
+  color: #1a1a2e;
+  border-right: 1px solid #e5e7eb;
+}
+[data-theme="light"] .docs-nav-title {
+  color: #9ca3af;
+}
+[data-theme="light"] .docs-nav-item {
+  color: #374151;
+}
+[data-theme="light"] .docs-nav-item:hover {
+  background: rgba(108, 92, 231, 0.1);
+  color: #1a1a2e;
+}
+[data-theme="light"] .docs-nav-item--active {
+  background: rgba(108, 92, 231, 0.12);
+  color: #6c5ce7;
+}
+[data-theme="light"] .docs-nav-sub-item {
+  border-left-color: rgba(0, 0, 0, 0.1);
+  color: #6b7280;
+}
+[data-theme="light"] .docs-nav-sub-item:hover {
+  background: rgba(108, 92, 231, 0.08);
+  color: #374151;
+  border-left-color: rgba(108, 92, 231, 0.5);
+}
+[data-theme="light"] .docs-nav-sub-item--active {
+  background: rgba(108, 92, 231, 0.12);
+  color: #6c5ce7;
+  border-left-color: #6c5ce7;
+}
