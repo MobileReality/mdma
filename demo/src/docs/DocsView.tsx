@@ -58,6 +58,19 @@ const RENDERER_SECTIONS: Section[] = [
 
 const SECTIONS: Section[] = [...MAIN_SECTIONS, ...INTEGRATION_SECTIONS, ...RENDERER_SECTIONS];
 
+/** Grouped page list for the mobile breadcrumb picker. Includes the Packages
+ *  sub-pages (which expand under "Packages" in the desktop sidebar) so they're
+ *  reachable on mobile too. */
+const BREADCRUMB_GROUPS = [
+  { label: 'Documentation', items: MAIN_SECTIONS },
+  {
+    label: 'Packages',
+    items: PACKAGES.map((p) => ({ slug: `packages/${p.slug}`, label: p.label })),
+  },
+  { label: 'Integrations', items: INTEGRATION_SECTIONS },
+  { label: 'Renderers', items: RENDERER_SECTIONS },
+];
+
 function getDocsSlug(): string {
   const hash = window.location.hash.slice(1); // e.g. /docs/packages/runtime
   const sub = hash.startsWith('/docs/') ? hash.slice('/docs/'.length) : '';
@@ -72,6 +85,8 @@ export function DocsView() {
   const [active, setActiveState] = useState(getDocsSlug);
   const [selectedComponent, setSelectedComponent] = useState('form');
   const [usageExampleOpen, setUsageExampleOpen] = useState(false);
+  // Mobile hamburger: whether the nav drawer is open.
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     function sync() {
@@ -84,6 +99,7 @@ export function DocsView() {
   function setActive(slug: string) {
     navigateDocs(slug);
     setActiveState(slug);
+    setNavOpen(false); // close the mobile drawer after navigating
   }
 
   const showComponentsPreview = active === 'components';
@@ -178,6 +194,17 @@ export function DocsView() {
     </div>
   );
 
+  // Mobile breadcrumb trail: which group the current page is in + its label.
+  const bcValue = SECTIONS.some((s) => s.slug === active)
+    ? active
+    : active.startsWith('packages/')
+      ? active
+      : 'introduction';
+  const bcItem = BREADCRUMB_GROUPS.flatMap((g) => g.items).find((s) => s.slug === bcValue);
+  const bcGroup =
+    BREADCRUMB_GROUPS.find((g) => g.items.some((s) => s.slug === bcValue))?.label ??
+    'Documentation';
+
   return (
     <ThemingProvider>
       <div
@@ -185,7 +212,26 @@ export function DocsView() {
           showRnPreview ? ' docs-layout--rn' : ''
         }`}
       >
-        <nav className="docs-nav">
+        {/* Mobile-only: hamburger toggles the nav drawer; breadcrumb trail below. */}
+        <div className="docs-mobile-bar">
+          <button
+            type="button"
+            className={`docs-menu-toggle${navOpen ? ' docs-menu-toggle--open' : ''}`}
+            onClick={() => setNavOpen((v) => !v)}
+            aria-label="Toggle documentation navigation"
+            aria-expanded={navOpen}
+          >
+            <span aria-hidden="true">{navOpen ? '✕' : '☰'}</span>
+          </button>
+          <div className="docs-breadcrumb">
+            <span className="docs-breadcrumb-root">Docs</span>
+            <span className="docs-breadcrumb-sep">›</span>
+            <span className="docs-breadcrumb-group">{bcGroup}</span>
+            <span className="docs-breadcrumb-sep">›</span>
+            <span className="docs-breadcrumb-current">{bcItem?.label ?? 'Introduction'}</span>
+          </div>
+        </div>
+        <nav className={`docs-nav${navOpen ? ' docs-nav--open' : ''}`}>
           <div className="docs-nav-title">Documentation</div>
           {MAIN_SECTIONS.map(renderNavItem)}
           <div className="docs-nav-title docs-nav-title--group">Integrations</div>

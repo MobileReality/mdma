@@ -5331,6 +5331,71 @@ body {
   min-width: 0;
 }
 
+/* Mobile-only top bar: a hamburger toggle for the nav drawer + a breadcrumb
+   trail. Hidden on desktop; the mobile media query flips it to `display: flex`. */
+.docs-mobile-bar {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 14px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.25);
+  flex-shrink: 0;
+}
+.docs-menu-toggle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+  line-height: 1;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.docs-menu-toggle--open {
+  background: rgba(108, 92, 231, 0.12);
+  border-color: rgba(108, 92, 231, 0.4);
+  color: #6c5ce7;
+}
+.docs-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  color: #6b7280;
+}
+.docs-breadcrumb-sep {
+  color: #9ca3af;
+}
+.docs-breadcrumb-group {
+  font-weight: 600;
+  color: #374151;
+}
+.docs-breadcrumb-current {
+  font-weight: 600;
+  color: #6c5ce7;
+}
+[data-theme="dark"] .docs-breadcrumb {
+  color: #9ca3af;
+}
+[data-theme="dark"] .docs-breadcrumb-group {
+  color: #cbd5e1;
+}
+[data-theme="dark"] .docs-breadcrumb-current {
+  color: #a29bfe;
+}
+[data-theme="dark"] .docs-menu-toggle--open {
+  background: rgba(139, 127, 240, 0.18);
+  border-color: rgba(139, 127, 240, 0.5);
+  color: #a29bfe;
+}
+
 .docs-nav {
   width: 220px;
   flex-shrink: 0;
@@ -7699,7 +7764,7 @@ body {
     min-width: 0;
   }
   .demo-logo {
-    height: 48px;
+    height: 60px;
   }
   .demo-subtitle {
     display: none;
@@ -7718,32 +7783,21 @@ body {
     flex-direction: column;
     overflow: auto;
   }
-  /* Side nav becomes a horizontal, scrollable strip at the top. */
+  /* The side nav collapses into a hamburger-toggled drawer; the mobile bar
+     (hamburger + breadcrumb) sits at the top. */
+  .docs-mobile-bar {
+    display: flex;
+  }
   .docs-nav {
-    width: auto;
-    flex-direction: row;
-    align-items: center;
-    gap: 6px;
-    overflow-x: auto;
-    overflow-y: hidden;
+    display: none;
+  }
+  .docs-nav--open {
+    display: flex;
+    width: 100%;
+    max-height: 65vh;
+    overflow-y: auto;
     border-right: none;
     border-bottom: 1px solid rgba(128, 128, 128, 0.25);
-    padding: 8px 12px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .docs-nav-title {
-    display: none;
-  }
-  .docs-nav-item {
-    display: inline-block;
-    width: auto;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  /* Sub-item tree would break the single-row strip. */
-  .docs-nav-sub {
-    display: none;
   }
   /* Flow naturally in the stacked column instead of being an internal
      scroll box (the base rule's flex:1 + overflow:auto would clip content). */
@@ -7852,7 +7906,7 @@ body {
     gap: 6px;
   }
   .demo-logo {
-    height: 40px;
+    height: 52px;
   }
   .demo-star-count {
     display: none;
