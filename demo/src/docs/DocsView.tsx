@@ -12,6 +12,8 @@ import { PACKAGES, PackageDetail } from './sections/PackageDetail.js';
 import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
+import { ReactWeb } from './sections/ReactWeb.js';
+import { Theming, ThemingPreview, ThemingProvider } from './sections/Theming.js';
 import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
 
@@ -26,14 +28,13 @@ interface Section {
   component?: React.ComponentType;
 }
 
-const SECTIONS: Section[] = [
+const MAIN_SECTIONS: Section[] = [
   { slug: 'introduction', label: 'Introduction', component: Introduction },
   { slug: 'packages', label: 'Packages' },
   { slug: 'installation', label: 'Installation', component: Installation },
   { slug: 'usage', label: 'Usage', component: Usage },
-  { slug: 'integrations', label: 'Integrations' },
   { slug: 'components', label: 'Components' },
-  { slug: 'react-native', label: 'React Native', component: ReactNative },
+  { slug: 'theming', label: 'Theming', component: Theming },
   { slug: 'validator', label: 'Validator', component: Validator },
   { slug: 'mcp', label: 'MCP & Skills', component: Mcp },
   { slug: 'cli', label: 'CLI', component: Cli },
@@ -43,6 +44,31 @@ const SECTIONS: Section[] = [
     component: CustomPromptBestPractices,
   },
   { slug: 'prompt-matrix', label: 'Prompt Matrix', component: PromptMatrix },
+];
+
+const INTEGRATION_SECTIONS: Section[] = INTEGRATIONS.map((i) => ({
+  slug: `integrations/${i.slug}`,
+  label: i.label,
+}));
+
+const RENDERER_SECTIONS: Section[] = [
+  { slug: 'react', label: 'React', component: ReactWeb },
+  { slug: 'react-native', label: 'React Native', component: ReactNative },
+];
+
+const SECTIONS: Section[] = [...MAIN_SECTIONS, ...INTEGRATION_SECTIONS, ...RENDERER_SECTIONS];
+
+/** Grouped page list for the mobile breadcrumb picker. Includes the Packages
+ *  sub-pages (which expand under "Packages" in the desktop sidebar) so they're
+ *  reachable on mobile too. */
+const BREADCRUMB_GROUPS = [
+  { label: 'Documentation', items: MAIN_SECTIONS },
+  {
+    label: 'Packages',
+    items: PACKAGES.map((p) => ({ slug: `packages/${p.slug}`, label: p.label })),
+  },
+  { label: 'Integrations', items: INTEGRATION_SECTIONS },
+  { label: 'Renderers', items: RENDERER_SECTIONS },
 ];
 
 function getDocsSlug(): string {
@@ -59,6 +85,8 @@ export function DocsView() {
   const [active, setActiveState] = useState(getDocsSlug);
   const [selectedComponent, setSelectedComponent] = useState('form');
   const [usageExampleOpen, setUsageExampleOpen] = useState(false);
+  // Mobile hamburger: whether the nav drawer is open.
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     function sync() {
@@ -71,12 +99,15 @@ export function DocsView() {
   function setActive(slug: string) {
     navigateDocs(slug);
     setActiveState(slug);
+    setNavOpen(false); // close the mobile drawer after navigating
   }
 
   const showComponentsPreview = active === 'components';
   const showUsagePreview = active === 'usage' && usageExampleOpen;
   const showRnPreview = active === 'react-native';
-  const showPreview = showComponentsPreview || showUsagePreview || showRnPreview;
+  const showThemingPreview = active === 'theming';
+  const showPreview =
+    showComponentsPreview || showUsagePreview || showRnPreview || showThemingPreview;
   const previewEntry = COMPONENTS.find((c) => c.type === selectedComponent) ?? COMPONENTS[0];
 
   const isPackagesActive = active === 'packages' || active.startsWith('packages/');
@@ -121,70 +152,110 @@ export function DocsView() {
     (s.slug === 'packages' && isPackagesActive) ||
     (s.slug === 'integrations' && isIntegrationsActive);
 
-  return (
-    <div
-      className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}${
-        showRnPreview ? ' docs-layout--rn' : ''
-      }`}
-    >
-      <nav className="docs-nav">
-        <div className="docs-nav-title">Documentation</div>
-        {SECTIONS.map((s) => (
-          <div key={s.slug}>
+  const renderNavItem = (s: Section) => (
+    <div key={s.slug}>
+      <button
+        type="button"
+        className={`docs-nav-item${isNavActive(s) ? ' docs-nav-item--active' : ''}`}
+        onClick={() => setActive(s.slug)}
+      >
+        {s.label}
+      </button>
+
+      {s.slug === 'packages' && isPackagesActive && (
+        <div className="docs-nav-sub">
+          {PACKAGES.map((pkg) => (
             <button
+              key={pkg.slug}
               type="button"
-              className={`docs-nav-item${isNavActive(s) ? ' docs-nav-item--active' : ''}`}
-              onClick={() => setActive(s.slug)}
+              className={`docs-nav-sub-item${activePackageSlug === pkg.slug ? ' docs-nav-sub-item--active' : ''}`}
+              onClick={() => setActive(`packages/${pkg.slug}`)}
             >
-              {s.label}
+              {pkg.label}
             </button>
+          ))}
+        </div>
+      )}
 
-            {s.slug === 'packages' && isPackagesActive && (
-              <div className="docs-nav-sub">
-                {PACKAGES.map((pkg) => (
-                  <button
-                    key={pkg.slug}
-                    type="button"
-                    className={`docs-nav-sub-item${activePackageSlug === pkg.slug ? ' docs-nav-sub-item--active' : ''}`}
-                    onClick={() => setActive(`packages/${pkg.slug}`)}
-                  >
-                    {pkg.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {s.slug === 'integrations' && isIntegrationsActive && (
-              <div className="docs-nav-sub">
-                {INTEGRATIONS.map((integration) => (
-                  <button
-                    key={integration.slug}
-                    type="button"
-                    className={`docs-nav-sub-item${activeIntegrationSlug === integration.slug ? ' docs-nav-sub-item--active' : ''}`}
-                    onClick={() => setActive(`integrations/${integration.slug}`)}
-                  >
-                    {integration.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
-      </nav>
-
-      <main className="docs-content">{renderContent()}</main>
-
-      {showPreview && (
-        <aside className="docs-preview-panel">
-          {showComponentsPreview ? (
-            <ComponentPreview key={selectedComponent} entry={previewEntry} />
-          ) : showRnPreview ? (
-            <ReactNativeSnack />
-          ) : (
-            <UsageHydrationPreview />
-          )}
-        </aside>
+      {s.slug === 'integrations' && isIntegrationsActive && (
+        <div className="docs-nav-sub">
+          {INTEGRATIONS.map((integration) => (
+            <button
+              key={integration.slug}
+              type="button"
+              className={`docs-nav-sub-item${activeIntegrationSlug === integration.slug ? ' docs-nav-sub-item--active' : ''}`}
+              onClick={() => setActive(`integrations/${integration.slug}`)}
+            >
+              {integration.label}
+            </button>
+          ))}
+        </div>
       )}
     </div>
+  );
+
+  // Mobile breadcrumb trail: which group the current page is in + its label.
+  const bcValue = SECTIONS.some((s) => s.slug === active)
+    ? active
+    : active.startsWith('packages/')
+      ? active
+      : 'introduction';
+  const bcItem = BREADCRUMB_GROUPS.flatMap((g) => g.items).find((s) => s.slug === bcValue);
+  const bcGroup =
+    BREADCRUMB_GROUPS.find((g) => g.items.some((s) => s.slug === bcValue))?.label ??
+    'Documentation';
+
+  return (
+    <ThemingProvider>
+      <div
+        className={`docs-layout${showPreview ? ' docs-layout--with-preview' : ''}${
+          showRnPreview ? ' docs-layout--rn' : ''
+        }`}
+      >
+        {/* Mobile-only: hamburger toggles the nav drawer; breadcrumb trail below. */}
+        <div className="docs-mobile-bar">
+          <button
+            type="button"
+            className={`docs-menu-toggle${navOpen ? ' docs-menu-toggle--open' : ''}`}
+            onClick={() => setNavOpen((v) => !v)}
+            aria-label="Toggle documentation navigation"
+            aria-expanded={navOpen}
+          >
+            <span aria-hidden="true">{navOpen ? '✕' : '☰'}</span>
+          </button>
+          <div className="docs-breadcrumb">
+            <span className="docs-breadcrumb-root">Docs</span>
+            <span className="docs-breadcrumb-sep">›</span>
+            <span className="docs-breadcrumb-group">{bcGroup}</span>
+            <span className="docs-breadcrumb-sep">›</span>
+            <span className="docs-breadcrumb-current">{bcItem?.label ?? 'Introduction'}</span>
+          </div>
+        </div>
+        <nav className={`docs-nav${navOpen ? ' docs-nav--open' : ''}`}>
+          <div className="docs-nav-title">Documentation</div>
+          {MAIN_SECTIONS.map(renderNavItem)}
+          <div className="docs-nav-title docs-nav-title--group">Integrations</div>
+          {INTEGRATION_SECTIONS.map(renderNavItem)}
+          <div className="docs-nav-title docs-nav-title--group">Renderers</div>
+          {RENDERER_SECTIONS.map(renderNavItem)}
+        </nav>
+
+        <main className="docs-content">{renderContent()}</main>
+
+        {showPreview && (
+          <aside className="docs-preview-panel">
+            {showComponentsPreview ? (
+              <ComponentPreview key={selectedComponent} entry={previewEntry} />
+            ) : showRnPreview ? (
+              <ReactNativeSnack />
+            ) : showThemingPreview ? (
+              <ThemingPreview />
+            ) : (
+              <UsageHydrationPreview />
+            )}
+          </aside>
+        )}
+      </div>
+    </ThemingProvider>
   );
 }

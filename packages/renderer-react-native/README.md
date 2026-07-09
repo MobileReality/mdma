@@ -43,8 +43,13 @@ function Screen({ ast, store }) {
 
 ### Theming
 
-`MdmaDocument` wraps its children in an `MdmaThemeProvider`. Pass `theme="light" | "dark"` or a
-full `MdmaTheme` token object. Renderers read tokens via `useMdmaTheme()`.
+`MdmaDocument` wraps its children in an `MdmaThemeProvider`. Pass `theme="light" | "dark" | "auto"`
+(`"auto"` follows the OS color scheme via `useColorScheme()`) or a full `MdmaTheme` token object.
+Renderers read tokens via `useMdmaTheme()`. Omit `theme` entirely for the default light palette.
+
+The `MdmaTheme` token shape is shared with the web renderer
+(`@mobile-reality/mdma-renderer-react`), so a custom theme object is portable between the two.
+See the repo [Theming guide](../../docs/guides/theming.md) for the full token reference.
 
 ### Customizations
 

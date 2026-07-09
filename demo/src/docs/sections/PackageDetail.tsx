@@ -122,16 +122,6 @@ const ast = await processor.run(tree) as MdmaRoot;`}</Code>
       "Bridges the runtime's action dispatcher and each component's specific state shape. Covers form, button, tasklist, table, callout, approval-gate, and webhook — the components that manage state. Rendering layers such as mdma-renderer-react use these handlers to wire UI events to the runtime without re-implementing interaction logic per renderer.",
   },
   {
-    slug: 'renderer-react',
-    label: 'mdma-renderer-react',
-    npm: '@mobile-reality/mdma-renderer-react',
-    dir: 'renderer-react',
-    tagline: 'React rendering layer for all 9 MDMA component types.',
-    purpose:
-      'Ships accessible, styled React components for every MDMA type plus hooks for reading and dispatching runtime state. Supports a customizations.components prop so you can swap any built-in component for your own renderer — useful for replacing the default chart table with a real charting library. The companion styles.css provides default visual styling and is entirely optional.',
-    seeAlso: { label: 'Components', slug: 'components' },
-  },
-  {
     slug: 'prompt-pack',
     label: 'mdma-prompt-pack',
     npm: '@mobile-reality/mdma-prompt-pack',

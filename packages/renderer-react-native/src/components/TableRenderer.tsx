@@ -41,9 +41,14 @@ export const TableRenderer = memo(function TableRenderer({
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator
-        style={{ borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm }}
+        style={{
+          borderWidth: 1,
+          borderColor: colors.border,
+          borderRadius: radius.sm,
+          backgroundColor: colors.background,
+        }}
       >
-        <View>
+        <View style={{ backgroundColor: colors.background }}>
           {/* Header */}
           <View style={{ flexDirection: 'row', backgroundColor: colors.surface }}>
             {component.columns.map((col) => (

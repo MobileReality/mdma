@@ -42,10 +42,6 @@ export function Packages({ onNavigate }: PackagesProps) {
             'Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook).',
           ],
           [
-            navLink('renderer-react', 'mdma-renderer-react', onNavigate),
-            'React rendering layer with components for all 9 MDMA types and hooks for state access.',
-          ],
-          [
             navLink('prompt-pack', 'mdma-prompt-pack', onNavigate),
             'System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI.',
           ],
@@ -71,7 +67,7 @@ export function Packages({ onNavigate }: PackagesProps) {
   ├── mdma-validator       Document validation
   └── mdma-runtime         State / events / policy engine
         └── mdma-attachables-core   Component handlers
-              └── mdma-renderer-react   React components
+              └── mdma-renderer-*    Renderers
 mdma-cli                   CLI prompt builder + validation
 mdma-mcp                   MCP server for AI assistants`}</Code>
     </>

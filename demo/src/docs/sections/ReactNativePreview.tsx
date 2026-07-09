@@ -1,11 +1,17 @@
-import { MdmaDocument } from '@mobile-reality/mdma-renderer-react-native';
+import {
+  MdmaDocument,
+  lightTheme,
+  darkTheme,
+  type MdmaTheme,
+} from '@mobile-reality/mdma-renderer-react-native';
 import { type DocumentStore, createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 // Renders live in the browser: `react-native` is aliased to `react-native-web`
 // (see vite.config.ts), so this is the exact renderer-react-native code running
 // as a web preview — the "emulator" shown in the docs. No code editor, no API
 // key; the four responses are pre-parsed and matched by keyword.
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useDemoThemeMode } from '../../theme-context.js';
 import {
   ActivityIndicator,
   Pressable,
@@ -35,6 +41,9 @@ function pick(text: string, n: number) {
 }
 
 export function ReactNativePreview() {
+  const themeMode = useDemoThemeMode();
+  const t = themeMode === 'dark' ? darkTheme : lightTheme;
+  const styles = useMemo(() => makeStyles(t), [t]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const countRef = useRef(0);
@@ -112,13 +121,13 @@ export function ReactNativePreview() {
                 </Text>
               ) : (
                 <View style={styles.typing}>
-                  <ActivityIndicator size="small" color="#9ca3af" />
+                  <ActivityIndicator size="small" color={t.colors.textMuted} />
                   <Text style={styles.typingText}>Generating…</Text>
                 </View>
               )}
               {m.done && m.ast && m.store ? (
                 <View style={styles.doc}>
-                  <MdmaDocument ast={m.ast} store={m.store} theme="light" />
+                  <MdmaDocument ast={m.ast} store={m.store} theme={themeMode} />
                 </View>
               ) : null}
             </View>
@@ -140,7 +149,7 @@ export function ReactNativePreview() {
           value={input}
           onChangeText={setInput}
           placeholder="Message…"
-          placeholderTextColor="#9ca3af"
+          placeholderTextColor={t.colors.textMuted}
           onSubmitEditing={() => send()}
           returnKeyType="send"
         />
@@ -156,111 +165,124 @@ export function ReactNativePreview() {
   );
 }
 
-const BLUE = '#2563eb';
-const BORDER = '#e5e7eb';
+/**
+ * Build the phone-mock chrome styles from the MDMA theme so the preview shell
+ * (bubbles, bars, chips) tracks the same light/dark palette as the rendered
+ * MDMA content inside it. `screen` is the area behind the bubbles — a touch
+ * darker/lighter than the card surfaces.
+ */
+function makeStyles(t: MdmaTheme) {
+  const { colors: c } = t;
+  const screen = themeIsDark(c) ? '#0e1119' : '#f3f4f6';
+  return StyleSheet.create({
+    page: { flex: 1, backgroundColor: screen },
+    flex: { flex: 1 },
 
-const styles = StyleSheet.create({
-  page: { flex: 1, backgroundColor: '#f3f4f6' },
-  flex: { flex: 1 },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      backgroundColor: c.background,
+      borderBottomWidth: 1,
+      borderBottomColor: c.border,
+    },
+    avatar: {
+      width: 34,
+      height: 34,
+      borderRadius: 17,
+      backgroundColor: c.primary,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { color: c.onPrimary, fontWeight: '700', fontSize: 16 },
+    title: { fontSize: 15, fontWeight: '700', color: c.text },
+    subtitle: { fontSize: 12, color: c.textMuted, marginTop: 1 },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: BORDER,
-  },
-  avatar: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: BLUE,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { color: '#ffffff', fontWeight: '700', fontSize: 16 },
-  title: { fontSize: 15, fontWeight: '700', color: '#111827' },
-  subtitle: { fontSize: 12, color: '#6b7280', marginTop: 1 },
+    scroll: { padding: 12, gap: 12 },
+    empty: { paddingVertical: 40, paddingHorizontal: 12, gap: 8, alignItems: 'center' },
+    emptyTitle: { fontSize: 15, fontWeight: '700', color: c.text, textAlign: 'center' },
+    emptyHint: { fontSize: 13, color: c.textMuted, textAlign: 'center', lineHeight: 19 },
 
-  scroll: { padding: 12, gap: 12 },
-  empty: { paddingVertical: 40, paddingHorizontal: 12, gap: 8, alignItems: 'center' },
-  emptyTitle: { fontSize: 15, fontWeight: '700', color: '#111827', textAlign: 'center' },
-  emptyHint: { fontSize: 13, color: '#6b7280', textAlign: 'center', lineHeight: 19 },
+    userRow: { alignItems: 'flex-end' },
+    user: {
+      maxWidth: '85%',
+      backgroundColor: c.primary,
+      borderRadius: 18,
+      borderBottomRightRadius: 5,
+      paddingVertical: 9,
+      paddingHorizontal: 13,
+    },
+    userText: { color: c.onPrimary, fontSize: 15, lineHeight: 20 },
 
-  userRow: { alignItems: 'flex-end' },
-  user: {
-    maxWidth: '85%',
-    backgroundColor: BLUE,
-    borderRadius: 18,
-    borderBottomRightRadius: 5,
-    paddingVertical: 9,
-    paddingHorizontal: 13,
-  },
-  userText: { color: '#ffffff', fontSize: 15, lineHeight: 20 },
+    bot: {
+      alignSelf: 'stretch',
+      backgroundColor: c.background,
+      borderRadius: 18,
+      borderBottomLeftRadius: 5,
+      borderWidth: 1,
+      borderColor: c.border,
+      padding: 12,
+    },
+    botText: { color: c.text, fontSize: 15, lineHeight: 22 },
+    typing: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    typingText: { color: c.textMuted, fontSize: 14 },
+    doc: { marginTop: 10 },
 
-  bot: {
-    alignSelf: 'stretch',
-    backgroundColor: '#ffffff',
-    borderRadius: 18,
-    borderBottomLeftRadius: 5,
-    borderWidth: 1,
-    borderColor: BORDER,
-    padding: 12,
-  },
-  botText: { color: '#1f2937', fontSize: 15, lineHeight: 22 },
-  typing: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  typingText: { color: '#9ca3af', fontSize: 14 },
-  doc: { marginTop: 10 },
+    chipsWrap: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+      backgroundColor: c.background,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    chip: {
+      paddingVertical: 7,
+      paddingHorizontal: 13,
+      borderRadius: 999,
+      borderWidth: 1,
+      borderColor: c.border,
+      backgroundColor: c.surface,
+    },
+    chipText: { color: c.text, fontSize: 13, fontWeight: '500' },
 
-  chipsWrap: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: BORDER,
-  },
-  chip: {
-    paddingVertical: 7,
-    paddingHorizontal: 13,
-    borderRadius: 999,
-    borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: '#f9fafb',
-  },
-  chipText: { color: '#374151', fontSize: 13, fontWeight: '500' },
+    bar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      paddingHorizontal: 10,
+      paddingVertical: 10,
+      backgroundColor: c.background,
+      borderTopWidth: 1,
+      borderTopColor: c.border,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: c.border,
+      borderRadius: 22,
+      paddingHorizontal: 15,
+      paddingVertical: 10,
+      fontSize: 15,
+      color: c.text,
+      backgroundColor: c.surface,
+    },
+    send: {
+      backgroundColor: c.primary,
+      borderRadius: 22,
+      paddingHorizontal: 18,
+      paddingVertical: 10,
+    },
+    sendDisabled: { opacity: 0.45 },
+    sendText: { color: c.onPrimary, fontWeight: '600', fontSize: 15 },
+  });
+}
 
-  bar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    paddingHorizontal: 10,
-    paddingVertical: 10,
-    backgroundColor: '#ffffff',
-    borderTopWidth: 1,
-    borderTopColor: BORDER,
-  },
-  input: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: BORDER,
-    borderRadius: 22,
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    fontSize: 15,
-    backgroundColor: '#f9fafb',
-  },
-  send: {
-    backgroundColor: BLUE,
-    borderRadius: 22,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
-  },
-  sendDisabled: { opacity: 0.45 },
-  sendText: { color: '#ffffff', fontWeight: '600', fontSize: 15 },
-});
+/** The dark palette's background is a dark navy; the light one is white. */
+function themeIsDark(colors: MdmaTheme['colors']): boolean {
+  return colors.background.toLowerCase() !== '#ffffff';
+}

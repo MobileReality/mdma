@@ -38,9 +38,7 @@ export interface MdmaDocumentProps {
   style?: StyleProp<ViewStyle>;
 }
 
-function isComponentConfig(
-  entry: ComponentEntry,
-): entry is {
+function isComponentConfig(entry: ComponentEntry): entry is {
   renderer?: ComponentType<MdmaBlockRendererProps>;
   elements?: Record<string, unknown>;
 } {
