@@ -308,7 +308,6 @@ function Badge() {
   const theme = useMdmaTheme();
   return <View style={{ backgroundColor: theme.colors.primary, borderRadius: theme.radius.sm }} />;
 }`}</Code>
-
     </>
   );
 }

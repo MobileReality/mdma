@@ -1,16 +1,7 @@
 {
   "name": "@mobile-reality/mdma-spec",
   "version": "0.3.1",
-  "keywords": [
-    "mdma",
-    "markdown",
-    "ai",
-    "llm",
-    "interactive-document",
-    "schema",
-    "zod",
-    "types"
-  ],
+  "keywords": ["mdma", "markdown", "ai", "llm", "interactive-document", "schema", "zod", "types"],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -47,9 +38,7 @@
     "typescript": "^5.7.0",
     "vitest": "^3.2.0"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "publishConfig": {
     "access": "public"
   },
