@@ -1,5 +1,14 @@
 # @mobile-reality/mdma-demo
 
+## 0.0.14
+
+### Patch Changes
+
+- Updated dependencies [ae32824]
+- Updated dependencies [ff4ca64]
+  - @mobile-reality/mdma-renderer-react@0.5.0
+  - @mobile-reality/mdma-renderer-react-native@0.3.0
+
 ## 0.0.13
 
 ### Patch Changes
