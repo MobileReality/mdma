@@ -16,6 +16,40 @@ body {
   background: #f5f6fa;
 }
 
+/* ===== Scrollbars (thin, subtle, theme-aware) ===== */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 140, 0.4) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 120, 140, 0.35);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(120, 120, 140, 0.6);
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+[data-theme="dark"] * {
+  scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.18);
+}
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.32);
+}
+
 /* ===== Home View ===== */
 .home-view {
   flex: 1;
