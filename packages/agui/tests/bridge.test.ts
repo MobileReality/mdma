@@ -73,11 +73,27 @@ class FakeAgent implements AguiAgent {
   emitToolStart(toolCallId: string, toolCallName: string): void | Promise<void> {
     return this.subscriber?.onToolCallStartEvent?.({ event: { toolCallId, toolCallName } });
   }
-  emitToolArgs(toolCallId: string, toolCallName: string, toolCallBuffer: string): void | Promise<void> {
-    return this.subscriber?.onToolCallArgsEvent?.({ event: { toolCallId }, toolCallName, toolCallBuffer });
+  emitToolArgs(
+    toolCallId: string,
+    toolCallName: string,
+    toolCallBuffer: string,
+  ): void | Promise<void> {
+    return this.subscriber?.onToolCallArgsEvent?.({
+      event: { toolCallId },
+      toolCallName,
+      toolCallBuffer,
+    });
   }
-  emitToolEnd(toolCallId: string, toolCallName: string, toolCallArgs: Record<string, unknown>): void | Promise<void> {
-    return this.subscriber?.onToolCallEndEvent?.({ event: { toolCallId }, toolCallName, toolCallArgs });
+  emitToolEnd(
+    toolCallId: string,
+    toolCallName: string,
+    toolCallArgs: Record<string, unknown>,
+  ): void | Promise<void> {
+    return this.subscriber?.onToolCallEndEvent?.({
+      event: { toolCallId },
+      toolCallName,
+      toolCallArgs,
+    });
   }
   emitToolResult(toolCallId: string, content: string): void | Promise<void> {
     return this.subscriber?.onToolCallResultEvent?.({ event: { toolCallId, content } });
@@ -88,7 +104,11 @@ class FakeAgent implements AguiAgent {
   emitStepFinish(stepName: string): void | Promise<void> {
     return this.subscriber?.onStepFinishedEvent?.({ event: { stepName } });
   }
-  emitReasoning(messageId: string, reasoningMessageBuffer: string, end = false): void | Promise<void> {
+  emitReasoning(
+    messageId: string,
+    reasoningMessageBuffer: string,
+    end = false,
+  ): void | Promise<void> {
     const params = { event: { messageId }, reasoningMessageBuffer };
     return end
       ? this.subscriber?.onReasoningMessageEndEvent?.(params)
@@ -358,7 +378,11 @@ describe('createMdmaAgentBridge — agentic activity feed', () => {
     agent.emitToolArgs('t1', 'search_docs', '{"q":"md');
     agent.emitToolEnd('t1', 'search_docs', { q: 'mdma' });
     expect(bridge.activity).toHaveLength(1);
-    expect(bridge.activity[0]).toMatchObject({ kind: 'tool', label: 'search_docs', status: 'running' });
+    expect(bridge.activity[0]).toMatchObject({
+      kind: 'tool',
+      label: 'search_docs',
+      status: 'running',
+    });
 
     agent.emitToolResult('t1', '3 results');
     expect(bridge.activity).toHaveLength(1); // same item, advanced — not a new entry
@@ -375,7 +399,10 @@ describe('createMdmaAgentBridge — agentic activity feed', () => {
     agent.emitReasoning('r1', 'thinking… done', true);
     agent.emitStepFinish('plan');
 
-    expect(bridge.activity.map((a) => `${a.kind}:${a.status}`)).toEqual(['step:done', 'reasoning:done']);
+    expect(bridge.activity.map((a) => `${a.kind}:${a.status}`)).toEqual([
+      'step:done',
+      'reasoning:done',
+    ]);
     expect(bridge.activity[0].label).toBe('plan');
     expect(bridge.activity[1].detail).toBe('thinking… done');
     // Activity events never create MDMA documents.
@@ -526,7 +553,9 @@ describe('createMdmaAgentBridge — shared state (Phase 4)', () => {
     agent.emitContent('m1', FORM_DOC); // FORM_DOC has id "form1" with an email field
     await bridge.flush();
 
-    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe('state@demo.io');
+    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe(
+      'state@demo.io',
+    );
     expect(bridge.state).toEqual({ form1: { email: 'state@demo.io' } });
     bridge.dispose();
   });
@@ -538,11 +567,15 @@ describe('createMdmaAgentBridge — shared state (Phase 4)', () => {
     // Render the form first — no state yet, so the email field is empty.
     agent.emitContent('m1', FORM_DOC);
     await bridge.flush();
-    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBeUndefined();
+    expect(
+      bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email,
+    ).toBeUndefined();
 
     // State arrives AFTER the form was rendered → the existing store's field updates in place.
     agent.emitStateSnapshot({ form1: { email: 'late@demo.io' } });
-    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe('late@demo.io');
+    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe(
+      'late@demo.io',
+    );
     bridge.dispose();
   });
 
@@ -574,7 +607,9 @@ describe('createMdmaAgentBridge — shared state (Phase 4)', () => {
     agent.emitContent('m1', FORM_DOC);
     await bridge.flush();
 
-    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe('dynamic@x.com');
+    expect(bridge.documents.get('m1')!.store.getComponentState('form1')?.values.email).toBe(
+      'dynamic@x.com',
+    );
     bridge.dispose();
   });
 
@@ -604,7 +639,14 @@ describe('serializeAction — prompt↔adapter contract', () => {
   }
 
   it('serializes ACTION_TRIGGERED', async () => {
-    expect(await serialize({ type: 'ACTION_TRIGGERED', componentId: 'c', actionId: 'a', payload: { x: 1 } })).toEqual({
+    expect(
+      await serialize({
+        type: 'ACTION_TRIGGERED',
+        componentId: 'c',
+        actionId: 'a',
+        payload: { x: 1 },
+      }),
+    ).toEqual({
       kind: 'action',
       componentId: 'c',
       actionId: 'a',
@@ -613,14 +655,27 @@ describe('serializeAction — prompt↔adapter contract', () => {
   });
 
   it('serializes APPROVAL_GRANTED / APPROVAL_DENIED', async () => {
-    expect(await serialize({ type: 'APPROVAL_GRANTED', componentId: 'gate1', actor: { id: 'u' } })).toEqual({
+    expect(
+      await serialize({ type: 'APPROVAL_GRANTED', componentId: 'gate1', actor: { id: 'u' } }),
+    ).toEqual({
       kind: 'approval',
       decision: 'granted',
       componentId: 'gate1',
       actor: { id: 'u' },
     });
     expect(
-      await serialize({ type: 'APPROVAL_DENIED', componentId: 'gate1', actor: { id: 'u' }, reason: 'no' }),
-    ).toEqual({ kind: 'approval', decision: 'denied', componentId: 'gate1', actor: { id: 'u' }, reason: 'no' });
+      await serialize({
+        type: 'APPROVAL_DENIED',
+        componentId: 'gate1',
+        actor: { id: 'u' },
+        reason: 'no',
+      }),
+    ).toEqual({
+      kind: 'approval',
+      decision: 'denied',
+      componentId: 'gate1',
+      actor: { id: 'u' },
+      reason: 'no',
+    });
   });
 });

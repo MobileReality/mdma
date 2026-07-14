@@ -310,7 +310,9 @@ export function createMdmaAgentBridge(
     if (interrupt) {
       pendingInterrupts = pendingInterrupts.filter((i) => i.id !== interrupt.id);
       options.onInterrupt?.(pendingInterrupts); // notify the reduced (possibly empty) set
-      await agent.runAgent({ resume: [{ interruptId: interrupt.id, payload: serializeAction(action) }] });
+      await agent.runAgent({
+        resume: [{ interruptId: interrupt.id, payload: serializeAction(action) }],
+      });
       return;
     }
     if (mode === 'interrupt') return; // strict interrupt mode: nothing to resolve → do nothing
@@ -392,7 +394,12 @@ export function createMdmaAgentBridge(
     }
     if (text === undefined) return;
 
-    ingest({ messageId: messageId ?? `mdma-custom-${++customSeq}`, text, immediate: true, origin: 'custom' });
+    ingest({
+      messageId: messageId ?? `mdma-custom-${++customSeq}`,
+      text,
+      immediate: true,
+      origin: 'custom',
+    });
   }
 
   // --- Agentic activity handlers (Phase 2) — feed only; they never touch the document store. ---
