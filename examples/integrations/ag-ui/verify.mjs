@@ -13,9 +13,9 @@
  *   pnpm verify            # or: node verify.mjs
  */
 import { spawn } from 'node:child_process';
+import { dirname } from 'node:path';
 import { setTimeout as sleep } from 'node:timers/promises';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const BE = process.env.BE ?? 'http://localhost:8787';
@@ -55,8 +55,15 @@ async function stream(threadId, messages) {
 const digest = (events) => ({
   reRenders: events.filter((e) => e.type === 'CUSTOM').length,
   tools: events.filter((e) => e.type === 'TOOL_CALL_START').map((e) => e.toolCallName),
-  snapshot: events.filter((e) => e.type === 'STATE_SNAPSHOT').map((e) => e.snapshot).pop() ?? {},
-  text: events.filter((e) => e.type === 'TEXT_MESSAGE_CONTENT').map((e) => e.delta).join(''),
+  snapshot:
+    events
+      .filter((e) => e.type === 'STATE_SNAPSHOT')
+      .map((e) => e.snapshot)
+      .pop() ?? {},
+  text: events
+    .filter((e) => e.type === 'TEXT_MESSAGE_CONTENT')
+    .map((e) => e.delta)
+    .join(''),
 });
 
 /** Run turn 1 (build) then turn 2 (follow-up) in one thread; return the follow-up's digest. */
@@ -81,14 +88,36 @@ const fieldValue = (snapshot, field) => {
 
 // Value change: must route to set_state, land in shared state, and NOT re-render.
 const VALUE_CASES = [
-  { name: 'severity -> high', build: 'make a bug report form with a severity select (low/medium/high/critical)', followup: 'set the severity to high', field: 'severity', expect: 'high' },
-  { name: 'priority -> low', build: 'make a form with a priority select: low, medium, high', followup: 'change priority to low', field: 'priority', expect: 'low' },
-  { name: 'environment -> prod', build: 'make a bug report form with a text field named environment', followup: 'set the environment to prod', field: 'environment', expect: 'prod' },
+  {
+    name: 'severity -> high',
+    build: 'make a bug report form with a severity select (low/medium/high/critical)',
+    followup: 'set the severity to high',
+    field: 'severity',
+    expect: 'high',
+  },
+  {
+    name: 'priority -> low',
+    build: 'make a form with a priority select: low, medium, high',
+    followup: 'change priority to low',
+    field: 'priority',
+    expect: 'low',
+  },
+  {
+    name: 'environment -> prod',
+    build: 'make a bug report form with a text field named environment',
+    followup: 'set the environment to prod',
+    field: 'environment',
+    expect: 'prod',
+  },
 ];
 
 // Structural change: must still re-render via generate_mdma.
 const STRUCTURAL_CASES = [
-  { name: 'add a field', build: 'make a signup form with email and name', followup: 'add a phone number field to it' },
+  {
+    name: 'add a field',
+    build: 'make a signup form with email and name',
+    followup: 'add a phone number field to it',
+  },
 ];
 
 async function run() {
@@ -99,14 +128,18 @@ async function run() {
     const value = fieldValue(d.snapshot, c.field);
     const ok = d.reRenders === 0 && String(value) === c.expect;
     results.push(ok);
-    console.log(`${ok ? 'PASS ✅' : 'FAIL ❌'}  [${c.name}]  re-renders=${d.reRenders} tools=${JSON.stringify(d.tools)} ${c.field}=${JSON.stringify(value)} :: "${d.text.trim().slice(0, 70)}"`);
+    console.log(
+      `${ok ? 'PASS ✅' : 'FAIL ❌'}  [${c.name}]  re-renders=${d.reRenders} tools=${JSON.stringify(d.tools)} ${c.field}=${JSON.stringify(value)} :: "${d.text.trim().slice(0, 70)}"`,
+    );
   }
 
   for (const c of STRUCTURAL_CASES) {
     const d = await twoTurn(c.build, c.followup);
     const ok = d.reRenders >= 1;
     results.push(ok);
-    console.log(`${ok ? 'PASS ✅' : 'FAIL ❌'}  [${c.name}]  re-renders=${d.reRenders} tools=${JSON.stringify(d.tools)} (structural -> should re-render)`);
+    console.log(
+      `${ok ? 'PASS ✅' : 'FAIL ❌'}  [${c.name}]  re-renders=${d.reRenders} tools=${JSON.stringify(d.tools)} (structural -> should re-render)`,
+    );
   }
 
   const passed = results.filter(Boolean).length;
@@ -119,7 +152,10 @@ async function main() {
   let info = await health();
   if (!info) {
     console.log('No backend on :8787 — starting one…');
-    child = spawn('./node_modules/.bin/tsx', ['--env-file-if-exists=.env', 'server.ts'], { cwd: HERE, stdio: 'ignore' });
+    child = spawn('./node_modules/.bin/tsx', ['--env-file-if-exists=.env', 'server.ts'], {
+      cwd: HERE,
+      stdio: 'ignore',
+    });
     for (let i = 0; i < 20 && !info; i++) {
       await sleep(1000);
       info = await health();
@@ -131,7 +167,9 @@ async function main() {
   }
   if (!info.live) {
     child?.kill();
-    throw new Error('backend is up but OPENROUTER_API_KEY is not set — add it to .env (real LLM calls are required)');
+    throw new Error(
+      'backend is up but OPENROUTER_API_KEY is not set — add it to .env (real LLM calls are required)',
+    );
   }
   console.log(`Backend live · ${info.model}\n`);
 

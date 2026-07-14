@@ -288,29 +288,29 @@ h2 {
   height: 100vh;
   overflow: hidden;
 }
-.canvas {
+.components {
   min-width: 0;
   height: 100%;
   overflow-y: auto;
   padding: 24px 4px;
 }
-.canvas h2 {
+.components h2 {
   margin: 0 0 6px;
 }
-.canvas .hint {
+.components .hint {
   font-size: 0.8rem;
   color: #9aa1ad;
   margin: 0 0 16px;
   line-height: 1.5;
 }
-.canvas-doc {
+.component-card {
   border: 1px solid #232936;
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
   background: #12151c;
 }
-.canvas-meta {
+.component-meta {
   margin-bottom: 10px;
 }
 .bubble.chip {
@@ -390,7 +390,7 @@ h2 {
   .chat-main {
     height: 70vh;
   }
-  .canvas {
+  .components {
     height: auto;
     overflow: visible;
   }
