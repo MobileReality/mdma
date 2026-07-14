@@ -3,4 +3,5 @@ packages:
   - "blueprints/*"
   - "demo"
   - "demo-native"
+  - "examples/integrations/*"
   - "evals"
