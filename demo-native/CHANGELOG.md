@@ -1,5 +1,15 @@
 # @mobile-reality/mdma-demo-native
 
+## 0.0.4
+
+### Patch Changes
+
+- Updated dependencies [16fe1f2]
+- Updated dependencies [16fe1f2]
+- Updated dependencies [16fe1f2]
+- Updated dependencies [16fe1f2]
+  - @mobile-reality/mdma-agui@0.3.0
+
 ## 0.0.3
 
 ### Patch Changes
