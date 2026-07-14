@@ -193,6 +193,64 @@ importers:
         specifier: ^4.19.0
         version: 4.21.0
 
+  examples/integrations/ag-ui:
+    dependencies:
+      '@ag-ui/client':
+        specifier: ^0.0.57
+        version: 0.0.57
+      '@ag-ui/core':
+        specifier: ^0.0.57
+        version: 0.0.57
+      '@ag-ui/encoder':
+        specifier: ^0.0.57
+        version: 0.0.57
+      '@mobile-reality/mdma-agui':
+        specifier: workspace:*
+        version: link:../../../packages/agui
+      '@mobile-reality/mdma-attachables-core':
+        specifier: workspace:*
+        version: link:../../../packages/attachables-core
+      '@mobile-reality/mdma-parser':
+        specifier: workspace:*
+        version: link:../../../packages/parser
+      '@mobile-reality/mdma-prompt-pack':
+        specifier: workspace:*
+        version: link:../../../packages/prompt-pack
+      '@mobile-reality/mdma-renderer-react':
+        specifier: workspace:*
+        version: link:../../../packages/renderer-react
+      '@mobile-reality/mdma-runtime':
+        specifier: workspace:*
+        version: link:../../../packages/runtime
+      '@mobile-reality/mdma-spec':
+        specifier: workspace:*
+        version: link:../../../packages/spec
+      react:
+        specifier: 19.2.4
+        version: 19.2.4
+      react-dom:
+        specifier: 19.2.4
+        version: 19.2.4(react@19.2.4)
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.1.17
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.1.17)
+      '@vitejs/plugin-react':
+        specifier: ^4.3.0
+        version: 4.7.0(vite@6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2))
+      tsx:
+        specifier: ^4.0.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      vite:
+        specifier: ^6.0.0
+        version: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/agui:
     dependencies:
       remark-parse:
@@ -13562,6 +13620,10 @@ snapshots:
 
   '@types/pegjs@0.10.6':
     optional: true
+
+  '@types/react-dom@19.2.3(@types/react@19.1.17)':
+    dependencies:
+      '@types/react': 19.1.17
 
   '@types/react-dom@19.2.3(@types/react@19.2.14)':
     dependencies:
