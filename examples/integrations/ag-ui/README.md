@@ -1,6 +1,33 @@
 # AG-UI integration example
 
-An end-to-end example of driving **MDMA** through the **[AG-UI](https://github.com/ag-ui-protocol/ag-ui) protocol**:
+An end-to-end example of driving **MDMA** through the **[AG-UI](https://github.com/ag-ui-protocol/ag-ui) protocol**.
+
+![An agent rendering an interactive bug report with MDMA over AG-UI](./ag-ui-and-mdma.gif)
+
+## What
+
+An agent that answers with **real interactive UI instead of just text**. Ask it for a bug report and it
+renders an actual form next to the chat. Describe what broke and it fills the fields in. Say *"set
+severity to high"* and that single field updates in place — no duplicate form, nothing retyped.
+
+## Why
+
+MDMA components are **headless**: a document describes *intent* (fields, types, actions) and takes its
+*values* from state. Wiring that into a conversation needs a transport that can stream documents, carry
+shared state, and pause for a human. AG-UI standardizes exactly those three things, so the two compose
+without bespoke plumbing:
+
+- the agent **builds** a component — `generate_mdma` → AG-UI `CUSTOM` event, deliberately off the prose
+  channel so no markup leaks into the chat;
+- the agent **writes values** — `set_state` → `STATE_SNAPSHOT`, and rendered components hydrate from it,
+  including reactively, after they're already on screen;
+- the agent **waits for a human** — an approval gate parks the run on an AG-UI interrupt, and
+  `runAgent({ resume })` picks it back up.
+
+The payoff: structured data lives in shared state as the single source of truth, instead of being
+retyped as prose and re-parsed on every turn.
+
+## How it fits together
 
 ```
 React FE ─ @ag-ui/client HttpAgent ─▶ AG-UI backend ─▶ LLM (OpenRouter) ─▶ MDMA
@@ -59,5 +86,7 @@ route to `set_state` and update in place — **without** re-rendering — while 
 |---|---|
 | `OPENROUTER_API_KEY` | your OpenRouter key (required) |
 | `MDMA_MODEL` | any OpenRouter model slug (e.g. `openai/gpt-5.6-luna`, `anthropic/claude-3.5-sonnet`) |
-| `MDMA_PROFILE` | prompt-pack agent variant id (e.g. `openai`); defaults to a generic variant |
 | `PORT` | backend port (default `8787`; the FE expects `8787`) |
+
+The agent prompt variant is derived from `MDMA_MODEL` — the prompt-pack picks the tuned variant for that
+exact slug, else the provider family, else a generic default. `/health` reports which one resolved.

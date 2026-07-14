@@ -8,7 +8,7 @@
  * interrupt and the resume turn is fully LLM-driven; `set_state` writes shared state that rendered
  * components hydrate from.
  *
- * Run:  pnpm backend   (reads .env: OPENROUTER_API_KEY, MDMA_MODEL, MDMA_PROFILE)
+ * Run:  pnpm backend   (reads .env: OPENROUTER_API_KEY, MDMA_MODEL)
  */
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import { randomUUID } from 'node:crypto';
@@ -19,12 +19,15 @@ import { buildSystemPrompt, getAgentToolPromptVariant } from '@mobile-reality/md
 const PORT = Number(process.env.PORT ?? 8787);
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const MDMA_MODEL = process.env.MDMA_MODEL ?? 'openai/gpt-5.4-mini';
-const MDMA_PROFILE = process.env.MDMA_PROFILE ?? 'openai/gpt-5.4-mini';
+
+// Prompt-pack variant ids are model slugs, so the agent prompt is derived straight from the model:
+// exact slug if it has a tuned variant, else the provider family, else a generic default.
+const PROMPT_VARIANT = getAgentToolPromptVariant(MDMA_MODEL);
 
 // Author prompt (MDMA DSL knowledge) composed with the conversational agent tool prompt, plus a
 // note about the set_state tool (data the user gives you lives in shared state — the source of
 // truth that MDMA components hydrate from).
-const SYSTEM_PROMPT = `${buildSystemPrompt({ customPrompt: getAgentToolPromptVariant(MDMA_PROFILE).prompt })}
+const SYSTEM_PROMPT = `${buildSystemPrompt({ customPrompt: PROMPT_VARIANT.prompt })}
 
 You also have a \`set_state\` function. MDMA components are headless — their VALUES come from shared state. Whenever the user gives you personal information (name, email, phone, address, preferences), call \`set_state\` with componentId "profile" and the field(s), e.g. { "name": "Marcin", "email": "x@y.com" }. ALWAYS use "profile" for personal info — never a form id. Rendered forms pre-fill automatically from the profile.
 
@@ -403,7 +406,7 @@ const server = createServer((req, res) => {
   }
   if (req.method === 'GET' && req.url?.startsWith('/health')) {
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ live: Boolean(OPENROUTER_API_KEY), model: MDMA_MODEL, profile: MDMA_PROFILE }));
+    res.end(JSON.stringify({ live: Boolean(OPENROUTER_API_KEY), model: MDMA_MODEL, promptVariant: PROMPT_VARIANT.id }));
     return;
   }
   if (req.method === 'POST' && req.url?.startsWith('/agent')) {
@@ -419,6 +422,6 @@ const server = createServer((req, res) => {
 
 server.listen(PORT, () => {
   console.log(`\n  MDMA AG-UI tool-calling backend on http://localhost:${PORT}`);
-  console.log(`  LLM: ${OPENROUTER_API_KEY ? `OpenRouter · ${MDMA_MODEL} · prompt ${MDMA_PROFILE}` : 'no OPENROUTER_API_KEY set — requests will error'}`);
+  console.log(`  LLM: ${OPENROUTER_API_KEY ? `OpenRouter · ${MDMA_MODEL} · prompt variant ${PROMPT_VARIANT.id}` : 'no OPENROUTER_API_KEY set — requests will error'}`);
   console.log('  MDMA delivered via CUSTOM events; prose via TEXT_MESSAGE.\n');
 });
