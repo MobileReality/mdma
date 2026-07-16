@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { RendererRegistry } from '../src/renderers/renderer-registry.js';
+import { COMPONENT_TYPES } from '@mobile-reality/mdma-spec';
+import { RendererRegistry, defaultRenderers } from '../src/renderers/renderer-registry.js';
 
 describe('RendererRegistry', () => {
   it('registers and retrieves renderers', () => {
@@ -15,5 +16,15 @@ describe('RendererRegistry', () => {
     const registry = new RendererRegistry();
     expect(registry.has('unknown')).toBe(false);
     expect(registry.get('unknown')).toBeUndefined();
+  });
+
+  it('ships a default renderer for every core component type', () => {
+    for (const type of COMPONENT_TYPES) {
+      expect(defaultRenderers[type], `missing default renderer for "${type}"`).toBeDefined();
+    }
+  });
+
+  it('registers the custom-component dispatcher', () => {
+    expect(defaultRenderers.custom).toBeDefined();
   });
 });

@@ -26,6 +26,11 @@ export {
   type AttachableContext,
   type ComponentState,
 } from './attachable/registry.js';
+export {
+  registerCustomComponent,
+  type CustomComponentRegistration,
+  type CustomRegistrationTargets,
+} from './attachable/register-custom.js';
 
 // Enterprise features
 export {

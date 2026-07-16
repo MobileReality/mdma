@@ -8,6 +8,10 @@ import {
   type ElementOverrides,
 } from '../context/ElementOverridesContext.js';
 import {
+  CustomVariantProvider,
+  type CustomVariants,
+} from '../context/CustomVariantContext.js';
+import {
   MdmaThemeContext,
   resolveThemeProps,
   type MdmaThemeInput,
@@ -44,6 +48,18 @@ export interface MdmaRenderCustomizations {
    * ```
    */
   components?: Record<string, ComponentEntry>;
+  /**
+   * Variant renderers for `custom` components, keyed by the component's `name`.
+   * Rendering is host/framework-specific, so it is registered here rather than
+   * in the spec. Register a variant's schema + behavior with the runtime's
+   * `registerCustomComponent`.
+   *
+   * @example
+   * ```ts
+   * customVariants: { 'signature-pad': SignaturePadRenderer }
+   * ```
+   */
+  customVariants?: CustomVariants;
   /** Named option lists that form select fields can reference by string (e.g. `options: countries`). */
   dataSources?: Record<string, Array<{ label: string; value: string }>>;
 }
@@ -180,7 +196,8 @@ export function MdmaDocument({ ast, store, customizations, theme, className }: M
 
   return (
     <MdmaProvider store={store} dataSources={customizations?.dataSources}>
-      <ElementOverridesProvider value={elementOverrides}>
+      <CustomVariantProvider value={customizations?.customVariants}>
+        <ElementOverridesProvider value={elementOverrides}>
         <MdmaThemeContext.Provider value={themeProps}>
           <div
             className={`mdma-document ${className ?? ''}`}
@@ -239,7 +256,8 @@ export function MdmaDocument({ ast, store, customizations, theme, className }: M
             })}
           </div>
         </MdmaThemeContext.Provider>
-      </ElementOverridesProvider>
+        </ElementOverridesProvider>
+      </CustomVariantProvider>
     </MdmaProvider>
   );
 }
