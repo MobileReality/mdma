@@ -25,7 +25,7 @@ function DefaultSensitiveIndicator({ label }: FormSensitiveIndicatorElementProps
 // ─── Default sub-elements ────────────────────────────────────────────────────
 
 function DefaultInput({ id, type, value, onChange, required, sensitive }: FormInputElementProps) {
-  const [masked, setMasked] = useState(sensitive === true && value !== '');
+  const [masked, setMasked] = useState(sensitive === true);
   const displayType = masked ? 'password' : type;
 
   return (
@@ -36,10 +36,7 @@ function DefaultInput({ id, type, value, onChange, required, sensitive }: FormIn
         value={value}
         required={required}
         placeholder={sensitive ? `Enter ${type}...` : undefined}
-        onChange={(e) => {
-          onChange(e.target.value);
-          if (sensitive && masked) setMasked(false);
-        }}
+        onChange={(e) => onChange(e.target.value)}
       />
       {sensitive && value && (
         <button
