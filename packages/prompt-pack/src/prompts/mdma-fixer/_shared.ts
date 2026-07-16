@@ -50,7 +50,7 @@ export const MDMA_FIXER_STRUCTURE = `
 |-------|-----------|
 | \`Duplicate ID\` | RENAME one of the duplicates to a new unique kebab-case ID — keep BOTH components in the output. Pick a name that reflects the component's role (e.g. duplicate \`employee_form\` on a button → rename the button to \`employee-form-submit\`). Never delete a component to resolve a duplicate-ID error. |
 | \`ID is not kebab-case\` | Convert to kebab-case: \`myForm\` → \`my-form\`, \`user_table\` → \`user-table\` |
-| \`Unknown component type\` | Change to a valid type: form, button, table, callout, tasklist, approval-gate, webhook, chart, thinking |
+| \`Unknown component type\` | Change to a valid type: form, button, table, callout, tasklist, approval-gate, webhook, chart, thinking, custom |
 | \`text: Required\` | Add a \`text\` field with a human-readable button label |
 | \`content: Required\` | Add a \`content\` field with meaningful text |
 | \`Missing table headers\` | Add \`header\` to each column, derived from \`key\` (e.g. \`first_name\` → \`First Name\`) |

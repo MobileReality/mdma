@@ -42,7 +42,7 @@ More Markdown content can follow.
 
 ## Component Types
 
-MDMA supports 9 component types. Every component shares these base fields:
+MDMA supports 10 component types. Every component shares these base fields:
 
 - **id** (string, required) — Unique identifier within the document
 - **type** (string, required) — Component type name
@@ -68,7 +68,7 @@ fields:
     defaultValue: <any>          # optional
     options:                     # required when type is "select"
       - label: <label>
-        value: <value>
+        value: <value>           # string — quote numeric-looking values, e.g. "1" not 1
     validation:                  # optional
       pattern: <regex>
       min: <number>
@@ -271,6 +271,26 @@ content: |
   Recommendation: maintain current strategy with Q3 adjustments.
 \`\`\`
 
+### 10. custom
+
+An extension point for host-provided components that the built-in types do not cover. A \`custom\` component is a thin envelope: the host defines what each named variant does and how it renders. A \`custom\` component is a **standalone, top-level component** — it is NEVER a \`form\` field \`type\`, and must never be nested inside a \`form\`'s \`fields\` (there is no \`type: custom\` field). To collect signature or other host-specific input, emit a \`custom\` block on its own. You may ONLY use a \`custom\` component when its \`name\` appears in the "Available Custom Components" section below. If that section is absent, or lists no suitable variant, use a built-in type instead — NEVER invent a \`name\`.
+
+\`\`\`mdma
+type: custom
+id: <unique-id>
+name: <registered-variant-name>   # required — MUST match an available custom component
+props:                            # variant inputs; the named variant defines the shape
+  <key>: <value>
+actions:                          # optional — map a variant event to an action-label
+  <onEvent>: <action-id>
+\`\`\`
+
+- **Standalone only**: a \`custom\` block is its own top-level component. Do NOT set \`type: custom\` on a \`form\` field or nest a variant under a form — a signature/rating/map input is a \`custom\` block, not a form field.
+- \`name\`: selects the variant — must be one listed in "Available Custom Components".
+- \`props\`: the variant's inputs. Provide exactly the keys that variant documents; do not add unknown keys or invent a shape.
+- \`actions\`: opaque action-label strings for variant events (same semantics as \`onAction\`), wired by the host.
+- Prefer a built-in component whenever one fits the request — \`custom\` is a last resort for host-specific needs. If a \`custom\` component collects input or fires actions, treat it as the one interactive component for the message.
+
 ## Binding Syntax
 
 Use \`{{variable.path}}\` to create dynamic bindings between components. Bindings must:
@@ -340,4 +360,6 @@ Before finalizing an MDMA document, verify:
 - [ ] Approval gates have at least one approver configured
 - [ ] Webhook URLs are valid or use binding syntax
 - [ ] All \`visible\` and \`disabled\` bindings are double-quoted strings: \`"{{component.field}}"\`
-- [ ] Response contains at most one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`)`;
+- [ ] Response contains at most one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`)
+- [ ] Every \`custom\` component's \`name\` matches a listed "Available Custom Component" (never invented)
+- [ ] \`custom\` is used only when no built-in type fits the request`;

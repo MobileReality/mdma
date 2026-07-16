@@ -2,6 +2,28 @@ import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import { selectAuthorPrompt } from './select-prompt.mjs';
 
 /**
+ * Host-registered custom components advertised to the model, mirroring what a
+ * real host wires via `registerCustomComponent` + `customVariants`. Injected
+ * into every author-suite system prompt so the `custom` scenarios in
+ * tests.yaml have a catalog to author against. These are the ONLY valid custom
+ * names — the `custom-name-in-catalog` assertion checks the model invents none.
+ */
+export const CUSTOM_COMPONENTS = [
+  {
+    name: 'signature-pad',
+    description: 'Capture a hand-drawn signature and emit it as a data-URL.',
+    props: 'penColor: string (CSS color), required: boolean',
+    actions: ['onCapture'],
+  },
+  {
+    name: 'map-picker',
+    description: 'Pick a geographic location by dropping a pin on a map.',
+    props: 'center: string ("lat,lng"), zoom: number',
+    actions: ['onSelect'],
+  },
+];
+
+/**
  * Promptfoo prompt function.
  *
  * Receives `context.vars` from each test case and returns an OpenAI-compatible
@@ -28,8 +50,8 @@ function resolveAuthorPrompt(providerId) {
     promptByProvider.set(
       providerId,
       selectAuthorPrompt(providerId).then(({ prompt, source }) => {
-        console.error(`[author] system prompt: ${source}`);
-        return buildSystemPrompt({ authorPrompt: prompt });
+        console.error(`[author] system prompt: ${source} (+custom-component catalog)`);
+        return buildSystemPrompt({ authorPrompt: prompt, customComponents: CUSTOM_COMPONENTS });
       }),
     );
   }
