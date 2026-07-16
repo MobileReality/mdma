@@ -1,5 +1,13 @@
 # mdma-example-agui
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [67f144a]
+  - @mobile-reality/mdma-renderer-react@0.5.1
+  - @mobile-reality/mdma-agui@0.3.1
+
 ## 0.0.2
 
 ### Patch Changes
