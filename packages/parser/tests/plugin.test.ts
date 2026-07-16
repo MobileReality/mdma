@@ -1,4 +1,6 @@
 import { describe, it, expect } from 'vitest';
+import { z } from 'zod';
+import type { ZodType } from 'zod';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import { readFileSync } from 'node:fs';
@@ -144,6 +146,86 @@ describe('remarkMdma plugin', () => {
       const blocks = getMdmaBlocks(root);
       expect(blocks).toHaveLength(1);
       expect(blocks[0].component.type).toBe('button');
+    });
+  });
+
+  describe('custom component', () => {
+    const FENCE = '```';
+
+    function parseWith(
+      md: string,
+      customSchemas?: Map<string, ZodType>,
+    ): { root: MdmaRoot; messages: string[] } {
+      const processor = unified().use(remarkParse).use(remarkMdma, { customSchemas });
+      const file = new VFile(md);
+      const tree = processor.parse(file);
+      const result = processor.runSync(tree, file);
+      return {
+        root: result as unknown as MdmaRoot,
+        messages: file.messages.map((m) => m.message),
+      };
+    }
+
+    const signaturePad = `${FENCE}mdma
+id: sig
+type: custom
+name: signature-pad
+props:
+  penColor: black
+  required: true
+actions:
+  onCapture: save-signature
+${FENCE}
+`;
+
+    it('parses the envelope with open props when no schema is registered', () => {
+      const { root, messages } = parseWith(signaturePad);
+      expect(messages).toHaveLength(0);
+
+      const blocks = getMdmaBlocks(root);
+      expect(blocks).toHaveLength(1);
+      expect(blocks[0].component.type).toBe('custom');
+      expect(blocks[0].component.id).toBe('sig');
+      if (blocks[0].component.type === 'custom') {
+        expect(blocks[0].component.name).toBe('signature-pad');
+        expect(blocks[0].component.props).toEqual({ penColor: 'black', required: true });
+        expect(blocks[0].component.actions).toEqual({ onCapture: 'save-signature' });
+      }
+    });
+
+    it('requires a non-empty name', () => {
+      const md = `${FENCE}mdma
+id: sig
+type: custom
+${FENCE}
+`;
+      const { messages } = parseWith(md);
+      expect(messages.some((m) => m.includes('name'))).toBe(true);
+    });
+
+    it('tightens props against a schema registered under the name', () => {
+      const schemas = new Map<string, ZodType>([
+        ['signature-pad', z.object({ penColor: z.string(), required: z.boolean() })],
+      ]);
+      const { messages } = parseWith(signaturePad, schemas);
+      expect(messages).toHaveLength(0);
+    });
+
+    it('reports prop errors under a props.* path when the schema rejects', () => {
+      const schemas = new Map<string, ZodType>([
+        ['signature-pad', z.object({ penColor: z.string(), required: z.boolean() })],
+      ]);
+      const bad = `${FENCE}mdma
+id: sig
+type: custom
+name: signature-pad
+props:
+  penColor: 123
+  required: true
+${FENCE}
+`;
+      const { messages } = parseWith(bad, schemas);
+      expect(messages.some((m) => m.startsWith('props.penColor'))).toBe(true);
     });
   });
 
