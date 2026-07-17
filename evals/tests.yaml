@@ -1049,8 +1049,8 @@
 - description: Emits a signature-pad custom component for a signing request
   vars:
     request: |
-      I'm sending a contract. Add a place at the bottom for the customer to
-      sign it before they submit.
+      I'm sending a contract to a customer. Add a way at the bottom for them to
+      sign it.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
