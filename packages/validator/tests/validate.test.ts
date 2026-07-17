@@ -567,4 +567,41 @@ onAction: my-form
       expect(issues).toHaveLength(0);
     });
   });
+
+  it('preserves a custom component through the auto-fix pipeline', () => {
+    // A well-formed custom envelope with a non-kebab id (fixable). The generic
+    // fixes must apply to `custom` like any other type, without mangling the
+    // envelope, name, open props, or actions.
+    const md = [
+      '```mdma',
+      'type: custom',
+      'id: Customer_Signature',
+      'name: signature-pad',
+      'props:',
+      '  penColor: black',
+      '  required: true',
+      'actions:',
+      '  onCapture: save-signature',
+      '```',
+    ].join('\n');
+
+    const result = validate(md);
+
+    // id-format fix applied to the custom block
+    const idIssues = result.issues.filter((i) => i.ruleId === 'id-format');
+    expect(idIssues.length).toBeGreaterThan(0);
+    expect(idIssues.every((i) => i.fixed)).toBe(true);
+    expect(result.output).toContain('id: customer-signature');
+
+    // envelope, name, open props, and actions preserved (not mangled)
+    expect(result.output).toContain('type: custom');
+    expect(result.output).toContain('name: signature-pad');
+    expect(result.output).toContain('penColor');
+    expect(result.output).toContain('required: true');
+    expect(result.output).toContain('onCapture: save-signature');
+
+    // the fixed output re-validates clean
+    const recheck = validate(result.output);
+    expect(recheck.summary.errors).toBe(0);
+  });
 });

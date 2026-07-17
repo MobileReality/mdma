@@ -602,3 +602,39 @@
         min: 1
     - type: javascript
       value: file://assertions/no-placeholder-content.mjs
+
+# ---------------------------------------------------------------------------
+# Custom component wrongly nested as a form field — extract to standalone
+# ---------------------------------------------------------------------------
+- description: Fixes a custom component wrongly nested as a form field
+  vars:
+    brokenDocument: |
+      ```mdma
+      type: form
+      id: contract-form
+      fields:
+        - name: email
+          type: email
+          label: Email
+          required: true
+        - name: signature
+          type: custom
+          label: Signature
+          custom:
+            name: signature-pad
+            props:
+              penColor: black
+              required: true
+      onSubmit: submit-contract
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/custom-envelope.mjs
+      config:
+        name: signature-pad
