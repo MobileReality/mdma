@@ -26,6 +26,13 @@ import { MDMA_AGENT_TOOL_PROMPT_GPT_5_2 } from './openai/gpt-5.2.js';
 import { MDMA_AGENT_TOOL_PROMPT_GPT_5_4 } from './openai/gpt-5.4.js';
 import { MDMA_AGENT_TOOL_PROMPT_GPT_5_4_MINI } from './openai/gpt-5.4-mini.js';
 import { MDMA_AGENT_TOOL_PROMPT_GPT_5_5 } from './openai/gpt-5.5.js';
+import { MDMA_AGENT_TOOL_PROMPT_GPT_5_6_SOL } from './openai/gpt-5.6-sol.js';
+import { MDMA_AGENT_TOOL_PROMPT_GPT_5_6_TERRA } from './openai/gpt-5.6-terra.js';
+import { MDMA_AGENT_TOOL_PROMPT_GPT_5_6_LUNA } from './openai/gpt-5.6-luna.js';
+import { MDMA_AGENT_TOOL_PROMPT_OPUS_4_8 } from './anthropic/opus-4.8.js';
+import { MDMA_AGENT_TOOL_PROMPT_FABLE_5 } from './anthropic/fable-5.js';
+import { MDMA_AGENT_TOOL_PROMPT_GEMINI_3_5_FLASH } from './google/gemini-3.5-flash.js';
+import { MDMA_AGENT_TOOL_PROMPT_GROK_4_5 } from './xai/grok-4.5.js';
 
 export interface AgentToolPromptVariant {
   /** Stable id — matches the author prompt variant id for automatic lookup. */
@@ -92,10 +99,41 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_5,
   },
   {
+    id: 'openai/gpt-5.6-sol',
+    label: 'OpenAI — GPT-5.6 Sol',
+    description: 'Decision-tree framing (same as gpt-5.5) for the GPT-5.6 Sol reasoning model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_6_SOL,
+  },
+  {
+    id: 'openai/gpt-5.6-terra',
+    label: 'OpenAI — GPT-5.6 Terra',
+    description: 'Decision-tree framing (same as gpt-5.5) for the GPT-5.6 Terra reasoning model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_6_TERRA,
+  },
+  {
+    id: 'openai/gpt-5.6-luna',
+    label: 'OpenAI — GPT-5.6 Luna',
+    description: 'Decision-tree framing (same as gpt-5.5) for the GPT-5.6 Luna reasoning model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_6_LUNA,
+  },
+  {
     id: 'openai/gpt-5-mini',
     label: 'OpenAI — GPT-5-mini',
     description: 'Short imperative commands for the GPT-5 mini tier — same format as gpt-5.4-mini.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GPT_5_MINI,
+  },
+  {
+    id: 'anthropic/opus-4.8',
+    label: 'Anthropic — Claude Opus 4.8',
+    description:
+      'Decision-tree framing with Markdown headers (same as opus-4.7) for the Claude Opus 4.8 reasoning model.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_OPUS_4_8,
+  },
+  {
+    id: 'anthropic/fable-5',
+    label: 'Anthropic — Fable 5',
+    description: 'Decision-tree framing with Markdown headers (same as opus-4.7) for Fable 5.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_FABLE_5,
   },
   {
     id: 'anthropic/opus-4.7',
@@ -124,6 +162,13 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
     description:
       'Short imperative commands for the Claude Haiku lite tier — maximally direct to compensate for reduced instruction-following.',
     prompt: MDMA_AGENT_TOOL_PROMPT_HAIKU_4_5,
+  },
+  {
+    id: 'google/gemini-3.5-flash',
+    label: 'Google — Gemini 3.5 Flash',
+    description:
+      'Short imperative format (same as gemini-3-flash-preview) with an extended negative list to prevent over-calling on the flash tier.',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GEMINI_3_5_FLASH,
   },
   {
     id: 'google/gemini-3.1-pro-preview',
@@ -159,6 +204,13 @@ export const AGENT_TOOL_PROMPT_VARIANTS: AgentToolPromptVariant[] = [
     description:
       'Decision-tree framing with Markdown headers — same format as grok-4.3, reserved for eval-driven divergence.',
     prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_20,
+  },
+  {
+    id: 'x-ai/grok-4.5',
+    label: 'xAI — Grok 4.5',
+    description:
+      'Decision-tree framing with Markdown headers — same format as grok-4.20 (flagship reasoning tier).',
+    prompt: MDMA_AGENT_TOOL_PROMPT_GROK_4_5,
   },
   {
     id: 'x-ai/grok-4.3',

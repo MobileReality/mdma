@@ -191,6 +191,7 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 | `gemini-3-flash-preview` | ✅ | |
 | `gemini-2.5-pro` | ✅ ‡ | same `reasoning.exclude` requirement |
 | `gemini-2.5-flash` | ✅ | |
+| `gemini-2.5-flash-lite` | 🔴 | ⚠︎ hijack — fires on a plain acknowledgement; also misses `create_calendar_event` |
 | `gemini-2.5-flash-lite` | ✅ | |
 | **xAI** | | |
 | `grok-4.3` | ✅ ‡ | minimal prompt + `reasoning.exclude: true` — extra framing regresses Grok 4.3 |
@@ -198,6 +199,53 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 | `grok-4.5` | ✅ ‡ | requires `reasoning.exclude: true` (hidden-reasoning model) |
 
 ‡ Reasoning-token leak suppression — for reasoning-flavoured Gemini Pro variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose prepended to every response. The eval config sets `passthrough.reasoning.exclude: true` (and the demo's `usePreviewValidation` does the same per-provider) to strip reasoning tokens from the response body at the API layer rather than at the prompt layer.
+
+
+## Tool coexistence matrix
+
+Integration guard for products that import the MDMA agent prompt into an **existing tool set**. `generate_mdma` is registered alongside four host-app tools (`get_weather`, `search_web`, `send_email`, `create_calendar_event`), and the suite checks that our prompt does not hijack calls belonging to those tools — while `generate_mdma` still fires for genuine document requests.
+
+Run: `pnpm --filter @mobile-reality/mdma-evals eval:guidance-coexistence` (8 cases: 5 host-tool routing, 2 document requests, 1 no-tool).
+
+✅ 8/8 &nbsp; 🟡 80–99% &nbsp; 🔴 Below 80% &nbsp; **⚠︎ hijack** = `generate_mdma` fired for a request another tool owns.
+
+| Variant | tool coexistence | notes |
+| :--- | :---: | :--- |
+| **OpenAI** | | |
+| `gpt-5.6-sol` / `-terra` / `-luna` | ✅ | |
+| `gpt-5.5` | ✅ | |
+| `gpt-5.2` | ✅ | |
+| `gpt-5.1` | ✅ | |
+| `gpt-5` | ✅ | |
+| `gpt-5.4` | 🔴 | 6/8 — under-called `get_weather` / `send_email` (no hijack) |
+| `gpt-5.4-mini` | ✅ | |
+| `gpt-5.4-nano` | ✅ | |
+| `gpt-5-mini` | 🟡 | 7/8 — under-called `create_calendar_event` (no hijack) |
+| `gpt-5-nano` | 🟡 | ⚠︎ hijack ×1 — still takes the process-worded `send_email` action |
+| `gpt-4.1` | ✅ | |
+| `gpt-4.1-mini` | ✅ | |
+| `gpt-4.1-nano` | 🔴 | ⚠︎ hijack + under-calls — unreliable tool routing overall |
+| **Anthropic** | | |
+| `claude-opus-4.8` | ✅ | |
+| `claude-opus-4.7` | ✅ | |
+| `claude-opus-4.6` | ✅ | |
+| `claude-sonnet-4.6` | ✅ | |
+| `claude-haiku-4.5` | ✅ | clean even at the lite tier |
+| `claude-fable-5` | ✅ | |
+| **Google** | | |
+| `gemini-3.5-flash` | ✅ | |
+| `gemini-3.1-pro-preview` | ✅ | |
+| `gemini-3.1-pro-preview-customtools` | ✅ | the variant tuned to prefer user-defined tools — defers correctly |
+| `gemini-3.1-flash-lite-preview` | ✅ | needed the other-tools clause (was hijacking a process-worded `send_email`) |
+| `gemini-3-flash-preview` | ✅ | |
+| `gemini-2.5-pro` | ✅ | |
+| `gemini-2.5-flash` | ✅ | |
+| **xAI** | | |
+| `grok-4.5` | ✅ | clean here despite over-calling in the MDMA-only agent suite |
+| `grok-4.20` | ✅ | |
+| `grok-4.3` | ✅ | |
+
+**Takeaway for integrators:** every flagship and mid tier across all four vendors is clean — importing the agent prompt into an existing tool set is safe there. The only remaining hijack is on the two smallest OpenAI tiers (`gpt-5-nano`, `gpt-4.1-nano`), which take a process-worded action that `send_email` owns. Prefer a flagship/mid tier when `generate_mdma` shares a tool set with your own tools.
 
 
 ## Components

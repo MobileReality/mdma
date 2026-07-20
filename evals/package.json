@@ -19,6 +19,8 @@
     "eval:conversation-flow": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation-flow.js; exit 0",
     "eval:fixer-all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.fixer.js; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation-flow.js; exit 0",
     "eval:guidance": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.guidance.js; exit 0",
+    "eval:guidance-multiturn": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.guidance-multiturn.js; exit 0",
+    "eval:guidance-coexistence": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.guidance-coexistence.js; exit 0",
     "eval:isolated": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval --no-cache -c promptfooconfig.isolated.yaml; exit 0",
     "eval:all": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation.js; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.prompt-builder.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.flows.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.fixer.js; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation-flow.js; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.guidance.js; exit 0",
     "eval:author": "PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.custom.yaml; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.conversation.js; PROMPTFOO_DISABLE_DATABASE=1 promptfoo eval -c promptfooconfig.flows.yaml; exit 0",

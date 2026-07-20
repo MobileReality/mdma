@@ -88,38 +88,64 @@ export function PromptMatrix() {
       </p>
       <p>✅ 100% &nbsp; 🟡 80–99% &nbsp; 🔴 Below 80% &nbsp; — Not yet evaluated</p>
       <Table
-        headers={['Variant', 'calls when needed', 'skips when not needed', 'multi-turn']}
+        headers={['Variant', 'calls when needed', 'skips when not needed', 'multi-turn', 'tool coexistence']}
         rows={[
-          ['gpt-5.5', '✅', '✅', '✅'],
-          ['gpt-5.4', '✅', '✅', '✅'],
-          ['gpt-5.4-mini', '✅', '✅', '🟡'],
-          ['gpt-5.4-nano', '—', '—', '—'],
-          ['gpt-5.2', '✅', '✅', '✅'],
-          ['gpt-5.1', '✅', '✅', '✅'],
-          ['gpt-5 [i]', '✅', '✅', '✅'],
-          ['gpt-5-mini [i]', '✅', '✅', '🟡'],
-          ['gpt-4.1', '—', '—', '—'],
-          ['gpt-4.1-mini', '—', '—', '—'],
-          ['gpt-4.1-nano', '—', '—', '—'],
-          ['claude-opus-4.7', '✅', '✅', '✅'],
-          ['claude-opus-4.6', '✅', '✅', '✅'],
-          ['claude-sonnet-4.6', '✅', '✅', '✅'],
-          ['claude-haiku-4.5', '✅', '✅', '🟡'],
-          ['gemini-3.1-pro-preview', '✅', '✅', '✅'],
-          ['gemini-3.1-pro-preview-customtools', '✅', '✅', '✅'],
-          ['gemini-3.1-flash-lite-preview', '✅', '✅', '🟡'],
-          ['gemini-3-flash-preview', '✅', '✅', '🟡'],
-          ['gemini-2.5-pro', '✅', '✅', '✅'],
-          ['gemini-2.5-flash', '—', '—', '—'],
-          ['gemini-2.5-flash-lite', '—', '—', '—'],
-          ['grok-4.3 [i]', '🟡', '🔴', '🔴'],
-          ['grok-4.20', '✅', '✅', '✅'],
+          ['gpt-5.6-sol', '✅', '✅', '✅', '✅'],
+          ['gpt-5.6-terra', '✅', '✅', '✅', '✅'],
+          ['gpt-5.6-luna', '✅', '✅', '✅', '✅'],
+          ['gpt-5.5', '✅', '✅', '✅', '✅'],
+          ['gpt-5.4', '✅', '✅', '✅', '🔴'],
+          ['gpt-5.4-mini', '✅', '✅', '🟡', '✅'],
+          ['gpt-5.4-nano', '✅', '✅', '🟡', '✅'],
+          ['gpt-5.2', '✅', '✅', '✅', '✅'],
+          ['gpt-5.1', '✅', '✅', '✅', '✅'],
+          ['gpt-5 [i]', '✅', '✅', '✅', '✅'],
+          ['gpt-5-mini [i]', '✅', '✅', '🟡', '🟡'],
+          ['gpt-4.1', '✅', '✅', '🟡', '✅'],
+          ['gpt-4.1-mini', '✅', '🟡', '🟡', '✅'],
+          ['gpt-4.1-nano', '✅', '🔴', '🟡', '🔴'],
+          ['claude-opus-4.8', '✅', '✅', '✅', '✅'],
+          ['claude-opus-4.7', '✅', '✅', '✅', '✅'],
+          ['claude-opus-4.6', '✅', '✅', '✅', '✅'],
+          ['claude-sonnet-4.6', '✅', '✅', '✅', '✅'],
+          ['claude-haiku-4.5', '✅', '✅', '🟡', '✅'],
+          ['claude-fable-5', '✅', '✅', '✅', '✅'],
+          ['gemini-3.5-flash', '✅', '🟡', '✅', '✅'],
+          ['gemini-3.1-pro-preview', '✅', '✅', '✅', '✅'],
+          ['gemini-3.1-pro-preview-customtools', '✅', '✅', '✅', '✅'],
+          ['gemini-3.1-flash-lite-preview', '✅', '✅', '🟡', '✅'],
+          ['gemini-3-flash-preview', '✅', '✅', '🟡', '✅'],
+          ['gemini-2.5-pro', '✅', '✅', '✅', '✅'],
+          ['gemini-2.5-flash', '✅', '🔴', '🔴', '✅'],
+          ['gemini-2.5-flash-lite', '🔴', '🟡', '🟡', '🔴'],
+          ['grok-4.3 [i]', '🟡', '🔴', '🔴', '✅'],
+          ['grok-4.20', '✅', '✅', '✅', '✅'],
+          ['grok-4.5', '✅', '✅', '✅', '✅'],
         ]}
       />
       <p className="docs-note">
         [i] Noticeably slow response times — single-turn responses commonly take tens of seconds.
       </p>
       <p className="docs-note">— Full eval data is being collected for these variants.</p>
+
+      <p className="docs-note">
+        <strong>tool coexistence</strong> — integration guard for products that import the MDMA agent
+        prompt into an <strong>existing tool set</strong>. <code>generate_mdma</code> is registered
+        alongside four host-app tools (<code>get_weather</code>, <code>search_web</code>,{' '}
+        <code>send_email</code>, <code>create_calendar_event</code>) and the suite checks our prompt
+        does not hijack calls belonging to them, while <code>generate_mdma</code> still fires for
+        genuine document requests. Run:{' '}
+        <code>pnpm --filter @mobile-reality/mdma-evals eval:guidance-coexistence</code>.
+      </p>
+      <p className="docs-note">
+        Every flagship and mid tier across all four vendors is clean, so importing the agent prompt
+        into an existing tool set is safe there. The exceptions are small tiers:{' '}
+        <code>gpt-4.1-nano</code> 🔴 still hijacks a process-worded <code>send_email</code> action
+        (and under-calls <code>generate_mdma</code> elsewhere), while <code>gpt-5.4</code> 🔴 and{' '}
+        <code>gpt-5-mini</code> 🟡 simply fail to route to the host tool — they do not hijack.
+        Prefer a flagship/mid tier when <code>generate_mdma</code> shares a tool set with your own
+        tools.
+      </p>
 
       <h2>MDMA_FIXER Prompt Matrix</h2>
       <p>
