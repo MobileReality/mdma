@@ -36,6 +36,13 @@ import { MDMA_AUTHOR_PROMPT_GPT_5_4_NANO } from './openai/gpt-5.4-nano.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_5 } from './openai/gpt-5.5.js';
 import { MDMA_AUTHOR_PROMPT_GROK_4_3 } from './x-ai/grok-4.3.js';
 import { MDMA_AUTHOR_PROMPT_GROK_4_20 } from './x-ai/grok-4.20.js';
+import { MDMA_AUTHOR_PROMPT_OPUS_4_8 } from './anthropic/opus-4.8.js';
+import { MDMA_AUTHOR_PROMPT_FABLE_5 } from './anthropic/fable-5.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_5_FLASH } from './google/gemini-3.5-flash.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_6_SOL } from './openai/gpt-5.6-sol.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_6_TERRA } from './openai/gpt-5.6-terra.js';
+import { MDMA_AUTHOR_PROMPT_GPT_5_6_LUNA } from './openai/gpt-5.6-luna.js';
+import { MDMA_AUTHOR_PROMPT_GROK_4_5 } from './x-ai/grok-4.5.js';
 
 export interface AuthorPromptVariant {
   /** Stable id, persisted in user settings (e.g. "default", "anthropic/haiku"). */
@@ -69,6 +76,18 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     prompt: MDMA_AUTHOR_PROMPT_SONNET,
   },
   {
+    id: 'anthropic/opus-4.8',
+    label: 'Anthropic — Claude Opus 4.8',
+    description: 'Flagship Opus — same Anthropic-styled framing as opus-4.7 (<scope_discipline>).',
+    prompt: MDMA_AUTHOR_PROMPT_OPUS_4_8,
+  },
+  {
+    id: 'anthropic/fable-5',
+    label: 'Anthropic — Fable 5',
+    description: 'Fable 5 — Anthropic flagship composition (<output_format> + <scope_discipline>).',
+    prompt: MDMA_AUTHOR_PROMPT_FABLE_5,
+  },
+  {
     id: 'anthropic/opus-4.7',
     label: 'Anthropic — Claude Opus 4.7',
     description: 'Flagship Opus — Anthropic-styled framing + <scope_discipline>.',
@@ -80,6 +99,13 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       'Older Opus tier — same framing as opus-4.7.ts (<scope_discipline> + Anthropic wrapping).',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_4_6,
+  },
+  {
+    id: 'google/gemini-3.5-flash',
+    label: 'Google — Gemini 3.5 Flash',
+    description:
+      'Flash tier — Gemini-native framing with all negative-constraint blocks plus <emit_component> (forces the ```mdma block instead of describing it in prose during multi-turn flows).',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_5_FLASH,
   },
   {
     id: 'google/gemini-2.5-pro',
@@ -150,6 +176,25 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       'Flagship-tier framing: <scope_discipline> + <select_options>. No <fence_closing>.',
     prompt: MDMA_AUTHOR_PROMPT_GPT_5,
+  },
+  {
+    id: 'openai/gpt-5.6-sol',
+    label: 'OpenAI — GPT-5.6 Sol',
+    description:
+      'GPT-5.6 sibling — proven gpt-5.5 flagship framing (<scope_discipline> + <component_types> + <single_interactive> + <select_options>) plus <custom_usage>.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_6_SOL,
+  },
+  {
+    id: 'openai/gpt-5.6-terra',
+    label: 'OpenAI — GPT-5.6 Terra',
+    description: 'GPT-5.6 sibling — same flagship baseline as gpt-5.6-sol.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_6_TERRA,
+  },
+  {
+    id: 'openai/gpt-5.6-luna',
+    label: 'OpenAI — GPT-5.6 Luna',
+    description: 'GPT-5.6 sibling — same flagship baseline as gpt-5.6-sol.',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_5_6_LUNA,
   },
   {
     id: 'openai/gpt-5.5',
@@ -236,6 +281,13 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       'Same minimal composition as Grok 4.3 — same family, no eval-driven reason to diverge yet.',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_20,
+  },
+  {
+    id: 'x-ai/grok-4.5',
+    label: 'xAI — Grok 4.5',
+    description:
+      'Minimal composition (scope_discipline + select_options). A hidden-reasoning model; its residual reasoning-token leak is handled at the API layer (reasoning.exclude), not the prompt.',
+    prompt: MDMA_AUTHOR_PROMPT_GROK_4_5,
   },
 ];
 

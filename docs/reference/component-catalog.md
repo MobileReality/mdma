@@ -1,6 +1,6 @@
 # Component Catalog
 
-Complete reference for all 9 MDMA component types. Each section shows the full schema, all properties, defaults, and a working example.
+Complete reference for all 10 MDMA component types. Each section shows the full schema, all properties, defaults, and a working example.
 
 ## Base Properties (all components)
 
@@ -508,3 +508,37 @@ content: |
   - Source of funds
   All PII fields must be marked sensitive: true.
 ```
+
+## custom
+
+A host-extensible component. `custom` is a stable envelope that core always understands; the `name` selects which host-registered variant to render and validate. `props` is intentionally open so the schema stays maximally flexible — a host tightens it per `name` (via the parser's `customSchemas`) and describes it to the model through the prompt catalog. Presentation lives entirely in the host renderer (register it via `customizations.customVariants`), never in the spec.
+
+Use `custom` only when no built-in type fits — it is a last resort for host-specific needs (e.g. a signature pad, a map picker).
+
+### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `type` | `"custom"` | *required* | Must be `"custom"`. |
+| `name` | `string` | *required* | Registered variant to render, e.g. `"signature-pad"`. Min length 1. Must match a host-registered variant — never invent one. |
+| `props` | `object` | `{}` | Intent payload for the variant. The named variant defines the shape; the host validates it per `name`. |
+| `actions` | `object` | *(none)* | Optional map of a variant event (e.g. `onCapture`) to an opaque action-label string, wired by the host — same semantics as `onAction`. |
+
+A `custom` component is a standalone, top-level block. It is **not** a valid `form` field `type` and must never be nested inside a form's `fields`.
+
+### Example
+
+```mdma
+id: contract-signature
+type: custom
+name: signature-pad
+props:
+  penColor: "#000000"
+  required: true
+actions:
+  onCapture: signature-captured
+```
+
+### Host registration
+
+Register a variant's schema + behavior with the runtime's `registerCustomComponent`, and its renderer via the React document's `customizations.customVariants` (keyed by `name`). See [Creating Attachables](../guides/creating-attachables.md).

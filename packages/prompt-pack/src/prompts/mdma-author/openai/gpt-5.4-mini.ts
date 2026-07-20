@@ -13,12 +13,20 @@
  *   - <thinking_role>        — one thinking block, at the start only.
  *   - <no_repeat>            — each id/type appears exactly once.
  *   - <no_duplicates>        — final guard: stop after last closing ```.
+ *
+ * Deliberately does NOT carry <custom_usage> (the block wired into the other
+ * OpenAI variants). A/B eval showed mini is custom 5/5 with OR without it — it
+ * never needed the block — and WITH it, mini failed a non-custom single-
+ * interactive case in 3/3 runs (32/33) vs 33/33 in 3/3 baseline runs. The
+ * block's "emit each variant exactly once / don't add extra" emphasis over-
+ * nudges this small model into dropping a legitimate non-interactive component.
+ * Net-negative here, so it is omitted. The base body's `### 10. custom` docs
+ * still give mini full custom coverage.
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
 import {
   CRITICAL_OUTPUT_LINE,
-  CUSTOM_USAGE_BLOCK,
   FENCE_CLOSING_BLOCK,
   INTERACTIVE_TYPES_BLOCK,
   SCOPE_DISCIPLINE_BLOCK,
@@ -74,8 +82,6 @@ ${SCOPE_DISCIPLINE_BLOCK}
 ${BLUEPRINT_FIDELITY_MINI}
 
 ${SELECT_OPTIONS_BLOCK}
-
-${CUSTOM_USAGE_BLOCK}
 
 ${BASE_BODY}
 

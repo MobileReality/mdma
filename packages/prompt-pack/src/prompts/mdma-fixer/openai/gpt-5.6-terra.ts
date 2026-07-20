@@ -1,12 +1,10 @@
 /**
- * MDMA Fixer Prompt — OpenAI GPT-5.5 variant.
+ * MDMA Fixer Prompt — OpenAI GPT-5.6 Terra variant.
  *
- * Starting baseline for GPT-5.5 fixer evals. Adds CRITICAL_OUTPUT_LINE
- * after the base rules — the same no-outer-fence failure mode observed on
- * GPT-5.5 in author evals applies equally to the fixer output.
- *
- * Add further framing blocks inline as specific failure modes are observed
- * during evals.
+ * Same composition as gpt-5.6-sol (shared base + <critical_output> +
+ * <preserve_input_structure>). Terra passes the fixer eval on the default
+ * prompt already; the dedicated variant keeps the gpt-5.6 family consistent
+ * and guards against the leading-separator prose leak seen on sol.
  */
 
 import {
@@ -22,7 +20,7 @@ import {
 } from '../_shared.js';
 import { CRITICAL_OUTPUT_LINE, NO_LEADING_SEPARATOR_BLOCK } from './_shared.js';
 
-export const MDMA_FIXER_PROMPT_GPT_5_5 = `${MDMA_FIXER_BASE}
+export const MDMA_FIXER_PROMPT_GPT_5_6_TERRA = `${MDMA_FIXER_BASE}
 
 ${CRITICAL_OUTPUT_LINE}
 ${MDMA_FIXER_STRUCTURE}

@@ -12,6 +12,9 @@ export function PromptMatrix() {
       <Table
         headers={['Variant', 'one-shot', 'one-shot custom', 'conversation', 'specific flow']}
         rows={[
+          ['gpt-5.6-sol', '✅', '✅', '✅', '✅'],
+          ['gpt-5.6-terra', '✅', '✅', '✅', '✅'],
+          ['gpt-5.6-luna', '✅', '✅', '✅', '✅'],
           ['gpt-5.5', '✅', '✅', '✅', '✅'],
           ['gpt-5.4', '✅', '🟡 †', '🟡 †', '🟡 †'],
           ['gpt-5.4-mini', '✅', '✅', '✅ *', '✅ *'],
@@ -23,10 +26,13 @@ export function PromptMatrix() {
           ['gpt-4.1', '✅', '✅', '✅', '✅'],
           ['gpt-4.1-mini', '✅', '✅', '✅ *', '✅ *'],
           ['gpt-4.1-nano', '🟡', '✅', '✅ *', '✅ *'],
+          ['claude-opus-4.8', '✅', '✅', '✅', '✅'],
           ['claude-opus-4.7', '✅', '✅', '✅', '✅'],
           ['claude-opus-4.6', '✅', '✅', '✅', '✅'],
           ['claude-sonnet-4.6', '✅', '✅', '✅', '✅'],
           ['claude-haiku-4.5', '✅', '✅', '✅ *', '✅ *'],
+          ['claude-fable-5', '✅', '✅', '✅', '✅'],
+          ['gemini-3.5-flash', '✅', '✅', '✅', '✅'],
           ['gemini-3.1-pro-preview', '✅', '✅', '✅', '🟡 ‡'],
           ['gemini-3.1-pro-preview-customtools', '✅', '✅', '✅', '✅'],
           ['gemini-3.1-flash-lite-preview', '✅', '✅', '✅ *', '✅ *'],
@@ -36,6 +42,7 @@ export function PromptMatrix() {
           ['gemini-2.5-flash-lite', '🟡', '✅', '✅ *', '✅ *'],
           ['grok-4.3 [i]', '🟡', '🔴', '🔴', '🔴'],
           ['grok-4.20', '✅', '✅', '✅', '✅'],
+          ['grok-4.5', '✅', '✅', '✅', '✅'],
         ]}
       />
       <p className="docs-note">
@@ -117,14 +124,17 @@ export function PromptMatrix() {
       <h2>MDMA_FIXER Prompt Matrix</h2>
       <p>
         Each cell shows the pass rate of the model-specialized <code>MDMA_FIXER</code> prompt
-        variant on the single-block fixer eval (15 tests covering structural fixes, bindings, PII,
-        forms, tables/charts, approvals). The fixer is what powers automatic repair of LLM output
-        that fails <code>validate()</code>.
+        variant on the single-block fixer eval (16 tests covering structural fixes, bindings, PII,
+        forms, tables/charts, approvals, and custom-component extraction). The fixer is what powers
+        automatic repair of LLM output that fails <code>validate()</code>.
       </p>
-      <p>✅ 100% on the single-block fixer eval (15/15).</p>
+      <p>✅ 100% on the single-block fixer eval (16/16).</p>
       <Table
-        headers={['Variant', 'single-block fixer', 'notes']}
+        headers={['Variant', 'single-block fixer', 'notes for testing']}
         rows={[
+          ['gpt-5.6-sol', '✅', ''],
+          ['gpt-5.6-terra', '✅', ''],
+          ['gpt-5.6-luna', '✅', ''],
           ['gpt-5.5', '✅', ''],
           ['gpt-5.4', '✅', ''],
           ['gpt-5.4-mini', '✅', ''],
@@ -137,10 +147,13 @@ export function PromptMatrix() {
           ['gpt-4.1', '✅', ''],
           ['gpt-4.1-mini', '✅', ''],
           ['gpt-4.1-nano', '✅', ''],
+          ['claude-opus-4.8', '✅', ''],
           ['claude-opus-4.7', '✅', ''],
           ['claude-opus-4.6', '✅', ''],
           ['claude-sonnet', '✅', 'catch-all (sonnet-4-5, sonnet-4-6, …)'],
           ['claude-haiku', '✅', ''],
+          ['claude-fable-5', '✅ ‡', 'reasoning.exclude required'],
+          ['gemini-3.5-flash', '✅ ‡', 'reasoning.exclude + inline no-leading-separator'],
           ['gemini-3.1-pro-preview', '✅ ‡', 'reasoning.exclude required'],
           ['gemini-3.1-pro-preview-customtools', '✅ ‡', 'reasoning.exclude required'],
           ['gemini-3.1-flash-lite-preview', '✅', ''],
@@ -150,6 +163,7 @@ export function PromptMatrix() {
           ['gemini-2.5-flash-lite', '✅', ''],
           ['grok-4.3', '✅ ‡', 'minimal prompt + reasoning.exclude'],
           ['grok-4.20', '✅', ''],
+          ['grok-4.5', '✅ ‡', 'reasoning.exclude (hidden-reasoning model)'],
         ]}
       />
       <p className="docs-note">
