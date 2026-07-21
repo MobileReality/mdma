@@ -185,7 +185,7 @@ content: "Let me analyze the request step by step. First, I need to understand t
     type: 'custom',
     label: 'Custom',
     description:
-      'Escape hatch for host-provided components the built-in types do not cover. `custom` is a stable envelope — `name` selects a variant the host registered, `props` carries its inputs, and `actions` wires its events. The spec stays intent-level; all rendering lives in the host. This example renders a WebGL 3D bar chart via three.js — the core spec knows nothing about three.js.',
+      'Stable envelope for host-registered components: `name` picks the variant, `props` carries its inputs, `actions` wires its events. The example below shows a WebGL 3D bar chart via three.js.',
     example: `\`\`\`mdma
 type: custom
 id: revenue-3d

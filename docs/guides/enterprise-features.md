@@ -295,6 +295,7 @@ A typical enterprise integration combines all features:
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import {
   createDocumentStore,
@@ -306,7 +307,7 @@ import {
 import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 
 // 1. Parse the document
-const processor = unified().use(remarkParse).use(remarkMdma);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma);
 const tree = processor.parse(source);
 const ast = processor.runSync(tree);
 

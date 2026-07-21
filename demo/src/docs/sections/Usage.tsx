@@ -18,12 +18,13 @@ export function Usage({ exampleOpen, onToggleExample }: UsageProps = {}) {
       <h2>Basic Usage</h2>
       <Code lang="ts">{`import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 // 1. Parse markdown into AST
-const processor = unified().use(remarkParse).use(remarkMdma);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma);
 const tree = processor.parse(markdown);
 const ast = (await processor.run(tree)) as MdmaRoot;
 

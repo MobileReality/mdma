@@ -26,6 +26,24 @@ interface AttachableDefinition<TProps = unknown> {
 }
 ```
 
+## Two Ways to Extend MDMA
+
+There are two extensibility paths, and the right one depends on **who authors the block**.
+
+| | Custom **type** (this guide) | Custom **envelope** (`type: custom`) |
+|---|---|---|
+| Block looks like | `type: timer` -- a brand-new type name | `type: custom` + `name: timer` |
+| Schema shape | You define the whole component schema | Fixed envelope (`id`/`name`/`props`/`actions`); you define only `props` |
+| Parser without your schema | Fails -- unknown type | Passes -- envelope is part of the spec |
+| LLM can author it | No -- not in the spec the prompt describes | Yes -- if you list it in the prompt's custom-component catalog |
+| Best for | Host-authored blocks in a closed system | Agent-authored blocks, or shipping a variant to other hosts |
+
+Pick the **custom type** path when your host builds documents itself and you want the block to feel first-class. Pick the **custom envelope** when a model needs to author the block, because only the envelope is in the spec every prompt already teaches -- a model cannot invent `type: timer`, but it can fill in `type: custom` with `name: timer` once `timer` appears in the catalog you pass to `buildSystemPrompt({ customComponents })`.
+
+The two are not exclusive. The envelope's `props` are validated by exactly the same `customSchemas` map described in [step 4](#4-register-the-schema-for-parsing), so a schema written for one path is reusable by the other, and `registerCustomComponent()` from `@mobile-reality/mdma-runtime` registers an envelope variant's handler and schema together.
+
+See the [`custom` entry in the component catalog](../reference/component-catalog.md#custom) for the envelope's full shape and host-registration steps.
+
 ## Handler Directory Structure
 
 A custom handler lives in its own directory with a `package.json`:
@@ -148,6 +166,7 @@ To validate your custom component during parsing, pass the schema to the remark 
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { TimerComponentSchema } from './timer/schema.js';
 
@@ -157,6 +176,7 @@ const customSchemas = new Map([
 
 const processor = unified()
   .use(remarkParse)
+  .use(remarkGfm)
   .use(remarkMdma, { customSchemas });
 ```
 

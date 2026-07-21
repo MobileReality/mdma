@@ -191,7 +191,6 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 | `gemini-3-flash-preview` | ✅ | |
 | `gemini-2.5-pro` | ✅ ‡ | same `reasoning.exclude` requirement |
 | `gemini-2.5-flash` | ✅ | |
-| `gemini-2.5-flash-lite` | 🔴 | ⚠︎ hijack — fires on a plain acknowledgement; also misses `create_calendar_event` |
 | `gemini-2.5-flash-lite` | ✅ | |
 | **xAI** | | |
 | `grok-4.3` | ✅ ‡ | minimal prompt + `reasoning.exclude: true` — extra framing regresses Grok 4.3 |
@@ -200,52 +199,6 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 
 ‡ Reasoning-token leak suppression — for reasoning-flavoured Gemini Pro variants and Grok 4.3, the fixer would otherwise see visible "Thinking: **Topic**" prose prepended to every response. The eval config sets `passthrough.reasoning.exclude: true` (and the demo's `usePreviewValidation` does the same per-provider) to strip reasoning tokens from the response body at the API layer rather than at the prompt layer.
 
-
-## Tool coexistence matrix
-
-Integration guard for products that import the MDMA agent prompt into an **existing tool set**. `generate_mdma` is registered alongside four host-app tools (`get_weather`, `search_web`, `send_email`, `create_calendar_event`), and the suite checks that our prompt does not hijack calls belonging to those tools — while `generate_mdma` still fires for genuine document requests.
-
-Run: `pnpm --filter @mobile-reality/mdma-evals eval:guidance-coexistence` (8 cases: 5 host-tool routing, 2 document requests, 1 no-tool).
-
-✅ 8/8 &nbsp; 🟡 80–99% &nbsp; 🔴 Below 80% &nbsp; **⚠︎ hijack** = `generate_mdma` fired for a request another tool owns.
-
-| Variant | tool coexistence | notes |
-| :--- | :---: | :--- |
-| **OpenAI** | | |
-| `gpt-5.6-sol` / `-terra` / `-luna` | ✅ | |
-| `gpt-5.5` | ✅ | |
-| `gpt-5.2` | ✅ | |
-| `gpt-5.1` | ✅ | |
-| `gpt-5` | ✅ | |
-| `gpt-5.4` | 🔴 | 6/8 — under-called `get_weather` / `send_email` (no hijack) |
-| `gpt-5.4-mini` | ✅ | |
-| `gpt-5.4-nano` | ✅ | |
-| `gpt-5-mini` | 🟡 | 7/8 — under-called `create_calendar_event` (no hijack) |
-| `gpt-5-nano` | 🟡 | ⚠︎ hijack ×1 — still takes the process-worded `send_email` action |
-| `gpt-4.1` | ✅ | |
-| `gpt-4.1-mini` | ✅ | |
-| `gpt-4.1-nano` | 🔴 | ⚠︎ hijack + under-calls — unreliable tool routing overall |
-| **Anthropic** | | |
-| `claude-opus-4.8` | ✅ | |
-| `claude-opus-4.7` | ✅ | |
-| `claude-opus-4.6` | ✅ | |
-| `claude-sonnet-4.6` | ✅ | |
-| `claude-haiku-4.5` | ✅ | clean even at the lite tier |
-| `claude-fable-5` | ✅ | |
-| **Google** | | |
-| `gemini-3.5-flash` | ✅ | |
-| `gemini-3.1-pro-preview` | ✅ | |
-| `gemini-3.1-pro-preview-customtools` | ✅ | the variant tuned to prefer user-defined tools — defers correctly |
-| `gemini-3.1-flash-lite-preview` | ✅ | needed the other-tools clause (was hijacking a process-worded `send_email`) |
-| `gemini-3-flash-preview` | ✅ | |
-| `gemini-2.5-pro` | ✅ | |
-| `gemini-2.5-flash` | ✅ | |
-| **xAI** | | |
-| `grok-4.5` | ✅ | clean here despite over-calling in the MDMA-only agent suite |
-| `grok-4.20` | ✅ | |
-| `grok-4.3` | ✅ | |
-
-**Takeaway for integrators:** every flagship and mid tier across all four vendors is clean — importing the agent prompt into an existing tool set is safe there. The only remaining hijack is on the two smallest OpenAI tiers (`gpt-5-nano`, `gpt-4.1-nano`), which take a process-worded action that `send_email` owns. Prefer a flagship/mid tier when `generate_mdma` shares a tool set with your own tools.
 
 
 ## Components
@@ -318,12 +271,13 @@ All packages are published under the [`@mobile-reality`](https://www.npmjs.com/o
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 // 1. Parse markdown into AST
-const processor = unified().use(remarkParse).use(remarkMdma);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma);
 const tree = processor.parse(markdown);
 const ast = (await processor.run(tree)) as MdmaRoot;
 
@@ -437,11 +391,11 @@ The web (`renderer-react`) and native (`renderer-react-native`) renderers share 
 
 | Package | Description |
 |---------|-------------|
-| `@mobile-reality/mdma-spec` | The foundation of the MDMA ecosystem — Zod schemas, TypeScript types, and AST definitions for all 9 component types. Every other package depends on spec for validation and type safety. |
+| `@mobile-reality/mdma-spec` | The foundation of the MDMA ecosystem — Zod schemas, TypeScript types, and AST definitions for all 10 component types. Every other package depends on spec for validation and type safety. |
 | `@mobile-reality/mdma-parser` | A remark plugin that transforms standard Markdown into an MDMA-extended AST. Extracts `mdma` code blocks, validates YAML against component schemas, and builds a binding dependency graph. |
 | `@mobile-reality/mdma-runtime` | Headless state management engine for MDMA documents — like a mini state specialized for interactive documents. Manages reactive bindings, dispatches actions, enforces environment policies, and writes every event to a tamper-evident audit log with automatic PII redaction. |
-| `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
-| `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 9 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
+| `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 10 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
+| `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 10 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
@@ -484,7 +438,7 @@ npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json # JSON output
 ```
 
 The prompt builder walks you through:
-1. **Pick components** — select from the 9 MDMA types (form, table, approval-gate, etc.)
+1. **Pick components** — select from the 10 MDMA types (form, table, approval-gate, etc.)
 2. **Configure** — define fields, options, roles, sensitive flags, and business rules
 3. **Set triggers** — specify when the AI should generate MDMA components (keywords, contextual conditions)
 4. **Generate** — an LLM creates a tailored `customPrompt` based on your configuration
@@ -658,7 +612,7 @@ We tested building the same MDMA chat app with two AI agents — one with the MC
 | Aspect | With MCP | Without MCP |
 |--------|----------|-------------|
 | **Package discovery** | Agent called `list-packages` — got all 9 packages with install commands and usage in one step | Agent had to read README, explore repo, and piece together which packages exist |
-| **Spec knowledge** | Agent called `get-spec` — received all 9 component types with JSON schemas, binding syntax, and authoring rules | Agent had to read source files across multiple packages to understand component types |
+| **Spec knowledge** | Agent called `get-spec` — received all 10 component types with JSON schemas, binding syntax, and authoring rules | Agent had to read source files across multiple packages to understand component types |
 | **Prompt setup** | Agent called `get-prompt("mdma-author")` — got the exact system prompt ready to use | Agent had to find `mdma-prompt-pack`, understand `buildSystemPrompt()`, and figure out how to use it |
 | **Time to working app** | Agent knew the right packages, APIs, and patterns from the start — fewer wrong turns | Agent spent significant time exploring, reading docs, and backtracking on wrong approaches |
 | **Code quality** | Focused implementation — agent used exactly the right APIs because MCP told it what exists | More verbose — agent implemented some things manually that packages already provided |

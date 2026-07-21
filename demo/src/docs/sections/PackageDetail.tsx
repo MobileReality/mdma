@@ -45,11 +45,13 @@ export const PACKAGES: PackageInfo[] = [
         <h3>Input</h3>
         <Code lang="ts">{`import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
 const processor = unified()
   .use(remarkParse)
+  .use(remarkGfm)
   .use(remarkMdma);
 
 const markdown = \`

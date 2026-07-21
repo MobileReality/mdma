@@ -18,6 +18,11 @@ const DEMO_SCRIPT = [
   'whats Product Name',
   'ok could make chart from this table',
   'line pls',
+  // Closes on the `custom` component: a host-registered `graph-3d` variant the
+  // agent can only author because it is in the prompt's custom-component
+  // catalog (see GRAPH_3D_CATALOG_ENTRY). Bars are clickable — the selection
+  // dispatches into the action log like any other MDMA interaction.
+  'pls generate sample 3D graph',
 ];
 
 /**

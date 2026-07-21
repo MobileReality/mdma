@@ -96,6 +96,7 @@ Use the `@mobile-reality/mdma-parser` remark plugin to transform Markdown into a
 ```typescript
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 
 const source = `
@@ -109,7 +110,7 @@ onAction: greet
 \`\`\`
 `;
 
-const processor = unified().use(remarkParse).use(remarkMdma);
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma);
 const tree = processor.parse(source);
 const ast = processor.runSync(tree);
 
@@ -170,4 +171,4 @@ function App() {
 - [Key Concepts](./concepts.md) -- understand MDMA blocks, bindings, events, and policies
 - [Architecture Overview](./architecture.md) -- how the packages fit together
 - [Creating Documents](../guides/creating-documents.md) -- in-depth authoring guide
-- [Component Catalog](../reference/component-catalog.md) -- full reference for all 9 component types
+- [Component Catalog](../reference/component-catalog.md) -- full reference for all 10 component types
