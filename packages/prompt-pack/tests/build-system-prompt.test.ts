@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  buildSystemPrompt,
-  type CustomComponentPromptEntry,
-} from '../src/build-system-prompt.js';
+import { buildSystemPrompt, type CustomComponentPromptEntry } from '../src/build-system-prompt.js';
 
 const variants: CustomComponentPromptEntry[] = [
   {

@@ -93,8 +93,7 @@ export const Graph3DRenderer = memo(function Graph3DRenderer({
   const dispatchRef = useRef(dispatch);
   dispatchRef.current = dispatch;
   const actionIdRef = useRef<string | undefined>(undefined);
-  actionIdRef.current =
-    component.type === 'custom' ? component.actions?.onSelect : undefined;
+  actionIdRef.current = component.type === 'custom' ? component.actions?.onSelect : undefined;
 
   const parsed = useMemo(() => {
     const result = Graph3DPropsSchema.safeParse(props);

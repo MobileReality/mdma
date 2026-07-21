@@ -28,7 +28,9 @@ export interface CustomVariantProviderProps {
 }
 
 export function CustomVariantProvider({ value, children }: CustomVariantProviderProps) {
-  return <CustomVariantContext.Provider value={value ?? {}}>{children}</CustomVariantContext.Provider>;
+  return (
+    <CustomVariantContext.Provider value={value ?? {}}>{children}</CustomVariantContext.Provider>
+  );
 }
 
 /** Read the registered custom variants. Call unconditionally, then look up by name. */

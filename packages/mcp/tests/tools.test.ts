@@ -8,14 +8,15 @@ import { listDocs, getDoc, isAllowedPath } from '../src/tools/get-doc.js';
 import { listPromptVariants } from '../src/tools/list-prompt-variants.js';
 
 describe('get-spec', () => {
-  it('returns spec with all 9 component types', () => {
+  it('returns spec with all 10 component types', () => {
     const spec = getSpec();
     expect(spec.specVersion).toBe('0.2.0');
     expect(spec.langTag).toBe('mdma');
-    expect(spec.componentTypes).toHaveLength(9);
+    expect(spec.componentTypes).toHaveLength(10);
     expect(spec.componentTypes).toContain('form');
     expect(spec.componentTypes).toContain('approval-gate');
     expect(spec.componentTypes).toContain('chart');
+    expect(spec.componentTypes).toContain('custom');
   });
 
   it('includes JSON Schema for each component', () => {

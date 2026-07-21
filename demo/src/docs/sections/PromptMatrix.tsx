@@ -88,7 +88,13 @@ export function PromptMatrix() {
       </p>
       <p>✅ 100% &nbsp; 🟡 80–99% &nbsp; 🔴 Below 80% &nbsp; — Not yet evaluated</p>
       <Table
-        headers={['Variant', 'calls when needed', 'skips when not needed', 'multi-turn', 'tool coexistence']}
+        headers={[
+          'Variant',
+          'calls when needed',
+          'skips when not needed',
+          'multi-turn',
+          'tool coexistence',
+        ]}
         rows={[
           ['gpt-5.6-sol', '✅', '✅', '✅', '✅'],
           ['gpt-5.6-terra', '✅', '✅', '✅', '✅'],
@@ -129,9 +135,9 @@ export function PromptMatrix() {
       <p className="docs-note">— Full eval data is being collected for these variants.</p>
 
       <p className="docs-note">
-        <strong>tool coexistence</strong> — integration guard for products that import the MDMA agent
-        prompt into an <strong>existing tool set</strong>. <code>generate_mdma</code> is registered
-        alongside four host-app tools (<code>get_weather</code>, <code>search_web</code>,{' '}
+        <strong>tool coexistence</strong> — integration guard for products that import the MDMA
+        agent prompt into an <strong>existing tool set</strong>. <code>generate_mdma</code> is
+        registered alongside four host-app tools (<code>get_weather</code>, <code>search_web</code>,{' '}
         <code>send_email</code>, <code>create_calendar_event</code>) and the suite checks our prompt
         does not hijack calls belonging to them, while <code>generate_mdma</code> still fires for
         genuine document requests. Run:{' '}

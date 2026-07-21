@@ -6,11 +6,18 @@ import { registerCustomComponent } from '../src/attachable/register-custom.js';
 // The helper stores the schema and registers the handler; it never invokes the
 // schema, so a structural stub stands in for a real Zod schema (zod is not a
 // runtime dependency).
-const stubSchema = { safeParse: () => ({ success: true }) } as unknown as AttachableDefinition['schema'];
+const stubSchema = {
+  safeParse: () => ({ success: true }),
+} as unknown as AttachableDefinition['schema'];
 
 function makeHandler(name: string): AttachableHandler {
   return {
-    definition: { type: name, schema: stubSchema, description: `${name} variant`, version: '1.0.0' },
+    definition: {
+      type: name,
+      schema: stubSchema,
+      description: `${name} variant`,
+      version: '1.0.0',
+    },
   };
 }
 
