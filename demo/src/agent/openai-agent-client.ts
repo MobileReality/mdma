@@ -145,6 +145,17 @@ export async function* streamOpenAIAgentMessages(
     function: { name: t.name, description: t.description, parameters: t.input_schema },
   }));
 
+  // gpt-5.6 rejects function tools alongside a reasoning effort on
+  // /v1/chat/completions:
+  //   400 — "Function tools with reasoning_effort are not supported for
+  //   gpt-5.6-* in /v1/chat/completions. To use function tools, use
+  //   /v1/responses or set reasoning_effort to 'none'."
+  // We never send the field, but the API applies a default for this family, so
+  // it has to be pinned explicitly. Same remedy as
+  // evals/promptfooconfig.guidance.js. Scoped to gpt-5.6 so other models keep
+  // their default reasoning behaviour; `extraBody` can still override it.
+  const reasoningEffortFix = model.includes('gpt-5.6') ? { reasoning_effort: 'none' } : {};
+
   let response: Response;
   try {
     response = await fetch(`${baseUrl}/chat/completions`, {
@@ -159,6 +170,7 @@ export async function* streamOpenAIAgentMessages(
         messages: [{ role: 'system', content: systemPrompt }, ...messages],
         tools: openAITools,
         tool_choice: 'auto',
+        ...reasoningEffortFix,
         ...extraBody,
       }),
       signal,

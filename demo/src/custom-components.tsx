@@ -13,6 +13,7 @@ import type {
   FormSensitiveIndicatorElementProps,
 } from '@mobile-reality/mdma-renderer-react';
 import type { MdmaCustomizations } from './ChatView.js';
+import { Graph3DRenderer } from './custom-variants/Graph3DRenderer.js';
 import { useEditableField, extractComponentId } from './chat/EditableMessageContext.js';
 
 // ─── Progress ────────────────────────────────────────────────────────────────
@@ -641,6 +642,10 @@ export const customizations: MdmaCustomizations = {
         sensitiveIndicator: GlassSensitiveIndicator,
       },
     },
+  },
+  // `type: custom` envelope — host-registered variants, keyed by `name`.
+  customVariants: {
+    'graph-3d': Graph3DRenderer,
   },
   dataSources: {
     countries: [

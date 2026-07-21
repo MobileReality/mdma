@@ -9,6 +9,7 @@ import {
   MDMA_IL_AGENT_SYSTEM_PROMPT,
 } from '@mobile-reality/mdma-prompt-pack';
 import { validate } from '@mobile-reality/mdma-validator';
+import { GRAPH_3D_CATALOG_ENTRY } from '../custom-variants/Graph3DRenderer.js';
 import {
   streamAgentMessages,
   OWN_MODEL_DEFAULT_BASE_URL,
@@ -197,6 +198,13 @@ interface BlockMeta {
   partialJson?: string;
 }
 
+/**
+ * Host-registered custom components advertised to the model. Mirrors the
+ * `customVariants` registered in custom-components.tsx — the model may only
+ * emit a `custom` block whose `name` appears here.
+ */
+const CUSTOM_COMPONENTS = [GRAPH_3D_CATALOG_ENTRY];
+
 // ── Sub-agent author dispatch ────────────────────────────────────────────────
 
 type AuthorSubAgent = (brief: string, signal: AbortSignal) => Promise<string>;
@@ -265,7 +273,10 @@ async function callAuthorOpenAI(
 }
 
 function makeAuthorSubAgent(config: AnthropicConfig): AuthorSubAgent {
-  const authorPrompt = getAuthorPromptVariant(config.systemPromptId).prompt;
+  const authorPrompt = buildSystemPrompt({
+    authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
+    customComponents: CUSTOM_COMPONENTS,
+  });
   const provider = config.provider ?? 'anthropic';
   return (brief, signal) =>
     provider === 'anthropic'
@@ -927,6 +938,7 @@ export function useAgent(options: UseAgentOptions = {}) {
           customPrompt: options.flowPrompt
             ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
             : toolPrompt,
+          customComponents: CUSTOM_COMPONENTS,
         });
       }
 
