@@ -1,5 +1,20 @@
 import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 
+/**
+ * A host-registered custom-component variant, described to the model so it can
+ * author a matching `custom` block. Intent-level only — no rendering details.
+ */
+export interface CustomComponentPromptEntry {
+  /** The variant name the model must use verbatim as the `custom` block's `name`. */
+  name: string;
+  /** What the variant is for — one line, shown to the model. */
+  description: string;
+  /** Optional human-readable description of the `props` shape, e.g. `penColor: string, required: boolean`. */
+  props?: string;
+  /** Optional event names the variant emits, wired via `actions` (e.g. `["onCapture"]`). */
+  actions?: string[];
+}
+
 export interface BuildSystemPromptOptions {
   /** Custom system prompt to merge with MDMA instructions. */
   customPrompt?: string;
@@ -9,6 +24,31 @@ export interface BuildSystemPromptOptions {
    * (e.g. `MDMA_AUTHOR_PROMPT_HAIKU` from `./prompts/mdma-author/anthropic/haiku.js`).
    */
   authorPrompt?: string;
+  /**
+   * Host-registered custom components available for this request. When
+   * provided, they are rendered as an "Available Custom Components" catalog so
+   * the model can author `custom` blocks that reference them by `name`. Omit
+   * (or pass empty) and the model is told no custom components are available.
+   */
+  customComponents?: CustomComponentPromptEntry[];
+}
+
+/** Render the host's custom-component catalog the model authors `custom` blocks against. */
+function renderCustomCatalog(entries: CustomComponentPromptEntry[]): string {
+  const items = entries
+    .map((entry) => {
+      const lines = [`- **${entry.name}** — ${entry.description}`];
+      if (entry.props) lines.push(`  - props: ${entry.props}`);
+      if (entry.actions?.length) lines.push(`  - actions: ${entry.actions.join(', ')}`);
+      return lines.join('\n');
+    })
+    .join('\n');
+
+  return `## Available Custom Components
+
+The host has registered these custom components. To use one, emit a \`custom\` block whose \`name\` is EXACTLY one of the names below, place its inputs under \`props\` (only the documented keys), and wire any listed events under \`actions\`. Do NOT invent custom components or names that are not listed here, and prefer a built-in component type whenever one fits.
+
+${items}`;
 }
 
 /**
@@ -21,14 +61,19 @@ export interface BuildSystemPromptOptions {
  * when providing their own system prompt.
  */
 export function buildSystemPrompt(options: BuildSystemPromptOptions = {}): string {
-  const { customPrompt, authorPrompt } = options;
+  const { customPrompt, authorPrompt, customComponents } = options;
   const author = authorPrompt ?? MDMA_AUTHOR_PROMPT;
 
+  const catalog = customComponents?.length
+    ? `\n\n---\n\n${renderCustomCatalog(customComponents)}`
+    : '';
+  const base = `${author}${catalog}`;
+
   if (!customPrompt) {
-    return author;
+    return base;
   }
 
-  return `${author}
+  return `${base}
 
 ---
 

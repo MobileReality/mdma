@@ -4,9 +4,12 @@ import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
 import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { ChartRenderer } from '../../chart-components.js';
+import { Graph3DRenderer } from '../../custom-variants/Graph3DRenderer.js';
 
 const CUSTOMIZATIONS = {
   components: { chart: ChartRenderer },
+  // `type: custom` envelope — host-registered variants, keyed by `name`.
+  customVariants: { 'graph-3d': Graph3DRenderer },
 };
 
 export interface ComponentEntry {
@@ -176,6 +179,39 @@ status: idle
 type: thinking
 id: demo-thinking
 content: "Let me analyze the request step by step. First, I need to understand the user's intent. Then I'll determine the appropriate response format and generate the right component."
+\`\`\``,
+  },
+  {
+    type: 'custom',
+    label: 'Custom',
+    description:
+      'Stable envelope for host-registered components: `name` picks the variant, `props` carries its inputs, `actions` wires its events. The example below shows a WebGL 3D bar chart via three.js.',
+    example: `\`\`\`mdma
+type: custom
+id: revenue-3d
+name: graph-3d
+label: "Revenue by Region and Quarter"
+props:
+  title: "Quarterly Revenue (3D)"
+  data: |
+    region, quarter, revenue
+    North, Q1, 120
+    North, Q2, 145
+    North, Q3, 98
+    South, Q1, 167
+    South, Q2, 132
+    South, Q3, 154
+    West, Q1, 89
+    West, Q2, 176
+    West, Q3, 143
+    East, Q1, 134
+    East, Q2, 121
+    East, Q3, 188
+  x: region
+  z: quarter
+  y: revenue
+actions:
+  onSelect: revenue-bar-selected
 \`\`\``,
   },
 ];

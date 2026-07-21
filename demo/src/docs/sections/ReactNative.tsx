@@ -226,12 +226,13 @@ export function ReactNative() {
       </p>
       <Code lang="tsx">{`import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react-native';
 import { ScrollView } from 'react-native';
 
-const processor = unified().use(remarkParse).use(remarkMdma, {});
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
 
 export function Screen({ markdown }: { markdown: string }) {
   const [doc, setDoc] = useState(null);

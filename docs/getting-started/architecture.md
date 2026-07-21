@@ -33,7 +33,7 @@ All arrows point downward: each package depends only on packages above it. `@mob
 
 The specification package. Contains:
 
-- **Zod schemas** for all 9 component types, event log entries, policies, bindings, document metadata, and blueprint manifests
+- **Zod schemas** for all 10 component types, event log entries, policies, bindings, document metadata, and blueprint manifests
 - **TypeScript types** inferred from the schemas (`MdmaComponent`, `EventLogEntry`, `Policy`, etc.)
 - **AST type definitions** (`MdmaBlock`, `MdmaRoot`)
 - **Constants** (`MDMA_LANG_TAG = 'mdma'`, `MDMA_SPEC_VERSION = '0.1.0'`)
@@ -93,7 +93,7 @@ Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`, `reac
 
 AI system prompts for LLM-assisted MDMA authoring and review:
 
-- `MDMA_AUTHOR_PROMPT` -- full format specification, all 9 component types, binding syntax, authoring rules, and self-check checklist
+- `MDMA_AUTHOR_PROMPT` -- full format specification, all 10 component types, binding syntax, authoring rules, and self-check checklist
 - `buildSystemPrompt({ customPrompt? })` -- combines the author prompt with an optional custom system prompt and a reinforcement reminder
 
 Dependencies: none (pure string constants)

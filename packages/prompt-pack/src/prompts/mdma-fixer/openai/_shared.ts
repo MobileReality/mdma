@@ -55,3 +55,40 @@ type: form
 \`\`\`
 \`\`\`
 </preserve_input_structure>`;
+
+/**
+ * Stronger, more specific variant of <preserve_input_structure> targeting the
+ * stubborn leading-`---` prepend. GPT-5.x fixer evals (gpt-5.5, gpt-5.6-sol)
+ * showed the model inserting a `---\\n\\n` horizontal rule before the first
+ * ```mdma fence even with <preserve_input_structure> present — it treats the
+ * rewrite as a "response to a request" and adds a separator. This block is
+ * blunter and MUST be placed at the very END of the variant's prompt for
+ * recency effect (next to CRITICAL_OUTPUT_LINE was not enough).
+ */
+export const NO_LEADING_SEPARATOR_BLOCK = `<no_leading_separator>
+!IMPORTANT: The very first character of your response is the first character of the corrected Markdown document — almost always the backtick that opens \`\`\`mdma.
+
+Do NOT prepend ANYTHING before it. Specifically:
+- NO leading \`---\` horizontal rule
+- NO leading blank line
+- NO preamble like "Here is the corrected document:" or "Sure, here you go:"
+- NO outer code fence
+
+WRONG (do NOT do this):
+\`\`\`
+---
+
+\`\`\`mdma
+type: callout
+...
+\`\`\`
+\`\`\`
+
+RIGHT (start your response exactly like this):
+\`\`\`
+\`\`\`mdma
+type: callout
+...
+\`\`\`
+\`\`\`
+</no_leading_separator>`;

@@ -5,6 +5,9 @@ import { PROVIDER_PRESETS, type LlmConfig } from '../llm-client.js';
 
 const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
   openai: [
+    { value: 'gpt-5.6-sol', label: 'gpt-5.6-sol' },
+    { value: 'gpt-5.6-terra', label: 'gpt-5.6-terra' },
+    { value: 'gpt-5.6-luna', label: 'gpt-5.6-luna' },
     { value: 'gpt-5.5', label: 'gpt-5.5' },
     { value: 'gpt-5.5-pro', label: 'gpt-5.5-pro' },
     { value: 'gpt-5', label: 'gpt-5' },
@@ -22,13 +25,16 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'gpt-4.1-nano', label: 'gpt-4.1-nano' },
   ],
   anthropic: [
+    { value: 'claude-opus-4-8', label: 'claude-opus-4.8' },
     { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
     { value: 'claude-opus-4-6', label: 'claude-opus-4.6' },
     { value: 'claude-sonnet-4-6', label: 'claude-sonnet-4.6' },
     { value: 'claude-haiku-4-5-20251001', label: 'claude-haiku-4.5' },
+    { value: 'claude-fable-5', label: 'claude-fable-5' },
     { value: 'claude-sonnet-4-5-20250929', label: 'claude-sonnet-4.5' },
   ],
   openrouter: [
+    { value: 'google/gemini-3.5-flash', label: 'google/gemini-3.5-flash' },
     { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
     {
       value: 'google/gemini-3.1-flash-lite-preview',
@@ -38,6 +44,7 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
     { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
     { value: 'google/gemini-2.5-flash-lite', label: 'google/gemini-2.5-flash-lite' },
+    { value: 'x-ai/grok-4.5', label: 'x-ai/grok-4.5' },
     { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
     { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
     { value: 'openai/gpt-5.4', label: 'openai/gpt-5.4' },

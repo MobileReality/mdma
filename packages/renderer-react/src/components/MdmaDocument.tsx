@@ -7,6 +7,7 @@ import {
   ElementOverridesProvider,
   type ElementOverrides,
 } from '../context/ElementOverridesContext.js';
+import { CustomVariantProvider, type CustomVariants } from '../context/CustomVariantContext.js';
 import {
   MdmaThemeContext,
   resolveThemeProps,
@@ -44,6 +45,18 @@ export interface MdmaRenderCustomizations {
    * ```
    */
   components?: Record<string, ComponentEntry>;
+  /**
+   * Variant renderers for `custom` components, keyed by the component's `name`.
+   * Rendering is host/framework-specific, so it is registered here rather than
+   * in the spec. Register a variant's schema + behavior with the runtime's
+   * `registerCustomComponent`.
+   *
+   * @example
+   * ```ts
+   * customVariants: { 'signature-pad': SignaturePadRenderer }
+   * ```
+   */
+  customVariants?: CustomVariants;
   /** Named option lists that form select fields can reference by string (e.g. `options: countries`). */
   dataSources?: Record<string, Array<{ label: string; value: string }>>;
 }
@@ -180,66 +193,68 @@ export function MdmaDocument({ ast, store, customizations, theme, className }: M
 
   return (
     <MdmaProvider store={store} dataSources={customizations?.dataSources}>
-      <ElementOverridesProvider value={elementOverrides}>
-        <MdmaThemeContext.Provider value={themeProps}>
-          <div
-            className={`mdma-document ${className ?? ''}`}
-            data-theme={themeProps.dataTheme}
-            style={themeProps.style}
-          >
-            {ast.children.map((child, index) => {
-              if (isMdmaBlock(child)) {
-                // Cache this successfully parsed block
-                renderedBlocksRef.current.set(child.component.id, child);
-                return <MdmaBlock key={child.component.id} block={child} renderers={renderers} />;
-              }
-              // Incomplete MDMA blocks (still streaming or failed validation)
-              if (isPendingMdmaBlock(child)) {
-                const pendingYaml = (child as { value?: string }).value;
-                const pendingId = extractIdFromYaml(pendingYaml);
-
-                // If this block was previously rendered, keep showing the rendered
-                // version instead of flickering back to the loading skeleton.
-                const cachedBlock = pendingId ? renderedBlocksRef.current.get(pendingId) : null;
-                if (cachedBlock) {
-                  return (
-                    <MdmaBlock
-                      key={cachedBlock.component.id}
-                      block={cachedBlock}
-                      renderers={renderers}
-                    />
-                  );
+      <CustomVariantProvider value={customizations?.customVariants}>
+        <ElementOverridesProvider value={elementOverrides}>
+          <MdmaThemeContext.Provider value={themeProps}>
+            <div
+              className={`mdma-document ${className ?? ''}`}
+              data-theme={themeProps.dataTheme}
+              style={themeProps.style}
+            >
+              {ast.children.map((child, index) => {
+                if (isMdmaBlock(child)) {
+                  // Cache this successfully parsed block
+                  renderedBlocksRef.current.set(child.component.id, child);
+                  return <MdmaBlock key={child.component.id} block={child} renderers={renderers} />;
                 }
+                // Incomplete MDMA blocks (still streaming or failed validation)
+                if (isPendingMdmaBlock(child)) {
+                  const pendingYaml = (child as { value?: string }).value;
+                  const pendingId = extractIdFromYaml(pendingYaml);
 
-                // Thinking blocks stream their content live instead of showing
-                // a loading skeleton — build a synthetic block from partial YAML.
-                const pendingType = extractTypeFromYaml(pendingYaml);
-                if (pendingType === 'thinking' && pendingYaml) {
-                  const partialBlock = buildPartialThinkingBlock(pendingYaml);
-                  if (partialBlock) {
+                  // If this block was previously rendered, keep showing the rendered
+                  // version instead of flickering back to the loading skeleton.
+                  const cachedBlock = pendingId ? renderedBlocksRef.current.get(pendingId) : null;
+                  if (cachedBlock) {
                     return (
                       <MdmaBlock
-                        key={partialBlock.component.id}
-                        block={partialBlock}
+                        key={cachedBlock.component.id}
+                        block={cachedBlock}
                         renderers={renderers}
                       />
                     );
                   }
-                }
 
-                return <MdmaBlockLoading key={index} node={child as { value?: string }} />;
-              }
-              // Render standard Markdown nodes (headings, paragraphs, lists, etc.)
-              return (
-                <MdastRenderer
-                  key={index}
-                  node={child as Parameters<typeof MdastRenderer>[0]['node']}
-                />
-              );
-            })}
-          </div>
-        </MdmaThemeContext.Provider>
-      </ElementOverridesProvider>
+                  // Thinking blocks stream their content live instead of showing
+                  // a loading skeleton — build a synthetic block from partial YAML.
+                  const pendingType = extractTypeFromYaml(pendingYaml);
+                  if (pendingType === 'thinking' && pendingYaml) {
+                    const partialBlock = buildPartialThinkingBlock(pendingYaml);
+                    if (partialBlock) {
+                      return (
+                        <MdmaBlock
+                          key={partialBlock.component.id}
+                          block={partialBlock}
+                          renderers={renderers}
+                        />
+                      );
+                    }
+                  }
+
+                  return <MdmaBlockLoading key={index} node={child as { value?: string }} />;
+                }
+                // Render standard Markdown nodes (headings, paragraphs, lists, etc.)
+                return (
+                  <MdastRenderer
+                    key={index}
+                    node={child as Parameters<typeof MdastRenderer>[0]['node']}
+                  />
+                );
+              })}
+            </div>
+          </MdmaThemeContext.Provider>
+        </ElementOverridesProvider>
+      </CustomVariantProvider>
     </MdmaProvider>
   );
 }

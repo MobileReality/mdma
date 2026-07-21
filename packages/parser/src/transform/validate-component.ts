@@ -52,6 +52,50 @@ export function validateComponent(
     };
   }
 
+  // The `custom` component is a stable envelope; its `name` selects a
+  // host-registered props schema. Validate the envelope via the core union,
+  // then tighten `props` against the schema registered under `name` when the
+  // host supplied one.
+  if (type === 'custom') {
+    const envelope = MdmaComponentSchema.safeParse(data);
+    if (!envelope.success) {
+      return {
+        ok: false,
+        errors: envelope.error.issues.map(
+          (issue: ZodIssue) =>
+            new MdmaParseError(
+              `${issue.path.join('.')}: ${issue.message}`,
+              ErrorCodes.SCHEMA_VALIDATION_ERROR,
+              position,
+            ),
+        ),
+      };
+    }
+
+    const component = envelope.data as Extract<MdmaComponent, { type: 'custom' }>;
+    const propsSchema = customSchemas?.get(component.name);
+    if (propsSchema) {
+      const propsResult = propsSchema.safeParse(component.props);
+      if (!propsResult.success) {
+        return {
+          ok: false,
+          errors: propsResult.error.issues.map(
+            (issue: ZodIssue) =>
+              new MdmaParseError(
+                `props.${issue.path.join('.')}: ${issue.message}`,
+                ErrorCodes.SCHEMA_VALIDATION_ERROR,
+                position,
+              ),
+          ),
+        };
+      }
+      component.props = propsResult.data as Record<string, unknown>;
+    }
+    // No schema registered for `name`: pass the envelope through with open
+    // props. Strict unknown-name enforcement plugs in here.
+    return { ok: true, component };
+  }
+
   // Unknown core type — pass through as a generic component so the renderer
   // can display a proper "Unknown component type" fallback instead of a
   // loading skeleton.

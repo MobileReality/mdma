@@ -1,0 +1,108 @@
+# MDMA Agent Guidance — Tool Coexistence Test Cases
+#
+# `generate_mdma` is registered alongside a host app's own tools (get_weather,
+# search_web, send_email, create_calendar_event). These cases verify our agent
+# system prompt does not hijack requests belonging to those tools, while still
+# firing generate_mdma for genuine document requests.
+#
+# This is the integration-regression guard for products that import our agent
+# prompt into an existing tool set.
+
+# ===========================================================================
+# Host-app tools — generate_mdma must NOT be called
+# ===========================================================================
+
+- description: Weather request routes to get_weather, not generate_mdma
+  vars:
+    request: "What's the weather in Paris tomorrow?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: get_weather
+        forbidden: [generate_mdma]
+
+- description: Web search request routes to search_web, not generate_mdma
+  vars:
+    request: "Search the web for the latest React 19 release notes."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: search_web
+        forbidden: [generate_mdma]
+
+- description: Email request routes to send_email, not generate_mdma
+  vars:
+    request: "Email dana@example.com and let her know the deploy finished successfully."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: send_email
+        forbidden: [generate_mdma]
+
+- description: Scheduling request routes to create_calendar_event, not generate_mdma
+  vars:
+    request: "Schedule a 30 minute sync with Dana this Friday at 2pm."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: create_calendar_event
+        forbidden: [generate_mdma]
+
+# A workflow-flavoured request that is NOT a document request — guards the
+# <workflow_intent> block from over-generalising ("process" wording alone must
+# not trigger generate_mdma when a host tool clearly owns the action).
+- description: Process-worded action routes to send_email, not generate_mdma
+  vars:
+    request: >
+      Our release process says the on-call engineer gets notified when a deploy
+      finishes. Notify dana@example.com that the deploy just finished.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: send_email
+        forbidden: [generate_mdma]
+
+# ===========================================================================
+# Genuine document requests — generate_mdma must still fire
+# ===========================================================================
+
+- description: Form request still calls generate_mdma despite other tools
+  vars:
+    request: "Create a contact form with full name, email, and a message field."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: generate_mdma
+        forbidden: [get_weather, search_web, send_email, create_calendar_event]
+
+- description: Approval workflow still calls generate_mdma despite other tools
+  vars:
+    request: >
+      Build an expense approval workflow: the employee submits amount and
+      category, then a manager approves or rejects with a comment.
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: generate_mdma
+        forbidden: [get_weather, search_web, send_email, create_calendar_event]
+
+# ===========================================================================
+# Conversational — no tool at all
+# ===========================================================================
+
+- description: Plain acknowledgement calls no tool
+  vars:
+    request: "Thanks, that's all I needed for now."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-expected-tool.mjs
+      config:
+        expected: null
+        forbidden: [generate_mdma, get_weather, search_web, send_email, create_calendar_event]

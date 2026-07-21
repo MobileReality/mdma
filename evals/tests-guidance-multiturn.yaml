@@ -1,0 +1,155 @@
+# MDMA Agent Guidance — Multi-Turn Eval Test Cases
+#
+# Each case supplies a prior `conversationHistory` (a document was already
+# shown) plus the current `request`, and asserts whether the model calls
+# `generate_mdma` on THIS turn given the context. Tests that the tool-call
+# decision holds across turns — the gap the single-turn guidance suite can't
+# measure.
+
+# ===========================================================================
+# Follow-ups that SHOULD call generate_mdma (modify / add / new document)
+# ===========================================================================
+
+- description: Add-a-field follow-up calls generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Create a contact form with full name and email."
+      - role: assistant
+        content: "Here's your contact form with full name and email fields."
+    request: "Add a phone number field to that form."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: true
+
+- description: New-document request after chat calls generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "We're planning our Q3 team offsite."
+      - role: assistant
+        content: "Nice! Happy to help plan the Q3 offsite — what do you need?"
+    request: "Build me a registration form for it with name, dietary needs, and t-shirt size."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: true
+
+- description: Convert-to-table follow-up calls generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Show me the sales figures for Q1: Jan 45k, Feb 52k, Mar 48k."
+      - role: assistant
+        content: "Here's a bar chart of your Q1 sales figures."
+    request: "Actually, show that as a sortable table instead."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: true
+
+- description: Next-step workflow request after info answer calls generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "What kinds of approval workflows can MDMA represent?"
+      - role: assistant
+        content: "MDMA supports approval gates with required approvers, roles, and approve/deny actions."
+    request: "Great — create an expense approval gate that needs two managers to sign off."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: true
+
+- description: Add-a-step follow-up calls generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Make an onboarding checklist with setup profile, connect email, and invite team."
+      - role: assistant
+        content: "Here's your onboarding checklist with those three tasks."
+    request: "Now add a Get Started button that's disabled until the checklist is complete."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: true
+
+# ===========================================================================
+# Follow-ups that should NOT call generate_mdma (acknowledgement / info)
+# ===========================================================================
+
+- description: Thank-you after document does not call generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Create a contact form with name and email."
+      - role: assistant
+        content: "Here's your contact form with name and email fields."
+    request: "Thanks, that's exactly what I needed!"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Capability question after document does not call generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Create a KYC form with full name, date of birth, and SSN."
+      - role: assistant
+        content: "Here's your KYC form. The SSN field is marked sensitive."
+    request: "What does marking a field as sensitive actually do?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Approval acknowledgement does not call generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Make an approval gate for the release, needs one approver."
+      - role: assistant
+        content: "Here's the release approval gate requiring one approver."
+    request: "Looks good, thanks for setting that up."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: How-does-it-work question after document does not call generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Build a multi-step approval workflow for purchase orders."
+      - role: assistant
+        content: "Here's the first step — a purchase-order form. The approval gate comes next."
+    request: "Before we continue — how does the approval gate decide who can approve?"
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false
+
+- description: Short praise after document does not call generate_mdma
+  vars:
+    conversationHistory:
+      - role: user
+        content: "Create a customer feedback survey with a 1-5 rating and a comments box."
+      - role: assistant
+        content: "Here's your customer feedback survey with a rating and comments field."
+    request: "Perfect."
+  assert:
+    - type: javascript
+      value: file://assertions/calls-generate-mdma.mjs
+      config:
+        shouldCall: false

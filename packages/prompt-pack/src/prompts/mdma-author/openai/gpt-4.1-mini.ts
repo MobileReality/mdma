@@ -9,10 +9,20 @@
  * If eval data shows gpt-4.1-mini also adds unsolicited components on
  * scoped specs (the gpt-5-mini failure mode), import <scope_discipline>
  * from `./_shared.js`.
+ *
+ * <custom_usage> is end-placed (sandwich): signing-request and rating-request
+ * evals showed this model both embedding a `custom` variant as a form field
+ * and inventing an unlisted variant. Being literal, it needs both directions
+ * stated explicitly with exact patterns, reinforced at the end of the prompt.
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
-import { CRITICAL_OUTPUT_LINE, FENCE_CLOSING_BLOCK, SELECT_OPTIONS_BLOCK } from './_shared.js';
+import {
+  CRITICAL_OUTPUT_LINE,
+  FENCE_CLOSING_BLOCK,
+  SELECT_OPTIONS_BLOCK,
+  CUSTOM_USAGE_BLOCK,
+} from './_shared.js';
 
 export const MDMA_AUTHOR_PROMPT_GPT_4_1_MINI = `${BASE_OPENING}
 
@@ -22,7 +32,11 @@ ${FENCE_CLOSING_BLOCK}
 
 ${SELECT_OPTIONS_BLOCK}
 
+${CUSTOM_USAGE_BLOCK}
+
 ${BASE_BODY}
 
 ${BASE_CHECKLIST}
+
+${CUSTOM_USAGE_BLOCK}
 `;

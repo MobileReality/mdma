@@ -50,7 +50,8 @@ export const MDMA_FIXER_STRUCTURE = `
 |-------|-----------|
 | \`Duplicate ID\` | RENAME one of the duplicates to a new unique kebab-case ID — keep BOTH components in the output. Pick a name that reflects the component's role (e.g. duplicate \`employee_form\` on a button → rename the button to \`employee-form-submit\`). Never delete a component to resolve a duplicate-ID error. |
 | \`ID is not kebab-case\` | Convert to kebab-case: \`myForm\` → \`my-form\`, \`user_table\` → \`user-table\` |
-| \`Unknown component type\` | Change to a valid type: form, button, table, callout, tasklist, approval-gate, webhook, chart, thinking |
+| \`Unknown component type\` | Change to a valid type: form, button, table, callout, tasklist, approval-gate, webhook, chart, thinking, custom |
+| \`custom\` used as a \`form\` field (\`fields.N.type: Invalid enum value ... 'custom'\`) | A custom component is standalone — NEVER a form field. Extract it to its own \`type: custom\` block, carrying \`name\`/\`props\`/\`actions\` from the field's nested \`custom:\` mapping. Keep the form's other valid fields. Never downgrade a custom variant to a plain field type. |
 | \`text: Required\` | Add a \`text\` field with a human-readable button label |
 | \`content: Required\` | Add a \`content\` field with meaningful text |
 | \`Missing table headers\` | Add \`header\` to each column, derived from \`key\` (e.g. \`first_name\` → \`First Name\`) |
@@ -68,6 +69,51 @@ Output — rename the button, keep all 4 blocks:
 
 \`\`\`text
 form#employee-form, tasklist#onboarding-tasks, button#employee-form-submit, webhook#notify-hr
+\`\`\`
+
+### Custom component extraction example
+
+Input — a \`signature-pad\` variant wrongly nested as a form field (invalid \`type: custom\`):
+
+\`\`\`mdma
+type: form
+id: contract-form
+fields:
+  - name: email
+    type: email
+    label: Email
+    required: true
+  - name: signature
+    type: custom
+    label: Signature
+    custom:
+      name: signature-pad
+      props:
+        penColor: black
+        required: true
+onSubmit: submit-contract
+\`\`\`
+
+Output — keep the form's valid fields, extract the variant to its own standalone \`custom\` block (preserve its \`name\`/\`props\`):
+
+\`\`\`mdma
+type: form
+id: contract-form
+fields:
+  - name: email
+    type: email
+    label: Email
+    required: true
+onSubmit: submit-contract
+\`\`\`
+
+\`\`\`mdma
+type: custom
+id: contract-signature
+name: signature-pad
+props:
+  penColor: black
+  required: true
 \`\`\``;
 
 /**

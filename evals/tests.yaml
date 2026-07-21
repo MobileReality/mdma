@@ -1036,3 +1036,116 @@
       value: "id: devcon-2026-registration"
     - type: javascript
       value: file://assertions/has-sensitive.mjs
+
+# ===========================================================================
+# Custom components — the host catalog (from prompt.mjs) is: signature-pad,
+# map-picker. Scenarios below cover using a catalog variant, reproducing a
+# blueprint, NOT inventing names, and NOT over-reaching when a built-in fits.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Custom 1. Uses a catalog variant when the request matches it
+# ---------------------------------------------------------------------------
+- description: Emits a signature-pad custom component for a signing request
+  vars:
+    request: |
+      I'm sending a contract to a customer. Add a way at the bottom for them to
+      sign it.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [custom]
+    - type: javascript
+      value: file://assertions/custom-envelope.mjs
+      config:
+        name: signature-pad
+    - type: javascript
+      value: file://assertions/custom-name-in-catalog.mjs
+      config:
+        catalog: [signature-pad, map-picker]
+
+# ---------------------------------------------------------------------------
+# Custom 2. Reproduces an exact custom blueprint (props + actions)
+# ---------------------------------------------------------------------------
+- description: Reproduces a signature-pad blueprint verbatim
+  vars:
+    request: |
+      Create a signature capture matching this exact structure:
+
+      ```mdma
+      type: custom
+      id: contract-signature
+      name: signature-pad
+      props:
+        penColor: black
+        required: true
+      actions:
+        onCapture: save-signature
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [custom]
+    - type: javascript
+      value: file://assertions/custom-envelope.mjs
+      config:
+        name: signature-pad
+    - type: javascript
+      value: file://assertions/custom-actions.mjs
+      config:
+        events: [onCapture]
+        require: true
+
+# ---------------------------------------------------------------------------
+# Custom 3. Anti-hallucination — must NOT invent a name outside the catalog
+# ---------------------------------------------------------------------------
+- description: Does not invent a custom variant for an unavailable widget
+  vars:
+    request: |
+      Add a star-rating widget so customers can rate our service from 1 to 5
+      stars.
+  assert:
+    # No rating variant exists. If the model emits a `custom` block its name
+    # must still be a catalog name (fails on an invented `star-rating`); the
+    # correct answer is a built-in such as a select field.
+    - type: javascript
+      value: file://assertions/custom-name-in-catalog.mjs
+      config:
+        catalog: [signature-pad, map-picker]
+
+# ---------------------------------------------------------------------------
+# Custom 4. Anti-overreach — a native-fitting request must NOT use `custom`
+# ---------------------------------------------------------------------------
+- description: Uses a form (not custom) to collect name and email
+  vars:
+    request: |
+      Collect the customer's full name and email address.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+
+# ---------------------------------------------------------------------------
+# Custom 5. Uses the map-picker variant for a location request
+# ---------------------------------------------------------------------------
+- description: Emits a map-picker custom component for a location request
+  vars:
+    request: |
+      Let the customer choose their delivery location by dropping a pin on a
+      map.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [custom]
+    - type: javascript
+      value: file://assertions/custom-envelope.mjs
+      config:
+        name: map-picker
+    - type: javascript
+      value: file://assertions/custom-name-in-catalog.mjs
+      config:
+        catalog: [signature-pad, map-picker]

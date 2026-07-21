@@ -22,12 +22,13 @@ export function ReactWeb() {
       </p>
       <Code lang="tsx">{`import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
 import '@mobile-reality/mdma-renderer-react/styles.css';
 
-const processor = unified().use(remarkParse).use(remarkMdma, {});
+const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
 
 export function Document({ markdown }: { markdown: string }) {
   const [doc, setDoc] = useState(null);

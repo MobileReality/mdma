@@ -15,6 +15,7 @@ export {
   WebhookComponentSchema,
   ChartComponentSchema,
   ThinkingComponentSchema,
+  CustomComponentSchema,
   componentSchemaRegistry,
   COMPONENT_TYPES,
 } from './schemas/components/index.js';
@@ -45,6 +46,7 @@ export type {
   WebhookComponent,
   ChartComponent,
   ThinkingComponent,
+  CustomComponent,
   EventLogEntry,
   EventType,
   EventActor,

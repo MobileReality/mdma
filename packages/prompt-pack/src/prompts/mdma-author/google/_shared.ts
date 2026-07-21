@@ -131,3 +131,16 @@ The label can read naturally to the user; the value is the stable string identif
 export const OUTPUT_FORMAT_BLOCK = `## Output Format
 
 Your output IS the Markdown document — write headings, paragraphs, and \`\`\`mdma blocks directly. Do not wrap your response in \`\`\`markdown fences; the response renders as Markdown automatically. Generate the document once and stop.`;
+
+/**
+ * Forces the model to emit the requested component as an actual ```mdma block
+ * rather than describing it in prose. Triggered by a gemini-3.5-flash
+ * conversation (multi-turn) failure: on step-triggered turns the model wrote a
+ * thinking block plus a prose explanation ("I will present the claim form...")
+ * and stopped (finishReason: stop) WITHOUT emitting the form — the turn had 0
+ * form fields. One-shot authoring is unaffected; the drift is multi-turn only.
+ * End-placed per Vertex's negative-constraints-last guidance.
+ */
+export const EMIT_COMPONENT_BLOCK = `## Emit the Component
+
+When the conversation flow or the user's request calls for a component (form, table, callout, etc.), you MUST output it as a fenced \`\`\`mdma block in THIS turn. Do not describe the component in prose, announce that you will show it, or defer it to a later turn — the \`\`\`mdma block itself must be present. A turn that should produce a form is complete only when the \`\`\`mdma form block appears in your output; writing "I will present the form..." without the actual block is a failure.`;

@@ -49,7 +49,7 @@ Every component shares a common base:
 
 ```yaml
 id: unique-identifier        # required, unique within the document
-type: component-type          # required, one of the 9 types
+type: component-type          # required, one of the 10 types
 label: Display Label          # optional
 sensitive: false              # if true, values are redacted in event logs
 disabled: false               # boolean or binding expression

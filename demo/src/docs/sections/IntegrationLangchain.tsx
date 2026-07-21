@@ -25,9 +25,10 @@ import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkGfm from 'remark-gfm';
 
 async function parseMarkdown(markdown: string) {
-  const processor = unified().use(remarkParse).use(remarkMdma, {});
+  const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
   const tree = processor.parse(markdown);
   return processor.run(tree);
 }

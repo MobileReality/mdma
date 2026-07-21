@@ -173,3 +173,75 @@ export const NO_DUPLICATES_BLOCK = `<no_duplicates>
 
 Every component type and every component \`id\` appears exactly once in your response. The \`type: thinking\` block is written once, at the start. Each other component is written once, in sequence. Your response ends immediately after the closing \`\`\` of your last component — do not repeat, restart, or re-emit anything already written.
 </no_duplicates>`;
+
+/**
+ * Governs when and how gpt-4.1-mini uses \`custom\` components. Addresses two
+ * opposite failure modes seen on this literal model:
+ *   - Signing request: it recognized the \`signature-pad\` variant but embedded
+ *     it as a form field (\`type: custom\` under \`fields\`) AND redundantly
+ *     emitted a correct standalone block — reciting the standalone rule in a
+ *     comment while violating it.
+ *   - Once "emit custom standalone" was emphasized, it over-generalized and
+ *     INVENTED a \`star-rating\` variant that was not in the catalog for a
+ *     rating request that a built-in \`select\` covers.
+ *
+ * So the block teaches BOTH directions with concrete incorrect/correct pairs:
+ * (1) only use \`custom\` for listed variants, else a built-in; (2) when you do,
+ * it is a standalone block, never a form field. gpt-4.1 is literal, so the
+ * rules are explicit with exact patterns. End-placed (sandwich) for emphasis.
+ */
+export const CUSTOM_USAGE_BLOCK = `<custom_usage>
+1. Only emit a \`custom\` block when its \`name\` is listed in "Available Custom Components". If the request needs something NOT listed there, do NOT invent a custom variant — use a built-in component instead. With no rating variant registered, a "star rating 1-5" is a \`select\` (or \`number\`) form field, NEVER \`name: star-rating\`.
+
+2. A \`custom\` component is ALWAYS its own standalone, top-level \`\`\`mdma block. It is NEVER a \`form\` field: \`custom\` is not a valid field \`type\` (the only field types are text, number, email, date, select, checkbox, textarea, file), and a variant is never nested under \`fields\` or a \`custom:\` key. A listed variant stands on its own with its own \`props\` and \`actions\` — it needs no wrapping form.
+
+3. Emit each custom variant exactly once. Do NOT also produce a \`form\`-field version of it "for clarity".
+
+Incorrect — inventing a variant that is not in the catalog:
+
+\`\`\`mdma
+type: custom
+name: star-rating
+\`\`\`
+
+Correct — no rating variant exists, so use a built-in:
+
+\`\`\`mdma
+type: form
+id: service-rating
+fields:
+  - name: rating
+    type: select
+    label: "Rate our service"
+    options:
+      - label: "1 — Poor"
+        value: "1"
+      - label: "5 — Excellent"
+        value: "5"
+onSubmit: rating-submitted
+\`\`\`
+
+Incorrect — a listed variant embedded as a form field (this FAILS validation):
+
+\`\`\`mdma
+type: form
+id: contract-form
+fields:
+  - name: signature
+    type: custom
+onSubmit: submit-contract
+\`\`\`
+
+Correct — the listed variant as its own standalone block, no wrapping form:
+
+\`\`\`mdma
+type: custom
+id: customer-signature
+name: signature-pad
+props:
+  penColor: "#000000"
+  required: true
+actions:
+  onCapture: signature-captured
+\`\`\`
+</custom_usage>`;
