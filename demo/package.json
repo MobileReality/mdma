@@ -21,6 +21,7 @@
     "react-dom": "^19.0.0",
     "react-native-web": "^0.19.13",
     "recharts": "^3.7.0",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "three": "^0.185.1",
     "unified": "^11.0.0",
