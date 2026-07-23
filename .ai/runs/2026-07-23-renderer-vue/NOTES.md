@@ -52,6 +52,13 @@ Deleted in the explainer commit.
 - Instead of: mapping children with index keys as React does. Vue doesn't need keys for a statically-rendered tree, and index keys here would be noise.
 - Surprise: the whole switch is exercised against markdown parsed by the real `remark-parse` + `remark-gfm`, so the tests pin the mdast shapes the parser actually emits (e.g. `listItem.checked` for task lists) rather than shapes assumed from the type definitions.
 
-## 9 — MdmaBlockLoading (PENDING)
+## 9 — MdmaBlockLoading (420d13c)
 
 - Why: the type hint is a `computed` on the node prop, so a skeleton already on screen renames itself as more YAML streams in rather than waiting for the block to complete.
+
+## 10 — FormRenderer (PENDING)
+
+- Why: sub-elements keep React's `onChange` *callback prop* rather than becoming Vue emits. An override component can then either declare an `onChange` prop or `emits: ['change']` — both work — so the documented element-prop interfaces stay one shared contract across the React and Vue renderers.
+- Instead of: `v-model`. The value lives in the store, not the component: every control reads `componentState.values` and writes through `dispatch`, so a two-way binding would introduce a second source of truth.
+- Surprise: the mask toggle on a sensitive field is local `ref` state, deliberately never dispatched — whether a human is currently *looking* at a PII value is not document state and must not reach the audit log.
+- Surprise: `mountBlock` (the test helper) is effectively `MdmaBlock` written a step early; when the real one lands at 15.1 it should look like this, which is a useful cross-check rather than duplication.
