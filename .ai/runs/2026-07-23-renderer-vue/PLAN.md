@@ -25,8 +25,8 @@
 | 15   | CustomRenderer + defaultRenderers map + coverage test                      | done   | 149dcb2 |
 | 15.1 | MdmaBlock (dispatch to renderer by component type)                         | done   | e4c83dc |
 | 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | done   | ac4b654 |
-| 17   | Public API index.ts + export-parity test vs renderer-react                 | done   | PENDING |
-| 18   | Mount-level integration tests (@vue/test-utils)                            | todo   |        |
+| 17   | Public API index.ts + export-parity test vs renderer-react                 | done   | a24e938 |
+| 18   | Mount-level integration tests (@vue/test-utils)                            | done   | PENDING |
 | 19   | Package README + docs updates                                              | todo   |        |
 | 20   | Changeset                                                                  | todo   |        |
 | 21   | Change explainer                                                           | todo   |        |

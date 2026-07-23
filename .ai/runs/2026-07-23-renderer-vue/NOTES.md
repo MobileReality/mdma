@@ -99,7 +99,12 @@ Deleted in the explainer commit.
 - Why: the document provides its own resolved theme under the same injection key the standalone provider uses, so a nested document re-applies an ancestor's tokens to its own root — matching the React version, where the context holds resolved props rather than bare tokens.
 - Surprise: writing the streaming test exposed that a *valid* thinking block parses fine even with an unterminated fence, so the live-stream path only fires on YAML that fails validation (e.g. a half-written `status: think`). The first version of the test passed through the normal path and proved nothing.
 
-## 17 — Public API + export parity (PENDING)
+## 17 — Public API + export parity (a24e938)
 
 - Why: parity is asserted by *reading* `renderer-react/src/index.ts` and checking every value export exists here (33 of them), rather than by a hand-kept list that would rot the first time the React package grows an export.
 - Surprise: the first version of the extractor matched only 20 of the 33 — it missed single-line `export { X } from …` statements, and would have passed while under-checking. It now asserts the extracted list contains `MdmaDocument` and is longer than 20, so a broken extractor fails loudly instead of silently weakening the test.
+
+## 18 — Integration tests (PENDING)
+
+- Why: these cover the thing unit tests structurally can't — a streamed re-parse (`store.updateAst` + a new `ast` prop) preserving a half-typed value, and the skeleton→real-block swap once a fence closes. That's the actual failure mode a chat UI hits.
+- Surprise: the redaction test asserts the *non*-sensitive value is present in the audit log as well as the SSN being absent. Without that, an empty payload would make it pass while proving nothing.

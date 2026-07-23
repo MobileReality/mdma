@@ -16,13 +16,18 @@ const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
 export async function parseDoc(
   markdown: string,
 ): Promise<{ ast: MdmaRoot; store: ReturnType<typeof createDocumentStore> }> {
-  const tree = processor.parse(markdown);
-  // The raw source is passed to run() so the transform can tell a still-streaming
-  // (unterminated) fence from a complete one.
-  const ast = (await processor.run(tree, markdown)) as MdmaRoot;
+  const ast = await parseAst(markdown);
   const registry = new AttachableRegistry();
   registerAllCoreAttachables(registry);
   return { ast, store: createDocumentStore(ast, { registry }) };
+}
+
+/** Parse markdown into an AST without creating a store — for streamed re-parses. */
+export async function parseAst(markdown: string): Promise<MdmaRoot> {
+  const tree = processor.parse(markdown);
+  // The raw source is passed to run() so the transform can tell a still-streaming
+  // (unterminated) fence from a complete one.
+  return (await processor.run(tree, markdown)) as MdmaRoot;
 }
 
 /** Fenced `mdma` block wrapper — keeps the YAML in tests readable. */
