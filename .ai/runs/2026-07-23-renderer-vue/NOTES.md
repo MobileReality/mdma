@@ -41,7 +41,13 @@ Deleted in the explainer commit.
 - Surprise: `useDocumentState` deliberately returns a *fresh* shallow wrapper per tick. Handing back `getState()` directly would be identity-stable, and Vue 3.4+ computeds skip effects when the value is `===` — the React version gets away with it only because renderers actually bind to `useComponentState`, which does mint new snapshots.
 - Surprise: parsing fixtures through the real parser immediately failed with `onSubmit: Required` — a spec rule a hand-built AST fixture would have hidden. Three tests had been passing vacuously (no re-render at all) until it was fixed.
 
-## 7 — Renderer props type + RendererRegistry class (PENDING)
+## 7 — Renderer props type + RendererRegistry class (e907218)
 
 - Why: `blockRendererProps` exists because Vue needs a *runtime* prop declaration, not just a type. A renderer that skips it still receives the values — as DOM attributes on its root element, which is a silent, ugly failure mode. Exporting the declaration means third-party renderers can't get it wrong.
 - Instead of: shipping `defaultRenderers` here as the React file does. It imports all ten renderers, none of which exist yet — the plan's rows 7/9/15 were re-scoped so the default map lands with the last renderer instead.
+
+## 8 — MdastRenderer (PENDING)
+
+- Why: raw `html` nodes render as *text*, never as markup — the React version's comment ("no dangerouslySetInnerHTML") is a security property, and the Vue port keeps it by never reaching for `v-html`. A test asserts a `<script>` payload stays inert.
+- Instead of: mapping children with index keys as React does. Vue doesn't need keys for a statically-rendered tree, and index keys here would be noise.
+- Surprise: the whole switch is exercised against markdown parsed by the real `remark-parse` + `remark-gfm`, so the tests pin the mdast shapes the parser actually emits (e.g. `listItem.checked` for task lists) rather than shapes assumed from the type definitions.
