@@ -56,9 +56,13 @@ Deleted in the explainer commit.
 
 - Why: the type hint is a `computed` on the node prop, so a skeleton already on screen renames itself as more YAML streams in rather than waiting for the block to complete.
 
-## 10 — FormRenderer (PENDING)
+## 10 — FormRenderer (38bc0c5)
 
 - Why: sub-elements keep React's `onChange` *callback prop* rather than becoming Vue emits. An override component can then either declare an `onChange` prop or `emits: ['change']` — both work — so the documented element-prop interfaces stay one shared contract across the React and Vue renderers.
 - Instead of: `v-model`. The value lives in the store, not the component: every control reads `componentState.values` and writes through `dispatch`, so a two-way binding would introduce a second source of truth.
 - Surprise: the mask toggle on a sensitive field is local `ref` state, deliberately never dispatched — whether a human is currently *looking* at a PII value is not document state and must not reach the audit log.
 - Surprise: `mountBlock` (the test helper) is effectively `MdmaBlock` written a step early; when the real one lands at 15.1 it should look like this, which is a useful cross-check rather than duplication.
+
+## 11 — Button + Callout renderers (PENDING)
+
+- Why: dismissal goes through `dispatch` as document state rather than a local `ref`, so a dismissed callout stays dismissed when the document is re-parsed mid-stream. This is the mirror image of the form's mask toggle, which deliberately stays local.
