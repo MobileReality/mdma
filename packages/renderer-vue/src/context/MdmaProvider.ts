@@ -3,6 +3,7 @@ import {
   defineComponent,
   inject,
   provide,
+  toRaw,
   type ComputedRef,
   type InjectionKey,
   type PropType,
@@ -50,7 +51,11 @@ export const MdmaProvider = defineComponent({
   setup(props, { slots }) {
     provide(
       MdmaContextKey,
-      computed(() => ({ store: props.store, dataSources: props.dataSources })),
+      // `toRaw` because the store is an external mutable service, not reactive
+      // data: a parent holding it in a `reactive()` would hand down a proxy,
+      // which breaks identity comparisons and lets Vue instrument the store's
+      // internal Map on every read. Its updates reach us via `subscribe`.
+      computed(() => ({ store: toRaw(props.store), dataSources: props.dataSources })),
     );
     return () => slots.default?.();
   },

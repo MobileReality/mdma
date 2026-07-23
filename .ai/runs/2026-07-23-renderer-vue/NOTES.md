@@ -33,3 +33,10 @@ Deleted in the explainer commit.
 - Why: `useElementOverride` returns a `ComputedRef`, not a component. Renderers resolve their overrides once in `setup`, so a plain value would pin the first `customizations` map forever; the computed keeps a live document customizable.
 - Instead of: one context holding both overrides and variants. They're kept separate because `MdmaDocument` splits a single user-facing `components` map into them, and merging would leak that internal split into the public API.
 - Surprise: the resolution chain (`scope` → `'*'` → built-in) is the whole feature and it's three lines — the tests are longer than the code on purpose, since getting the precedence backwards is silent and only shows up as the wrong widget.
+
+## 6 — Store composables (PENDING)
+
+- Why: the store mutates its state in place and notifies via `subscribe`, so there is nothing for Vue to track. A `tick` counter bumped in the subscription is the bridge — every composable reads it to mean "recompute when the document changes".
+- Instead of: `reactive(store)`. The provider now `toRaw`s the store on the way in: it's an external mutable service, and letting Vue proxy it breaks identity comparisons and instruments its internal `Map` on every read.
+- Surprise: `useDocumentState` deliberately returns a *fresh* shallow wrapper per tick. Handing back `getState()` directly would be identity-stable, and Vue 3.4+ computeds skip effects when the value is `===` — the React version gets away with it only because renderers actually bind to `useComponentState`, which does mint new snapshots.
+- Surprise: parsing fixtures through the real parser immediately failed with `onSubmit: Required` — a spec rule a hand-built AST fixture would have hidden. Three tests had been passing vacuously (no re-render at all) until it was fixed.

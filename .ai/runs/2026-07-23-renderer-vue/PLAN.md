@@ -13,7 +13,7 @@
 | 3    | Theme module + theme tests                                                 | done   | b13789f |
 | 4    | MdmaProvider (provide/inject) + context tests                              | done   | bca084b |
 | 5    | ElementOverrides + CustomVariant contexts                                  | done   | 80a52aa |
-| 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | todo   |        |
+| 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | done   | PENDING |
 | 7    | Renderer registry + registry test                                          | todo   |        |
 | 8    | MdastRenderer                                                              | todo   |        |
 | 9    | MdmaBlockLoading + MdmaBlock                                               | todo   |        |
