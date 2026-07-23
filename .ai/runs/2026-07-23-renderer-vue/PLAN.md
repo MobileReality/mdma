@@ -10,8 +10,8 @@
 | ---- | ------------------------------------------------------------------------- | ------ | ------ |
 | 1    | Scaffold package (package.json, tsconfig, vitest) + install                | done   | a793535 |
 | 2    | Port styles.css                                                            | done   | 86f9135 |
-| 3    | Theme module + theme tests                                                 | done   | PENDING |
-| 4    | MdmaProvider (provide/inject) + context tests                              | todo   |        |
+| 3    | Theme module + theme tests                                                 | done   | b13789f |
+| 4    | MdmaProvider (provide/inject) + context tests                              | done   | PENDING |
 | 5    | ElementOverrides + CustomVariant contexts                                  | todo   |        |
 | 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | todo   |        |
 | 7    | Renderer registry + registry test                                          | todo   |        |
