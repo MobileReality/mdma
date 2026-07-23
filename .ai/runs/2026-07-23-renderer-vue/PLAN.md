@@ -8,8 +8,8 @@
 
 | Step | Title                                                                     | Status | Commit |
 | ---- | ------------------------------------------------------------------------- | ------ | ------ |
-| 1    | Scaffold package (package.json, tsconfig, vitest) + install                | done   | 221d298 |
-| 2    | Port styles.css                                                            | todo   |        |
+| 1    | Scaffold package (package.json, tsconfig, vitest) + install                | done   | a793535 |
+| 2    | Port styles.css                                                            | done   | 1d03cb4 |
 | 3    | Theme module + theme tests                                                 | todo   |        |
 | 4    | MdmaProvider (provide/inject) + context tests                              | todo   |        |
 | 5    | ElementOverrides + CustomVariant contexts                                  | todo   |        |
