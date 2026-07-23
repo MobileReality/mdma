@@ -21,6 +21,8 @@ MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is 
         +-- @mobile-reality/mdma-attachables-core    7 interactive component handlers
               |
               +-- @mobile-reality/mdma-renderer-react    React components + hooks
+              |
+              +-- @mobile-reality/mdma-renderer-vue      Vue 3 components + composables
 
 @mobile-reality/mdma-evals                   LLM evaluation suite (promptfoo)
 ```
@@ -88,6 +90,20 @@ React rendering layer. Provides:
 - **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`, `ChartRenderer`, `ThinkingRenderer`
 
 Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`, `react`
+
+### @mobile-reality/mdma-renderer-vue
+
+Vue 3 rendering layer — the same surface as the React renderer, in Vue idiom. Provides:
+
+- **MdmaProvider** / **useMdmaContext** -- `provide`/`inject` wrapping the document store
+- **MdmaDocument** / **MdmaBlock** -- top-level rendering components
+- **Composables**: `useDocumentStore()`, `useDocumentState()`, `useComponentState(id)`, `useBinding(expr)` -- each returns a `ComputedRef`
+- **RendererRegistry** -- maps component types to Vue renderer components
+- **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`, `ChartRenderer`, `ThinkingRenderer`, `CustomRenderer`
+
+Ships the same `styles.css` as the React renderer, so a theme object is portable between them.
+
+Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`, `vue`
 
 ### @mobile-reality/mdma-prompt-pack
 

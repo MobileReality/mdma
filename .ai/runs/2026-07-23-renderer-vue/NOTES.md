@@ -104,7 +104,12 @@ Deleted in the explainer commit.
 - Why: parity is asserted by *reading* `renderer-react/src/index.ts` and checking every value export exists here (33 of them), rather than by a hand-kept list that would rot the first time the React package grows an export.
 - Surprise: the first version of the extractor matched only 20 of the 33 — it missed single-line `export { X } from …` statements, and would have passed while under-checking. It now asserts the extracted list contains `MdmaDocument` and is longer than 20, so a broken extractor fails loudly instead of silently weakening the test.
 
-## 18 — Integration tests (PENDING)
+## 18 — Integration tests (bcf9afd)
 
 - Why: these cover the thing unit tests structurally can't — a streamed re-parse (`store.updateAst` + a new `ast` prop) preserving a half-typed value, and the skeleton→real-block swap once a fence closes. That's the actual failure mode a chat UI hits.
 - Surprise: the redaction test asserts the *non*-sensitive value is present in the audit log as well as the SSN being absent. Without that, an empty payload would make it pass while proving nothing.
+
+## 19 — README + docs (PENDING)
+
+- Why: the package README leads with a "Differences from the React renderer" table. The surfaces are name-for-name identical, which makes the handful of real differences (composables returning `ComputedRef`s, the runtime `blockRendererProps`) the only thing a reader porting code actually needs.
+- Instead of: a Vue section bolted onto the theming guide's React examples. The Vue section says "everything above applies unchanged — only the syntax differs", because that *is* the design: same stylesheet, same tokens, same class names.

@@ -26,8 +26,8 @@
 | 15.1 | MdmaBlock (dispatch to renderer by component type)                         | done   | e4c83dc |
 | 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | done   | ac4b654 |
 | 17   | Public API index.ts + export-parity test vs renderer-react                 | done   | a24e938 |
-| 18   | Mount-level integration tests (@vue/test-utils)                            | done   | PENDING |
-| 19   | Package README + docs updates                                              | todo   |        |
+| 18   | Mount-level integration tests (@vue/test-utils)                            | done   | bcf9afd |
+| 19   | Package README + docs updates                                              | done   | PENDING |
 | 20   | Changeset                                                                  | todo   |        |
 | 21   | Change explainer                                                           | todo   |        |
 

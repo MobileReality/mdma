@@ -166,6 +166,21 @@ function App() {
 }
 ```
 
+## Render with Vue
+
+The Vue renderer exposes the same components; `MdmaDocument` provides the store itself:
+
+```vue
+<script setup lang="ts">
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-vue';
+import '@mobile-reality/mdma-renderer-vue/styles.css';
+</script>
+
+<template>
+  <MdmaDocument :ast="ast" :store="store" />
+</template>
+```
+
 ## Next Steps
 
 - [Key Concepts](./concepts.md) -- understand MDMA blocks, bindings, events, and policies
