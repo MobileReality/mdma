@@ -87,3 +87,8 @@ Deleted in the explainer commit.
 
 - Why: `blockRendererProps` had to move out of `renderer-registry.ts` into its own module. The registry imports all ten renderers and each renderer imports the props declaration — in React that cycle is harmless because props are type-only, but here it's a *value* read during module evaluation, so the components came up with `props.component === undefined`. Six renderer tests failed at once and pointed straight at it.
 - Surprise: this is the one place where "port it faithfully" actively misleads. The React file's shape is safe only because of a language difference.
+
+## 15.1 — MdmaBlock (PENDING)
+
+- Why: `useComponentState` is given a *getter* for the id, not the id itself, so one mounted block can follow a different component when the AST is re-parsed mid-stream — otherwise it would keep reading the state of whatever component it first saw.
+- Instead of: React's `memo` + `useCallback` pair. Vue caches renders itself, and `dispatch`/`resolveBinding` are created once in `setup` rather than per render, so there is nothing to memoize.

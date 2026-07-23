@@ -23,7 +23,7 @@
 | 13   | TableRenderer + WebhookRenderer                                            | done   | 785c926 |
 | 14   | ChartRenderer + ThinkingRenderer                                           | done   | 903f446 |
 | 15   | CustomRenderer + defaultRenderers map + coverage test                      | done   | 149dcb2 |
-| 15.1 | MdmaBlock (dispatch to renderer by component type)                         | todo   |        |
+| 15.1 | MdmaBlock (dispatch to renderer by component type)                         | done   | PENDING |
 | 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | todo   |        |
 | 17   | Public API index.ts + export-parity test vs renderer-react                 | todo   |        |
 | 18   | Mount-level integration tests (@vue/test-utils)                            | todo   |        |
