@@ -88,7 +88,13 @@ Deleted in the explainer commit.
 - Why: `blockRendererProps` had to move out of `renderer-registry.ts` into its own module. The registry imports all ten renderers and each renderer imports the props declaration — in React that cycle is harmless because props are type-only, but here it's a *value* read during module evaluation, so the components came up with `props.component === undefined`. Six renderer tests failed at once and pointed straight at it.
 - Surprise: this is the one place where "port it faithfully" actively misleads. The React file's shape is safe only because of a language difference.
 
-## 15.1 — MdmaBlock (PENDING)
+## 15.1 — MdmaBlock (e4c83dc)
 
 - Why: `useComponentState` is given a *getter* for the id, not the id itself, so one mounted block can follow a different component when the AST is re-parsed mid-stream — otherwise it would keep reading the state of whatever component it first saw.
 - Instead of: React's `memo` + `useCallback` pair. Vue caches renders itself, and `dispatch`/`resolveBinding` are created once in `setup` rather than per render, so there is nothing to memoize.
+
+## 16 — MdmaDocument (PENDING)
+
+- Why: the parsed-block cache is a plain `Map` in `setup`, not a `ref`. It's memo, not state — writing to it must never trigger a re-render, or caching a block during render would loop.
+- Why: the document provides its own resolved theme under the same injection key the standalone provider uses, so a nested document re-applies an ancestor's tokens to its own root — matching the React version, where the context holds resolved props rather than bare tokens.
+- Surprise: writing the streaming test exposed that a *valid* thinking block parses fine even with an unterminated fence, so the live-stream path only fires on YAML that fails validation (e.g. a half-written `status: think`). The first version of the test passed through the normal path and proved nothing.
