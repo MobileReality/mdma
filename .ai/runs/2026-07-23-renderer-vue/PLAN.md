@@ -12,7 +12,7 @@
 | 2    | Port styles.css                                                            | done   | 86f9135 |
 | 3    | Theme module + theme tests                                                 | done   | b13789f |
 | 4    | MdmaProvider (provide/inject) + context tests                              | done   | bca084b |
-| 5    | ElementOverrides + CustomVariant contexts                                  | done   | PENDING |
+| 5    | ElementOverrides + CustomVariant contexts                                  | done   | 80a52aa |
 | 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | todo   |        |
 | 7    | Renderer registry + registry test                                          | todo   |        |
 | 8    | MdastRenderer                                                              | todo   |        |

@@ -28,7 +28,7 @@ Deleted in the explainer commit.
 - Instead of: providing a plain object. A `computed` is provided so swapping the `store` prop (which the AG-UI bridge does on re-parse) propagates to renderers instead of freezing the first store.
 - Surprise: tests parse real markdown through `unified + remarkMdma` and seed the store with core attachables, rather than hand-building an AST. Hand-built fixtures drift from what the parser actually emits, and component state only exists because attachables create it.
 
-## 5 — Element override + custom variant contexts (PENDING)
+## 5 — Element override + custom variant contexts (80a52aa)
 
 - Why: `useElementOverride` returns a `ComputedRef`, not a component. Renderers resolve their overrides once in `setup`, so a plain value would pin the first `customizations` map forever; the computed keeps a live document customizable.
 - Instead of: one context holding both overrides and variants. They're kept separate because `MdmaDocument` splits a single user-facing `components` map into them, and merging would leak that internal split into the public API.
