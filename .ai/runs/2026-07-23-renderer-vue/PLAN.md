@@ -28,8 +28,8 @@
 | 17   | Public API index.ts + export-parity test vs renderer-react                 | done   | a24e938 |
 | 18   | Mount-level integration tests (@vue/test-utils)                            | done   | bcf9afd |
 | 19   | Package README + docs updates                                              | done   | 1054c3a |
-| 20   | Changeset                                                                  | done   | PENDING |
-| 21   | Change explainer                                                           | todo   |        |
+| 20   | Changeset                                                                  | done   | 19977c0 |
+| 21   | Change explainer                                                           | done   | PENDING |
 
 Status is one of: `todo`, `done`, `blocked`.
 
