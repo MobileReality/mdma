@@ -22,7 +22,7 @@
 | 12   | TasklistRenderer + ApprovalGateRenderer                                    | done   | 9fd1102 |
 | 13   | TableRenderer + WebhookRenderer                                            | done   | 785c926 |
 | 14   | ChartRenderer + ThinkingRenderer                                           | done   | 903f446 |
-| 15   | CustomRenderer + defaultRenderers map + coverage test                      | done   | PENDING |
+| 15   | CustomRenderer + defaultRenderers map + coverage test                      | done   | 149dcb2 |
 | 15.1 | MdmaBlock (dispatch to renderer by component type)                         | todo   |        |
 | 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | todo   |        |
 | 17   | Public API index.ts + export-parity test vs renderer-react                 | todo   |        |

@@ -83,7 +83,7 @@ Deleted in the explainer commit.
 - Why: the thinking block suppresses `<details>`'s native toggle (`preventDefault`) and drives `open` from dispatched state instead. Letting the browser own it would desync the DOM from the store the moment a document re-parse re-rendered the block.
 - Instead of: a charting dependency. The built-in renders CSV as a table and is meant to be overridden — a chart library in a renderer package would be a hard dependency every consumer pays for.
 
-## 15 — CustomRenderer + default renderer map (PENDING)
+## 15 — CustomRenderer + default renderer map (149dcb2)
 
 - Why: `blockRendererProps` had to move out of `renderer-registry.ts` into its own module. The registry imports all ten renderers and each renderer imports the props declaration — in React that cycle is harmless because props are type-only, but here it's a *value* read during module evaluation, so the components came up with `props.component === undefined`. Six renderer tests failed at once and pointed straight at it.
 - Surprise: this is the one place where "port it faithfully" actively misleads. The React file's shape is safe only because of a language difference.

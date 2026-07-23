@@ -1,18 +1,19 @@
 # Handoff — renderer-vue
 
-**Updated:** 2026-07-23 (checkpoint 1)
+**Updated:** 2026-07-23 (checkpoint 2)
 **Branch:** loop/renderer-vue
-**Current step:** 6 — Store composables
-**Last commit:** 80a52aa — feat(renderer-vue): add element override and custom variant contexts
+**Current step:** 15.1 — MdmaBlock
+**Last commit:** 149dcb2 — feat(renderer-vue): add the custom renderer and default renderer map
 
 ## What just happened
 
-- Steps 1–5 done: package scaffolded on the workspace's plain `tsc` toolchain, `styles.css` mirrored from React (guarded by a byte-identity test), theme module, `MdmaProvider`, and the element-override / custom-variant contexts.
-- Checkpoint 1: full gate green — `pnpm build` (14 tasks), `typecheck` (23), `lint` (12), `test` (26).
+- Steps 6–15 done: store composables, renderer props/registry, and all ten built-in renderers with mount-level tests (99 tests in the package).
+- `blockRendererProps` moved to its own module — the registry↔renderer cycle is harmless in React (type-only props) but broke at runtime here.
+- Checkpoint 2: full gate green — `pnpm build`, `typecheck`, `lint`, `test` (26 tasks).
 
 ## Next concrete action
 
-- Port `use-document-store.ts`: `useDocumentStore`, `useDocumentState`, `useComponentState`, `useBinding` over `store.subscribe`, with the snapshot-identity guarantee tested.
+- Write `MdmaBlock`: resolve `renderers[type] ?? defaultRenderers[type]`, wire `useComponentState` + `dispatch` + `resolveBinding`, render the unknown-type fallback. `tests/helpers/mount-block.ts` is the shape it should take.
 
 ## Blockers
 
@@ -20,12 +21,12 @@
 
 ## Artifacts
 
-- Flows: none yet — nothing so far moves data; the first map lands with `MdmaBlock`/`FormRenderer` (steps 9–10).
+- Flows: `.mr-code-helper/flows/renderer-vue.mrflow` (input → dispatch → store → composable → re-render). Untracked by design — `.mr-code-helper/` is in `.git/info/exclude`.
 - Explainer: pending
 
 ## Environment notes
 
-- Dependencies installed: yes. Test fixtures use `unified` + `remark-parse` + `remark-gfm` + the workspace parser/attachables as devDeps.
-- Full validation last run: checkpoint 1 — all four commands passed.
-- Vue composables return `ComputedRef`s where React returned plain values; that difference is deliberate and gets a README section in step 19.
-- Commit SHAs land in the Tasks table one step late (a row is written `PENDING`, then filled in by the next step's commit) — amending to insert a SHA would change that same SHA.
+- Dependencies installed: yes.
+- Full validation last run: checkpoint 2 — all four commands passed.
+- Fixtures parse through the real parser, which has caught two spec rules so far (`form.onSubmit`, `webhook.trigger`) that hand-built ASTs would have hidden.
+- Commit SHAs land in the Tasks table one step late (row written `PENDING`, filled in by the next commit) — amending to insert a SHA would change that same SHA.
