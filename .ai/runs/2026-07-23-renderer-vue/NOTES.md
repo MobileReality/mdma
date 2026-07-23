@@ -63,6 +63,11 @@ Deleted in the explainer commit.
 - Surprise: the mask toggle on a sensitive field is local `ref` state, deliberately never dispatched — whether a human is currently *looking* at a PII value is not document state and must not reach the audit log.
 - Surprise: `mountBlock` (the test helper) is effectively `MdmaBlock` written a step early; when the real one lands at 15.1 it should look like this, which is a useful cross-check rather than duplication.
 
-## 11 — Button + Callout renderers (PENDING)
+## 11 — Button + Callout renderers (f9d83f8)
 
 - Why: dismissal goes through `dispatch` as document state rather than a local `ref`, so a dismissed callout stays dismissed when the document is re-parsed mid-stream. This is the mirror image of the form's mask toggle, which deliberately stays local.
+
+## 12 — Tasklist + ApprovalGate renderers (PENDING)
+
+- Why: `onComplete` fires on the *transition* into all-checked, computed from the pre-dispatch snapshot plus the item just toggled — not from re-reading the store, which has already been mutated by the time the handler continues.
+- Surprise: the approval gate's `approved` / `denied` status is never written by the renderer; it dispatches `APPROVAL_GRANTED` and the core attachable derives the status. The test asserts the rendered status flips, which is really a check that the renderer is reading state rather than inventing it.
