@@ -109,7 +109,11 @@ Deleted in the explainer commit.
 - Why: these cover the thing unit tests structurally can't — a streamed re-parse (`store.updateAst` + a new `ast` prop) preserving a half-typed value, and the skeleton→real-block swap once a fence closes. That's the actual failure mode a chat UI hits.
 - Surprise: the redaction test asserts the *non*-sensitive value is present in the audit log as well as the SSN being absent. Without that, an empty payload would make it pass while proving nothing.
 
-## 19 — README + docs (PENDING)
+## 19 — README + docs (1054c3a)
 
 - Why: the package README leads with a "Differences from the React renderer" table. The surfaces are name-for-name identical, which makes the handful of real differences (composables returning `ComputedRef`s, the runtime `blockRendererProps`) the only thing a reader porting code actually needs.
 - Instead of: a Vue section bolted onto the theming guide's React examples. The Vue section says "everything above applies unchanged — only the syntax differs", because that *is* the design: same stylesheet, same tokens, same class names.
+
+## 20 — Changeset (PENDING)
+
+- Why: `minor` on a brand-new package at 0.1.0 — the first published version should be 0.2.0-style minor rather than a patch, and no other package's API changed, so nothing else is listed.
