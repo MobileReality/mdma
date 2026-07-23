@@ -1,5 +1,5 @@
 import { defineComponent, h, ref, type PropType, type VNodeChild } from 'vue';
-import { blockRendererProps } from '../renderers/renderer-registry.js';
+import { blockRendererProps } from '../renderers/renderer-props.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import {
   useElementOverride,

@@ -78,7 +78,12 @@ Deleted in the explainer commit.
 - Surprise: the webhook's `triggered` flag is local `ref` state, not document state, and it shadows the store-derived status in the label. It exists so a second click can't re-fire before a host has processed the first; the store still holds the authoritative status.
 - Surprise: the spec requires `trigger` on a webhook (the action id that fires it) — another rule the real-parser fixtures caught.
 
-## 14 — Chart + Thinking renderers (PENDING)
+## 14 — Chart + Thinking renderers (903f446)
 
 - Why: the thinking block suppresses `<details>`'s native toggle (`preventDefault`) and drives `open` from dispatched state instead. Letting the browser own it would desync the DOM from the store the moment a document re-parse re-rendered the block.
 - Instead of: a charting dependency. The built-in renders CSV as a table and is meant to be overridden — a chart library in a renderer package would be a hard dependency every consumer pays for.
+
+## 15 — CustomRenderer + default renderer map (PENDING)
+
+- Why: `blockRendererProps` had to move out of `renderer-registry.ts` into its own module. The registry imports all ten renderers and each renderer imports the props declaration — in React that cycle is harmless because props are type-only, but here it's a *value* read during module evaluation, so the components came up with `props.component === undefined`. Six renderer tests failed at once and pointed straight at it.
+- Surprise: this is the one place where "port it faithfully" actively misleads. The React file's shape is safe only because of a language difference.

@@ -1,5 +1,5 @@
 import { computed, defineComponent, h } from 'vue';
-import { blockRendererProps } from '../renderers/renderer-registry.js';
+import { blockRendererProps } from '../renderers/renderer-props.js';
 
 interface ParsedChartData {
   headers: string[];

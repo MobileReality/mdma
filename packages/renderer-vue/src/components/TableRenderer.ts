@@ -1,5 +1,5 @@
 import { defineComponent, h, ref } from 'vue';
-import { blockRendererProps } from '../renderers/renderer-registry.js';
+import { blockRendererProps } from '../renderers/renderer-props.js';
 
 /** A PII cell, masked until the reader clicks to reveal it. */
 const MaskedCell = defineComponent({

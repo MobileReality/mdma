@@ -1,41 +1,20 @@
-import type { Component, PropType } from 'vue';
-import type { MdmaComponent, StoreAction } from '@mobile-reality/mdma-spec';
-import type { ComponentState } from '@mobile-reality/mdma-runtime';
+import { FormRenderer } from '../components/FormRenderer.js';
+import { ButtonRenderer } from '../components/ButtonRenderer.js';
+import { TasklistRenderer } from '../components/TasklistRenderer.js';
+import { TableRenderer } from '../components/TableRenderer.js';
+import { CalloutRenderer } from '../components/CalloutRenderer.js';
+import { ApprovalGateRenderer } from '../components/ApprovalGateRenderer.js';
+import { WebhookRenderer } from '../components/WebhookRenderer.js';
+import { ChartRenderer } from '../components/ChartRenderer.js';
+import { ThinkingRenderer } from '../components/ThinkingRenderer.js';
+import { CustomRenderer } from '../components/CustomRenderer.js';
+import type { MdmaBlockRenderer } from './renderer-props.js';
 
-/** The props every block renderer receives from `MdmaBlock`. */
-export interface MdmaBlockRendererProps {
-  component: MdmaComponent;
-  componentState: ComponentState | undefined;
-  dispatch: (action: StoreAction) => void;
-  resolveBinding: (expr: string) => unknown;
-}
-
-/** A Vue component that accepts {@link MdmaBlockRendererProps}. */
-export type MdmaBlockRenderer = Component;
-
-/**
- * Runtime prop declaration matching {@link MdmaBlockRendererProps}. Spread it
- * into a `defineComponent` so a custom renderer declares exactly the props
- * `MdmaBlock` passes — Vue would otherwise drop them onto the root element as
- * attributes.
- *
- * @example
- * ```ts
- * defineComponent({
- *   props: blockRendererProps,
- *   setup(props) { ... },
- * })
- * ```
- */
-export const blockRendererProps = {
-  component: { type: Object as PropType<MdmaComponent>, required: true as const },
-  componentState: { type: Object as PropType<ComponentState>, default: undefined },
-  dispatch: { type: Function as PropType<(action: StoreAction) => void>, required: true as const },
-  resolveBinding: {
-    type: Function as PropType<(expr: string) => unknown>,
-    required: true as const,
-  },
-};
+export {
+  blockRendererProps,
+  type MdmaBlockRenderer,
+  type MdmaBlockRendererProps,
+} from './renderer-props.js';
 
 export class RendererRegistry {
   private renderers = new Map<string, MdmaBlockRenderer>();
@@ -56,4 +35,30 @@ export class RendererRegistry {
   toRecord(): Record<string, MdmaBlockRenderer> {
     return Object.fromEntries(this.renderers);
   }
+}
+
+/** Built-in renderers for all core MDMA component types. */
+export const defaultRenderers: Record<string, MdmaBlockRenderer> = {
+  form: FormRenderer,
+  button: ButtonRenderer,
+  tasklist: TasklistRenderer,
+  table: TableRenderer,
+  callout: CalloutRenderer,
+  'approval-gate': ApprovalGateRenderer,
+  webhook: WebhookRenderer,
+  chart: ChartRenderer,
+  thinking: ThinkingRenderer,
+  custom: CustomRenderer,
+};
+
+/**
+ * Create a new RendererRegistry pre-populated with all built-in renderers.
+ * Register additional renderers to extend or override defaults.
+ */
+export function createRendererRegistry(): RendererRegistry {
+  const registry = new RendererRegistry();
+  for (const [type, renderer] of Object.entries(defaultRenderers)) {
+    registry.register(type, renderer);
+  }
+  return registry;
 }

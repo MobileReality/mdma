@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { defineComponent, h } from 'vue';
-import { RendererRegistry } from '../src/renderers/renderer-registry.js';
+import { COMPONENT_TYPES } from '@mobile-reality/mdma-spec';
+import {
+  RendererRegistry,
+  createRendererRegistry,
+  defaultRenderers,
+} from '../src/renderers/renderer-registry.js';
 
 const MockRenderer = defineComponent({ setup: () => () => h('i') });
 
@@ -31,5 +36,31 @@ describe('RendererRegistry', () => {
     registry.register('form', MockRenderer);
     registry.register('form', Replacement);
     expect(registry.get('form')).toBe(Replacement);
+  });
+});
+
+describe('defaultRenderers', () => {
+  it('ships a default renderer for every core component type', () => {
+    for (const type of COMPONENT_TYPES) {
+      expect(defaultRenderers[type], `missing default renderer for "${type}"`).toBeDefined();
+    }
+  });
+
+  it('registers the custom-component dispatcher', () => {
+    expect(defaultRenderers.custom).toBeDefined();
+  });
+
+  it('createRendererRegistry pre-populates every default', () => {
+    const registry = createRendererRegistry();
+    for (const type of COMPONENT_TYPES) {
+      expect(registry.has(type), `registry missing "${type}"`).toBe(true);
+    }
+  });
+
+  it('lets a caller override a built-in renderer', () => {
+    const registry = createRendererRegistry();
+    registry.register('form', MockRenderer);
+    expect(registry.get('form')).toBe(MockRenderer);
+    expect(registry.get('button')).toBe(defaultRenderers.button);
   });
 });
