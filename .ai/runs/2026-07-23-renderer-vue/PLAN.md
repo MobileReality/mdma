@@ -13,16 +13,17 @@
 | 3    | Theme module + theme tests                                                 | done   | b13789f |
 | 4    | MdmaProvider (provide/inject) + context tests                              | done   | bca084b |
 | 5    | ElementOverrides + CustomVariant contexts                                  | done   | 80a52aa |
-| 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | done   | PENDING |
-| 7    | Renderer registry + registry test                                          | todo   |        |
+| 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | done   | 7d0a771 |
+| 7    | Renderer props type + RendererRegistry class                               | done   | PENDING |
 | 8    | MdastRenderer                                                              | todo   |        |
-| 9    | MdmaBlockLoading + MdmaBlock                                               | todo   |        |
+| 9    | MdmaBlockLoading                                                           | todo   |        |
 | 10   | FormRenderer                                                               | todo   |        |
 | 11   | ButtonRenderer + CalloutRenderer                                           | todo   |        |
 | 12   | TasklistRenderer + ApprovalGateRenderer                                    | todo   |        |
 | 13   | TableRenderer + WebhookRenderer                                            | todo   |        |
 | 14   | ChartRenderer + ThinkingRenderer                                           | todo   |        |
-| 15   | CustomRenderer                                                             | todo   |        |
+| 15   | CustomRenderer + defaultRenderers map + coverage test                      | todo   |        |
+| 15.1 | MdmaBlock (dispatch to renderer by component type)                         | todo   |        |
 | 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | todo   |        |
 | 17   | Public API index.ts + export-parity test vs renderer-react                 | todo   |        |
 | 18   | Mount-level integration tests (@vue/test-utils)                            | todo   |        |
@@ -31,6 +32,10 @@
 | 21   | Change explainer                                                           | todo   |        |
 
 Status is one of: `todo`, `done`, `blocked`.
+
+Rows 7, 9 and 15 were re-scoped after step 6 (none had started): `defaultRenderers` and
+`MdmaBlock` can only exist once the renderers they dispatch to do, so the default map moved
+into row 15 and `MdmaBlock` became row 15.1.
 
 The final `Change explainer` row runs after the validation gate is green.
 

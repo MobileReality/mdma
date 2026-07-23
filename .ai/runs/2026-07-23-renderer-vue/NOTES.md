@@ -34,9 +34,14 @@ Deleted in the explainer commit.
 - Instead of: one context holding both overrides and variants. They're kept separate because `MdmaDocument` splits a single user-facing `components` map into them, and merging would leak that internal split into the public API.
 - Surprise: the resolution chain (`scope` → `'*'` → built-in) is the whole feature and it's three lines — the tests are longer than the code on purpose, since getting the precedence backwards is silent and only shows up as the wrong widget.
 
-## 6 — Store composables (PENDING)
+## 6 — Store composables (7d0a771)
 
 - Why: the store mutates its state in place and notifies via `subscribe`, so there is nothing for Vue to track. A `tick` counter bumped in the subscription is the bridge — every composable reads it to mean "recompute when the document changes".
 - Instead of: `reactive(store)`. The provider now `toRaw`s the store on the way in: it's an external mutable service, and letting Vue proxy it breaks identity comparisons and instruments its internal `Map` on every read.
 - Surprise: `useDocumentState` deliberately returns a *fresh* shallow wrapper per tick. Handing back `getState()` directly would be identity-stable, and Vue 3.4+ computeds skip effects when the value is `===` — the React version gets away with it only because renderers actually bind to `useComponentState`, which does mint new snapshots.
 - Surprise: parsing fixtures through the real parser immediately failed with `onSubmit: Required` — a spec rule a hand-built AST fixture would have hidden. Three tests had been passing vacuously (no re-render at all) until it was fixed.
+
+## 7 — Renderer props type + RendererRegistry class (PENDING)
+
+- Why: `blockRendererProps` exists because Vue needs a *runtime* prop declaration, not just a type. A renderer that skips it still receives the values — as DOM attributes on its root element, which is a silent, ugly failure mode. Exporting the declaration means third-party renderers can't get it wrong.
+- Instead of: shipping `defaultRenderers` here as the React file does. It imports all ten renderers, none of which exist yet — the plan's rows 7/9/15 were re-scoped so the default map lands with the last renderer instead.
