@@ -24,8 +24,8 @@
 | 14   | ChartRenderer + ThinkingRenderer                                           | done   | 903f446 |
 | 15   | CustomRenderer + defaultRenderers map + coverage test                      | done   | 149dcb2 |
 | 15.1 | MdmaBlock (dispatch to renderer by component type)                         | done   | e4c83dc |
-| 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | done   | PENDING |
-| 17   | Public API index.ts + export-parity test vs renderer-react                 | todo   |        |
+| 16   | MdmaDocument (streaming / partial-thinking / block cache)                   | done   | ac4b654 |
+| 17   | Public API index.ts + export-parity test vs renderer-react                 | done   | PENDING |
 | 18   | Mount-level integration tests (@vue/test-utils)                            | todo   |        |
 | 19   | Package README + docs updates                                              | todo   |        |
 | 20   | Changeset                                                                  | todo   |        |
