@@ -15,8 +15,8 @@
 | 5    | ElementOverrides + CustomVariant contexts                                  | done   | 80a52aa |
 | 6    | Store composables (useDocumentState/useComponentState/useBinding) + tests   | done   | 7d0a771 |
 | 7    | Renderer props type + RendererRegistry class                               | done   | e907218 |
-| 8    | MdastRenderer                                                              | done   | PENDING |
-| 9    | MdmaBlockLoading                                                           | todo   |        |
+| 8    | MdastRenderer                                                              | done   | d3a1c81 |
+| 9    | MdmaBlockLoading                                                           | done   | PENDING |
 | 10   | FormRenderer                                                               | todo   |        |
 | 11   | ButtonRenderer + CalloutRenderer                                           | todo   |        |
 | 12   | TasklistRenderer + ApprovalGateRenderer                                    | todo   |        |

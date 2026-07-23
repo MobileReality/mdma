@@ -46,8 +46,12 @@ Deleted in the explainer commit.
 - Why: `blockRendererProps` exists because Vue needs a *runtime* prop declaration, not just a type. A renderer that skips it still receives the values — as DOM attributes on its root element, which is a silent, ugly failure mode. Exporting the declaration means third-party renderers can't get it wrong.
 - Instead of: shipping `defaultRenderers` here as the React file does. It imports all ten renderers, none of which exist yet — the plan's rows 7/9/15 were re-scoped so the default map lands with the last renderer instead.
 
-## 8 — MdastRenderer (PENDING)
+## 8 — MdastRenderer (d3a1c81)
 
 - Why: raw `html` nodes render as *text*, never as markup — the React version's comment ("no dangerouslySetInnerHTML") is a security property, and the Vue port keeps it by never reaching for `v-html`. A test asserts a `<script>` payload stays inert.
 - Instead of: mapping children with index keys as React does. Vue doesn't need keys for a statically-rendered tree, and index keys here would be noise.
 - Surprise: the whole switch is exercised against markdown parsed by the real `remark-parse` + `remark-gfm`, so the tests pin the mdast shapes the parser actually emits (e.g. `listItem.checked` for task lists) rather than shapes assumed from the type definitions.
+
+## 9 — MdmaBlockLoading (PENDING)
+
+- Why: the type hint is a `computed` on the node prop, so a skeleton already on screen renames itself as more YAML streams in rather than waiting for the block to complete.
