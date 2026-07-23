@@ -67,7 +67,13 @@ Deleted in the explainer commit.
 
 - Why: dismissal goes through `dispatch` as document state rather than a local `ref`, so a dismissed callout stays dismissed when the document is re-parsed mid-stream. This is the mirror image of the form's mask toggle, which deliberately stays local.
 
-## 12 — Tasklist + ApprovalGate renderers (PENDING)
+## 12 — Tasklist + ApprovalGate renderers (9fd1102)
 
 - Why: `onComplete` fires on the *transition* into all-checked, computed from the pre-dispatch snapshot plus the item just toggled — not from re-reading the store, which has already been mutated by the time the handler continues.
 - Surprise: the approval gate's `approved` / `denied` status is never written by the renderer; it dispatches `APPROVAL_GRANTED` and the core attachable derives the status. The test asserts the rendered status flips, which is really a check that the renderer is reading state rather than inventing it.
+
+## 13 — Table + Webhook renderers (PENDING)
+
+- Why: table cells resolve bindings *per cell* as well as for the whole data set — a row value like `"{{user.name}}"` is resolved, anything else is passed through. That two-level resolution is easy to miss and is what makes bound rows work.
+- Surprise: the webhook's `triggered` flag is local `ref` state, not document state, and it shadows the store-derived status in the label. It exists so a second click can't re-fire before a host has processed the first; the store still holds the authoritative status.
+- Surprise: the spec requires `trigger` on a webhook (the action id that fires it) — another rule the real-parser fixtures caught.

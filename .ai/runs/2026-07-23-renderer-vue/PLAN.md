@@ -19,8 +19,8 @@
 | 9    | MdmaBlockLoading                                                           | done   | 420d13c |
 | 10   | FormRenderer                                                               | done   | 38bc0c5 |
 | 11   | ButtonRenderer + CalloutRenderer                                           | done   | f9d83f8 |
-| 12   | TasklistRenderer + ApprovalGateRenderer                                    | done   | PENDING |
-| 13   | TableRenderer + WebhookRenderer                                            | todo   |        |
+| 12   | TasklistRenderer + ApprovalGateRenderer                                    | done   | 9fd1102 |
+| 13   | TableRenderer + WebhookRenderer                                            | done   | PENDING |
 | 14   | ChartRenderer + ThinkingRenderer                                           | todo   |        |
 | 15   | CustomRenderer + defaultRenderers map + coverage test                      | todo   |        |
 | 15.1 | MdmaBlock (dispatch to renderer by component type)                         | todo   |        |
