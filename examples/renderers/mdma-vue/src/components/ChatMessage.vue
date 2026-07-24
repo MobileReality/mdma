@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { MdmaDocument } from '@mobile-reality/mdma-renderer-vue';
+import { MdmaDocument, type MdmaRenderCustomizations } from '@mobile-reality/mdma-renderer-vue';
 import type { Turn } from '../useChat';
 
-const props = defineProps<{ turn: Turn; theme: 'light' | 'dark' }>();
+const props = defineProps<{
+  turn: Turn;
+  theme: 'light' | 'dark';
+  customizations?: MdmaRenderCustomizations;
+}>();
 </script>
 
 <template>
@@ -17,6 +21,7 @@ const props = defineProps<{ turn: Turn; theme: 'light' | 'dark' }>();
         :ast="props.turn.ast"
         :store="props.turn.store"
         :theme="props.theme"
+        :customizations="props.customizations"
       />
       <p v-else class="plain">{{ props.turn.content || '…' }}</p>
     </div>

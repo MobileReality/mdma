@@ -37,16 +37,34 @@ briefly show loading skeletons) as the reply streams in.
 Set a different model with `VITE_MDMA_MODEL` in `.env` (any OpenRouter slug; defaults to
 `openai/gpt-5.6-luna`).
 
+## Charts and a 3D custom component
+
+Two host customizations are passed to every `MdmaDocument` (see `src/custom/`):
+
+- **2D charts** — [ChartRenderer.ts](src/custom/ChartRenderer.ts) overrides the built-in `chart`
+  renderer (which draws a table) with a real inline-SVG chart: `variant: bar | line | area | pie`.
+  This is a plain component override via `customizations.components.chart`.
+- **A 3D graph** — [Graph3D.ts](src/custom/Graph3D.ts) is a host-registered **custom component**
+  (`type: custom`, `name: graph-3d`): an interactive WebGL bar chart (three.js) over two
+  categorical axes. Clicking a bar dispatches into the store, so the selection shows in the action
+  log and fires `actions.onSelect`. It's registered via `customizations.customVariants['graph-3d']`
+  and advertised to the model with `buildSystemPrompt({ customComponents: [...] })` — the author
+  prompt forbids inventing a custom `name` that isn't in that catalog. three.js is code-split and
+  loaded on demand, only when a `graph-3d` first appears.
+
+Try "chart our quarterly revenue" or "show sales by region and quarter as a 3D graph".
+
 ## How it fits together
 
 ```
-agent.ts        system prompt (MDMA author prompt) + starter suggestions
-openrouter.ts   streaming chat client, key from import.meta.env.VITE_OPENROUTER_API_KEY
-mdma.ts         parse Markdown → AST; parse-into-store for streamed re-parses (updateAst)
-useChat.ts      chat state: each assistant turn owns a DocumentStore, re-parsed per chunk
-ChatMessage.vue one turn — assistant turns render via <MdmaDocument :ast :store :theme />
-App.vue         the chat shell: thread, composer, suggestions, theme toggle
-main.ts         mounts App, imports the renderer's styles.css
+agent.ts          system prompt (author prompt + graph-3d catalog) + suggestions
+openrouter.ts     streaming chat client, key from import.meta.env.VITE_OPENROUTER_API_KEY
+mdma.ts           parse Markdown → AST; parse-into-store for streamed re-parses (updateAst)
+useChat.ts        chat state: each assistant turn owns a DocumentStore + action log
+custom/           chart override + the graph-3d custom variant, bundled as CUSTOMIZATIONS
+ChatMessage.vue   one turn — assistant turns render via <MdmaDocument :ast :store :theme :customizations />
+App.vue           the chat shell: thread, composer, suggestions, action log, theme toggle
+main.ts           mounts App, imports the renderer's styles.css
 ```
 
 The interesting part is in `useChat.ts`: an assistant reply is a growing Markdown string, and

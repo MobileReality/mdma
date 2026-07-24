@@ -3,6 +3,7 @@ import { nextTick, ref, watch } from 'vue';
 import ChatMessage from './components/ChatMessage.vue';
 import { useChat } from './useChat';
 import { SUGGESTIONS } from './agent';
+import { CUSTOMIZATIONS } from './custom';
 import { API_KEY, MODEL } from './openrouter';
 
 const { turns, isStreaming, error, events, send, stop, clear } = useChat();
@@ -73,7 +74,13 @@ watch(
             </div>
           </div>
 
-          <ChatMessage v-for="turn in turns" :key="turn.id" :turn="turn" :theme="theme" />
+          <ChatMessage
+            v-for="turn in turns"
+            :key="turn.id"
+            :turn="turn"
+            :theme="theme"
+            :customizations="CUSTOMIZATIONS"
+          />
 
           <p v-if="error" class="notice error">{{ error }}</p>
         </div>
