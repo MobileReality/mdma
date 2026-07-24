@@ -260,7 +260,7 @@ importers:
         specifier: ^6.0.0
         version: 6.4.1(@types/node@22.19.11)(jiti@2.6.1)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2)
 
-  examples/integrations/mdma-vue:
+  examples/renderers/mdma-vue:
     dependencies:
       '@mobile-reality/mdma-attachables-core':
         specifier: workspace:*

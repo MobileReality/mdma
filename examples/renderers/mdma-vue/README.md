@@ -22,7 +22,7 @@ cp .env.example .env
 
 > **The key ships to the browser.** A `VITE_` variable is bundled into the client, so this is a
 > local-demo pattern only. A real app proxies OpenRouter through a backend — see the
-> [ag-ui example](../ag-ui) — so the key never leaves the server.
+> [ag-ui example](../../integrations/ag-ui) — so the key never leaves the server.
 
 ## Run
 
