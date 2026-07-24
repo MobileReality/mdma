@@ -4,4 +4,5 @@ packages:
   - "demo"
   - "demo-native"
   - "examples/integrations/*"
+  - "examples/renderers/*"
   - "evals"

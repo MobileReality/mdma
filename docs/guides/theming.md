@@ -2,7 +2,7 @@
 
 MDMA renderers ship with a polished default look and a first-class theming layer on top of it. Theming is **opt-in**: render a document with no `theme` and you get the built-in light palette, unchanged. When you want more, you can switch to a dark palette, follow the operating-system preference, or hand over a fully custom set of design tokens.
 
-Both the web renderer (`@mobile-reality/mdma-renderer-react`) and the React Native renderer (`@mobile-reality/mdma-renderer-react-native`) expose the **same `MdmaTheme` token shape**, so a custom theme object is portable between the two.
+The web renderers (`@mobile-reality/mdma-renderer-react` and `@mobile-reality/mdma-renderer-vue`) and the React Native renderer (`@mobile-reality/mdma-renderer-react-native`) all expose the **same `MdmaTheme` token shape**, so a custom theme object is portable between them. The two web renderers also ship an identical `styles.css`.
 
 ## The three modes
 
@@ -108,6 +108,32 @@ import { MdmaThemeProvider, MdmaBlock } from '@mobile-reality/mdma-renderer-reac
   <MdmaBlock block={block} />
 </MdmaThemeProvider>;
 ```
+
+## Vue renderer
+
+The Vue renderer uses the same stylesheet and the same tokens, so everything above applies unchanged — only the syntax differs:
+
+```vue
+<script setup lang="ts">
+import { MdmaDocument, type MdmaTheme } from '@mobile-reality/mdma-renderer-vue';
+import '@mobile-reality/mdma-renderer-vue/styles.css';
+</script>
+
+<template>
+  <!-- 'light' | 'dark' | 'auto', or a full MdmaTheme object -->
+  <MdmaDocument :ast="ast" :store="store" theme="dark" />
+</template>
+```
+
+Rendering a lone block outside a document works the same way, via `MdmaThemeProvider`:
+
+```vue
+<MdmaThemeProvider theme="dark">
+  <MdmaBlock :block="block" />
+</MdmaThemeProvider>
+```
+
+One difference: `useMdmaTheme()` returns a `ComputedRef`, so read tokens as `theme.value.colors.primary` in `setup` (or unwrapped in a template) — that is what keeps them reactive when an ancestor's theme changes.
 
 ## React Native renderer
 

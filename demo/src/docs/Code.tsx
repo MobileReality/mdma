@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import hljs from 'highlight.js/lib/core';
 import hljsBash from 'highlight.js/lib/languages/bash';
+import hljsJavaScript from 'highlight.js/lib/languages/javascript';
 import hljsJson from 'highlight.js/lib/languages/json';
 import hljsTypeScript from 'highlight.js/lib/languages/typescript';
 import hljsXml from 'highlight.js/lib/languages/xml';
 import hljsYaml from 'highlight.js/lib/languages/yaml';
 
 hljs.registerLanguage('bash', hljsBash);
+// Registered so the XML grammar can sub-highlight a Vue SFC's <script> block.
+hljs.registerLanguage('javascript', hljsJavaScript);
 hljs.registerLanguage('json', hljsJson);
 hljs.registerLanguage('typescript', hljsTypeScript);
 hljs.registerLanguage('xml', hljsXml);
@@ -18,6 +21,9 @@ const LANG_MAP: Record<string, string> = {
   mdma: 'yaml',
   bash: 'bash',
   json: 'json',
+  // A .vue SFC is HTML markup around a <script>; the XML grammar colors both.
+  vue: 'xml',
+  html: 'xml',
   text: 'plaintext',
   code: 'plaintext',
 };

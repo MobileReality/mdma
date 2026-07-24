@@ -25,3 +25,6 @@ evals/results*.json
 # Expo (local dev cache + export output)
 **/.expo/
 demo-native/dist
+
+# Local agent run state (plans, handoffs, notes) — never merged
+.ai/
