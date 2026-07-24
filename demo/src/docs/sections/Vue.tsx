@@ -5,12 +5,12 @@ export function Vue() {
     <>
       <h2>Vue</h2>
       <p>
-        <code>@mobile-reality/mdma-renderer-vue</code> renders MDMA documents as Vue 3 UI — the Vue
-        sibling of <code>@mobile-reality/mdma-renderer-react</code>. It consumes the same headless{' '}
-        <code>spec</code> + <code>runtime</code> stack unchanged and mirrors the React renderer's
-        public surface name for name (a test asserts export parity). It ships the{' '}
-        <strong>same <code>styles.css</code></strong> as the web React renderer, so a theme object
-        and a set of <code>.mdma-*</code> styles are portable between the two.
+        <code>@mobile-reality/mdma-renderer-vue</code> turns a parsed MDMA document into interactive
+        Vue 3 components — forms, tables, charts, approval gates, and the rest of the component
+        catalog — with full state, bindings, actions, policy, audit, and PII redaction. It builds on
+        the headless <code>spec</code> + <code>runtime</code> stack: you give it an AST and a
+        document store, and it renders the live UI and dispatches user interactions back into the
+        store.
       </p>
 
       <h2>Install</h2>
@@ -46,49 +46,47 @@ watchEffect(async () => {
   <MdmaDocument v-if="doc" :ast="doc.ast" :store="doc.store" />
 </template>`}</Code>
 
-      <h2>Differences from the React renderer</h2>
+      <h2>State &amp; reactivity</h2>
       <p>
-        The API is the same shape in Vue idiom, with a few deliberate differences:
+        Read document state through composables, each of which returns a <code>ComputedRef</code> so
+        your components re-render as the store changes: <code>useComponentState(id)</code> for one
+        component's values, <code>useBinding(expr)</code> to resolve a <code>{'{{ binding }}'}</code>{' '}
+        expression, and <code>useDocumentState()</code> for the whole document. Read them as{' '}
+        <code>.value</code> in <code>setup</code>, or unwrapped in a template.
       </p>
-      <ul>
-        <li>
-          <strong>Composables return refs.</strong> <code>useMdmaTheme()</code>,{' '}
-          <code>useComponentState()</code>, <code>useBinding()</code> return a{' '}
-          <code>ComputedRef</code>, so they stay reactive — read <code>.value</code> in{' '}
-          <code>setup</code> (unwrapped in a template).
-        </li>
-        <li>
-          <strong>Context is provide/inject.</strong> <code>MdmaProvider</code> and the theme /
-          element-override / custom-variant providers use Vue <code>provide</code>/
-          <code>inject</code> with exported <code>InjectionKey</code>s instead of React context.
-        </li>
-        <li>
-          <strong>Custom renderers spread a runtime prop declaration.</strong> Spread{' '}
-          <code>blockRendererProps</code> into your <code>defineComponent</code> so Vue passes the
-          props through instead of dropping them on the root element as attributes.
-        </li>
-      </ul>
+      <Code lang="vue">{`<script setup lang="ts">
+import { useBinding } from '@mobile-reality/mdma-renderer-vue';
+
+const email = useBinding<string>('{{ signup.email }}');
+</script>
+
+<template>
+  <p>Welcome, {{ email }}</p>
+</template>`}</Code>
       <p>
-        Components are authored as <code>defineComponent</code> + <code>h()</code> render functions
-        in plain <code>.ts</code> — no <code>.vue</code> SFCs — so the package builds with{' '}
-        <code>tsc</code> and needs no bundler.
+        Providers use Vue's <code>provide</code>/<code>inject</code>: <code>MdmaDocument</code> wires
+        the store, theme, element overrides, and custom variants for everything beneath it. To render
+        a lone <code>MdmaBlock</code> outside a document, wrap it in <code>MdmaProvider</code> (store)
+        and <code>MdmaThemeProvider</code> (theme).
       </p>
 
       <h2>Styling &amp; theming</h2>
       <p>
-        Import <code>styles.css</code> once and pass a <code>theme</code> prop (
-        <code>"light" | "dark" | "auto"</code>, or a full <code>MdmaTheme</code> token object) to{' '}
-        <code>MdmaDocument</code>. To theme a lone <code>MdmaBlock</code> rendered outside a
-        document, wrap it in <code>MdmaThemeProvider</code>. Because the tokens and stylesheet match
-        the React renderer, a theme built on one renders identically on the other.
+        Import <code>styles.css</code> once — it is driven by <code>--mdma-*</code> CSS variables, so
+        every component is themeable without touching markup. Pass a <code>theme</code> prop to{' '}
+        <code>MdmaDocument</code>: <code>"light"</code>, <code>"dark"</code>, <code>"auto"</code> (it
+        follows the OS preference), or a full <code>MdmaTheme</code> token object for custom colors,
+        spacing, radii, and type. The <strong>Theming</strong> page has a live editor.
       </p>
 
       <h2>Customizing components</h2>
       <p>
         Override any built-in component through <code>customizations.components.&lt;type&gt;</code>,
         or draw a host-registered <code>custom</code> block through{' '}
-        <code>customizations.customVariants</code>. For example, swap the built-in chart (which
-        draws a table) for a real one:
+        <code>customizations.customVariants</code>. A custom renderer spreads the exported{' '}
+        <code>blockRendererProps</code> declaration so Vue passes the component, its state, and the
+        dispatch/binding callbacks through as props. For example, swap the built-in chart (which
+        draws a plain table so the library stays lightweight) for a real one:
       </p>
       <Code lang="ts">{`import { defineComponent, h } from 'vue';
 import { MdmaDocument, blockRendererProps } from '@mobile-reality/mdma-renderer-vue';
