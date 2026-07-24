@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "Frontend-only Vue 3 example: parse an MDMA document and render it with @mobile-reality/mdma-renderer-vue.",
+  "description": "Frontend-only Vue 3 agent chat: streams an OpenRouter model and renders its MDMA replies with @mobile-reality/mdma-renderer-vue.",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -12,6 +12,7 @@
   "dependencies": {
     "@mobile-reality/mdma-attachables-core": "workspace:*",
     "@mobile-reality/mdma-parser": "workspace:*",
+    "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-renderer-vue": "workspace:*",
     "@mobile-reality/mdma-runtime": "workspace:*",
     "@mobile-reality/mdma-spec": "workspace:*",

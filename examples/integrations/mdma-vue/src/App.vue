@@ -1,87 +1,93 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef } from 'vue';
-import { MdmaDocument } from '@mobile-reality/mdma-renderer-vue';
-import type { MdmaRoot } from '@mobile-reality/mdma-spec';
-import type { DocumentStore } from '@mobile-reality/mdma-runtime';
-import { parseDocument } from './mdma';
-import { SAMPLE_DOCUMENT, DATA_SOURCES } from './document';
+import { nextTick, ref, watch } from 'vue';
+import ChatMessage from './components/ChatMessage.vue';
+import { useChat } from './useChat';
+import { SUGGESTIONS } from './agent';
+import { API_KEY, MODEL } from './openrouter';
 
-// The renderer never touches these directly — `MdmaDocument` reads the store
-// and dispatches into it; we only hold them to hand to the component.
-const ast = shallowRef<MdmaRoot | null>(null);
-const store = shallowRef<DocumentStore | null>(null);
+const { turns, isStreaming, error, send, stop, clear } = useChat();
 
+const input = ref('');
 const theme = ref<'light' | 'dark'>('light');
+const scroller = ref<HTMLElement | null>(null);
 
-/** Every action/change the store has logged, newest first — the audit trail. */
-const log = ref<Array<{ at: string; type: string; component: string }>>([]);
+async function submit(text?: string) {
+  const value = text ?? input.value;
+  if (!value.trim() || isStreaming.value) return;
+  input.value = '';
+  await send(value);
+}
 
-const customizations = computed(() => ({ dataSources: DATA_SOURCES }));
-
-onMounted(async () => {
-  const parsed = await parseDocument(SAMPLE_DOCUMENT);
-  ast.value = parsed.ast;
-  store.value = parsed.store;
-
-  // Mirror the store's own audit log into a panel so actions are visible. The
-  // store redacts sensitive values before they land here, exactly as it does
-  // for the real log.
-  const refresh = () => {
-    log.value = parsed.store
-      .getEventLog()
-      .entries()
-      .map((e) => ({
-        at: new Date(e.timestamp).toLocaleTimeString(),
-        type: e.eventType,
-        component: e.componentId,
-      }))
-      .reverse();
-  };
-  parsed.store.subscribe(refresh);
-  refresh();
-});
+// Keep the newest turn in view as the conversation grows and streams.
+watch(
+  () => turns.value.map((t) => t.content).join('|'),
+  async () => {
+    await nextTick();
+    scroller.value?.scrollTo({ top: scroller.value.scrollHeight, behavior: 'smooth' });
+  },
+);
 </script>
 
 <template>
-  <div class="page" :class="`page--${theme}`">
+  <div class="app" :class="`app--${theme}`">
     <header class="bar">
       <div>
-        <h1>MDMA × Vue</h1>
-        <p>One Markdown document, rendered with <code>@mobile-reality/mdma-renderer-vue</code>.</p>
+        <h1>MDMA × Vue — agent chat</h1>
+        <p>
+          Streamed from <code>{{ MODEL }}</code> via OpenRouter · components drawn by
+          <code>@mobile-reality/mdma-renderer-vue</code>
+        </p>
       </div>
-      <button class="theme-toggle" type="button" @click="theme = theme === 'light' ? 'dark' : 'light'">
-        {{ theme === 'light' ? '🌙 Dark' : '☀️ Light' }}
-      </button>
+      <div class="bar-actions">
+        <button type="button" class="ghost" @click="theme = theme === 'light' ? 'dark' : 'light'">
+          {{ theme === 'light' ? '🌙' : '☀️' }}
+        </button>
+        <button type="button" class="ghost" :disabled="!turns.length || isStreaming" @click="clear">
+          Clear
+        </button>
+      </div>
     </header>
 
-    <main class="layout">
-      <section class="doc">
-        <MdmaDocument
-          v-if="ast && store"
-          :ast="ast"
-          :store="store"
-          :customizations="customizations"
-          :theme="theme"
-        />
-        <p v-else class="loading">Parsing document…</p>
-      </section>
+    <p v-if="!API_KEY" class="notice">
+      Set <code>VITE_OPENROUTER_API_KEY</code> in a <code>.env</code> file (see
+      <code>.env.example</code>) and restart the dev server.
+    </p>
 
-      <aside class="panel">
-        <h2>Audit log</h2>
-        <p class="hint">
-          Fill the form, reveal the masked Tax ID, approve the gate — every action the store
-          records shows here. Sensitive values are redacted before they reach the log.
-        </p>
-        <ol v-if="log.length" class="events">
-          <li v-for="(e, i) in log" :key="i">
-            <span class="event-type">{{ e.type }}</span>
-            <span class="event-comp">{{ e.component }}</span>
-            <span class="event-at">{{ e.at }}</span>
-          </li>
-        </ol>
-        <p v-else class="hint">No events yet.</p>
-      </aside>
+    <main ref="scroller" class="thread">
+      <div v-if="!turns.length" class="empty">
+        <p>Ask for something that could use a UI — a form, a table, an approval step:</p>
+        <div class="suggestions">
+          <button
+            v-for="s in SUGGESTIONS"
+            :key="s"
+            type="button"
+            class="chip"
+            :disabled="!API_KEY"
+            @click="submit(s)"
+          >
+            {{ s }}
+          </button>
+        </div>
+      </div>
+
+      <ChatMessage v-for="turn in turns" :key="turn.id" :turn="turn" :theme="theme" />
+
+      <p v-if="error" class="notice error">{{ error }}</p>
     </main>
+
+    <footer class="composer">
+      <textarea
+        v-model="input"
+        rows="1"
+        placeholder="Message the agent…"
+        :disabled="!API_KEY"
+        @keydown.enter.exact.prevent="submit()"
+      />
+      <button v-if="isStreaming" type="button" class="send stop" @click="stop">Stop</button>
+      <button v-else type="button" class="send" :disabled="!input.trim() || !API_KEY" @click="submit()">
+        Send
+      </button>
+    </footer>
   </div>
 </template>
 
@@ -93,12 +99,17 @@ body {
   margin: 0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
 }
-.page {
-  min-height: 100vh;
+</style>
+
+<style scoped>
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background: #f3f4f6;
   color: #111827;
 }
-.page--dark {
+.app--dark {
   background: #0f1420;
   color: #e5e7eb;
 }
@@ -107,96 +118,127 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  padding: 1.25rem 1.5rem;
+  padding: 0.9rem 1.25rem;
   border-bottom: 1px solid rgba(127, 127, 127, 0.2);
 }
 .bar h1 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: 1.05rem;
 }
 .bar p {
-  margin: 0.25rem 0 0;
-  font-size: 0.85rem;
-  opacity: 0.7;
+  margin: 0.2rem 0 0;
+  font-size: 0.78rem;
+  opacity: 0.65;
 }
 .bar code {
-  font-size: 0.8em;
+  font-size: 0.85em;
 }
-.theme-toggle {
-  padding: 0.5rem 0.9rem;
-  border: 1px solid rgba(127, 127, 127, 0.4);
+.bar-actions {
+  display: flex;
+  gap: 0.4rem;
+}
+.ghost {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid rgba(127, 127, 127, 0.35);
   border-radius: 8px;
   background: transparent;
   color: inherit;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
 }
-.layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
-  gap: 1.5rem;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 1.5rem;
+.ghost:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
-@media (max-width: 820px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-}
-.doc {
-  background: transparent;
-}
-.panel {
-  align-self: start;
-  position: sticky;
-  top: 1.5rem;
-  padding: 1rem 1.1rem;
-  border: 1px solid rgba(127, 127, 127, 0.25);
-  border-radius: 12px;
-  background: rgba(127, 127, 127, 0.06);
-}
-.panel h2 {
-  margin: 0 0 0.5rem;
-  font-size: 1rem;
-}
-.hint {
-  margin: 0 0 0.75rem;
-  font-size: 0.8rem;
-  opacity: 0.7;
-  line-height: 1.4;
-}
-.events {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
-  font-size: 0.8rem;
+  gap: 1.1rem;
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
-.events li {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0.15rem 0.5rem;
-  padding: 0.4rem 0.5rem;
-  border-radius: 8px;
-  background: rgba(127, 127, 127, 0.1);
+.empty {
+  margin: auto 0;
+  text-align: center;
+  opacity: 0.85;
 }
-.event-type {
+.suggestions {
+  margin-top: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+.chip {
+  padding: 0.5rem 0.85rem;
+  border: 1px solid rgba(108, 92, 231, 0.4);
+  border-radius: 999px;
+  background: rgba(108, 92, 231, 0.08);
+  color: inherit;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+.chip:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.notice {
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0.7rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  background: rgba(243, 156, 18, 0.15);
+  border: 1px solid rgba(243, 156, 18, 0.4);
+  box-sizing: border-box;
+}
+.notice.error {
+  background: rgba(231, 76, 60, 0.15);
+  border-color: rgba(231, 76, 60, 0.45);
+}
+.composer {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid rgba(127, 127, 127, 0.2);
+  max-width: 860px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+.composer textarea {
+  flex: 1;
+  resize: none;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1.4;
+  max-height: 160px;
+}
+.send {
+  padding: 0.7rem 1.2rem;
+  border: none;
+  border-radius: 12px;
+  background: #6c5ce7;
+  color: #fff;
+  cursor: pointer;
   font-weight: 600;
 }
-.event-comp {
-  opacity: 0.65;
+.send:disabled {
+  opacity: 0.4;
+  cursor: default;
 }
-.event-at {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  align-self: center;
-  opacity: 0.5;
-  font-variant-numeric: tabular-nums;
-}
-.loading {
-  opacity: 0.6;
+.send.stop {
+  background: #e74c3c;
 }
 </style>
