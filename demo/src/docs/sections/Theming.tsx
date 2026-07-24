@@ -295,6 +295,24 @@ import '@mobile-reality/mdma-renderer-react/styles.css';
   <MdmaBlock block={block} />
 </MdmaThemeProvider>;`}</Code>
 
+      <h2>Vue renderer</h2>
+      <p>
+        The Vue renderer (<code>@mobile-reality/mdma-renderer-vue</code>) ships the{' '}
+        <strong>same <code>styles.css</code></strong> and the same <code>MdmaTheme</code> token
+        shape, so everything above applies unchanged — only the syntax differs. One difference:{' '}
+        <code>useMdmaTheme()</code> returns a <code>ComputedRef</code>, so read it as{' '}
+        <code>theme.value.colors.primary</code> to stay reactive.
+      </p>
+      <Code lang="vue">{`<script setup lang="ts">
+import { MdmaDocument } from '@mobile-reality/mdma-renderer-vue';
+import '@mobile-reality/mdma-renderer-vue/styles.css';
+</script>
+
+<template>
+  <!-- 'light' | 'dark' | 'auto', or a full MdmaTheme object -->
+  <MdmaDocument :ast="ast" :store="store" theme="dark" />
+</template>`}</Code>
+
       <h2>React Native renderer</h2>
       <p>
         Same prop, no stylesheet — each renderer builds its <code>StyleSheet</code> from the
