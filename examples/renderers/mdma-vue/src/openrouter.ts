@@ -9,7 +9,7 @@ const ENDPOINT = 'https://openrouter.ai/api/v1/chat/completions';
 
 export const API_KEY = import.meta.env.VITE_OPENROUTER_API_KEY as string | undefined;
 export const MODEL =
-  (import.meta.env.VITE_MDMA_MODEL as string | undefined) ?? 'openai/gpt-5.4-mini';
+  (import.meta.env.VITE_MDMA_MODEL as string | undefined) ?? 'openai/gpt-5.6-luna';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';

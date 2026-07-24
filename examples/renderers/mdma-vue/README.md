@@ -35,7 +35,7 @@ my shipping details", "show me a sales summary as a table". Watch the components
 briefly show loading skeletons) as the reply streams in.
 
 Set a different model with `VITE_MDMA_MODEL` in `.env` (any OpenRouter slug; defaults to
-`openai/gpt-5.4-mini`).
+`openai/gpt-5.6-luna`).
 
 ## How it fits together
 
