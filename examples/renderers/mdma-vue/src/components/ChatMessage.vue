@@ -50,13 +50,19 @@ const props = defineProps<{ turn: Turn; theme: 'light' | 'dark' }>();
 }
 .bubble {
   min-width: 0;
-  max-width: 80%;
   padding: 0.4rem 0.9rem;
   border-radius: 14px;
   background: rgba(127, 127, 127, 0.08);
   border: 1px solid rgba(127, 127, 127, 0.14);
 }
+/* Assistant turns hold rendered components (forms, tables), so give them room —
+   nearly the full column. User turns are short text, so keep them compact. */
+.msg--assistant .bubble {
+  flex: 1;
+  max-width: 100%;
+}
 .msg--user .bubble {
+  max-width: 80%;
   background: #6c5ce7;
   color: #fff;
   padding: 0.6rem 0.9rem;

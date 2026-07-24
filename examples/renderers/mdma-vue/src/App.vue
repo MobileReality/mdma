@@ -88,8 +88,9 @@ watch(
         <ol v-if="events.length" class="events">
           <li v-for="(e, i) in events" :key="i">
             <span class="event-type">{{ e.type }}</span>
-            <span class="event-comp">{{ e.component }}</span>
             <span class="event-at">{{ e.at }}</span>
+            <span class="event-comp">{{ e.component }}</span>
+            <span v-if="e.detail" class="event-detail">{{ e.detail }}</span>
           </li>
         </ol>
         <p v-else class="hint muted">No actions yet.</p>
@@ -119,9 +120,6 @@ watch(
 </template>
 
 <style>
-:root {
-  color-scheme: light dark;
-}
 html,
 body {
   margin: 0;
@@ -141,7 +139,14 @@ body {
   background: #f3f4f6;
   color: #111827;
 }
+/* Bind color-scheme to the app theme so form controls AND scrollbars match it —
+   otherwise the browser paints dark scrollbars under a light UI when the OS is
+   in dark mode. */
+.app--light {
+  color-scheme: light;
+}
 .app--dark {
+  color-scheme: dark;
   background: #0f1420;
   color: #e5e7eb;
 }
@@ -198,7 +203,7 @@ body {
   padding: 1.25rem;
 }
 .thread-inner {
-  max-width: 720px;
+  max-width: 860px;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -267,22 +272,28 @@ body {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0.1rem 0.5rem;
-  padding: 0.4rem 0.5rem;
+  padding: 0.4rem 0.55rem;
   border-radius: 8px;
   background: rgba(127, 127, 127, 0.1);
 }
 .event-type {
   font-weight: 600;
 }
-.event-comp {
-  opacity: 0.65;
-}
 .event-at {
-  grid-column: 2;
-  grid-row: 1 / 3;
-  align-self: center;
+  justify-self: end;
   opacity: 0.5;
   font-variant-numeric: tabular-nums;
+}
+.event-comp {
+  grid-column: 1 / -1;
+  opacity: 0.6;
+}
+.event-detail {
+  grid-column: 1 / -1;
+  margin-top: 0.1rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.75rem;
+  word-break: break-word;
 }
 .notice {
   max-width: 720px;

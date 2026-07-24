@@ -21,6 +21,28 @@ export interface LoggedEvent {
   at: string;
   type: string;
   component: string;
+  /** What actually changed — e.g. `city = Berlin`, or `city = •••` when redacted. */
+  detail: string;
+}
+
+/** A short, human-readable summary of an audit entry's payload. */
+function describe(eventType: string, payload: Record<string, unknown>, redacted: boolean): string {
+  const val = (v: unknown) => (v == null ? '' : String(v));
+  switch (eventType) {
+    case 'field_changed':
+      // The field name is not sensitive; the value is hashed when the field is,
+      // so show a redaction marker rather than the hash.
+      return `${val(payload.field)} = ${redacted ? '•••' : val(payload.value)}`;
+    case 'action_triggered':
+      return `→ ${val(payload.actionId)}`;
+    case 'integration_called':
+      return val(payload.integrationId);
+    case 'approval_granted':
+    case 'approval_denied':
+      return val((payload.actor as { id?: string } | undefined)?.id);
+    default:
+      return '';
+  }
 }
 
 /**
@@ -51,6 +73,7 @@ export function useChat() {
           at: new Date(e.timestamp).toLocaleTimeString(),
           type: e.eventType,
           component: e.componentId,
+          detail: describe(e.eventType, e.payload, e.redacted),
         })),
     );
     all.sort((a, b) => a.ts.localeCompare(b.ts));
