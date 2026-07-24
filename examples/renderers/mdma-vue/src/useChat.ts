@@ -15,6 +15,14 @@ export interface Turn {
   store?: DocumentStore;
 }
 
+/** One entry from a turn's audit log, flattened for the action-log panel. */
+export interface LoggedEvent {
+  ts: string;
+  at: string;
+  type: string;
+  component: string;
+}
+
 /**
  * Chat state over the OpenRouter stream. Each assistant turn owns a
  * `DocumentStore`, re-parsed on every chunk (`updateAst`) so its embedded MDMA
@@ -24,8 +32,36 @@ export function useChat() {
   const turns = ref<Turn[]>([]);
   const isStreaming = ref(false);
   const error = ref<string | null>(null);
+  /** Every action/change across every turn's store, newest first. */
+  const events = ref<LoggedEvent[]>([]);
   let nextId = 0;
   let controller: AbortController | null = null;
+
+  // Each assistant turn owns a store; the action log is their audit entries
+  // merged and sorted. We keep the raw store list here (out of the reactive
+  // graph) and re-flatten whenever any of them dispatches.
+  const stores: DocumentStore[] = [];
+  function syncEvents() {
+    const all: LoggedEvent[] = stores.flatMap((s) =>
+      s
+        .getEventLog()
+        .entries()
+        .map((e) => ({
+          ts: e.timestamp,
+          at: new Date(e.timestamp).toLocaleTimeString(),
+          type: e.eventType,
+          component: e.componentId,
+        })),
+    );
+    all.sort((a, b) => a.ts.localeCompare(b.ts));
+    events.value = all.reverse();
+  }
+
+  function trackStore(store: DocumentStore) {
+    stores.push(store);
+    store.subscribe(syncEvents);
+    syncEvents();
+  }
 
   /**
    * Replace the turn with matching id by a NEW object. Mutating a turn in place
@@ -78,6 +114,7 @@ export function useChat() {
           const parsed = await parseDocument(markdown);
           store = markRaw(parsed.store);
           ast = parsed.ast;
+          trackStore(store);
         } else {
           ast = await reparseInto(store, markdown);
         }
@@ -121,7 +158,9 @@ export function useChat() {
     stop();
     turns.value = [];
     error.value = null;
+    stores.length = 0;
+    events.value = [];
   }
 
-  return { turns, isStreaming, error, send, stop, clear };
+  return { turns, isStreaming, error, events, send, stop, clear };
 }
