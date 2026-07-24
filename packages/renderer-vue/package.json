@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-renderer-vue",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "mdma",
     "markdown",
@@ -45,7 +45,10 @@
     "vitest": "^3.2.0",
     "vue": "^3.5.0"
   },
-  "files": ["dist", "styles.css"],
+  "files": [
+    "dist",
+    "styles.css"
+  ],
   "publishConfig": {
     "access": "public"
   },

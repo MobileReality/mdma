@@ -1,7 +1,7 @@
 {
   "name": "mdma-example-vue",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "description": "Frontend-only Vue 3 agent chat: streams an OpenRouter model and renders its MDMA replies with @mobile-reality/mdma-renderer-vue.",
   "scripts": {
