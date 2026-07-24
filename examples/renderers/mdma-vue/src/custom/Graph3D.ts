@@ -1,4 +1,4 @@
-import { defineComponent, h, onBeforeUnmount, onMounted, ref, type PropType } from 'vue';
+import { defineComponent, h, onBeforeUnmount, onMounted, ref, watch, type PropType } from 'vue';
 import * as THREE from 'three';
 import type { CustomComponent, StoreAction } from '@mobile-reality/mdma-spec';
 import type { ComponentState } from '@mobile-reality/mdma-runtime';
@@ -14,6 +14,10 @@ interface Graph3DProps {
 
 function parseCsv(raw: string) {
   const lines = raw
+    // Some models emit the CSV with escaped "\n" or with ";" row separators
+    // rather than real newlines; normalise both so a single-line block still parses.
+    .replace(/\\n/g, '\n')
+    .replace(/;/g, '\n')
     .split('\n')
     .map((l) => l.trim())
     .filter(Boolean);
@@ -54,6 +58,7 @@ export const Graph3D = defineComponent({
   setup(props) {
     const mount = ref<HTMLDivElement | null>(null);
     const selected = ref<{ x: string; z: string; y: number } | null>(null);
+    const sceneReady = ref(false);
     let cleanup: (() => void) | null = null;
 
     const shape = () => {
@@ -67,13 +72,21 @@ export const Graph3D = defineComponent({
       return { rows, xs, zs, x, z, y, max, autoRotate: props.props.autoRotate ?? true };
     };
 
-    onMounted(() => {
+    // Build (or rebuild) the whole scene from the current props. Called on mount
+    // AND whenever the props change — crucial during streaming, where the block
+    // validates and mounts while `data` is still arriving (often header-only, so
+    // zero rows). Without the rebuild the graph would stay stuck on that first,
+    // empty parse and never draw the bars that stream in afterwards.
+    const build = () => {
+      cleanup?.();
+      cleanup = null;
+      sceneReady.value = false;
       const el = mount.value;
       const parsed = shape();
       if (!el || !parsed) return;
       const { rows, xs, zs, x, z, y, max, autoRotate } = parsed;
 
-      const width = el.clientWidth || 600;
+      const width = el.clientWidth || el.parentElement?.clientWidth || 600;
       const height = 360;
 
       const scene = new THREE.Scene();
@@ -251,7 +264,21 @@ export const Graph3D = defineComponent({
         renderer.dispose();
         if (renderer.domElement.parentNode === el) el.removeChild(renderer.domElement);
       };
-    });
+
+      sceneReady.value = true;
+    };
+
+    // Defer one frame so the mount element has a laid-out width before we size
+    // the canvas (an async component can mount before layout settles).
+    const scheduleBuild = () => requestAnimationFrame(() => build());
+
+    onMounted(scheduleBuild);
+    // Rebuild when the data (or axis mapping) changes — e.g. as the block streams
+    // in. A signature keeps us from rebuilding the WebGL scene on unrelated ticks.
+    watch(
+      () => `${props.props.data}|${props.props.x}|${props.props.z}|${props.props.y}`,
+      scheduleBuild,
+    );
 
     onBeforeUnmount(() => cleanup?.());
 
@@ -271,7 +298,16 @@ export const Graph3D = defineComponent({
         p.title || props.component.label
           ? h('div', { style: title3d }, p.title ?? props.component.label)
           : null,
-        h('div', { ref: mount, style: { width: '100%', minHeight: '360px' } }),
+        h('div', { style: { position: 'relative', width: '100%', minHeight: '360px' } }, [
+          h('div', { ref: mount, style: { width: '100%', minHeight: '360px' } }),
+          !sceneReady.value
+            ? h(
+                'div',
+                { style: placeholder },
+                shape() ? 'Rendering 3D graph…' : 'Waiting for graph data…',
+              )
+            : null,
+        ]),
         selected.value
           ? h('div', { style: selRow }, [
               h('b', selected.value.x),
@@ -305,6 +341,16 @@ const shell = {
   color: '#e5e7eb',
 } as const;
 const title3d = { fontWeight: 700, marginBottom: '0.4rem' } as const;
+const placeholder = {
+  position: 'absolute',
+  inset: '0',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: '0.85rem',
+  opacity: 0.6,
+  pointerEvents: 'none',
+} as const;
 const selRow = {
   display: 'flex',
   alignItems: 'center',
