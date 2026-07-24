@@ -102,9 +102,8 @@ const MyChartRenderer = defineComponent({
 // <MdmaDocument :ast :store :customizations="{ components: { chart: MyChartRenderer } }" />`}</Code>
 
       <p>
-        A runnable example — an OpenRouter-backed agent chat that renders streamed MDMA replies,
-        with a 2D-chart override and a three.js <code>graph-3d</code> custom component — lives in the
-        repo at <code>examples/renderers/mdma-vue</code>.
+        A runnable example — an OpenRouter-backed agent chat that renders streamed MDMA replies —
+        lives in the repo at <code>examples/renderers/mdma-vue</code>.
       </p>
     </>
   );
