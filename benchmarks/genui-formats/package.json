@@ -1,0 +1,32 @@
+{
+  "name": "@mobile-reality/mdma-genui-format-benchmark",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-format generative-UI reliability benchmark: MDMA vs OpenUI Lang vs json-render vs A2UI",
+  "scripts": {
+    "verify": "tsx src/verify-adapters.ts",
+    "models": "tsx src/verify-models.ts",
+    "bench": "tsx src/run.ts",
+    "score": "tsx src/score.ts",
+    "report": "tsx src/report.ts",
+    "extract": "tsx src/extract-raw.ts",
+    "inspect": "tsx src/inspect.ts"
+  },
+  "dependencies": {
+    "@json-render/core": "0.19.0",
+    "@json-render/react": "0.19.0",
+    "@json-render/shadcn": "0.19.0",
+    "@mobile-reality/mdma-prompt-pack": "workspace:*",
+    "@mobile-reality/mdma-validator": "workspace:*",
+    "@openuidev/lang-core": "0.2.10",
+    "ajv": "^8.17.1",
+    "dotenv": "^16.4.5",
+    "openai": "^4.77.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

@@ -6,3 +6,4 @@ packages:
   - "examples/integrations/*"
   - "examples/renderers/*"
   - "evals"
+  - "benchmarks/genui-formats"
