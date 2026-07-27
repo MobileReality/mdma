@@ -214,15 +214,12 @@ Cheap output nobody can render is not cheap.
   chat completion it was flattened to `SKILL.md` + the reference docs its own routing table
   marks required for Non-DTO Component mode, plus a short note telling the model it cannot
   read files. This is a real adaptation and is itself a finding about portability.
-- **Gemma-4-E4B** is not served on OpenRouter; the open-weights rung uses
-  `google/gemma-4-26b-a4b-it` (MoE, ~4B active params) instead.
 
 ### Per-model notes
 
 | Model | Note |
 | --- | --- |
 | Opus 5 | prompt-pack has no author variant for this model, so MDMA runs its generic prompt here — what an integrator gets today, but not MDMA at its best. |
-| Gemma-4-26B-A4B | Gemma-4-E4B is not served on OpenRouter; this is the smallest Gemma-4 available (MoE, ~4B active params). Open-weights rung. |
 
 ### Scenarios excluded as asymmetric
 

@@ -383,8 +383,6 @@ function main(): void {
     '  chat completion it was flattened to `SKILL.md` + the reference docs its own routing table',
     '  marks required for Non-DTO Component mode, plus a short note telling the model it cannot',
     '  read files. This is a real adaptation and is itself a finding about portability.',
-    '- **Gemma-4-E4B** is not served on OpenRouter; the open-weights rung uses',
-    '  `google/gemma-4-26b-a4b-it` (MoE, ~4B active params) instead.',
     '',
   );
 

@@ -119,8 +119,6 @@ export const MODELS: ModelSpec[] = [
     rung: 'small',
     vendor: 'google',
     promptSelector: 'openrouter:google/gemma-4-26b-a4b-it',
-    substitutionNote:
-      'Gemma-4-E4B is not served on OpenRouter; this is the smallest Gemma-4 available (MoE, ~4B active params). Open-weights rung.',
   },
 ];
 
