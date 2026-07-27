@@ -10,9 +10,6 @@ and **validated by its own validator**, across a ladder of models from flagship 
 | [json-render](https://github.com/vercel-labs/json-render) | JSONL of RFC-6902 patches | `catalog.prompt()` |
 | [A2UI / AGenUI](https://github.com/AGenUI/AGenUI) | A2UI v0.9 JSON messages | `skills/a2ui-generation/SKILL.md` + required refs, flattened |
 
-[CopilotKit OpenGenerativeUI](https://github.com/CopilotKit/OpenGenerativeUI) is excluded from the
-quantitative run: it emits un-schema'd HTML/CSS/JS, so there is nothing to validate against.
-
 ## Why this exists
 
 `thesysdev/openui` publishes a benchmark claiming OpenUI Lang uses ~53% fewer tokens than
@@ -53,9 +50,6 @@ the renderable denominator, so a format can be 100% renderable and 52% truncated
   fully describes its output format — that is the artifact under test. The **user message** is the
   scenario, byte-identical across all four formats and in plain natural language with **no format
   hints**: no YAML, no JSON, no catalog component names.
-- Scenarios only cover what all four express natively. Nested-layout prompts (which MDMA cannot
-  express by design) and approval-gate / PII / webhook prompts (which the others cannot) are
-  excluded and listed in the report.
 - Every raw generation is preserved verbatim in `results/generations.jsonl`, which is committed.
   Run `pnpm extract` to expand it into one text file per generation under `results/raw/` for
   reading or grepping — that directory is derived data and stays out of git.
