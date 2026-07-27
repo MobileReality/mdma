@@ -67,9 +67,6 @@ function main(): void {
   const modelsRun = MODELS.filter(
     (m) => results.aggregates.some((a) => a.model === m.id) && isComplete(m.id),
   );
-  const partial = MODELS.filter(
-    (m) => results.aggregates.some((a) => a.model === m.id) && !isComplete(m.id),
-  );
   const completeIds = new Set(modelsRun.map((m) => m.id));
   results.aggregates = results.aggregates.filter((a) => completeIds.has(a.model));
   results.cells = results.cells.filter((c) => completeIds.has(c.model));
@@ -463,13 +460,8 @@ function main(): void {
   md.push(
     `- ${k} repeats per cell detects gross flakiness, not rare intermittent failures.`,
     '- Shape stability (section 3) is not comparable across formats — see the note there.',
-    '- Only two rungs were run (flagship and open-weights). The mid rung is unmeasured, so the',
-    '  shape of the degradation curve between them is an inference, not a measurement.',
-    ...(partial.length
-      ? [
-          `- ${partial.map((m) => m.label).join(', ')} ${partial.length === 1 ? 'was' : 'were'} started but not completed, and ${partial.length === 1 ? 'is' : 'are'} excluded entirely — partial rows are not comparable.`,
-        ]
-      : []),
+    '- One model per rung, so rung and vendor are confounded: a difference between rows may be a',
+    '  capability difference, a vendor difference, or both.',
     '- Truncation is scored at a fixed 8192-token ceiling. A higher ceiling would move A2UI and',
     '  json-render numbers; the ceiling is identical for every format, but it is a choice.',
     '- Renderability is not semantic fidelity: a valid document that answers the wrong question',
