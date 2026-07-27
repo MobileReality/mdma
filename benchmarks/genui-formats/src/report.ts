@@ -464,8 +464,6 @@ function main(): void {
     '  json-render numbers; the ceiling is identical for every format, but it is a choice.',
     '- Renderability is not semantic fidelity: a valid document that answers the wrong question',
     '  scores as a pass. The scenarios are simple enough that this is rare, but it is not measured.',
-    '- CopilotKit OpenGenerativeUI is excluded from the quantitative comparison: it emits',
-    '  un-schema\'d HTML/CSS/JS, so there is no validator to score against.',
     '- Results are a snapshot against pinned upstream commits (see `vendor/PINS.txt`). These',
     '  projects move weekly.',
     '',
