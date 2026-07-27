@@ -50,11 +50,10 @@ tuning show who each one was built against:
 | OpenUI Lang | **OpenAI** | scaffold writes `OPENAI_API_KEY`; their own benchmark generates with `gpt-5.2` and counts tokens with the GPT-5 encoder | no — one prompt, no per-vendor tuning |
 | json-render | none | none — one generated prompt for every model | no |
 | A2UI | none | none — docs say "try a few models and pick the one that fits best" | no |
-| CopilotKit OpenGenUI | **Anthropic** | defaults to `claude-fable-5`; `gpt-*` routes to OpenAI; any other provider means editing `model.py` | no, but weak models are declared unsupported |
 
-So the split is: MDMA is the only one that *adapts* to the model, OpenUI and CopilotKit are
-built against a house vendor without requiring it, and json-render and A2UI are vendor-neutral
-and vendor-indifferent — one prompt, you find out how it lands.
+So the split is: MDMA is the only one that *adapts* to the model, OpenUI is built against a
+house vendor without requiring it, and json-render and A2UI are vendor-neutral and
+vendor-indifferent — one prompt, you find out how it lands.
 
 ### 3. Is it really an open protocol — can you paste the prompt into your own model?
 

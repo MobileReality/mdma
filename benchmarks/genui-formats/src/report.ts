@@ -191,20 +191,14 @@ function main(): void {
           'none — docs say "try a few models and pick the one that fits best"',
           'no',
         ],
-        [
-          'CopilotKit OpenGenUI',
-          '**Anthropic**',
-          'defaults to `claude-fable-5`; `gpt-*` routes to OpenAI; any other provider means editing `model.py`',
-          'no, but weak models are declared unsupported',
-        ],
       ],
     ),
   );
   md.push('');
   md.push(
-    'So the split is: MDMA is the only one that *adapts* to the model, OpenUI and CopilotKit are',
-    'built against a house vendor without requiring it, and json-render and A2UI are vendor-neutral',
-    'and vendor-indifferent — one prompt, you find out how it lands.',
+    'So the split is: MDMA is the only one that *adapts* to the model, OpenUI is built against a',
+    'house vendor without requiring it, and json-render and A2UI are vendor-neutral and',
+    'vendor-indifferent — one prompt, you find out how it lands.',
     '',
   );
 
