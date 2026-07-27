@@ -1,7 +1,8 @@
 /**
- * A2UI / AGenUI adapter.
+ * AGenUI adapter — `AGenUI/AGenUI`, the native renderer SDK implementing
+ * A2UI v0.9. Not `a2ui-project/a2ui`, which was not tested.
  *
- * Prompt — and this is itself a finding worth stating in the report: A2UI does
+ * Prompt — a finding about AGenUI specifically: AGenUI does
  * NOT ship an injectable system prompt. It ships an *Agent Skill*: a `SKILL.md`
  * with progressive disclosure that instructs a file-reading agent to load
  * `reference/*.md` on demand. Pasted into a plain system prompt, `SKILL.md`
@@ -165,8 +166,8 @@ function collectPaths(node: unknown, acc: string[] = [], depth = 0): string[] {
 
 export const a2uiAdapter: FormatAdapter = {
   id: 'a2ui',
-  label: 'A2UI (AGenUI)',
-  promptSource: 'flattened skills/a2ui-generation SKILL.md + required refs (AGenUI @ 3e79bea)',
+  label: 'AGenUI (A2UI SDK)',
+  promptSource: 'flattened AGenUI skills/a2ui-generation SKILL.md + refs (AGenUI @ 3e79bea)',
 
   async systemPrompt(): Promise<string> {
     return FLATTENED_PROMPT;
