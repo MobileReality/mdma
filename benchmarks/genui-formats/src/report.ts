@@ -231,6 +231,14 @@ function main(): void {
   md.push('');
   md.push(matrix(results, (a) => pct(a.renderableRate), formats));
   md.push('');
+  md.push(
+    "> ⚠️ **A2UI's column is measured on a looser standard than A2UI's own tooling applies.** Every",
+    '> format here is checked for structural renderability, but A2UI additionally ships an 889-line',
+    "> `validate_a2ui.py`, and under *that* script the same generations score 84.2% / 70.0% /",
+    '> **12.2%** instead of 100% / 81.1% / 93.3%. The Gemma row is the one to be careful with.',
+    '> See [Cross-check: A2UI\'s own validator is much stricter than ours](#cross-check-a2uis-own-validator-is-much-stricter-than-ours).',
+    '',
+  );
 
   md.push('### Truncation — ↓ lower is better (output that exceeded the shared 8192-token ceiling)');
   md.push('');
@@ -439,6 +447,33 @@ function main(): void {
     md.push('');
   }
 
+  md.push('### What each format is validated by');
+  md.push('');
+  md.push(
+    table(
+      ['Format', 'Validated by', 'First-party checker left unused'],
+      [
+        ['MDMA', '`@mobile-reality/mdma-validator`, autofix off', 'none'],
+        [
+          'OpenUI Lang',
+          '`createParser()` + `meta.errors` / `unresolved` / `orphaned`',
+          'none — their exported `validate()` is a form-field rule runner, not a document checker',
+        ],
+        [
+          'json-render',
+          '`validateSpec()` (runtime) **and** `catalog.validate()` (strict Zod)',
+          'none — remaining exports are field-level validation, a repair helper, a formatter',
+        ],
+        [
+          'A2UI',
+          'structural conformance to the v0.9 message shape + `agenui_catalog.json`',
+          '**`scripts/validate_a2ui.py`** — see below',
+        ],
+      ],
+    ),
+  );
+  md.push('');
+
   md.push("### Cross-check: A2UI's own validator is much stricter than ours");
   md.push('');
   md.push(
@@ -503,6 +538,10 @@ function main(): void {
     '  json-render numbers; the ceiling is identical for every format, but it is a choice.',
     '- Renderability is not semantic fidelity: a valid document that answers the wrong question',
     '  scores as a pass. The scenarios are simple enough that this is rare, but it is not measured.',
+    '- The four validators are not equally calibrated. Each format is checked by its own tooling,',
+    "  but A2UI's first-party script enforces much more than structural renderability, so A2UI's",
+    '  figures here are the most generous of the four — see the cross-check section for the size of',
+    '  the gap. OpenUI and json-render ship no stricter checker than the ones already used.',
     '- Results are a snapshot against pinned upstream commits (see `vendor/PINS.txt`). These',
     '  projects move weekly.',
     '',
