@@ -24,12 +24,20 @@ one flagship model is tested.
 That measures compression. It does not measure whether a model can produce the format. This
 benchmark measures the latter:
 
-1. **Renderable rate** — share of generations a renderer could actually render.
-2. **"Every time" rate** — share of scenarios where *all k repeats* rendered. The number that
-   matters if you are shipping something.
-3. **Shape stability** — share of scenarios where all k repeats produced the same structure.
-4. **Efficiency** — renderable rate per 1k output tokens. Cheap output nobody can render is not cheap.
-5. **Failure taxonomy** — parse errors, unknown components, broken references, truncation, prose leakage.
+| Metric | Direction | Meaning |
+| --- | --- | --- |
+| Renderable rate | **↑ higher** | share of generations a renderer could actually render |
+| Truncation rate | **↓ lower** | share that hit the 8k output ceiling — the format didn't fit |
+| "Every time" rate | **↑ higher** | share of scenarios where *all k repeats* rendered. The number that matters if you are shipping something |
+| Shape stability | **↑ higher** | share of scenarios where all k repeats produced the same structure. Within-format only |
+| Output tokens | **↓ lower** | mean completion tokens — drives cost and time-to-render |
+| Prompt tokens | **↓ lower** | system-prompt size, paid on every request |
+| Efficiency | **↑ higher** | renderable rate per 1k output tokens. Cheap output nobody can render is not cheap |
+| Failure counts | **↓ lower** | parse errors, unknown components, broken references, truncation, prose leakage |
+
+Renderable rate and truncation rate are not complements: truncated generations are removed from
+the renderable denominator, so a format can be 100% renderable and 52% truncated at the same time
+— "everything that fit was valid, but half of it didn't fit".
 
 ## Fairness rules
 

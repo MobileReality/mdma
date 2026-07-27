@@ -94,6 +94,76 @@ function main(): void {
   );
 
   // ---------------------------------------------------------------- setup
+  md.push('## Reading the tables');
+  md.push('');
+  md.push(
+    'Every metric below is marked **↑ higher is better** or **↓ lower is better**.',
+    '',
+  );
+  md.push(
+    table(
+      ['Metric', 'Direction', 'What it means', 'Best possible'],
+      [
+        [
+          'Renderable rate',
+          '**↑ higher**',
+          'share of generations a renderer could render',
+          '100%',
+        ],
+        [
+          'Truncation rate',
+          '**↓ lower**',
+          "share of generations that hit the 8k output ceiling — the format didn't fit",
+          '0%',
+        ],
+        [
+          '"Every time" rate',
+          '**↑ higher**',
+          `share of scenarios where all ${k} repeats rendered cleanly`,
+          '100%',
+        ],
+        [
+          'Shape stability',
+          '**↑ higher**',
+          'share of scenarios whose repeats produced identical structure (within-format only)',
+          '100%',
+        ],
+        [
+          'Output tokens',
+          '**↓ lower**',
+          'mean completion tokens — drives cost and time-to-render',
+          'fewer',
+        ],
+        [
+          'Prompt tokens',
+          '**↓ lower**',
+          'system-prompt size, paid on every single request',
+          'fewer',
+        ],
+        [
+          'Efficiency',
+          '**↑ higher**',
+          'renderable output per 1k output tokens',
+          'higher',
+        ],
+        [
+          'Failure counts',
+          '**↓ lower**',
+          'number of generations in each failure category',
+          '0',
+        ],
+      ],
+    ),
+  );
+  md.push('');
+  md.push(
+    '> Renderable rate and truncation rate are **not** two views of the same thing. Truncated',
+    '> generations are removed from the renderable denominator entirely, so a format can show',
+    '> 100% renderable and 52% truncated at once — meaning "everything that fit was valid, but',
+    '> half of it did not fit".',
+    '',
+  );
+
   md.push('## What was run');
   md.push('');
   md.push(
@@ -121,7 +191,7 @@ function main(): void {
   );
   md.push(
     table(
-      ['Format', 'Source', 'Prompt tokens'],
+      ['Format', 'Source', 'Prompt tokens (↓ lower is better)'],
       ADAPTERS.filter((a) => formats.includes(a.id)).map((a) => [
         a.label,
         a.promptSource,
@@ -132,14 +202,14 @@ function main(): void {
   md.push('');
 
   // ------------------------------------------------------------- headline
-  md.push('## 1. Renderable rate');
+  md.push('## 1. Renderable rate — ↑ higher is better');
   md.push('');
   md.push('Share of generations that parse and validate — i.e. that a renderer could render.');
   md.push('');
   md.push(matrix(results, (a) => pct(a.renderableRate), formats));
   md.push('');
 
-  md.push('### Truncation — output that exceeded the shared 8192-token ceiling');
+  md.push('### Truncation — ↓ lower is better (output that exceeded the shared 8192-token ceiling)');
   md.push('');
   md.push(
     'Truncated generations are **excluded from the renderable rate above** and reported here',
@@ -153,7 +223,7 @@ function main(): void {
   md.push(matrix(results, (a) => pct(a.truncationRate), formats));
   md.push('');
 
-  md.push('## 2. "Every time" rate');
+  md.push('## 2. "Every time" rate — ↑ higher is better');
   md.push('');
   md.push(
     `Share of scenarios where **all ${k} repeats** rendered. This is the number that matters if`,
@@ -163,7 +233,7 @@ function main(): void {
   md.push(matrix(results, (a) => pct(a.everyTimeRate), formats));
   md.push('');
 
-  md.push('## 3. Shape stability (diagnostic only — NOT comparable across formats)');
+  md.push('## 3. Shape stability — ↑ higher is better (diagnostic only — NOT comparable across formats)');
   md.push('');
   md.push(
     `Share of scenarios where all ${k} repeats produced the same component structure.`,
@@ -183,22 +253,24 @@ function main(): void {
   md.push('');
 
   // ----------------------------------------------------------- efficiency
-  md.push('## 4. Output tokens and efficiency');
+  md.push('## 4. Output tokens (↓ lower is better) and efficiency (↑ higher is better)');
   md.push('');
   md.push(
     'Efficiency is `renderable rate / avg output tokens x 1000` — renderable output per 1k tokens.',
     'Cheap output nobody can render is not cheap.',
     '',
   );
+  md.push('**Mean output tokens — ↓ lower is better:**');
+  md.push('');
   md.push(matrix(results, (a) => a.avgOutputTokens.toFixed(0), formats));
   md.push('');
-  md.push('**Efficiency (renderable per 1k output tokens):**');
+  md.push('**Efficiency — ↑ higher is better (renderable output per 1k output tokens):**');
   md.push('');
   md.push(matrix(results, (a) => a.efficiency.toFixed(2), formats));
   md.push('');
 
   // -------------------------------------------------------------- failures
-  md.push('## 5. Failure taxonomy');
+  md.push('## 5. Failure taxonomy — ↓ lower is better (0 is perfect)');
   md.push('');
   const kinds = [
     ...new Set(results.aggregates.flatMap((a) => Object.keys(a.failureCounts))),
@@ -225,7 +297,7 @@ function main(): void {
   md.push('');
 
   // --------------------------------------------------------- by scenario
-  md.push('## 6. Renderable rate by scenario family');
+  md.push('## 6. Renderable rate by scenario family — ↑ higher is better');
   md.push('');
   const familyRows: string[][] = [];
   for (const family of FAMILIES) {

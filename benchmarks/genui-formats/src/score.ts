@@ -5,15 +5,24 @@
  * Offline and free — re-run it whenever a validator changes, without
  * regenerating anything.
  *
- * Metrics, in the order the report presents them:
- *   renderableRate  — share of generations a renderer could render
- *   everyTimeRate   — share of (scenario) cells where ALL k repeats rendered.
+ * Metrics, in the order the report presents them. Arrows give the direction of
+ * "good" — every table in the report is labelled the same way:
+ *
+ *   renderableRate  ↑ share of generations a renderer could render
+ *   truncationRate  ↓ share that hit the max_tokens ceiling. Excluded from the
+ *                     renderable denominator, so this is NOT 1 - renderableRate:
+ *                     a format can be 100% renderable and 52% truncated at once.
+ *   everyTimeRate   ↑ share of (scenario) cells where ALL k repeats rendered.
  *                     This is the "predictable output every time" number.
- *   shapeStability  — share of cells where all k repeats produced the same
+ *   shapeStability  ↑ share of cells where all k repeats produced the same
  *                     structural shape. Renderable but different every time is
  *                     still a problem if you are building a product on it.
- *   avgOutputTokens — mean completion tokens
- *   efficiency      — renderableRate / avgOutputTokens * 1000
+ *                     Comparable WITHIN a format only — fingerprint granularity
+ *                     differs between formats.
+ *   avgOutputTokens ↓ mean completion tokens — drives cost and time-to-render
+ *   avgPromptTokens ↓ system-prompt size, paid on every request
+ *   efficiency      ↑ renderableRate / avgOutputTokens * 1000
+ *   failureCounts   ↓ generations per failure category
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -243,7 +252,7 @@ function main(): void {
   const modelLabel = new Map(MODELS.map((m) => [m.id, m.label]));
   const formats = [...new Set(results.aggregates.map((a) => a.format))];
 
-  console.log('renderable rate — share of generations a renderer could render\n');
+  console.log('renderable rate (HIGHER IS BETTER) — share of generations a renderer could render\n');
   const header = ['model'.padEnd(24), ...formats.map((f) => f.padStart(13))].join('');
   console.log(header);
   console.log('-'.repeat(header.length));
@@ -258,7 +267,9 @@ function main(): void {
     console.log([(modelLabel.get(model.id) ?? model.id).padEnd(24), ...cells].join(''));
   }
 
-  console.log(`\ntruncation rate — hit the shared 8192-token ceiling (excluded from scoring)\n`);
+  console.log(
+    '\ntruncation rate (LOWER IS BETTER) — hit the shared 8192-token ceiling (excluded from scoring)\n',
+  );
   console.log(header);
   console.log("-".repeat(header.length));
   for (const model of MODELS) {
@@ -271,7 +282,7 @@ function main(): void {
     console.log([(modelLabel.get(model.id) ?? model.id).padEnd(24), ...cells].join(""));
   }
 
-  console.log('\n"every time" rate — share of scenarios where ALL k repeats rendered\n');
+  console.log('\n"every time" rate (HIGHER IS BETTER) — share of scenarios where ALL k repeats rendered\n');
   console.log(header);
   console.log('-'.repeat(header.length));
   for (const model of MODELS) {

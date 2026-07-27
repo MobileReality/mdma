@@ -1,12 +1,32 @@
 # Generative-UI format reliability benchmark
 
-_Generated 2026-07-27T12:55:12.718Z · 1107 generations · 0 API errors_
+_Generated 2026-07-27T13:09:51.685Z · 1107 generations · 0 API errors_
 
 Four open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.
 
 **The question:** given a system prompt you can paste into any LLM, does the model emit
 output you can actually render — every time, including on weak models?
+
+## Reading the tables
+
+Every metric below is marked **↑ higher is better** or **↓ lower is better**.
+
+| Metric | Direction | What it means | Best possible |
+| --- | --- | --- | --- |
+| Renderable rate | **↑ higher** | share of generations a renderer could render | 100% |
+| Truncation rate | **↓ lower** | share of generations that hit the 8k output ceiling — the format didn't fit | 0% |
+| "Every time" rate | **↑ higher** | share of scenarios where all 5 repeats rendered cleanly | 100% |
+| Shape stability | **↑ higher** | share of scenarios whose repeats produced identical structure (within-format only) | 100% |
+| Output tokens | **↓ lower** | mean completion tokens — drives cost and time-to-render | fewer |
+| Prompt tokens | **↓ lower** | system-prompt size, paid on every single request | fewer |
+| Efficiency | **↑ higher** | renderable output per 1k output tokens | higher |
+| Failure counts | **↓ lower** | number of generations in each failure category | 0 |
+
+> Renderable rate and truncation rate are **not** two views of the same thing. Truncated
+> generations are removed from the renderable denominator entirely, so a format can show
+> 100% renderable and 52% truncated at once — meaning "everything that fit was valid, but
+> half of it did not fit".
 
 ## What was run
 
@@ -25,14 +45,14 @@ output you can actually render — every time, including on weak models?
 Each format uses its own published prompt, unmodified, obtained through its own official
 artifact or prompt-generation API.
 
-| Format | Source | Prompt tokens |
+| Format | Source | Prompt tokens (↓ lower is better) |
 | --- | --- | --- |
 | MDMA | buildSystemPrompt() + per-model author variant (packages/prompt-pack) | 5910 |
 | OpenUI Lang | vendor/openui-system-prompt.txt (thesysdev/openui @ 65b5f93) | 5172 |
 | json-render | catalog.prompt() — @json-render/core 0.19.0, shadcn catalog + Chart | 8466 |
 | A2UI (AGenUI) | flattened skills/a2ui-generation SKILL.md + required refs (AGenUI @ 3e79bea) | 19689 |
 
-## 1. Renderable rate
+## 1. Renderable rate — ↑ higher is better
 
 Share of generations that parse and validate — i.e. that a renderer could render.
 
@@ -45,7 +65,7 @@ Share of generations that parse and validate — i.e. that a renderer could rend
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 98.9% | 83.3% | 83.3% | 93.3% |
 
-### Truncation — output that exceeded the shared 8192-token ceiling
+### Truncation — ↓ lower is better (output that exceeded the shared 8192-token ceiling)
 
 Truncated generations are **excluded from the renderable rate above** and reported here
 instead. A response cut off mid-structure tells us the format is verbose, not that the model
@@ -63,7 +83,7 @@ It is still a real cost. Truncation here means: at 8k output tokens, that format
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 0.0% | 0.0% | 0.0% | 0.0% |
 
-## 2. "Every time" rate
+## 2. "Every time" rate — ↑ higher is better
 
 Share of scenarios where **all 5 repeats** rendered. This is the number that matters if
 you are shipping a product: a format that works 4 times in 5 still breaks in production.
@@ -77,7 +97,7 @@ you are shipping a product: a format that works 4 times in 5 still breaks in pro
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 94.4% | 55.6% | 38.9% | 77.8% |
 
-## 3. Shape stability (diagnostic only — NOT comparable across formats)
+## 3. Shape stability — ↑ higher is better (diagnostic only — NOT comparable across formats)
 
 Share of scenarios where all 5 repeats produced the same component structure.
 
@@ -100,10 +120,12 @@ Share of scenarios where all 5 repeats produced the same component structure.
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 72.2% | 5.6% | 0.0% | 5.6% |
 
-## 4. Output tokens and efficiency
+## 4. Output tokens (↓ lower is better) and efficiency (↑ higher is better)
 
 Efficiency is `renderable rate / avg output tokens x 1000` — renderable output per 1k tokens.
 Cheap output nobody can render is not cheap.
+
+**Mean output tokens — ↓ lower is better:**
 
 | Model | MDMA | OpenUI Lang | json-render | A2UI (AGenUI) |
 | --- | --- | --- | --- | --- |
@@ -114,7 +136,7 @@ Cheap output nobody can render is not cheap.
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 448 | 417 | 836 | 1485 |
 
-**Efficiency (renderable per 1k output tokens):**
+**Efficiency — ↑ higher is better (renderable output per 1k output tokens):**
 
 | Model | MDMA | OpenUI Lang | json-render | A2UI (AGenUI) |
 | --- | --- | --- | --- | --- |
@@ -125,7 +147,7 @@ Cheap output nobody can render is not cheap.
 | **small** |  |  |  |  |
 | Gemma-4-26B-A4B | 2.21 | 2.00 | 1.00 | 0.63 |
 
-## 5. Failure taxonomy
+## 5. Failure taxonomy — ↓ lower is better (0 is perfect)
 
 | Format | broken-reference | no-structured-output | off-task | parse-error | prose-leakage | schema-error | truncated | unknown-component |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -134,7 +156,7 @@ Cheap output nobody can render is not cheap.
 | json-render | 27 | 0 | 0 | 0 | 0 | 26 | 11 | 0 |
 | A2UI (AGenUI) | 3 | 13 | 7 | 0 | 2 | 0 | 47 | 0 |
 
-## 6. Renderable rate by scenario family
+## 6. Renderable rate by scenario family — ↑ higher is better
 
 | Family | MDMA | OpenUI Lang | json-render | A2UI (AGenUI) |
 | --- | --- | --- | --- | --- |
@@ -169,7 +191,9 @@ Cheap output nobody can render is not cheap.
 - Identical user prompts, temperature, and token limits across every format and model.
 - Prompts are plain natural language with **no format hints** — no YAML, no JSON, no component
   names from any catalog.
-- Every raw generation is committed under `results/raw/` so any number here can be audited.
+- Every raw generation is preserved verbatim in `results/generations.jsonl`, so any number here
+  can be audited or re-scored offline without regenerating anything (`pnpm extract` expands it
+  into one file per generation).
 
 ### Adjustments made, and why
 
