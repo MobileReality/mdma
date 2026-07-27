@@ -8,6 +8,19 @@ prompt and validated by its own validator, across a ladder of models.
 **The question:** given a system prompt you can paste into any LLM, does the model emit
 output you can actually render — every time, including on weak models?
 
+**Formats tested:** MDMA · OpenUI Lang · json-render · A2UI (AGenUI)
+
+**Models tested:**
+
+| Rung | Model | Provider id | Generations |
+| --- | --- | --- | --- |
+| flagship | Opus 5 | `anthropic/claude-opus-5` | 360 |
+| mid | GPT-5.6-terra | `openai/gpt-5.6-terra` | 360 |
+| small | Gemma-4-26B-A4B | `google/gemma-4-26b-a4b-it` | 360 |
+
+All reached through OpenRouter, 5 repeats per scenario, temperature 0.7, max_tokens 8192 —
+identical settings for every format and model.
+
 ## Reading the tables
 
 Every metric below is marked **↑ higher is better** or **↓ lower is better**.

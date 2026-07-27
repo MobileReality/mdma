@@ -93,6 +93,32 @@ function main(): void {
     '',
   );
 
+  md.push(
+    `**Formats tested:** ${ADAPTERS.filter((a) => formats.includes(a.id))
+      .map((a) => a.label)
+      .join(' · ')}`,
+  );
+  md.push('');
+  md.push('**Models tested:**');
+  md.push('');
+  md.push(
+    table(
+      ['Rung', 'Model', 'Provider id', 'Generations'],
+      modelsRun.map((m) => {
+        const gens = results.aggregates
+          .filter((a) => a.model === m.id)
+          .reduce((sum, a) => sum + a.generations, 0);
+        return [m.rung, m.label, `\`${m.id}\``, String(gens)];
+      }),
+    ),
+  );
+  md.push('');
+  md.push(
+    `All reached through OpenRouter, ${k} repeats per scenario, temperature 0.7, max_tokens 8192 —`,
+    'identical settings for every format and model.',
+    '',
+  );
+
   // ---------------------------------------------------------------- setup
   md.push('## Reading the tables');
   md.push('');
