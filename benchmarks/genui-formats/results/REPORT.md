@@ -235,6 +235,35 @@ Cheap output nobody can render is not cheap.
   The adaptation is itself a finding about portability: this format cannot be used through a
   plain chat completion without someone assembling a prompt for it.
 
+### Cross-check: A2UI's own validator is much stricter than ours
+
+A2UI ships an 889-line validation script (`skills/a2ui-generation/scripts/validate_a2ui.py`).
+Our adapter does **not** use it: it checks structural renderability only, which is the same
+standard applied to the other three formats. Theirs additionally enforces a style-key
+whitelist, padding/border shorthand formats, per-component required fields, button action
+structure, and some design guidance.
+
+Running their script over all 218 non-truncated A2UI generations shows how far apart the two
+standards are (`pnpm tsx src/crosscheck-a2ui.mts` reproduces this):
+
+| Model | Our validator ↑ | Their validator ↑ | Gap |
+| --- | --- | --- | --- |
+| Opus 5 | 100.0% | 84.2% | 15.8pp |
+| GPT-5.6-terra | 81.1% | 70.0% | 11.1pp |
+| Gemma-4-26B-A4B | 93.3% | 12.2% | **81.1pp** |
+
+**A2UI's numbers in this report are therefore generous to A2UI**, dramatically so on the
+open-weights rung. Read the 93.3% as "structurally renderable", not as "would pass A2UI's own
+quality gate".
+
+We did not adopt their script, because doing so would hold A2UI to a materially different
+standard than the other three formats. Their top failure reasons are mostly style-lint rather
+than parse failures — `padding shorthand must use 4 px values` (60), `text-only style key
+'color' is not allowed on non-Text component` (39), `root should not set a solid
+background-color` (26) — and the equivalent house-style rules were excluded for MDMA too
+(`thinking-block`). Some of them do look renderer-level rather than cosmetic, though, so the
+true figure for A2UI sits somewhere between the two columns above rather than at either end.
+
 ### Scenarios excluded as asymmetric
 
 These were deliberately left out of the scored corpus because they are natively expressible
