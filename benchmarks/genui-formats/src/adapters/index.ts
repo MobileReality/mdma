@@ -9,8 +9,8 @@ export const ADAPTERS: FormatAdapter[] = [
   mdmaAdapter,
   openuiAdapter,
   jsonRenderAdapter,
-  a2uiAdapter,
   a2uiTransportAdapter,
+  a2uiAdapter,
 ];
 
 export const ADAPTER_BY_ID = Object.fromEntries(ADAPTERS.map((a) => [a.id, a])) as Record<

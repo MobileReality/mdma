@@ -205,13 +205,13 @@ function main(): void {
           'no — one prompt, no per-vendor tuning',
         ],
         ['json-render', 'none', 'none — one generated prompt for every model', 'no'],
+        ['A2UI', 'none', 'none — one generated prompt, no per-vendor tuning', 'no'],
         [
           'AGenUI',
           'none',
           'none — docs say "try a few models and pick the one that fits best"',
           'no',
         ],
-        ['A2UI', 'none', 'none — one generated prompt, no per-vendor tuning', 'no'],
       ],
     ),
   );
@@ -250,14 +250,14 @@ function main(): void {
           'you must run `catalog.prompt()` from their TypeScript package to produce one',
         ],
         [
-          'AGenUI',
-          '**no**',
-          'ships an Agent Skill with progressive disclosure, not a prompt — we had to flatten it',
-        ],
-        [
           'A2UI',
           'yes, but **generated**',
           'you must run their Python SDK (`a2ui_agent` prompt generator) to produce one',
+        ],
+        [
+          'AGenUI',
+          '**no**',
+          'ships an Agent Skill with progressive disclosure, not a prompt — we had to flatten it',
         ],
       ],
     ),
@@ -615,11 +615,6 @@ function main(): void {
           'none — remaining exports are field-level validation, a repair helper, a formatter',
         ],
         [
-          'AGenUI',
-          'structural conformance to the v0.9 message shape + `agenui_catalog.json`',
-          '**`scripts/validate_a2ui.py`** — see below',
-        ],
-        [
           'A2UI',
           'their own `TransportParser.parse_response()` (schema compilation) via `a2ui-python/`',
           'none',
@@ -639,7 +634,7 @@ function main(): void {
     'structure, and some design guidance.',
     '',
     'Running their script over all 218 non-truncated AGenUI generations shows how far apart the two',
-    'standards are (`pnpm tsx src/crosscheck-a2ui.mts` reproduces this):',
+    'standards are (`pnpm tsx src/crosscheck-agenui.mts` reproduces this):',
     '',
   );
   md.push(
