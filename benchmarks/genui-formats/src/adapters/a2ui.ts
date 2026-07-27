@@ -30,7 +30,18 @@ const REF = join(VENDOR, 'a2ui-reference');
 
 const read = (p: string) => readFileSync(p, 'utf8');
 
-/** Required docs for Mode 2 (Non-DTO Component), per SKILL.md's own routing table. */
+/**
+ * Docs for Mode 2 (Non-DTO Component). SKILL.md's routing table marks
+ * `component-catalog.md` and `component-design.md` as **required** for this
+ * mode and lists `data-binding.md` under *load on demand*.
+ *
+ * We include data-binding.md anyway: the catalog documents every dynamic value
+ * as `{"path": "..."}` but the rules governing those paths (absolute vs
+ * relative, `/` vs dot notation, the updateDataModel shape) live only in
+ * data-binding.md. Without it the model is told to use bindings and not told
+ * how. This is our judgement call, and it cuts against A2UI on cost — it makes
+ * the prompt bigger. Disclosed in the report.
+ */
 const FLATTENED_PROMPT = [
   read(join(VENDOR, 'a2ui-SKILL.md')),
   '\n\n---\n\n# reference/component-catalog.md\n\n',
