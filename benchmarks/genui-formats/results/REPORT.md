@@ -44,9 +44,6 @@ by unreliability, which is why the drop is shown as N/A rather than as an appare
 on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:
 12.2% under A2UI's own script.
 
-**MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather
-than any single cell, is the result this benchmark was built to test.
-
 ### 2. Is any of them built for one model vendor?
 
 Whether a library is written *for* GPT, or *for* Gemini, and how much work it is to point it
