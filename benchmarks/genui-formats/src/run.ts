@@ -215,7 +215,8 @@ async function main(): Promise<void> {
   if (args.dry) return;
 
   const apiKey = process.env.OPENROUTER_API_KEY;
-  if (!apiKey) throw new Error('OPENROUTER_API_KEY is not set (put it in benchmarks/genui-formats/.env)');
+  if (!apiKey)
+    throw new Error('OPENROUTER_API_KEY is not set (put it in benchmarks/genui-formats/.env)');
 
   mkdirSync(RAW, { recursive: true });
   const done = loadDone();

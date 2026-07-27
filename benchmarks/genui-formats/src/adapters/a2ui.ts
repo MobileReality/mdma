@@ -223,7 +223,10 @@ export const a2uiAdapter: FormatAdapter = {
 
     const components = updateComponents.components;
     if (!Array.isArray(components) || components.length === 0) {
-      issues.push({ kind: 'schema-error', message: 'updateComponents.components is not a non-empty array' });
+      issues.push({
+        kind: 'schema-error',
+        message: 'updateComponents.components is not a non-empty array',
+      });
       return { ok: false, issues, componentCount: 0 };
     }
 

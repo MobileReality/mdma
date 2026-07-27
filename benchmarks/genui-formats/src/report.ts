@@ -25,11 +25,7 @@ function table(headers: string[], rows: string[][]): string {
   ].join('\n');
 }
 
-function matrix(
-  results: Results,
-  pick: (agg: Aggregate) => string,
-  formats: string[],
-): string {
+function matrix(results: Results, pick: (agg: Aggregate) => string, formats: string[]): string {
   const rows: string[][] = [];
   for (const rung of RUNGS) {
     const models = MODELS.filter((m) => m.rung === rung);
@@ -144,11 +140,12 @@ function main(): void {
         // meaningful reading of that row. Show N/A and asterisk the figure that
         // needs the explanation rather than printing a misleading -Npp.
         const inverted = top && bottom && top.everyTimeRate < bottom.everyTimeRate;
-        const drop = !top || !bottom
-          ? '—'
-          : inverted
-            ? 'N/A'
-            : `${((top.everyTimeRate - bottom.everyTimeRate) * 100).toFixed(1)}pp`;
+        const drop =
+          !top || !bottom
+            ? '—'
+            : inverted
+              ? 'N/A'
+              : `${((top.everyTimeRate - bottom.everyTimeRate) * 100).toFixed(1)}pp`;
         return [
           ADAPTERS.find((a) => a.id === f)?.label ?? f,
           top ? `${pct(top.everyTimeRate)}${inverted ? ' \\*' : ''}` : '—',
@@ -164,7 +161,7 @@ function main(): void {
     '52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that runs out of',
     'tokens cannot have rendered every time — so the flagship figure is depressed by verbosity, not',
     'by unreliability, which is why the drop is shown as N/A rather than as an apparent improvement',
-    "on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:",
+    'on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:',
     "12.2% under A2UI's own script.",
     '',
   );
@@ -193,12 +190,7 @@ function main(): void {
           'scaffold writes `OPENAI_API_KEY`; their own benchmark generates with `gpt-5.2` and counts tokens with the GPT-5 encoder',
           'no — one prompt, no per-vendor tuning',
         ],
-        [
-          'json-render',
-          'none',
-          'none — one generated prompt for every model',
-          'no',
-        ],
+        ['json-render', 'none', 'none — one generated prompt for every model', 'no'],
         [
           'A2UI',
           'none',
@@ -254,7 +246,7 @@ function main(): void {
   md.push(
     'MDMA and OpenUI hand you portable text. json-render ties the protocol to a TypeScript runtime',
     '— fine in Node, an obstacle from Python or Go. A2UI ships no prompt at all, so we assembled',
-    'one. (CopilotKit is the same shape and emits un-schema\'d HTML, which is why it is not scored.)',
+    "one. (CopilotKit is the same shape and emits un-schema'd HTML, which is why it is not scored.)",
     '',
     'Prompt size matters here — you pay it on every request:',
     '',
@@ -271,20 +263,12 @@ function main(): void {
 
   md.push('## Reading the tables');
   md.push('');
-  md.push(
-    'Every metric below is marked **↑ higher is better** or **↓ lower is better**.',
-    '',
-  );
+  md.push('Every metric below is marked **↑ higher is better** or **↓ lower is better**.', '');
   md.push(
     table(
       ['Metric', 'Direction', 'What it means', 'Best possible'],
       [
-        [
-          'Renderable rate',
-          '**↑ higher**',
-          'share of generations a renderer could render',
-          '100%',
-        ],
+        ['Renderable rate', '**↑ higher**', 'share of generations a renderer could render', '100%'],
         [
           'Truncation rate',
           '**↓ lower**',
@@ -315,18 +299,8 @@ function main(): void {
           'system-prompt size, paid on every single request',
           'fewer',
         ],
-        [
-          'Efficiency',
-          '**↑ higher**',
-          'renderable output per 1k output tokens',
-          'higher',
-        ],
-        [
-          'Failure counts',
-          '**↓ lower**',
-          'number of generations in each failure category',
-          '0',
-        ],
+        ['Efficiency', '**↑ higher**', 'renderable output per 1k output tokens', 'higher'],
+        ['Failure counts', '**↓ lower**', 'number of generations in each failure category', '0'],
       ],
     ),
   );
@@ -386,13 +360,15 @@ function main(): void {
   md.push(
     "> ⚠️ **A2UI's column is measured on a looser standard than A2UI's own tooling applies.** Every",
     '> format here is checked for structural renderability, but A2UI additionally ships an 889-line',
-    "> `validate_a2ui.py`, and under *that* script the same generations score 84.2% / 70.0% /",
+    '> `validate_a2ui.py`, and under *that* script the same generations score 84.2% / 70.0% /',
     '> **12.2%** instead of 100% / 81.1% / 93.3%. The Gemma row is the one to be careful with.',
-    '> See [Cross-check: A2UI\'s own validator is much stricter than ours](#cross-check-a2uis-own-validator-is-much-stricter-than-ours).',
+    "> See [Cross-check: A2UI's own validator is much stricter than ours](#cross-check-a2uis-own-validator-is-much-stricter-than-ours).",
     '',
   );
 
-  md.push('### Truncation — ↓ lower is better (output that exceeded the shared 8192-token ceiling)');
+  md.push(
+    '### Truncation — ↓ lower is better (output that exceeded the shared 8192-token ceiling)',
+  );
   md.push('');
   md.push(
     'Truncated generations are **excluded from the renderable rate above** and reported here',
@@ -416,7 +392,9 @@ function main(): void {
   md.push(matrix(results, (a) => pct(a.everyTimeRate), formats));
   md.push('');
 
-  md.push('## 3. Shape stability — ↑ higher is better (diagnostic only — NOT comparable across formats)');
+  md.push(
+    '## 3. Shape stability — ↑ higher is better (diagnostic only — NOT comparable across formats)',
+  );
   md.push('');
   md.push(
     `Share of scenarios where all ${k} repeats produced the same component structure.`,
@@ -538,7 +516,7 @@ function main(): void {
     '  produces something broken, blank or missing; **degraded** (a dropped surplus prop, a code',
     '  fence around otherwise-valid payload) is recorded but not counted against the format.',
     '- Identical user prompts, temperature, and token limits across every format and model.',
-    '- Each call is exactly two messages. The **system message** is that format\'s own published',
+    "- Each call is exactly two messages. The **system message** is that format's own published",
     '  prompt, which of course describes its output format in full — component signatures, syntax',
     '  rules, worked examples. That is the thing under test. The **user message** is the scenario',
     '  text, byte-identical across all four formats and written in plain natural language with',
@@ -568,7 +546,7 @@ function main(): void {
     '  to `SKILL.md` plus the two docs that table marks **required** for Non-DTO Component mode',
     '  (`component-catalog.md`, `component-design.md`), plus `data-binding.md` — which the table',
     '  lists as *load-on-demand*, not required, but without which the binding-path rules the',
-    '  catalog relies on are absent. Including it is our judgement call, and it makes A2UI\'s prompt',
+    "  catalog relies on are absent. Including it is our judgement call, and it makes A2UI's prompt",
     '  larger (and so more expensive) than a strict reading of the table would. A short note was',
     '  appended telling the model it cannot read files or run scripts.',
     '  The adaptation is itself a finding about portability: this format cannot be used through a',
@@ -651,7 +629,7 @@ function main(): void {
   );
   md.push('');
   md.push(
-    '**A2UI\'s numbers in this report are therefore generous to A2UI**, dramatically so on the',
+    "**A2UI's numbers in this report are therefore generous to A2UI**, dramatically so on the",
     'open-weights rung. Read the 93.3% as "structurally renderable", not as "would pass A2UI\'s own',
     'quality gate".',
     '',

@@ -18,13 +18,7 @@
  *  - byte-identical text is sent to every format and every model
  */
 
-export type Family =
-  | 'contact-form'
-  | 'data-table'
-  | 'chart'
-  | 'callout'
-  | 'button'
-  | 'tasklist';
+export type Family = 'contact-form' | 'data-table' | 'chart' | 'callout' | 'button' | 'tasklist';
 
 /**
  * `minimal`     — plainest possible ask; the baseline that separates
@@ -72,7 +66,7 @@ export const SCENARIOS: Scenario[] = [
     family: 'contact-form',
     variant: 'adversarial',
     prompt:
-      "We need something for gathering feedback. Not sure exactly what — maybe how happy they were, some way to say what went wrong, and how to reach them if they want a reply. Keep it short, nobody fills in long forms. Oh and it should look good on mobile.",
+      'We need something for gathering feedback. Not sure exactly what — maybe how happy they were, some way to say what went wrong, and how to reach them if they want a reply. Keep it short, nobody fills in long forms. Oh and it should look good on mobile.',
     expects:
       'a short form; the vague framing and the styling aside ("look good on mobile") should not derail the output format',
   },

@@ -247,12 +247,16 @@ function main(): void {
   const results = score(records);
   writeFileSync(OUT, JSON.stringify(results, null, 2), 'utf8');
 
-  console.log(`\nscored ${results.totals.generations} generations (${results.totals.errored} errored)\n`);
+  console.log(
+    `\nscored ${results.totals.generations} generations (${results.totals.errored} errored)\n`,
+  );
 
   const modelLabel = new Map(MODELS.map((m) => [m.id, m.label]));
   const formats = [...new Set(results.aggregates.map((a) => a.format))];
 
-  console.log('renderable rate (HIGHER IS BETTER) — share of generations a renderer could render\n');
+  console.log(
+    'renderable rate (HIGHER IS BETTER) — share of generations a renderer could render\n',
+  );
   const header = ['model'.padEnd(24), ...formats.map((f) => f.padStart(13))].join('');
   console.log(header);
   console.log('-'.repeat(header.length));
@@ -271,18 +275,20 @@ function main(): void {
     '\ntruncation rate (LOWER IS BETTER) — hit the shared 8192-token ceiling (excluded from scoring)\n',
   );
   console.log(header);
-  console.log("-".repeat(header.length));
+  console.log('-'.repeat(header.length));
   for (const model of MODELS) {
     const row = results.aggregates.filter((a) => a.model === model.id);
     if (!row.length) continue;
     const cells = formats.map((f) => {
       const agg = row.find((a) => a.format === f);
-      return agg ? `${(agg.truncationRate * 100).toFixed(1)}%`.padStart(13) : "—".padStart(13);
+      return agg ? `${(agg.truncationRate * 100).toFixed(1)}%`.padStart(13) : '—'.padStart(13);
     });
-    console.log([(modelLabel.get(model.id) ?? model.id).padEnd(24), ...cells].join(""));
+    console.log([(modelLabel.get(model.id) ?? model.id).padEnd(24), ...cells].join(''));
   }
 
-  console.log('\n"every time" rate (HIGHER IS BETTER) — share of scenarios where ALL k repeats rendered\n');
+  console.log(
+    '\n"every time" rate (HIGHER IS BETTER) — share of scenarios where ALL k repeats rendered\n',
+  );
   console.log(header);
   console.log('-'.repeat(header.length));
   for (const model of MODELS) {

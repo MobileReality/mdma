@@ -17,7 +17,9 @@ for (const line of readFileSync(LEDGER, 'utf8').split('\n')) {
   if (scen && !r.scenario.includes(scen)) continue;
   const adapter = ADAPTER_BY_ID[r.format as FormatAdapter['id']];
   const v = adapter.validate(r.output);
-  console.log(`\n=== ${r.model} | ${r.format} | ${r.scenario} k${r.repeat} | finish=${r.finishReason} | out=${r.completionTokens}tok`);
+  console.log(
+    `\n=== ${r.model} | ${r.format} | ${r.scenario} k${r.repeat} | finish=${r.finishReason} | out=${r.completionTokens}tok`,
+  );
   console.log(`    ok=${v.ok} components=${v.componentCount}`);
   for (const i of v.issues.slice(0, 12)) console.log(`    - [${i.kind}] ${i.message}`);
 }

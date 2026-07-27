@@ -1,6 +1,6 @@
 # Generative-UI format reliability benchmark
 
-_Generated 2026-07-27T13:09:51.685Z · 1107 generations · 0 API errors_
+_Generated 2026-07-27T14:13:51.775Z · 1107 generations · 0 API errors_
 
 Four open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.

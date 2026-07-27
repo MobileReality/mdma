@@ -71,7 +71,9 @@ async function main(): Promise<void> {
     check(
       `${adapter.label.padEnd(14)} rejects its corrupted sample`,
       !bad.ok,
-      bad.ok ? `WRONGLY ACCEPTED (${fixture.corruption})` : `${bad.issues[0]?.kind} — ${fixture.corruption}`,
+      bad.ok
+        ? `WRONGLY ACCEPTED (${fixture.corruption})`
+        : `${bad.issues[0]?.kind} — ${fixture.corruption}`,
     );
   }
 
@@ -97,7 +99,11 @@ async function main(): Promise<void> {
     const prose = adapter.validate(
       "Sure! I'd be happy to help you build a contact form. What fields would you like to include?",
     );
-    check(`${adapter.label.padEnd(14)} rejects a plain prose reply`, !prose.ok, prose.issues[0]?.kind);
+    check(
+      `${adapter.label.padEnd(14)} rejects a plain prose reply`,
+      !prose.ok,
+      prose.issues[0]?.kind,
+    );
   }
 
   console.log('\n=== 5. User prompts carry no format hints ===\n');
@@ -151,7 +157,9 @@ async function main(): Promise<void> {
   console.log('\n=== Prompt size comparison ===\n');
   const sorted = Object.entries(promptSizes).sort((a, b) => a[1] - b[1]);
   for (const [id, size] of sorted) {
-    console.log(`  ${id.padEnd(14)} ${String(size).padStart(7)} chars  ~${String(Math.round(size / 4)).padStart(6)} tokens`);
+    console.log(
+      `  ${id.padEnd(14)} ${String(size).padStart(7)} chars  ~${String(Math.round(size / 4)).padStart(6)} tokens`,
+    );
   }
 
   console.log(

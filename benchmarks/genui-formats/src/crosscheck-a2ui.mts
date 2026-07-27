@@ -69,7 +69,9 @@ records.forEach((record, i) => {
 });
 
 console.log(`\nA2UI generations cross-checked (non-truncated): ${records.length}\n`);
-console.log(`${'model'.padEnd(24)}${'ours'.padStart(8)}${'theirs'.padStart(9)}${'gap'.padStart(8)}`);
+console.log(
+  `${'model'.padEnd(24)}${'ours'.padStart(8)}${'theirs'.padStart(9)}${'gap'.padStart(8)}`,
+);
 console.log('-'.repeat(49));
 for (const [model, e] of byModel) {
   const ours = (100 * e.ours) / e.n;
