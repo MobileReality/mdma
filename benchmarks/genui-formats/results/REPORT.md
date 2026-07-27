@@ -27,16 +27,24 @@ identical settings for every format and model.
 
 Not "does it work on a flagship" — everything works on a flagship. The question is whether a
 format still holds up on the cheap, small, open-weights models most products actually want to
-run. Renderable rate, best model vs worst:
+run. Measured on the **"every time" rate** — the share of scenarios where all 5 repeats
+rendered — because a format that works four times in five is not something you can ship:
 
 | Format | Opus 5 (flagship) | Gemma-4-26B (open weights) | Drop |
 | --- | --- | --- | --- |
-| MDMA | 100.0% | 98.9% | 1.1pp |
-| OpenUI Lang | 98.8% | 83.3% | 15.4pp |
-| json-render | 100.0% | 83.3% | 16.7pp |
-| A2UI (AGenUI) | 100.0% | 93.3% | 6.7pp |
+| MDMA | 94.4% | 94.4% | 0.0pp |
+| OpenUI Lang | 83.3% | 55.6% | 27.8pp |
+| json-render | 83.3% | 38.9% | 44.4pp |
+| A2UI (AGenUI) | 38.9% | 77.8% | -38.9pp |
 
-Caveat: A2UI's Gemma figure is the one flagged above — 12.2% under its own validator.
+Two rows need reading with care:
+
+- **A2UI's drop is negative** — it scores *better* on the weak model. That is not the format
+  improving: 52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that
+  runs out of tokens cannot have rendered every time. Its Gemma figure also carries the
+  validator caveat flagged below — 12.2% under A2UI's own script.
+- **MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather
+  than any single cell, is the result this benchmark was built to test.
 
 ### 2. Is any of them built for one model vendor?
 

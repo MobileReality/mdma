@@ -125,7 +125,8 @@ function main(): void {
   md.push(
     'Not "does it work on a flagship" — everything works on a flagship. The question is whether a',
     'format still holds up on the cheap, small, open-weights models most products actually want to',
-    'run. Renderable rate, best model vs worst:',
+    'run. Measured on the **"every time" rate** — the share of scenarios where all 5 repeats',
+    'rendered — because a format that works four times in five is not something you can ship:',
     '',
   );
   md.push(
@@ -139,11 +140,11 @@ function main(): void {
           (a) => a.model === 'google/gemma-4-26b-a4b-it' && a.format === f,
         );
         const drop =
-          top && bottom ? `${((top.renderableRate - bottom.renderableRate) * 100).toFixed(1)}pp` : '—';
+          top && bottom ? `${((top.everyTimeRate - bottom.everyTimeRate) * 100).toFixed(1)}pp` : '—';
         return [
           ADAPTERS.find((a) => a.id === f)?.label ?? f,
-          top ? pct(top.renderableRate) : '—',
-          bottom ? pct(bottom.renderableRate) : '—',
+          top ? pct(top.everyTimeRate) : '—',
+          bottom ? pct(bottom.everyTimeRate) : '—',
           drop,
         ];
       }),
@@ -151,7 +152,14 @@ function main(): void {
   );
   md.push('');
   md.push(
-    "Caveat: A2UI's Gemma figure is the one flagged above — 12.2% under its own validator.",
+    'Two rows need reading with care:',
+    '',
+    "- **A2UI's drop is negative** — it scores *better* on the weak model. That is not the format",
+    '  improving: 52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that',
+    '  runs out of tokens cannot have rendered every time. Its Gemma figure also carries the',
+    '  validator caveat flagged below — 12.2% under A2UI\'s own script.',
+    '- **MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather',
+    '  than any single cell, is the result this benchmark was built to test.',
     '',
   );
 
