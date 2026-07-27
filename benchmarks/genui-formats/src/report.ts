@@ -151,43 +151,68 @@ function main(): void {
   );
   md.push('');
   md.push(
-    'Only MDMA ships per-model prompt variants (down to nano- and Gemma-class). The other three',
-    'ship one prompt for every model. A2UI states in its own docs: "Different LLMs may produce',
-    'somewhat different results... we recommend trying a few models and picking the one that fits',
-    'best" — the question is left to the integrator. CopilotKit OpenGenerativeUI states outright',
-    'that "smaller or weaker models will produce broken layouts".',
-    '',
     "Caveat: A2UI's Gemma figure is the one flagged above — 12.2% under its own validator.",
     '',
   );
 
-  md.push('### 2. How locked-in is each one?');
+  md.push('### 2. Is any of them built for one model vendor?');
   md.push('');
   md.push(
-    'All four are model-agnostic at the protocol level — none requires a specific vendor or a',
-    'hosted API, and every number here was produced through one OpenAI-compatible endpoint. The',
-    'lock-in is in the *renderer*, not the model:',
+    'Whether a library is written *for* GPT, or *for* Gemini, and how much work it is to point it',
+    'at something else. None of the four hard-requires a vendor — but the defaults, examples and',
+    'tuning show who each one was built against:',
     '',
   );
   md.push(
     table(
-      ['Format', 'Renderers', 'Runtime coupling'],
+      ['Format', 'Assumed provider', 'Vendor-specific work', 'Hard requirement?'],
       [
-        ['MDMA', 'React, Vue, React Native', 'TypeScript'],
-        ['OpenUI Lang', 'React, Vue, Svelte, browser bundle', 'TypeScript'],
-        ['json-render', 'React, Vue, Svelte, Solid, RN, PDF, email, video, 3D, terminal', 'TypeScript'],
-        ['A2UI', 'iOS, Android, HarmonyOS — **no web renderer**', 'C++ core + native bridges'],
+        [
+          'MDMA',
+          'none',
+          'per-model prompt variants for OpenAI, Anthropic, Google, xAI, and its own model',
+          'no',
+        ],
+        [
+          'OpenUI Lang',
+          '**OpenAI**',
+          'scaffold writes `OPENAI_API_KEY`; their own benchmark generates with `gpt-5.2` and counts tokens with the GPT-5 encoder',
+          'no — one prompt, no per-vendor tuning',
+        ],
+        [
+          'json-render',
+          'none',
+          'none — one generated prompt for every model',
+          'no',
+        ],
+        [
+          'A2UI',
+          'none',
+          'none — docs say "try a few models and pick the one that fits best"',
+          'no',
+        ],
+        [
+          'CopilotKit OpenGenUI',
+          '**Anthropic**',
+          'defaults to `claude-fable-5`; `gpt-*` routes to OpenAI; any other provider means editing `model.py`',
+          'no, but weak models are declared unsupported',
+        ],
       ],
     ),
   );
   md.push('');
+  md.push(
+    'So the split is: MDMA is the only one that *adapts* to the model, OpenUI and CopilotKit are',
+    'built against a house vendor without requiring it, and json-render and A2UI are vendor-neutral',
+    'and vendor-indifferent — one prompt, you find out how it lands.',
+    '',
+  );
 
   md.push('### 3. Is it really an open protocol — can you paste the prompt into your own model?');
   md.push('');
   md.push(
-    'This was the sharpest of the three questions: if a project does not hand you a system prompt',
-    'you can inject into your own LLM, it is a closed framework you integrate with, not an open',
-    'protocol you adopt.',
+    'If a project does not hand you a system prompt you can inject into your own LLM, it is a',
+    'closed framework you integrate with, not an open protocol you adopt.',
     '',
   );
   md.push(
@@ -219,14 +244,11 @@ function main(): void {
   );
   md.push('');
   md.push(
-    'Practical reading: MDMA and OpenUI hand you a portable artifact. json-render couples the',
-    'protocol to a TypeScript runtime — fine if you are in Node, an obstacle if your agent is in',
-    'Python or Go. A2UI ships no injectable prompt at all: its skill instructs a file-reading,',
-    'script-running agent, so using it through a plain chat completion required assembling a prompt',
-    'ourselves. CopilotKit OpenGenerativeUI is the same shape and emits un-schema\'d HTML, which is',
-    'why it is not scored here.',
+    'MDMA and OpenUI hand you portable text. json-render ties the protocol to a TypeScript runtime',
+    '— fine in Node, an obstacle from Python or Go. A2UI ships no prompt at all, so we assembled',
+    'one. (CopilotKit is the same shape and emits un-schema\'d HTML, which is why it is not scored.)',
     '',
-    'Prompt sizes, since an injectable prompt is paid for on every request:',
+    'Prompt size matters here — you pay it on every request:',
     '',
   );
   md.push(
