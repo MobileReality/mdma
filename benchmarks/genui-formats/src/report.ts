@@ -139,11 +139,19 @@ function main(): void {
         const bottom = results.aggregates.find(
           (a) => a.model === 'google/gemma-4-26b-a4b-it' && a.format === f,
         );
-        const drop =
-          top && bottom ? `${((top.everyTimeRate - bottom.everyTimeRate) * 100).toFixed(1)}pp` : '—';
+        // A negative drop means the flagship figure is depressed by something
+        // other than format reliability (truncation), so a "drop" is not a
+        // meaningful reading of that row. Show N/A and asterisk the figure that
+        // needs the explanation rather than printing a misleading -Npp.
+        const inverted = top && bottom && top.everyTimeRate < bottom.everyTimeRate;
+        const drop = !top || !bottom
+          ? '—'
+          : inverted
+            ? 'N/A'
+            : `${((top.everyTimeRate - bottom.everyTimeRate) * 100).toFixed(1)}pp`;
         return [
           ADAPTERS.find((a) => a.id === f)?.label ?? f,
-          top ? pct(top.everyTimeRate) : '—',
+          top ? `${pct(top.everyTimeRate)}${inverted ? ' \\*' : ''}` : '—',
           bottom ? pct(bottom.everyTimeRate) : '—',
           drop,
         ];
@@ -152,14 +160,15 @@ function main(): void {
   );
   md.push('');
   md.push(
-    'Two rows need reading with care:',
+    "\\* **A2UI's 38.9% on Opus 5 is not a format failure, and no drop can be read from that row.**",
+    '52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that runs out of',
+    'tokens cannot have rendered every time — so the flagship figure is depressed by verbosity, not',
+    'by unreliability, which is why the drop is shown as N/A rather than as an apparent improvement',
+    "on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:",
+    "12.2% under A2UI's own script.",
     '',
-    "- **A2UI's drop is negative** — it scores *better* on the weak model. That is not the format",
-    '  improving: 52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that',
-    '  runs out of tokens cannot have rendered every time. Its Gemma figure also carries the',
-    '  validator caveat flagged below — 12.2% under A2UI\'s own script.',
-    '- **MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather',
-    '  than any single cell, is the result this benchmark was built to test.',
+    '**MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather',
+    'than any single cell, is the result this benchmark was built to test.',
     '',
   );
 

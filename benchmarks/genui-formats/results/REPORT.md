@@ -35,16 +35,17 @@ rendered — because a format that works four times in five is not something you
 | MDMA | 94.4% | 94.4% | 0.0pp |
 | OpenUI Lang | 83.3% | 55.6% | 27.8pp |
 | json-render | 83.3% | 38.9% | 44.4pp |
-| A2UI (AGenUI) | 38.9% | 77.8% | -38.9pp |
+| A2UI (AGenUI) | 38.9% \* | 77.8% | N/A |
 
-Two rows need reading with care:
+\* **A2UI's 38.9% on Opus 5 is not a format failure, and no drop can be read from that row.**
+52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that runs out of
+tokens cannot have rendered every time — so the flagship figure is depressed by verbosity, not
+by unreliability, which is why the drop is shown as N/A rather than as an apparent improvement
+on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:
+12.2% under A2UI's own script.
 
-- **A2UI's drop is negative** — it scores *better* on the weak model. That is not the format
-  improving: 52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that
-  runs out of tokens cannot have rendered every time. Its Gemma figure also carries the
-  validator caveat flagged below — 12.2% under A2UI's own script.
-- **MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather
-  than any single cell, is the result this benchmark was built to test.
+**MDMA is flat at 94.4%** across a flagship and an open-weights model. That flatness, rather
+than any single cell, is the result this benchmark was built to test.
 
 ### 2. Is any of them built for one model vendor?
 
