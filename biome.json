@@ -45,7 +45,9 @@
       "**/node_modules/**",
       "**/.turbo/**",
       "**/pnpm-lock.yaml",
-      "evals/results*.json"
+      "evals/results*.json",
+      "benchmarks/*/results/**",
+      "benchmarks/*/vendor/**"
     ]
   }
 }
