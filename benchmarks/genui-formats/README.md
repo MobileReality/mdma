@@ -49,7 +49,10 @@ the renderable denominator, so a format can be 100% renderable and 52% truncated
   blank or missing; **degraded** = renders with a cosmetic loss (dropped surplus prop, stray code
   fence), recorded but not counted against the format.
 - Identical user prompts, temperature (0.7) and token limit (8192) everywhere.
-- Prompts are plain natural language with **no format hints**.
+- Each call is two messages. The **system message** is that format's own published prompt, which
+  fully describes its output format — that is the artifact under test. The **user message** is the
+  scenario, byte-identical across all four formats and in plain natural language with **no format
+  hints**: no YAML, no JSON, no catalog component names.
 - Scenarios only cover what all four express natively. Nested-layout prompts (which MDMA cannot
   express by design) and approval-gate / PII / webhook prompts (which the others cannot) are
   excluded and listed in the report.

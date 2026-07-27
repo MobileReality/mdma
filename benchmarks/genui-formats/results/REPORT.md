@@ -189,8 +189,12 @@ Cheap output nobody can render is not cheap.
   produces something broken, blank or missing; **degraded** (a dropped surplus prop, a code
   fence around otherwise-valid payload) is recorded but not counted against the format.
 - Identical user prompts, temperature, and token limits across every format and model.
-- Prompts are plain natural language with **no format hints** — no YAML, no JSON, no component
-  names from any catalog.
+- Each call is exactly two messages. The **system message** is that format's own published
+  prompt, which of course describes its output format in full — component signatures, syntax
+  rules, worked examples. That is the thing under test. The **user message** is the scenario
+  text, byte-identical across all four formats and written in plain natural language with
+  **no format hints**: no YAML, no JSON, no catalog component names, nothing that would give
+  one format a head start over another.
 - Every raw generation is preserved verbatim in `results/generations.jsonl`, so any number here
   can be audited or re-scored offline without regenerating anything (`pnpm extract` expands it
   into one file per generation).

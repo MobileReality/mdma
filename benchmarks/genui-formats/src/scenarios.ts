@@ -6,11 +6,16 @@
  * asking for approval gates / webhooks / PII flags (which the other three
  * cannot express) are deliberately excluded — see EXCLUDED_ASYMMETRIC below.
  *
+ * These are USER messages only. The system message is separate and is each
+ * format's own published prompt, which does describe its output format in full
+ * — that is the artifact under test. The rules below therefore apply to the
+ * user side, where a stray format hint would hand one format a head start.
+ *
  * Rules for writing prompts here:
  *  - plain natural language, the way a product user would ask
  *  - NO format hints: never mention YAML, JSON, a DSL, or a component type name
  *    that belongs to any one format's catalog
- *  - identical text is sent to every format and every model
+ *  - byte-identical text is sent to every format and every model
  */
 
 export type Family =

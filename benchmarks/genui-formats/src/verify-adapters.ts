@@ -1,18 +1,25 @@
 /**
  * Adapter verification. Run this before spending a cent on generations.
  *
- * Three checks:
+ * Checks:
  *   1. every adapter produces a non-trivial system prompt
  *   2. valid fixture passes, corrupted fixture fails, per format
  *   3. cross-validation — each format's valid sample is REJECTED by the other
  *      three validators
+ *   4. empty and plain-prose replies never pass
+ *   5. no user prompt leaks a format hint
  *
  * Check 3 is the important one. If a validator accepts another format's output,
  * it is not discriminating and every number it produces is noise.
+ *
+ * Check 5 guards the other half of the fairness contract: the SYSTEM message is
+ * each format's own prompt and necessarily describes its output format — that is
+ * the artifact under test — but the USER message must stay format-neutral.
  */
 
 import { ADAPTERS } from './adapters/index.js';
 import { FIXTURES } from './fixtures.js';
+import { SCENARIOS } from './scenarios.js';
 
 const GREEN = '\x1b[32m';
 const RED = '\x1b[31m';
@@ -92,6 +99,54 @@ async function main(): Promise<void> {
     );
     check(`${adapter.label.padEnd(14)} rejects a plain prose reply`, !prose.ok, prose.issues[0]?.kind);
   }
+
+  console.log('\n=== 5. User prompts carry no format hints ===\n');
+
+  // The system message is each format's own prompt and of course describes its
+  // format — that is what is under test. The USER message must not: a stray
+  // "JSON" or a catalog component name would hand one format a head start.
+  const BANNED = [
+    // format keywords
+    'yaml',
+    'json',
+    'jsonl',
+    'dsl',
+    'schema',
+    'mdma',
+    'openui',
+    'a2ui',
+    'patch',
+    // catalog component names from the four formats
+    'Stack',
+    'Card',
+    'Column',
+    'Row',
+    'TextContent',
+    'FormControl',
+    'Callout',
+    'TextField',
+    'updateComponents',
+    'updateDataModel',
+    // structural field names
+    'elements',
+    'props',
+    'children',
+    'onSubmit',
+  ];
+
+  let leaks = 0;
+  for (const scenario of SCENARIOS) {
+    const found = BANNED.filter((word) => new RegExp(`\\b${word}\\b`, 'i').test(scenario.prompt));
+    if (found.length) {
+      leaks += 1;
+      check(`${scenario.id} is hint-free`, false, `leaks: ${found.join(', ')}`);
+    }
+  }
+  check(
+    `all ${SCENARIOS.length} user prompts are free of format hints`,
+    leaks === 0,
+    leaks === 0 ? '' : `${leaks} prompt(s) leak`,
+  );
 
   console.log('\n=== Prompt size comparison ===\n');
   const sorted = Object.entries(promptSizes).sort((a, b) => a[1] - b[1]);
