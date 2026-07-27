@@ -1,4 +1,5 @@
 import { a2uiAdapter } from './a2ui.js';
+import { a2uiTransportAdapter } from './a2ui-transport.js';
 import { jsonRenderAdapter } from './json-render.js';
 import { mdmaAdapter } from './mdma.js';
 import { openuiAdapter } from './openui.js';
@@ -8,6 +9,7 @@ export const ADAPTERS: FormatAdapter[] = [
   mdmaAdapter,
   openuiAdapter,
   jsonRenderAdapter,
+  a2uiTransportAdapter,
   a2uiAdapter,
 ];
 

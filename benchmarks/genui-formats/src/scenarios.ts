@@ -210,7 +210,7 @@ export const EXCLUDED_ASYMMETRIC = [
   {
     prompt: 'A pricing page with three plan cards side by side.',
     reason:
-      'nested layout — json-render / OpenUI / A2UI express this natively; MDMA has no Row/Column primitive by design (layout comes from the surrounding Markdown)',
+      'nested layout — json-render / OpenUI / AGenUI express this natively; MDMA has no Row/Column primitive by design (layout comes from the surrounding Markdown)',
     favours: 'the other three',
   },
   {

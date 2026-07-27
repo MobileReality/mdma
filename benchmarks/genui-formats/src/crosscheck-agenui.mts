@@ -1,19 +1,23 @@
 /**
- * Cross-check our A2UI validator against A2UI's OWN validation script.
+ * Cross-check our AGenUI validator against AGenUI's OWN validation script.
  *
- * A2UI ships `skills/a2ui-generation/scripts/validate_a2ui.py` (889 lines). Our
+ * NOTE: this targets the `agenui` arm (AGenUI/AGenUI, the renderer SDK), not
+ * the `a2ui` arm (a2ui-project/a2ui). A2UI is already validated by its own
+ * parser, so it has no equivalent gap.
+ *
+ * AGenUI ships `skills/a2ui-generation/scripts/validate_a2ui.py` (889 lines). Our
  * adapter does not use it — it checks structural renderability only, the same
  * standard applied to the other three formats. Their script additionally
  * enforces a style whitelist, padding/border shorthand formats, per-component
  * required fields, button action structure, and some design guidance
  * ("root should not set a solid background-color").
  *
- * This script runs theirs over every stored A2UI generation so the gap between
+ * This script runs theirs over every stored AGenUI generation so the gap between
  * the two standards is measured rather than assumed. Reported in REPORT.md.
  *
  * Usage:
  *   curl -o /tmp/validate_a2ui.py https://raw.githubusercontent.com/AGenUI/AGenUI/<sha>/skills/a2ui-generation/scripts/validate_a2ui.py
- *   pnpm tsx src/crosscheck-a2ui.mts
+ *   pnpm tsx src/crosscheck-agenui.mts
  */
 
 import { execFileSync } from 'node:child_process';
@@ -32,7 +36,7 @@ const records = readFileSync(LEDGER, 'utf8')
   .split('\n')
   .filter(Boolean)
   .map((l) => JSON.parse(l) as GenerationRecord)
-  .filter((r) => r.format === 'a2ui' && !r.error && r.finishReason !== 'length');
+  .filter((r) => r.format === 'agenui' && !r.error && r.finishReason !== 'length');
 
 const dir = mkdtempSync(join(tmpdir(), 'a2ui-'));
 const byModel = new Map<string, { ours: number; theirs: number; n: number }>();
@@ -68,7 +72,7 @@ records.forEach((record, i) => {
   }
 });
 
-console.log(`\nA2UI generations cross-checked (non-truncated): ${records.length}\n`);
+console.log(`\nAGenUI generations cross-checked (non-truncated): ${records.length}\n`);
 console.log(
   `${'model'.padEnd(24)}${'ours'.padStart(8)}${'theirs'.padStart(9)}${'gap'.padStart(8)}`,
 );

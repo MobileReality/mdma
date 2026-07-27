@@ -1,6 +1,6 @@
 # Generative-UI format reliability benchmark
 
-Four open-source generative-UI formats, each **generated natively from its own published prompt**
+Five open-source generative-UI formats, each **generated natively from its own published prompt**
 and **validated by its own validator**, across a ladder of models from flagship down to open-weights.
 
 | Format | Wire format | Prompt source |
@@ -8,7 +8,8 @@ and **validated by its own validator**, across a ladder of models from flagship 
 | [MDMA](https://github.com/MobileReality/mr-mdma) | Markdown + YAML in ` ```mdma ` blocks | `buildSystemPrompt()` + per-model author variant |
 | [OpenUI Lang](https://github.com/thesysdev/openui) | line-oriented DSL | `benchmarks/system-prompt.txt` (their own published artifact) |
 | [json-render](https://github.com/vercel-labs/json-render) | JSONL of RFC-6902 patches | `catalog.prompt()` |
-| [A2UI / AGenUI](https://github.com/AGenUI/AGenUI) | A2UI v0.9 JSON messages | `skills/a2ui-generation/SKILL.md` + required refs, flattened |
+| [AGenUI](https://github.com/AGenUI/AGenUI) | A2UI v0.9 JSON messages | `skills/a2ui-generation/SKILL.md` + required refs, flattened |
+| [A2UI](https://github.com/a2ui-project/a2ui) | A2UI v0.9 JSON messages (transport) | `a2ui_agent` Python prompt generator, standard v0.9 `basic` catalog |
 
 ## Why this exists
 
@@ -55,7 +56,7 @@ the renderable denominator, so a format can be 100% renderable and 52% truncated
   reading or grepping — that directory is derived data and stays out of git.
 
 Adjustments we had to make — a `Chart` component for json-render's catalog, `children` defaulting,
-and flattening A2UI's agent skill into an injectable prompt — are documented in the generated report
+and flattening AGenUI's agent skill into an injectable prompt — are documented in the generated report
 under "Adjustments made, and why".
 
 ## Layout

@@ -53,7 +53,12 @@ function main(): void {
   // Only models with a COMPLETE sweep of every format are reported. A model
   // whose run was stopped part-way has a partial, non-comparable row, and
   // publishing it next to complete ones invites a false comparison.
-  const EXPECTED_PER_FORMAT = 18 * 5;
+  // 90% of the expected sweep, not 100%: a handful of API errors (timeouts,
+  // socket drops) leave a run a few generations short without making it
+  // non-comparable. A genuinely partial run — one stopped part-way — falls far
+  // below this. Requiring an exact count silently dropped a complete model from
+  // the report over 2 network errors.
+  const EXPECTED_PER_FORMAT = 18 * 5 * 0.9;
   const isComplete = (modelId: string) =>
     formats.every((f) => {
       const agg = results.aggregates.find((a) => a.model === modelId && a.format === f);
@@ -78,7 +83,7 @@ function main(): void {
   );
   md.push('');
   md.push(
-    'Four open-source generative-UI formats, each generated natively from its own published',
+    `${formats.length === 5 ? 'Five' : formats.length === 4 ? 'Four' : String(formats.length)} open-source generative-UI formats, each generated natively from its own published`,
     'prompt and validated by its own validator, across a ladder of models.',
     '',
     '**The question:** given a system prompt you can paste into any LLM, does the model emit',
@@ -90,6 +95,15 @@ function main(): void {
     `**Formats tested:** ${ADAPTERS.filter((a) => formats.includes(a.id))
       .map((a) => a.label)
       .join(' · ')}`,
+  );
+  md.push('');
+  md.push(
+    'Two entries come from the A2UI world and are **not** the same thing:',
+    '[`a2ui-project/a2ui`](https://github.com/a2ui-project/a2ui) is the protocol project',
+    '(**A2UI** below, using its own Python prompt generator and the standard v0.9 `basic`',
+    'catalog, transport format), and [`AGenUI/AGenUI`](https://github.com/AGenUI/AGenUI) is a',
+    'third-party native renderer SDK for it (**AGenUI** below, using its shipped Agent Skill).',
+    'They score very differently, which is why they are separate columns.',
   );
   md.push('');
   md.push('**Models tested:**');
@@ -157,12 +171,12 @@ function main(): void {
   );
   md.push('');
   md.push(
-    "\\* **A2UI's 38.9% on Opus 5 is not a format failure, and no drop can be read from that row.**",
+    "\\* **AGenUI's 38.9% on Opus 5 is not a format failure, and no drop can be read from that row.**",
     '52% of its Opus 5 generations exceeded the 8k output ceiling, and a scenario that runs out of',
     'tokens cannot have rendered every time — so the flagship figure is depressed by verbosity, not',
     'by unreliability, which is why the drop is shown as N/A rather than as an apparent improvement',
     'on the weaker model. Its Gemma figure carries the separate validator caveat flagged below:',
-    "12.2% under A2UI's own script.",
+    "12.2% under AGenUI's own script.",
     '',
   );
 
@@ -191,8 +205,9 @@ function main(): void {
           'no — one prompt, no per-vendor tuning',
         ],
         ['json-render', 'none', 'none — one generated prompt for every model', 'no'],
+        ['A2UI', 'none', 'none — one generated prompt, no per-vendor tuning', 'no'],
         [
-          'A2UI',
+          'AGenUI',
           'none',
           'none — docs say "try a few models and pick the one that fits best"',
           'no',
@@ -203,7 +218,7 @@ function main(): void {
   md.push('');
   md.push(
     'So the split is: MDMA is the only one that *adapts* to the model, OpenUI is built against a',
-    'house vendor without requiring it, and json-render and A2UI are vendor-neutral and',
+    'house vendor without requiring it, and json-render and AGenUI are vendor-neutral and',
     'vendor-indifferent — one prompt, you find out how it lands.',
     '',
   );
@@ -236,6 +251,11 @@ function main(): void {
         ],
         [
           'A2UI',
+          'yes, but **generated**',
+          'you must run their Python SDK (`a2ui_agent` prompt generator) to produce one',
+        ],
+        [
+          'AGenUI',
           '**no**',
           'ships an Agent Skill with progressive disclosure, not a prompt — we had to flatten it',
         ],
@@ -245,7 +265,7 @@ function main(): void {
   md.push('');
   md.push(
     'MDMA and OpenUI hand you portable text. json-render ties the protocol to a TypeScript runtime',
-    '— fine in Node, an obstacle from Python or Go. A2UI ships no prompt at all, so we assembled',
+    '— fine in Node, an obstacle from Python or Go. AGenUI ships no prompt at all, so we assembled',
     "one. (CopilotKit is the same shape and emits un-schema'd HTML, which is why it is not scored.)",
     '',
     'Prompt size matters here — you pay it on every request:',
@@ -358,11 +378,11 @@ function main(): void {
   md.push(matrix(results, (a) => pct(a.renderableRate), formats));
   md.push('');
   md.push(
-    "> ⚠️ **A2UI's column is measured on a looser standard than A2UI's own tooling applies.** Every",
-    '> format here is checked for structural renderability, but A2UI additionally ships an 889-line',
+    "> ⚠️ **AGenUI's column is measured on a looser standard than AGenUI's own tooling applies.** Every",
+    '> format here is checked for structural renderability, but AGenUI additionally ships an 889-line',
     '> `validate_a2ui.py`, and under *that* script the same generations score 84.2% / 70.0% /',
     '> **12.2%** instead of 100% / 81.1% / 93.3%. The Gemma row is the one to be careful with.',
-    "> See [Cross-check: A2UI's own validator is much stricter than ours](#cross-check-a2uis-own-validator-is-much-stricter-than-ours).",
+    "> See [Cross-check: AGenUI's own validator is much stricter than ours](#cross-check-agenuis-own-validator-is-much-stricter-than-ours).",
     '',
   );
 
@@ -508,7 +528,7 @@ function main(): void {
     '  or prompt-generation API. None of the prompts were written by us.',
     '- Every format is validated by **its own validator** — MDMA by `@mobile-reality/mdma-validator`,',
     '  json-render by `validateSpec()` + `catalog.validate()`, OpenUI by `createParser()` from',
-    '  `@openuidev/lang-core`, A2UI against the shipped `agenui_catalog.json`.',
+    '  `@openuidev/lang-core`, AGenUI against the shipped `agenui_catalog.json`.',
     '- **Auto-repair is off for every format.** The question is whether the model produced',
     '  renderable output, not whether a repair layer can rescue it. MDMA ships an autofix and it',
     '  is disabled here; enabling it would flatter MDMA against formats with no equivalent.',
@@ -539,14 +559,14 @@ function main(): void {
     '  their own runtime `validateSpec()` does not and the renderer renders without it. `children`',
     '  is defaulted to `[]` before the strict check, so we measure the renderer rather than the',
     '  type definition. Without this json-render fails on every leaf element.',
-    '- **A2UI**: ships no injectable system prompt. A search of the pinned tree finds no prompt',
+    '- **AGenUI**: ships no injectable system prompt. A search of the pinned tree finds no prompt',
     '  artifact at all — only `skills/a2ui-generation/`, an Agent Skill whose "Read Only What You',
     '  Need" table tells a file-reading agent which `reference/*.md` to load per task, and which',
     '  also expects to run `scripts/validate_a2ui.py`. For a plain chat completion it was flattened',
     '  to `SKILL.md` plus the two docs that table marks **required** for Non-DTO Component mode',
     '  (`component-catalog.md`, `component-design.md`), plus `data-binding.md` — which the table',
     '  lists as *load-on-demand*, not required, but without which the binding-path rules the',
-    "  catalog relies on are absent. Including it is our judgement call, and it makes A2UI's prompt",
+    "  catalog relies on are absent. Including it is our judgement call, and it makes AGenUI's prompt",
     '  larger (and so more expensive) than a strict reading of the table would. A short note was',
     '  appended telling the model it cannot read files or run scripts.',
     '  The adaptation is itself a finding about portability: this format cannot be used through a',
@@ -596,25 +616,25 @@ function main(): void {
         ],
         [
           'A2UI',
-          'structural conformance to the v0.9 message shape + `agenui_catalog.json`',
-          '**`scripts/validate_a2ui.py`** — see below',
+          'their own `TransportParser.parse_response()` (schema compilation) via `a2ui-python/`',
+          'none',
         ],
       ],
     ),
   );
   md.push('');
 
-  md.push("### Cross-check: A2UI's own validator is much stricter than ours");
+  md.push("### Cross-check: AGenUI's own validator is much stricter than ours");
   md.push('');
   md.push(
-    'A2UI ships an 889-line validation script (`skills/a2ui-generation/scripts/validate_a2ui.py`).',
+    'AGenUI ships an 889-line validation script (`skills/a2ui-generation/scripts/validate_a2ui.py`).',
     'Our adapter does **not** use it: it checks structural renderability only, which is the same',
     'standard applied to the other three formats. Theirs additionally enforces a style-key',
     'whitelist, padding/border shorthand formats, per-component required fields, button action',
     'structure, and some design guidance.',
     '',
-    'Running their script over all 218 non-truncated A2UI generations shows how far apart the two',
-    'standards are (`pnpm tsx src/crosscheck-a2ui.mts` reproduces this):',
+    'Running their script over all 218 non-truncated AGenUI generations shows how far apart the two',
+    'standards are (`pnpm tsx src/crosscheck-agenui.mts` reproduces this):',
     '',
   );
   md.push(
@@ -629,17 +649,17 @@ function main(): void {
   );
   md.push('');
   md.push(
-    "**A2UI's numbers in this report are therefore generous to A2UI**, dramatically so on the",
-    'open-weights rung. Read the 93.3% as "structurally renderable", not as "would pass A2UI\'s own',
+    "**AGenUI's numbers in this report are therefore generous to AGenUI**, dramatically so on the",
+    'open-weights rung. Read the 93.3% as "structurally renderable", not as "would pass AGenUI\'s own',
     'quality gate".',
     '',
-    'We did not adopt their script, because doing so would hold A2UI to a materially different',
+    'We did not adopt their script, because doing so would hold AGenUI to a materially different',
     'standard than the other three formats. Their top failure reasons are mostly style-lint rather',
     'than parse failures — `padding shorthand must use 4 px values` (60), `text-only style key',
     "'color' is not allowed on non-Text component` (39), `root should not set a solid",
     'background-color` (26) — and the equivalent house-style rules were excluded for MDMA too',
     '(`thinking-block`). Some of them do look renderer-level rather than cosmetic, though, so the',
-    'true figure for A2UI sits somewhere between the two columns above rather than at either end.',
+    'true figure for AGenUI sits somewhere between the two columns above rather than at either end.',
     '',
   );
 
@@ -664,12 +684,12 @@ function main(): void {
   md.push(
     `- ${k} repeats per cell detects gross flakiness, not rare intermittent failures.`,
     '- Shape stability (section 3) is not comparable across formats — see the note there.',
-    '- Truncation is scored at a fixed 8192-token ceiling. A higher ceiling would move A2UI and',
+    '- Truncation is scored at a fixed 8192-token ceiling. A higher ceiling would move AGenUI and',
     '  json-render numbers; the ceiling is identical for every format, but it is a choice.',
     '- Renderability is not semantic fidelity: a valid document that answers the wrong question',
     '  scores as a pass. The scenarios are simple enough that this is rare, but it is not measured.',
     '- The four validators are not equally calibrated. Each format is checked by its own tooling,',
-    "  but A2UI's first-party script enforces much more than structural renderability, so A2UI's",
+    "  but AGenUI's first-party script enforces much more than structural renderability, so A2UI's",
     '  figures here are the most generous of the four — see the cross-check section for the size of',
     '  the gap. OpenUI and json-render ship no stricter checker than the ones already used.',
     '- Results are a snapshot against pinned upstream commits (see `vendor/PINS.txt`). These',

@@ -137,54 +137,68 @@ async function generate(
   }
 
   const started = Date.now();
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://github.com/MobileReality/mr-mdma',
-      'X-Title': 'MDMA generative-UI format benchmark',
-    },
-    body: JSON.stringify(body),
+  const fail = (error: string) => ({
+    output: '',
+    promptTokens: 0,
+    completionTokens: 0,
+    latencyMs: Date.now() - started,
+    finishReason: null,
+    error,
   });
-  const latencyMs = Date.now() - started;
 
-  if (!res.ok) {
-    const text = await res.text();
-    return {
-      output: '',
-      promptTokens: 0,
-      completionTokens: 0,
-      latencyMs,
-      finishReason: null,
-      error: `HTTP ${res.status}: ${text.slice(0, 300)}`,
-    };
+  // Transient network faults kill a run if left uncaught, and they do NOT only
+  // occur on the fetch call: an ECONNRESET on `syscall: read` happens while the
+  // response BODY is being streamed, i.e. inside res.json(). Both the request
+  // and the body read therefore sit inside the retry, which is the difference
+  // between this surviving a socket drop and losing a 270-generation run.
+  let lastError = '';
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://github.com/MobileReality/mr-mdma',
+          'X-Title': 'MDMA generative-UI format benchmark',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        // 5xx and 429 are worth retrying; 4xx is a request problem that will
+        // fail identically every time.
+        if (res.status >= 500 || res.status === 429) {
+          lastError = `HTTP ${res.status}: ${text.slice(0, 200)}`;
+          await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+          continue;
+        }
+        return fail(`HTTP ${res.status}: ${text.slice(0, 300)}`);
+      }
+
+      const json = (await res.json()) as {
+        choices?: { message?: { content?: string }; finish_reason?: string }[];
+        usage?: { prompt_tokens?: number; completion_tokens?: number };
+        error?: { message?: string };
+      };
+
+      if (json.error) return fail(json.error.message ?? 'unknown provider error');
+
+      return {
+        output: json.choices?.[0]?.message?.content ?? '',
+        promptTokens: json.usage?.prompt_tokens ?? 0,
+        completionTokens: json.usage?.completion_tokens ?? 0,
+        latencyMs: Date.now() - started,
+        finishReason: json.choices?.[0]?.finish_reason ?? null,
+      };
+    } catch (err) {
+      lastError = `${(err as Error).name}: ${(err as Error).message}`;
+      await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt));
+    }
   }
 
-  const json = (await res.json()) as {
-    choices?: { message?: { content?: string }; finish_reason?: string }[];
-    usage?: { prompt_tokens?: number; completion_tokens?: number };
-    error?: { message?: string };
-  };
-
-  if (json.error) {
-    return {
-      output: '',
-      promptTokens: 0,
-      completionTokens: 0,
-      latencyMs,
-      finishReason: null,
-      error: json.error.message ?? 'unknown provider error',
-    };
-  }
-
-  return {
-    output: json.choices?.[0]?.message?.content ?? '',
-    promptTokens: json.usage?.prompt_tokens ?? 0,
-    completionTokens: json.usage?.completion_tokens ?? 0,
-    latencyMs,
-    finishReason: json.choices?.[0]?.finish_reason ?? null,
-  };
+  return fail(`network (4 attempts): ${lastError}`);
 }
 
 /** Run `tasks` with a fixed concurrency ceiling. */
