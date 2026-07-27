@@ -228,12 +228,6 @@ Cheap output nobody can render is not cheap.
   marks required for Non-DTO Component mode, plus a short note telling the model it cannot
   read files. This is a real adaptation and is itself a finding about portability.
 
-### Per-model notes
-
-| Model | Note |
-| --- | --- |
-| Opus 5 | prompt-pack has no author variant for this model, so MDMA runs its generic prompt here — what an integrator gets today, but not MDMA at its best. |
-
 ### Scenarios excluded as asymmetric
 
 These were deliberately left out of the scored corpus because they are natively expressible

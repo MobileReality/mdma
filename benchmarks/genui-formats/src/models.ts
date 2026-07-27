@@ -49,9 +49,6 @@ export const MODELS: ModelSpec[] = [
     rung: 'flagship',
     vendor: 'anthropic',
     promptSelector: 'openrouter:anthropic/claude-opus-5',
-    // prompt-pack ships opus-4.6/4.7/4.8 but no opus-5 variant yet, so MDMA
-    // runs its generic author prompt on this row.
-    mdmaPromptFallback: true,
   },
   {
     id: 'openai/gpt-5.6-sol',
