@@ -2,7 +2,7 @@
 
 _Generated 2026-07-27T17:02:37.140Z · 1375 generations · 2 API errors_
 
-Four open-source generative-UI formats, each generated natively from its own published
+Five open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.
 
 **The question:** given a system prompt you can paste into any LLM, does the model emit

@@ -83,7 +83,7 @@ function main(): void {
   );
   md.push('');
   md.push(
-    'Four open-source generative-UI formats, each generated natively from its own published',
+    `${formats.length === 5 ? 'Five' : formats.length === 4 ? 'Four' : String(formats.length)} open-source generative-UI formats, each generated natively from its own published`,
     'prompt and validated by its own validator, across a ladder of models.',
     '',
     '**The question:** given a system prompt you can paste into any LLM, does the model emit',
