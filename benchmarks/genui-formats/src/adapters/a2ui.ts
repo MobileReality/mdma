@@ -165,7 +165,7 @@ function collectPaths(node: unknown, acc: string[] = [], depth = 0): string[] {
 }
 
 export const a2uiAdapter: FormatAdapter = {
-  id: 'a2ui',
+  id: 'agenui',
   label: 'AGenUI (A2UI SDK)',
   promptSource: 'flattened AGenUI skills/a2ui-generation SKILL.md + refs (AGenUI @ 3e79bea)',
 

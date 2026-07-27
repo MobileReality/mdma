@@ -53,7 +53,12 @@ function main(): void {
   // Only models with a COMPLETE sweep of every format are reported. A model
   // whose run was stopped part-way has a partial, non-comparable row, and
   // publishing it next to complete ones invites a false comparison.
-  const EXPECTED_PER_FORMAT = 18 * 5;
+  // 90% of the expected sweep, not 100%: a handful of API errors (timeouts,
+  // socket drops) leave a run a few generations short without making it
+  // non-comparable. A genuinely partial run — one stopped part-way — falls far
+  // below this. Requiring an exact count silently dropped a complete model from
+  // the report over 2 network errors.
+  const EXPECTED_PER_FORMAT = 18 * 5 * 0.9;
   const isComplete = (modelId: string) =>
     formats.every((f) => {
       const agg = results.aggregates.find((a) => a.model === modelId && a.format === f);
@@ -90,6 +95,15 @@ function main(): void {
     `**Formats tested:** ${ADAPTERS.filter((a) => formats.includes(a.id))
       .map((a) => a.label)
       .join(' · ')}`,
+  );
+  md.push('');
+  md.push(
+    'Two entries come from the A2UI world and are **not** the same thing:',
+    '[`a2ui-project/a2ui`](https://github.com/a2ui-project/a2ui) is the protocol project',
+    '(**A2UI** below, using its own Python prompt generator and the standard v0.9 `basic`',
+    'catalog, transport format), and [`AGenUI/AGenUI`](https://github.com/AGenUI/AGenUI) is a',
+    'third-party native renderer SDK for it (**AGenUI** below, using its shipped Agent Skill).',
+    'They score very differently, which is why they are separate columns.',
   );
   md.push('');
   md.push('**Models tested:**');
@@ -197,6 +211,7 @@ function main(): void {
           'none — docs say "try a few models and pick the one that fits best"',
           'no',
         ],
+        ['A2UI', 'none', 'none — one generated prompt, no per-vendor tuning', 'no'],
       ],
     ),
   );
@@ -238,6 +253,11 @@ function main(): void {
           'AGenUI',
           '**no**',
           'ships an Agent Skill with progressive disclosure, not a prompt — we had to flatten it',
+        ],
+        [
+          'A2UI',
+          'yes, but **generated**',
+          'you must run their Python SDK (`a2ui_agent` prompt generator) to produce one',
         ],
       ],
     ),
@@ -598,6 +618,11 @@ function main(): void {
           'AGenUI',
           'structural conformance to the v0.9 message shape + `agenui_catalog.json`',
           '**`scripts/validate_a2ui.py`** — see below',
+        ],
+        [
+          'A2UI',
+          'their own `TransportParser.parse_response()` (schema compilation) via `a2ui-python/`',
+          'none',
         ],
       ],
     ),

@@ -60,7 +60,7 @@ export interface ValidationResult {
 }
 
 export interface FormatAdapter {
-  id: 'mdma' | 'openui' | 'json-render' | 'a2ui';
+  id: 'mdma' | 'openui' | 'json-render' | 'agenui' | 'a2ui';
   /** Display name used in report tables. */
   label: string;
   /** Where the system prompt came from — printed in the report for auditability. */

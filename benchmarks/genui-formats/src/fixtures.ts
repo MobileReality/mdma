@@ -81,7 +81,7 @@ nameField = FormControl("Full name", Input("name", "Your name", "text", ["requir
     corruption: 'element type "ContactFormWidget" is not in the catalog',
   },
 
-  a2ui: {
+  agenui: {
     valid: `\`\`\`json
 {
   "version": "v0.9",
@@ -122,5 +122,151 @@ nameField = FormControl("Full name", Input("name", "Your name", "text", ["requir
 \`\`\`
 `,
     corruption: 'dot-notation binding path, and "name_field" child never defined',
+  },
+  a2ui: {
+    valid: `Here is the layout you asked for.
+
+<a2ui-json>
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "gallery-complex-layout",
+      "catalogId": "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "gallery-complex-layout",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "form_row",
+            "footer"
+          ],
+          "justify": "spaceBetween",
+          "align": "stretch"
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "text": "User Profile Form",
+          "variant": "h1"
+        },
+        {
+          "id": "form_row",
+          "component": "Row",
+          "children": [
+            "first_name",
+            "last_name"
+          ],
+          "justify": "start",
+          "align": "start"
+        },
+        {
+          "id": "first_name",
+          "component": "TextField",
+          "label": "First Name",
+          "value": {
+            "path": "/firstName"
+          },
+          "weight": 1
+        },
+        {
+          "id": "last_name",
+          "component": "TextField",
+          "label": "Last Name",
+          "value": {
+            "path": "/lastName"
+          },
+          "weight": 1
+        },
+        {
+          "id": "footer",
+          "component": "Text",
+          "text": "Please fill out all fields.",
+          "variant": "caption"
+        }
+      ]
+    }
+  }
+]
+</a2ui-json>
+`,
+    corrupted: `<a2ui-json>
+[
+  {
+    "version": "v0.9",
+    "createSurface": {
+      "surfaceId": "gallery-complex-layout"
+    }
+  },
+  {
+    "version": "v0.9",
+    "updateComponents": {
+      "surfaceId": "gallery-complex-layout",
+      "components": [
+        {
+          "id": "root",
+          "component": "Column",
+          "children": [
+            "header",
+            "form_row",
+            "footer"
+          ],
+          "justify": "spaceBetween",
+          "align": "stretch"
+        },
+        {
+          "id": "header",
+          "component": "Text",
+          "text": "User Profile Form",
+          "variant": "h1"
+        },
+        {
+          "id": "form_row",
+          "component": "Row",
+          "children": [
+            "first_name",
+            "last_name"
+          ],
+          "justify": "start",
+          "align": "start"
+        },
+        {
+          "id": "first_name",
+          "component": "TextField",
+          "label": "First Name",
+          "value": {
+            "path": "/firstName"
+          },
+          "weight": 1
+        },
+        {
+          "id": "last_name",
+          "component": "TextField",
+          "label": "Last Name",
+          "value": {
+            "path": "/lastName"
+          },
+          "weight": 1
+        },
+        {
+          "id": "footer",
+          "component": "Text",
+          "text": "Please fill out all fields.",
+          "variant": "caption"
+        }
+      ]
+    }
+  }
+]
+</a2ui-json>
+`,
+    corruption: 'createSurface is missing the required catalogId',
   },
 };
