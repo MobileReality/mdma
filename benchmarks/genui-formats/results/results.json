@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-07-27T17:02:37.140Z",
+  "generatedAt": "2026-07-27T17:18:33.732Z",
   "cells": [
     {
       "model": "google/gemma-4-26b-a4b-it",
@@ -4955,15 +4955,15 @@
       "scenario": "chart/minimal",
       "family": "chart",
       "variant": "minimal",
-      "repeats": 4,
+      "repeats": 5,
       "truncated": 0,
-      "scored": 4,
-      "renderable": 3,
+      "scored": 5,
+      "renderable": 4,
       "everyTime": false,
       "stableShape": false,
-      "distinctShapes": 3,
-      "avgOutputTokens": 1876.5,
-      "avgPromptTokens": 10262.75,
+      "distinctShapes": 4,
+      "avgOutputTokens": 1880,
+      "avgPromptTokens": 10262.6,
       "failures": [
         "parse-error"
       ]
@@ -4974,15 +4974,15 @@
       "scenario": "chart/realistic",
       "family": "chart",
       "variant": "realistic",
-      "repeats": 4,
+      "repeats": 5,
       "truncated": 0,
-      "scored": 4,
-      "renderable": 3,
+      "scored": 5,
+      "renderable": 4,
       "everyTime": false,
       "stableShape": false,
-      "distinctShapes": 3,
-      "avgOutputTokens": 1632.5,
-      "avgPromptTokens": 10283.75,
+      "distinctShapes": 4,
+      "avgOutputTokens": 1553.6,
+      "avgPromptTokens": 10283.8,
       "failures": [
         "parse-error"
       ]
@@ -5422,15 +5422,15 @@
     {
       "model": "google/gemma-4-26b-a4b-it",
       "format": "a2ui",
-      "generations": 88,
+      "generations": 90,
       "truncationRate": 0,
-      "scored": 88,
-      "renderableRate": 0.8068181818181818,
+      "scored": 90,
+      "renderableRate": 0.8111111111111111,
       "everyTimeRate": 0.4444444444444444,
       "shapeStability": 0.05555555555555555,
-      "avgOutputTokens": 1293.5113636363637,
-      "avgPromptTokens": 10286.568181818182,
-      "efficiency": 0.6237426314910962,
+      "avgOutputTokens": 1299.5666666666666,
+      "avgPromptTokens": 10286.266666666666,
+      "efficiency": 0.6241396704884534,
       "failureCounts": {
         "parse-error": 17
       }
@@ -5444,7 +5444,7 @@
     "a2ui": 16085
   },
   "totals": {
-    "generations": 1375,
-    "errored": 2
+    "generations": 1377,
+    "errored": 0
   }
 }

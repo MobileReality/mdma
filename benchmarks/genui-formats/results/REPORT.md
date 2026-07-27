@@ -1,6 +1,6 @@
 # Generative-UI format reliability benchmark
 
-_Generated 2026-07-27T17:02:37.140Z · 1375 generations · 2 API errors_
+_Generated 2026-07-27T17:18:33.732Z · 1377 generations · 0 API errors_
 
 Five open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.
@@ -23,7 +23,7 @@ They score very differently, which is why they are separate columns.
 | --- | --- | --- | --- |
 | flagship | Opus 5 | `anthropic/claude-opus-5` | 450 |
 | mid | GPT-5.6-terra | `openai/gpt-5.6-terra` | 450 |
-| small | Gemma-4-26B-A4B | `google/gemma-4-26b-a4b-it` | 448 |
+| small | Gemma-4-26B-A4B | `google/gemma-4-26b-a4b-it` | 450 |
 
 All reached through OpenRouter, 5 repeats per scenario, temperature 0.7, max_tokens 8192 —
 identical settings for every format and model.
@@ -125,7 +125,7 @@ Every metric below is marked **↑ higher is better** or **↓ lower is better**
 | Formats | 5 |
 | Models | 3 |
 | Repeats per scenario | 5 |
-| Total generations | 1375 |
+| Total generations | 1377 |
 | Temperature | 0.7, identical for every format and model |
 | Max tokens | 8192, identical |
 
@@ -153,7 +153,7 @@ Share of generations that parse and validate — i.e. that a renderer could rend
 | **mid** |  |  |  |  |  |
 | GPT-5.6-terra | 91.1% | 100.0% | 93.3% | 86.7% | 81.1% |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 98.9% | 83.3% | 83.3% | 80.7% | 93.3% |
+| Gemma-4-26B-A4B | 98.9% | 83.3% | 83.3% | 81.1% | 93.3% |
 
 > ⚠️ **AGenUI's column is measured on a looser standard than AGenUI's own tooling applies.** Every
 > format here is checked for structural renderability, but AGenUI additionally ships an 889-line
@@ -230,7 +230,7 @@ Cheap output nobody can render is not cheap.
 | **mid** |  |  |  |  |  |
 | GPT-5.6-terra | 554 | 567 | 1020 | 1081 | 1674 |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 448 | 417 | 836 | 1294 | 1485 |
+| Gemma-4-26B-A4B | 448 | 417 | 836 | 1300 | 1485 |
 
 **Efficiency — ↑ higher is better (renderable output per 1k output tokens):**
 
@@ -259,7 +259,7 @@ Cheap output nobody can render is not cheap.
 | --- | --- | --- | --- | --- | --- |
 | contact-form | 100.0% | 100.0% | 93.3% | 82.2% | 77.8% |
 | data-table | 82.2% | 86.7% | 82.2% | 66.7% | 66.7% |
-| chart | 97.8% | 93.3% | 95.6% | 95.3% | 80.0% |
+| chart | 97.8% | 93.3% | 95.6% | 95.6% | 80.0% |
 | callout | 100.0% | 91.1% | 95.6% | 95.6% | 93.3% |
 | button | 100.0% | 97.8% | 88.9% | 100.0% | 88.9% |
 | tasklist | 91.1% | 77.8% | 73.3% | 73.3% | 37.8% |
@@ -268,8 +268,8 @@ Cheap output nobody can render is not cheap.
 
 | Variant | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
-| minimal | 100.0% | 93.3% | 95.6% | 92.1% | 87.8% |
-| realistic | 98.9% | 97.8% | 90.0% | 87.6% | 71.1% |
+| minimal | 100.0% | 93.3% | 95.6% | 92.2% | 87.8% |
+| realistic | 98.9% | 97.8% | 90.0% | 87.8% | 71.1% |
 | adversarial | 86.7% | 82.2% | 78.9% | 76.7% | 63.3% |
 
 ## Method and fairness
