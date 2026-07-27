@@ -117,6 +117,128 @@ function main(): void {
   );
 
   // ---------------------------------------------------------------- setup
+  md.push('## Summary — the three questions this benchmark set out to answer');
+  md.push('');
+
+  md.push('### 1. How far down the model ladder does each format work?');
+  md.push('');
+  md.push(
+    'Not "does it work on a flagship" — everything works on a flagship. The question is whether a',
+    'format still holds up on the cheap, small, open-weights models most products actually want to',
+    'run. Renderable rate, best model vs worst:',
+    '',
+  );
+  md.push(
+    table(
+      ['Format', 'Opus 5 (flagship)', 'Gemma-4-26B (open weights)', 'Drop'],
+      formats.map((f) => {
+        const top = results.aggregates.find(
+          (a) => a.model === 'anthropic/claude-opus-5' && a.format === f,
+        );
+        const bottom = results.aggregates.find(
+          (a) => a.model === 'google/gemma-4-26b-a4b-it' && a.format === f,
+        );
+        const drop =
+          top && bottom ? `${((top.renderableRate - bottom.renderableRate) * 100).toFixed(1)}pp` : '—';
+        return [
+          ADAPTERS.find((a) => a.id === f)?.label ?? f,
+          top ? pct(top.renderableRate) : '—',
+          bottom ? pct(bottom.renderableRate) : '—',
+          drop,
+        ];
+      }),
+    ),
+  );
+  md.push('');
+  md.push(
+    'Only MDMA ships per-model prompt variants (down to nano- and Gemma-class). The other three',
+    'ship one prompt for every model. A2UI states in its own docs: "Different LLMs may produce',
+    'somewhat different results... we recommend trying a few models and picking the one that fits',
+    'best" — the question is left to the integrator. CopilotKit OpenGenerativeUI states outright',
+    'that "smaller or weaker models will produce broken layouts".',
+    '',
+    "Caveat: A2UI's Gemma figure is the one flagged above — 12.2% under its own validator.",
+    '',
+  );
+
+  md.push('### 2. How locked-in is each one?');
+  md.push('');
+  md.push(
+    'All four are model-agnostic at the protocol level — none requires a specific vendor or a',
+    'hosted API, and every number here was produced through one OpenAI-compatible endpoint. The',
+    'lock-in is in the *renderer*, not the model:',
+    '',
+  );
+  md.push(
+    table(
+      ['Format', 'Renderers', 'Runtime coupling'],
+      [
+        ['MDMA', 'React, Vue, React Native', 'TypeScript'],
+        ['OpenUI Lang', 'React, Vue, Svelte, browser bundle', 'TypeScript'],
+        ['json-render', 'React, Vue, Svelte, Solid, RN, PDF, email, video, 3D, terminal', 'TypeScript'],
+        ['A2UI', 'iOS, Android, HarmonyOS — **no web renderer**', 'C++ core + native bridges'],
+      ],
+    ),
+  );
+  md.push('');
+
+  md.push('### 3. Is it really an open protocol — can you paste the prompt into your own model?');
+  md.push('');
+  md.push(
+    'This was the sharpest of the three questions: if a project does not hand you a system prompt',
+    'you can inject into your own LLM, it is a closed framework you integrate with, not an open',
+    'protocol you adopt.',
+    '',
+  );
+  md.push(
+    table(
+      ['Format', 'Prompt you can inject?', 'How you get it'],
+      [
+        [
+          'MDMA',
+          '**yes — static text**',
+          'versioned string constants; per-model variants; no build step',
+        ],
+        [
+          'OpenUI Lang',
+          '**yes — published text**',
+          'a committed `system-prompt.txt`, also regenerable from their JS library',
+        ],
+        [
+          'json-render',
+          'yes, but **generated**',
+          'you must run `catalog.prompt()` from their TypeScript package to produce one',
+        ],
+        [
+          'A2UI',
+          '**no**',
+          'ships an Agent Skill with progressive disclosure, not a prompt — we had to flatten it',
+        ],
+      ],
+    ),
+  );
+  md.push('');
+  md.push(
+    'Practical reading: MDMA and OpenUI hand you a portable artifact. json-render couples the',
+    'protocol to a TypeScript runtime — fine if you are in Node, an obstacle if your agent is in',
+    'Python or Go. A2UI ships no injectable prompt at all: its skill instructs a file-reading,',
+    'script-running agent, so using it through a plain chat completion required assembling a prompt',
+    'ourselves. CopilotKit OpenGenerativeUI is the same shape and emits un-schema\'d HTML, which is',
+    'why it is not scored here.',
+    '',
+    'Prompt sizes, since an injectable prompt is paid for on every request:',
+    '',
+  );
+  md.push(
+    table(
+      ['Format', 'Prompt tokens ↓'],
+      ADAPTERS.filter((a) => formats.includes(a.id))
+        .map((a) => [a.label, String(results.promptSizes[a.id] ?? '—')])
+        .sort((x, y) => Number(x[1]) - Number(y[1])),
+    ),
+  );
+  md.push('');
+
   md.push('## Reading the tables');
   md.push('');
   md.push(
