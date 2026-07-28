@@ -521,6 +521,38 @@ function main(): void {
   md.push('');
 
   // -------------------------------------------------------------- method
+  // Section 7 records a side experiment run outside the main sweep: A2UI's
+  // prompt regenerated with include_examples=True, same 18 scenarios x 5
+  // repeats on Gemma-4-26B. Those 90 generations are deliberately NOT in
+  // results/generations.jsonl — they are not a peer arm and would inflate the
+  // run totals. The figures are therefore stated literally here.
+  md.push('## 7. Does adding few-shot examples help a weak model? — no');
+  md.push('');
+  md.push(
+    'A2UI is the only format here whose prompt ships **without worked examples** — its generator',
+    'makes them opt-in. Every other format includes them by default. To check whether that',
+    'asymmetry disadvantaged A2UI, we re-ran the same 18 scenarios x 5 repeats on Gemma-4-26B with',
+    '`include_examples=True` and changed nothing else.',
+    '',
+  );
+  md.push(
+    table(
+      ['Metric', 'schema only (benchmarked)', '+ examples', 'Delta'],
+      [
+        ['Renderable rate ↑', '81.1%', '61.1%', '-20.0pp'],
+        ['"Every time" rate ↑', '44.4%', '27.8%', '-16.7pp'],
+        ['Prompt tokens ↓', '10,286', '53,956', '+43,670'],
+      ],
+    ),
+  );
+  md.push('');
+  md.push(
+    '**Examples made it worse.** With the 54k-token prompt, 7 generations produced no',
+    '`<a2ui-json>` block at all — the model answered in prose — and parse errors rose from 17 to',
+    '27. At this model size the instruction gets lost in the context rather than reinforced.',
+    '',
+  );
+
   md.push('## Method and fairness');
   md.push('');
   md.push(

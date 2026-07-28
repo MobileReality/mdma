@@ -1,6 +1,6 @@
 # Generative-UI format reliability benchmark
 
-_Generated 2026-07-27T17:18:33.732Z · 1377 generations · 0 API errors_
+_Generated 2026-07-28T07:26:52.650Z · 1377 generations · 0 API errors_
 
 Five open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.
@@ -271,6 +271,23 @@ Cheap output nobody can render is not cheap.
 | minimal | 100.0% | 93.3% | 95.6% | 92.2% | 87.8% |
 | realistic | 98.9% | 97.8% | 90.0% | 87.8% | 71.1% |
 | adversarial | 86.7% | 82.2% | 78.9% | 76.7% | 63.3% |
+
+## 7. Does adding few-shot examples help a weak model? — no
+
+A2UI is the only format here whose prompt ships **without worked examples** — its generator
+makes them opt-in. Every other format includes them by default. To check whether that
+asymmetry disadvantaged A2UI, we re-ran the same 18 scenarios x 5 repeats on Gemma-4-26B with
+`include_examples=True` and changed nothing else.
+
+| Metric | schema only (benchmarked) | + examples | Delta |
+| --- | --- | --- | --- |
+| Renderable rate ↑ | 81.1% | 61.1% | -20.0pp |
+| "Every time" rate ↑ | 44.4% | 27.8% | -16.7pp |
+| Prompt tokens ↓ | 10,286 | 53,956 | +43,670 |
+
+**Examples made it worse.** With the 54k-token prompt, 7 generations produced no
+`<a2ui-json>` block at all — the model answered in prose — and parse errors rose from 17 to
+27. At this model size the instruction gets lost in the context rather than reinforced.
 
 ## Method and fairness
 

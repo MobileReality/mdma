@@ -10,6 +10,7 @@ schema validation) comes from their code, not ours.
 """
 
 import json
+import os
 import sys
 
 from a2ui.inference_formats.transport.format import TransportFormat
@@ -31,13 +32,16 @@ def build_format() -> TransportFormat:
     return TransportFormat(version="0.9", catalogs=[cfg])
 
 
+EXAMPLES = os.environ.get("A2UI_EXAMPLES") == "1"
+
+
 def make_prompt() -> str:
     # include_schema=True gives the model the component/message schemas — without
     # it the prompt is 213 tokens and describes nothing. include_examples=False:
     # examples add ~39k tokens, which would make this prompt 4x any other in the
     # benchmark. Disclosed in the report.
     return build_format().prompt_generator.generate(
-        role_description=ROLE, include_schema=True, include_examples=False
+        role_description=ROLE, include_schema=True, include_examples=EXAMPLES
     )
 
 
