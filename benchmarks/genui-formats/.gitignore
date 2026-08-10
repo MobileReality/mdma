@@ -2,3 +2,5 @@
 node_modules
 results/raw/
 samples/
+vendor/openui-prompt-*.txt
+vendor/openui-schema-0.13.5.json

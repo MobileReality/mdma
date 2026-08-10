@@ -26,6 +26,16 @@ const RED = '\x1b[31m';
 const DIM = '\x1b[2m';
 const RESET = '\x1b[0m';
 
+/**
+ * Probe adapters differ from a peer arm only in their prompt (and matching
+ * schema) and deliberately reuse that arm's validator. They have no fixture of
+ * their own, and "rejects <the arm it shares a validator with>" is expected to
+ * fail because it IS that validator. Both checks are skipped; the
+ * prompt-builds check still applies.
+ */
+const PROBES = new Set(['openui']);
+const SHARES_VALIDATOR_WITH: Record<string, string> = { openui: 'openui-v2' };
+
 let failures = 0;
 
 function check(label: string, pass: boolean, detail = ''): void {
@@ -52,6 +62,7 @@ async function main(): Promise<void> {
   console.log('\n=== 2. Valid passes, corrupted fails ===\n');
 
   for (const adapter of ADAPTERS) {
+    if (PROBES.has(adapter.id)) continue;
     const fixture = FIXTURES[adapter.id];
     if (!fixture) {
       check(`${adapter.label} has a fixture`, false);
@@ -82,6 +93,7 @@ async function main(): Promise<void> {
   for (const adapter of ADAPTERS) {
     for (const [otherId, fixture] of Object.entries(FIXTURES)) {
       if (otherId === adapter.id) continue;
+      if (SHARES_VALIDATOR_WITH[adapter.id] === otherId) continue;
       const result = adapter.validate(fixture.valid);
       check(
         `${adapter.label.padEnd(14)} rejects ${otherId}`,

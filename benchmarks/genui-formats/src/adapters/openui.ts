@@ -54,9 +54,22 @@ function shapeOf(node: unknown, acc: string[] = [], depth = 0): string[] {
   return acc;
 }
 
+/**
+ * The validation logic, parameterised by parser so the `openui-v2` arm can
+ * reuse it verbatim against a different schema. Keeping one implementation
+ * guarantees any score difference between the two arms comes from the prompt
+ * and schema, never from a divergence in how we judge them.
+ */
+export function validateWithParser(
+  output: string,
+  activeParser: ReturnType<typeof createParser>,
+): ValidationResult {
+  return validateImpl(output, activeParser);
+}
+
 export const openuiAdapter: FormatAdapter = {
   id: 'openui',
-  label: 'OpenUI Lang',
+  label: 'OpenUI Lang (pinned artifact)',
   promptSource: 'vendor/openui-system-prompt.txt (thesysdev/openui @ 65b5f93)',
 
   async systemPrompt(): Promise<string> {
@@ -64,98 +77,102 @@ export const openuiAdapter: FormatAdapter = {
   },
 
   validate(output: string): ValidationResult {
-    const issues: ValidationIssue[] = [];
-    const { text, fenced } = unfence(output);
-
-    if (!text.trim()) {
-      issues.push({ kind: 'no-structured-output', message: 'empty response' });
-      return { ok: false, issues, componentCount: 0 };
-    }
-
-    if (fenced) {
-      issues.push({
-        kind: 'prose-leakage',
-        message: 'output was wrapped in a code fence (prompt says "just openui-lang")',
-      });
-    }
-
-    let result: ReturnType<typeof parser.parse>;
-    try {
-      result = parser.parse(text);
-    } catch (err) {
-      issues.push({ kind: 'parse-error', message: (err as Error).message });
-      return { ok: false, issues, componentCount: 0 };
-    }
-
-    if (!result.root) {
-      issues.push({
-        kind: result.meta.statementCount === 0 ? 'no-structured-output' : 'parse-error',
-        message:
-          result.meta.statementCount === 0
-            ? 'no openui-lang statements found in the response'
-            : `parsed ${result.meta.statementCount} statement(s) but produced no root`,
-      });
-      return { ok: false, issues, componentCount: result.meta.statementCount };
-    }
-
-    if (result.meta.incomplete) {
-      issues.push({ kind: 'truncated', message: 'parser reported incomplete/truncated input' });
-    }
-
-    for (const name of result.meta.unresolved) {
-      // Two very different things land in `unresolved`, and conflating them
-      // would misreport this format badly.
-      //
-      // 1. The model wrote a NAMED argument — `Stack([...], direction="column")`.
-      //    OpenUI Lang is positional-only, so `direction` is read as a bare
-      //    reference. Verified against the parser: the surrounding component
-      //    and all its children still render, only that one prop is lost and
-      //    the component falls back to its default. Degraded, not broken.
-      //
-      // 2. A genuine dangling reference — a child listed in a children array
-      //    that was never defined. That leaves a hole in the rendered output.
-      //
-      // Distinguish by how the name is used in the source: `name=` inline
-      // (after a comma or open paren) is the named-argument mistake; anything
-      // else is a real missing definition.
-      const namedArg = new RegExp(`[(,]\\s*${escapeRegex(name)}\\s*=`).test(text);
-      issues.push({
-        kind: 'broken-reference',
-        message: namedArg
-          ? `named argument "${name}=" — openui-lang is positional-only, so the value is dropped and the component renders with its default`
-          : `reference "${name}" is used but never defined (renders as null)`,
-        degraded: namedArg,
-      });
-    }
-
-    for (const name of result.meta.orphaned) {
-      issues.push({
-        kind: 'broken-reference',
-        message: `statement "${name}" is unreachable from root — silently dropped, will not render`,
-      });
-    }
-
-    for (const err of result.meta.errors.slice(0, 8)) {
-      const e = err as { code?: string; message?: string };
-      issues.push({
-        kind: e.code === 'unknown-component' ? 'unknown-component' : 'schema-error',
-        message: `${e.code}: ${e.message ?? ''}`,
-        // `excess-args` drops a surplus argument but the component still
-        // renders — degraded, not broken. Everything else (`missing-required`,
-        // `null-required`, `unknown-component`) causes the parser to redact the
-        // component entirely, which is a render failure.
-        degraded: e.code === 'excess-args',
-      });
-    }
-
-    const shape = shapeOf(result.root);
-    const fatal = issues.filter((i) => !i.degraded && i.kind !== 'prose-leakage');
-
-    return {
-      ok: fatal.length === 0,
-      issues,
-      shape: shape.join(','),
-      componentCount: shape.length,
-    };
+    return validateImpl(output, parser);
   },
 };
+
+function validateImpl(output: string, parser: ReturnType<typeof createParser>): ValidationResult {
+  const issues: ValidationIssue[] = [];
+  const { text, fenced } = unfence(output);
+
+  if (!text.trim()) {
+    issues.push({ kind: 'no-structured-output', message: 'empty response' });
+    return { ok: false, issues, componentCount: 0 };
+  }
+
+  if (fenced) {
+    issues.push({
+      kind: 'prose-leakage',
+      message: 'output was wrapped in a code fence (prompt says "just openui-lang")',
+    });
+  }
+
+  let result: ReturnType<typeof parser.parse>;
+  try {
+    result = parser.parse(text);
+  } catch (err) {
+    issues.push({ kind: 'parse-error', message: (err as Error).message });
+    return { ok: false, issues, componentCount: 0 };
+  }
+
+  if (!result.root) {
+    issues.push({
+      kind: result.meta.statementCount === 0 ? 'no-structured-output' : 'parse-error',
+      message:
+        result.meta.statementCount === 0
+          ? 'no openui-lang statements found in the response'
+          : `parsed ${result.meta.statementCount} statement(s) but produced no root`,
+    });
+    return { ok: false, issues, componentCount: result.meta.statementCount };
+  }
+
+  if (result.meta.incomplete) {
+    issues.push({ kind: 'truncated', message: 'parser reported incomplete/truncated input' });
+  }
+
+  for (const name of result.meta.unresolved) {
+    // Two very different things land in `unresolved`, and conflating them
+    // would misreport this format badly.
+    //
+    // 1. The model wrote a NAMED argument — `Stack([...], direction="column")`.
+    //    OpenUI Lang is positional-only, so `direction` is read as a bare
+    //    reference. Verified against the parser: the surrounding component
+    //    and all its children still render, only that one prop is lost and
+    //    the component falls back to its default. Degraded, not broken.
+    //
+    // 2. A genuine dangling reference — a child listed in a children array
+    //    that was never defined. That leaves a hole in the rendered output.
+    //
+    // Distinguish by how the name is used in the source: `name=` inline
+    // (after a comma or open paren) is the named-argument mistake; anything
+    // else is a real missing definition.
+    const namedArg = new RegExp(`[(,]\\s*${escapeRegex(name)}\\s*=`).test(text);
+    issues.push({
+      kind: 'broken-reference',
+      message: namedArg
+        ? `named argument "${name}=" — openui-lang is positional-only, so the value is dropped and the component renders with its default`
+        : `reference "${name}" is used but never defined (renders as null)`,
+      degraded: namedArg,
+    });
+  }
+
+  for (const name of result.meta.orphaned) {
+    issues.push({
+      kind: 'broken-reference',
+      message: `statement "${name}" is unreachable from root — silently dropped, will not render`,
+    });
+  }
+
+  for (const err of result.meta.errors.slice(0, 8)) {
+    const e = err as { code?: string; message?: string };
+    issues.push({
+      kind: e.code === 'unknown-component' ? 'unknown-component' : 'schema-error',
+      message: `${e.code}: ${e.message ?? ''}`,
+      // `excess-args` drops a surplus argument but the component still
+      // renders — degraded, not broken. Everything else (`missing-required`,
+      // `null-required`, `unknown-component`) causes the parser to redact the
+      // component entirely, which is a render failure.
+      degraded: e.code === 'excess-args',
+    });
+  }
+
+  const shape = shapeOf(result.root);
+  const fatal = issues.filter((i) => !i.degraded && i.kind !== 'prose-leakage');
+
+  return {
+    ok: fatal.length === 0,
+    issues,
+    shape: shape.join(','),
+    componentCount: shape.length,
+  };
+}

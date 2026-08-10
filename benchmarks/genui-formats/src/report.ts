@@ -46,8 +46,11 @@ function matrix(results: Results, pick: (agg: Aggregate) => string, formats: str
 
 function main(): void {
   const results = JSON.parse(readFileSync(RESULTS, 'utf8')) as Results;
-  const formats = ADAPTERS.map((a) => a.id).filter((id) =>
-    results.aggregates.some((a) => a.format === id),
+  // `openui` is the superseded pinned-artifact run (see section 8), kept as a
+  // probe rather than a peer column so the comparison shows one OpenUI result.
+  const PROBE_FORMATS = new Set(['openui']);
+  const formats = ADAPTERS.map((a) => a.id).filter(
+    (id) => !PROBE_FORMATS.has(id) && results.aggregates.some((a) => a.format === id),
   );
 
   // Only models with a COMPLETE sweep of every format are reported. A model
@@ -552,6 +555,82 @@ function main(): void {
     '27. At this model size the instruction gets lost in the context rather than reinforced.',
     '',
   );
+
+  const G = 'google/gemma-4-26b-a4b-it';
+  const O = 'anthropic/claude-opus-5';
+  const T = 'openai/gpt-5.6-terra';
+  const pin = (m: string) => results.aggregates.find((a) => a.model === m && a.format === 'openui');
+  const shp = (m: string) =>
+    results.aggregates.find((a) => a.model === m && a.format === 'openui-v2');
+
+  if (pin(O) && shp(O)) {
+    md.push("## 8. OpenUI's published prompt is stale against the library it ships");
+    md.push('');
+    md.push(
+      'thesysdev publish `benchmarks/system-prompt.txt` and use it in their own benchmark. It is',
+      'byte-identical to their repository today, but it no longer matches the library they ship on',
+      'npm: `openuiLibrary.prompt()` from `@openuidev/react-ui@0.13.5` produces a different prompt.',
+      '',
+    );
+    md.push(
+      table(
+        ['', 'Published artifact', 'Shipped library v0.13.5'],
+        [
+          ['Size', '13,080 chars', '17,431 chars'],
+          ['`## Examples`', 'present', '**removed**'],
+          ['`## Action - Button Behavior`', 'absent', '**added**'],
+          ['`## Final Verification`', 'absent', '**added**'],
+          ['Components', 'base set', '**+Modal, +Action**'],
+        ],
+      ),
+    );
+    md.push('');
+    md.push(
+      'Anyone installing the package today gets the second one, so **the scored OpenUI arm uses the',
+      'shipped library prompt**, with the schema regenerated from the same version so parser and',
+      'prompt agree. We re-ran all 270 generations rather than adjusting anything after the fact.',
+      '',
+      'The superseded run is kept here because the comparison is informative:',
+      '',
+    );
+    md.push(
+      table(
+        ['Model', 'Published artifact', 'Shipped library', 'Delta'],
+        [
+          [
+            'Opus 5',
+            pct(pin(O)?.everyTimeRate ?? 0),
+            pct(shp(O)?.everyTimeRate ?? 0),
+            `+${(((shp(O)?.everyTimeRate ?? 0) - (pin(O)?.everyTimeRate ?? 0)) * 100).toFixed(1)}pp`,
+          ],
+          [
+            'GPT-5.6-terra',
+            pct(pin(T)?.everyTimeRate ?? 0),
+            pct(shp(T)?.everyTimeRate ?? 0),
+            `${(((shp(T)?.everyTimeRate ?? 0) - (pin(T)?.everyTimeRate ?? 0)) * 100).toFixed(1)}pp`,
+          ],
+          [
+            'Gemma-4-26B',
+            pct(pin(G)?.everyTimeRate ?? 0),
+            pct(shp(G)?.everyTimeRate ?? 0),
+            `${(((shp(G)?.everyTimeRate ?? 0) - (pin(G)?.everyTimeRate ?? 0)) * 100).toFixed(1)}pp`,
+          ],
+        ],
+      ),
+    );
+    md.push('');
+    md.push(
+      '"Every time" rate, five repeats per scenario. The correction gained 2 scenarios on the',
+      'flagship and lost 1 on each cheaper model, averaging out to no change across the ladder.',
+      'Correcting it was therefore about accuracy, not about advantage: the published artifact was',
+      'not systematically unfair to OpenUI, and scored better on two rungs of three.',
+      '',
+      'The direction is consistent with section 7. The shipped prompt trades worked examples for',
+      'prose rules; a strong model applies rules, a weak one needs the examples. On Gemma the',
+      'largest failure category became `missing-required`, which is what losing examples predicts.',
+      '',
+    );
+  }
 
   md.push('## Method and fairness');
   md.push('');

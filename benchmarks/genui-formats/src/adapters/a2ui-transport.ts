@@ -34,7 +34,12 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const PROMPT_FILE = join(ROOT, 'vendor', 'a2ui-transport-prompt.txt');
 const TOOL = join(ROOT, 'a2ui-python', 'a2ui_tool.py');
 
-/** Interpreter with the A2UI SDK installed. See a2ui-python/README.md. */
+/**
+ * Interpreter with the A2UI SDK installed. The default lives under /tmp, which
+ * the OS eventually cleans, so a missing interpreter is expected rather than
+ * exceptional. Run `./a2ui-python/setup.sh` to rebuild it, or point
+ * A2UI_PYTHON at a durable venv.
+ */
 const PYTHON = process.env.A2UI_PYTHON ?? '/tmp/a2ui-venv/bin/python';
 
 const SYSTEM_PROMPT = existsSync(PROMPT_FILE) ? readFileSync(PROMPT_FILE, 'utf8') : '';
@@ -57,10 +62,23 @@ export function validateBatch(outputs: string[]): Verdict[] {
   const file = join(dir, 'batch.jsonl');
   writeFileSync(file, outputs.map((o) => JSON.stringify({ output: o })).join('\n'), 'utf8');
 
-  const stdout = execFileSync(PYTHON, [TOOL, 'validate', file], {
-    encoding: 'utf8',
-    maxBuffer: 64 * 1024 * 1024,
-  });
+  let stdout: string;
+  try {
+    stdout = execFileSync(PYTHON, [TOOL, 'validate', file], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+  } catch (err) {
+    const e = err as { code?: string };
+    if (e.code === 'ENOENT') {
+      throw new Error(
+        `A2UI python environment missing at ${PYTHON}.\n` +
+          `Rebuild it with:  ./a2ui-python/setup.sh\n` +
+          `Or set A2UI_PYTHON to an interpreter with the a2ui SDK installed.`,
+      );
+    }
+    throw err;
+  }
   return stdout
     .split('\n')
     .filter(Boolean)
