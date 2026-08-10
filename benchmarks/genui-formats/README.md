@@ -6,7 +6,7 @@ and **validated by its own validator**, across a ladder of models from flagship 
 | Format | Wire format | Prompt source |
 | --- | --- | --- |
 | [MDMA](https://github.com/MobileReality/mr-mdma) | Markdown + YAML in ` ```mdma ` blocks | `buildSystemPrompt()` + per-model author variant |
-| [OpenUI Lang](https://github.com/thesysdev/openui) | line-oriented DSL | `benchmarks/system-prompt.txt` (their own published artifact) |
+| [OpenUI Lang](https://github.com/thesysdev/openui) | line-oriented DSL | `openuiLibrary.prompt()` from `@openuidev/react-ui@0.13.5` |
 | [json-render](https://github.com/vercel-labs/json-render) | JSONL of RFC-6902 patches | `catalog.prompt()` |
 | [AGenUI](https://github.com/AGenUI/AGenUI) | A2UI v0.9 JSON messages | `skills/a2ui-generation/SKILL.md` + required refs, flattened |
 | [A2UI](https://github.com/a2ui-project/a2ui) | A2UI v0.9 JSON messages (transport) | `a2ui_agent` Python prompt generator, standard v0.9 `basic` catalog |
@@ -76,6 +76,19 @@ src/
 vendor/               pinned upstream artifacts + PINS.txt (commit SHAs)
 results/              ledger, raw generations, results.json, REPORT.md
 ```
+
+## A2UI arm setup (one-off)
+
+The A2UI arm validates through A2UI's own Python SDK, which is not published to
+PyPI. Install it from the pinned commit before running or scoring that arm:
+
+```bash
+./a2ui-python/setup.sh          # clones the pinned commit, builds a venv
+```
+
+The checkout and venv default to `/tmp`, so the OS will eventually delete them;
+re-run the script when `pnpm verify` reports a missing interpreter. Set
+`A2UI_SRC`, `A2UI_VENV` and `A2UI_PYTHON` to keep them somewhere durable.
 
 ## Running
 

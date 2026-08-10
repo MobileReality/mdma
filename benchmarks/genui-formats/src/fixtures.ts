@@ -53,7 +53,7 @@ fields:
     corruption: 'broken YAML indentation inside the mdma block',
   },
 
-  openui: {
+  'openui-v2': {
     valid: `root = Stack([title, form])
 title = TextContent("Contact us", "large-heavy")
 form = Form("contact", [nameField, emailField])

@@ -20,6 +20,7 @@
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@mobile-reality/mdma-validator": "workspace:*",
     "@openuidev/lang-core": "0.2.10",
+    "@openuidev/react-ui": "0.13.5",
     "ajv": "^8.17.1",
     "dotenv": "^16.4.5",
     "openai": "^4.77.0",

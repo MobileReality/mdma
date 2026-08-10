@@ -1,6 +1,6 @@
 # Generative-UI format reliability benchmark
 
-_Generated 2026-07-28T07:26:52.650Z · 1377 generations · 0 API errors_
+_Generated 2026-08-07T14:19:12.249Z · 1647 generations · 0 API errors_
 
 Five open-source generative-UI formats, each generated natively from its own published
 prompt and validated by its own validator, across a ladder of models.
@@ -21,9 +21,9 @@ They score very differently, which is why they are separate columns.
 
 | Rung | Model | Provider id | Generations |
 | --- | --- | --- | --- |
-| flagship | Opus 5 | `anthropic/claude-opus-5` | 450 |
-| mid | GPT-5.6-terra | `openai/gpt-5.6-terra` | 450 |
-| small | Gemma-4-26B-A4B | `google/gemma-4-26b-a4b-it` | 450 |
+| flagship | Opus 5 | `anthropic/claude-opus-5` | 540 |
+| mid | GPT-5.6-terra | `openai/gpt-5.6-terra` | 540 |
+| small | Gemma-4-26B-A4B | `google/gemma-4-26b-a4b-it` | 540 |
 
 All reached through OpenRouter, 5 repeats per scenario, temperature 0.7, max_tokens 8192 —
 identical settings for every format and model.
@@ -40,7 +40,7 @@ rendered — because a format that works four times in five is not something you
 | Format | Opus 5 (flagship) | Gemma-4-26B (open weights) | Drop |
 | --- | --- | --- | --- |
 | MDMA | 94.4% | 94.4% | 0.0pp |
-| OpenUI Lang | 83.3% | 55.6% | 27.8pp |
+| OpenUI Lang | 94.4% | 50.0% | 44.4pp |
 | json-render | 83.3% | 38.9% | 44.4pp |
 | A2UI (transport) | 83.3% | 44.4% | 38.9pp |
 | AGenUI (A2UI SDK) | 38.9% \* | 77.8% | N/A |
@@ -91,8 +91,8 @@ Prompt size matters here — you pay it on every request:
 
 | Format | Prompt tokens ↓ |
 | --- | --- |
-| OpenUI Lang | 5172 |
 | MDMA | 5910 |
+| OpenUI Lang | 6978 |
 | json-render | 8466 |
 | A2UI (transport) | 16085 |
 | AGenUI (A2UI SDK) | 19689 |
@@ -125,7 +125,7 @@ Every metric below is marked **↑ higher is better** or **↓ lower is better**
 | Formats | 5 |
 | Models | 3 |
 | Repeats per scenario | 5 |
-| Total generations | 1377 |
+| Total generations | 1647 |
 | Temperature | 0.7, identical for every format and model |
 | Max tokens | 8192, identical |
 
@@ -137,7 +137,7 @@ artifact or prompt-generation API.
 | Format | Source | Prompt tokens (↓ lower is better) |
 | --- | --- | --- |
 | MDMA | buildSystemPrompt() + per-model author variant (packages/prompt-pack) | 5910 |
-| OpenUI Lang | vendor/openui-system-prompt.txt (thesysdev/openui @ 65b5f93) | 5172 |
+| OpenUI Lang | openuiLibrary.prompt() from @openuidev/react-ui@0.13.5 | 6978 |
 | json-render | catalog.prompt() — @json-render/core 0.19.0, shadcn catalog + Chart | 8466 |
 | A2UI (transport) | a2ui_agent TransportFormat.prompt_generator.generate() — A2UI's own Python SDK | 16085 |
 | AGenUI (A2UI SDK) | flattened AGenUI skills/a2ui-generation SKILL.md + refs (AGenUI @ 3e79bea) | 19689 |
@@ -149,11 +149,11 @@ Share of generations that parse and validate — i.e. that a renderer could rend
 | Model | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
 | **flagship** |  |  |  |  |  |
-| Opus 5 | 100.0% | 98.8% | 100.0% | 96.4% | 100.0% |
+| Opus 5 | 100.0% | 100.0% | 100.0% | 96.4% | 100.0% |
 | **mid** |  |  |  |  |  |
-| GPT-5.6-terra | 91.1% | 100.0% | 93.3% | 86.7% | 81.1% |
+| GPT-5.6-terra | 91.1% | 98.9% | 93.3% | 86.7% | 81.1% |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 98.9% | 83.3% | 83.3% | 81.1% | 93.3% |
+| Gemma-4-26B-A4B | 98.9% | 78.9% | 83.3% | 81.1% | 93.3% |
 
 > ⚠️ **AGenUI's column is measured on a looser standard than AGenUI's own tooling applies.** Every
 > format here is checked for structural renderability, but AGenUI additionally ships an 889-line
@@ -173,7 +173,7 @@ It is still a real cost. Truncation here means: at 8k output tokens, that format
 | Model | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
 | **flagship** |  |  |  |  |  |
-| Opus 5 | 4.4% | 8.9% | 12.2% | 7.8% | 52.2% |
+| Opus 5 | 4.4% | 5.6% | 12.2% | 7.8% | 52.2% |
 | **mid** |  |  |  |  |  |
 | GPT-5.6-terra | 0.0% | 0.0% | 0.0% | 0.0% | 0.0% |
 | **small** |  |  |  |  |  |
@@ -187,11 +187,11 @@ you are shipping a product: a format that works 4 times in 5 still breaks in pro
 | Model | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
 | **flagship** |  |  |  |  |  |
-| Opus 5 | 94.4% | 83.3% | 83.3% | 83.3% | 38.9% |
+| Opus 5 | 94.4% | 94.4% | 83.3% | 83.3% | 38.9% |
 | **mid** |  |  |  |  |  |
-| GPT-5.6-terra | 83.3% | 100.0% | 72.2% | 61.1% | 72.2% |
+| GPT-5.6-terra | 83.3% | 94.4% | 72.2% | 61.1% | 72.2% |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 94.4% | 55.6% | 38.9% | 44.4% | 77.8% |
+| Gemma-4-26B-A4B | 94.4% | 50.0% | 38.9% | 44.4% | 77.8% |
 
 ## 3. Shape stability — ↑ higher is better (diagnostic only — NOT comparable across formats)
 
@@ -212,7 +212,7 @@ Share of scenarios where all 5 repeats produced the same component structure.
 | **flagship** |  |  |  |  |  |
 | Opus 5 | 16.7% | 5.6% | 5.6% | 5.6% | 5.6% |
 | **mid** |  |  |  |  |  |
-| GPT-5.6-terra | 72.2% | 5.6% | 5.6% | 11.1% | 5.6% |
+| GPT-5.6-terra | 72.2% | 22.2% | 5.6% | 11.1% | 5.6% |
 | **small** |  |  |  |  |  |
 | Gemma-4-26B-A4B | 72.2% | 5.6% | 0.0% | 5.6% | 5.6% |
 
@@ -226,29 +226,29 @@ Cheap output nobody can render is not cheap.
 | Model | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
 | **flagship** |  |  |  |  |  |
-| Opus 5 | 1666 | 1814 | 4019 | 3892 | 7209 |
+| Opus 5 | 1666 | 2125 | 4019 | 3892 | 7209 |
 | **mid** |  |  |  |  |  |
-| GPT-5.6-terra | 554 | 567 | 1020 | 1081 | 1674 |
+| GPT-5.6-terra | 554 | 624 | 1020 | 1081 | 1674 |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 448 | 417 | 836 | 1300 | 1485 |
+| Gemma-4-26B-A4B | 448 | 525 | 836 | 1300 | 1485 |
 
 **Efficiency — ↑ higher is better (renderable output per 1k output tokens):**
 
 | Model | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
 | **flagship** |  |  |  |  |  |
-| Opus 5 | 0.60 | 0.54 | 0.25 | 0.25 | 0.14 |
+| Opus 5 | 0.60 | 0.47 | 0.25 | 0.25 | 0.14 |
 | **mid** |  |  |  |  |  |
-| GPT-5.6-terra | 1.64 | 1.77 | 0.91 | 0.80 | 0.48 |
+| GPT-5.6-terra | 1.64 | 1.59 | 0.91 | 0.80 | 0.48 |
 | **small** |  |  |  |  |  |
-| Gemma-4-26B-A4B | 2.21 | 2.00 | 1.00 | 0.62 | 0.63 |
+| Gemma-4-26B-A4B | 2.21 | 1.50 | 1.00 | 0.62 | 0.63 |
 
 ## 5. Failure taxonomy — ↓ lower is better (0 is perfect)
 
 | Format | broken-reference | no-structured-output | off-task | parse-error | prose-leakage | schema-error | truncated | unknown-component |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | MDMA | 0 | 6 | 2 | 1 | 0 | 0 | 4 | 0 |
-| OpenUI Lang | 142 | 0 | 0 | 0 | 0 | 57 | 8 | 1 |
+| OpenUI Lang | 38 | 0 | 0 | 0 | 0 | 55 | 7 | 5 |
 | json-render | 27 | 0 | 0 | 0 | 0 | 26 | 11 | 0 |
 | A2UI (transport) | 0 | 0 | 0 | 32 | 0 | 0 | 7 | 0 |
 | AGenUI (A2UI SDK) | 3 | 13 | 7 | 0 | 2 | 0 | 47 | 0 |
@@ -257,19 +257,19 @@ Cheap output nobody can render is not cheap.
 
 | Family | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
-| contact-form | 100.0% | 100.0% | 93.3% | 82.2% | 77.8% |
-| data-table | 82.2% | 86.7% | 82.2% | 66.7% | 66.7% |
-| chart | 97.8% | 93.3% | 95.6% | 95.6% | 80.0% |
-| callout | 100.0% | 91.1% | 95.6% | 95.6% | 93.3% |
+| contact-form | 100.0% | 91.1% | 93.3% | 82.2% | 77.8% |
+| data-table | 82.2% | 82.2% | 82.2% | 66.7% | 66.7% |
+| chart | 97.8% | 91.1% | 95.6% | 95.6% | 80.0% |
+| callout | 100.0% | 97.8% | 95.6% | 95.6% | 93.3% |
 | button | 100.0% | 97.8% | 88.9% | 100.0% | 88.9% |
-| tasklist | 91.1% | 77.8% | 73.3% | 73.3% | 37.8% |
+| tasklist | 91.1% | 84.4% | 73.3% | 73.3% | 37.8% |
 
 **By variant** — the adversarial variant is where formats separate:
 
 | Variant | MDMA | OpenUI Lang | json-render | A2UI (transport) | AGenUI (A2UI SDK) |
 | --- | --- | --- | --- | --- | --- |
-| minimal | 100.0% | 93.3% | 95.6% | 92.2% | 87.8% |
-| realistic | 98.9% | 97.8% | 90.0% | 87.8% | 71.1% |
+| minimal | 100.0% | 96.7% | 95.6% | 92.2% | 87.8% |
+| realistic | 98.9% | 93.3% | 90.0% | 87.8% | 71.1% |
 | adversarial | 86.7% | 82.2% | 78.9% | 76.7% | 63.3% |
 
 ## 7. Does adding few-shot examples help a weak model? — no
@@ -288,6 +288,41 @@ asymmetry disadvantaged A2UI, we re-ran the same 18 scenarios x 5 repeats on Gem
 **Examples made it worse.** With the 54k-token prompt, 7 generations produced no
 `<a2ui-json>` block at all — the model answered in prose — and parse errors rose from 17 to
 27. At this model size the instruction gets lost in the context rather than reinforced.
+
+## 8. OpenUI's published prompt is stale against the library it ships
+
+thesysdev publish `benchmarks/system-prompt.txt` and use it in their own benchmark. It is
+byte-identical to their repository today, but it no longer matches the library they ship on
+npm: `openuiLibrary.prompt()` from `@openuidev/react-ui@0.13.5` produces a different prompt.
+
+|  | Published artifact | Shipped library v0.13.5 |
+| --- | --- | --- |
+| Size | 13,080 chars | 17,431 chars |
+| `## Examples` | present | **removed** |
+| `## Action - Button Behavior` | absent | **added** |
+| `## Final Verification` | absent | **added** |
+| Components | base set | **+Modal, +Action** |
+
+Anyone installing the package today gets the second one, so **the scored OpenUI arm uses the
+shipped library prompt**, with the schema regenerated from the same version so parser and
+prompt agree. We re-ran all 270 generations rather than adjusting anything after the fact.
+
+The superseded run is kept here because the comparison is informative:
+
+| Model | Published artifact | Shipped library | Delta |
+| --- | --- | --- | --- |
+| Opus 5 | 83.3% | 94.4% | +11.1pp |
+| GPT-5.6-terra | 100.0% | 94.4% | -5.6pp |
+| Gemma-4-26B | 55.6% | 50.0% | -5.6pp |
+
+"Every time" rate, five repeats per scenario. The correction gained 2 scenarios on the
+flagship and lost 1 on each cheaper model, averaging out to no change across the ladder.
+Correcting it was therefore about accuracy, not about advantage: the published artifact was
+not systematically unfair to OpenUI, and scored better on two rungs of three.
+
+The direction is consistent with section 7. The shipped prompt trades worked examples for
+prose rules; a strong model applies rules, a weak one needs the examples. On Gemma the
+largest failure category became `missing-required`, which is what losing examples predicts.
 
 ## Method and fairness
 
