@@ -1,0 +1,37 @@
+{
+  "name": "mdma-example-electron",
+  "private": true,
+  "version": "0.0.1",
+  "type": "commonjs",
+  "description": "Electron desktop agent chat: the model stream, policy, and audit chain live in the main process; the renderer only draws MDMA with @mobile-reality/mdma-renderer-react.",
+  "main": "./out/main/index.js",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mobile-reality/mdma-attachables-core": "workspace:*",
+    "@mobile-reality/mdma-parser": "workspace:*",
+    "@mobile-reality/mdma-prompt-pack": "workspace:*",
+    "@mobile-reality/mdma-renderer-react": "workspace:*",
+    "@mobile-reality/mdma-runtime": "workspace:*",
+    "@mobile-reality/mdma-spec": "workspace:*",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
+    "unified": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^4.3.0",
+    "electron": "^43.0.0",
+    "electron-vite": "^5.0.0",
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0"
+  }
+}

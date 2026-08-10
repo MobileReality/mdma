@@ -42,6 +42,7 @@
   "files": {
     "ignore": [
       "**/dist/**",
+      "examples/renderers/mdma-electron/out/**",
       "**/node_modules/**",
       "**/.turbo/**",
       "**/pnpm-lock.yaml",
