@@ -101,6 +101,62 @@ describe('streaming re-parse', () => {
     }
   });
 
+  it('keeps the value of a focused select across a re-parse', async () => {
+    const withSelect = mdma(`
+type: form
+id: pick
+fields:
+  - name: letter
+    type: select
+    label: "Letter"
+    options:
+      - { label: "A", value: a }
+      - { label: "B", value: b }
+onSubmit: submit-pick
+`);
+    const { ast, store } = await parseDoc(withSelect);
+    const handle = mountMdmaDocument(container, { ast, store });
+
+    const select = handle.el.querySelector<HTMLSelectElement>('#pick-letter');
+    if (!select) throw new Error('select not rendered');
+    const optionB = select.options[2];
+
+    select.focus();
+    select.value = 'b';
+    handle.update({ ast: await parseAst(withSelect) });
+
+    expect(handle.el.querySelector('#pick-letter')).toBe(select);
+    expect(select.value).toBe('b');
+    expect(select.options[2]).toBe(optionB);
+    expect(document.activeElement).toBe(select);
+  });
+
+  it('guards a focused field inside a shadow root', async () => {
+    const host = document.createElement('div');
+    container.appendChild(host);
+    const shadow = host.attachShadow({ mode: 'open' });
+    const inner = document.createElement('div');
+    shadow.appendChild(inner);
+
+    const { ast, store } = await parseDoc(FORM);
+    const handle = mountMdmaDocument(inner, { ast, store });
+
+    const input = handle.el.querySelector<HTMLInputElement>('#intake-full-name');
+    if (!input) throw new Error('input not rendered');
+    input.focus();
+    input.value = 'partial typing';
+
+    store.dispatch({
+      type: 'FIELD_CHANGED',
+      componentId: 'intake',
+      field: 'full-name',
+      value: 'from the store',
+    });
+
+    expect(shadow.activeElement).toBe(input);
+    expect(input.value).toBe('partial typing');
+  });
+
   it('holds the last parsed block when a fence briefly reverts to pending', async () => {
     const { ast, store } = await parseDoc(FORM);
     const handle = mountMdmaDocument(container, { ast, store });

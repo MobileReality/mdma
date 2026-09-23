@@ -65,6 +65,12 @@ export function clear(node: Node): void {
  * clobber what is being typed.
  */
 export function setInputValue(input: HTMLInputElement | HTMLTextAreaElement, value: string): void {
-  if (input.value === value || document.activeElement === input) return;
+  if (input.value === value || isFocused(input)) return;
   input.value = value;
+}
+
+/** Resolved from the node's own root so the check also holds inside a shadow root. */
+export function isFocused(node: Element): boolean {
+  const root = node.getRootNode() as Partial<DocumentOrShadowRoot>;
+  return root.activeElement === node;
 }

@@ -1,5 +1,5 @@
 import type { ElementInstance, ElementRenderer } from '../../context/render-context.js';
-import { clear, el, setInputValue } from '../../dom/el.js';
+import { clear, el, isFocused, setInputValue } from '../../dom/el.js';
 import type {
   FormCheckboxElementProps,
   FormFileElementProps,
@@ -69,6 +69,16 @@ export const DefaultInput: ElementRenderer<FormInputElementProps> = (initial) =>
   return instance;
 };
 
+function sameOptions(
+  a: FormSelectElementProps['options'],
+  b: FormSelectElementProps['options'],
+): boolean {
+  return (
+    a.length === b.length &&
+    a.every((option, index) => option.value === b[index]?.value && option.label === b[index]?.label)
+  );
+}
+
 export const DefaultSelect: ElementRenderer<FormSelectElementProps> = (initial) => {
   let props = initial;
 
@@ -77,15 +87,27 @@ export const DefaultSelect: ElementRenderer<FormSelectElementProps> = (initial) 
     on: { change: (event) => props.onChange((event.target as HTMLSelectElement).value) },
   });
 
-  function apply() {
+  let renderedOptions: FormSelectElementProps['options'] | undefined;
+
+  function renderOptions() {
     clear(select);
     select.appendChild(el('option', { value: '' }, ['Select...']));
     for (const option of props.options) {
       select.appendChild(el('option', { value: option.value }, [option.label]));
     }
+    renderedOptions = props.options;
+  }
+
+  function apply() {
+    const focused = isFocused(select);
+    if (!renderedOptions || !sameOptions(renderedOptions, props.options)) {
+      const shown = select.value;
+      renderOptions();
+      if (focused) select.value = shown;
+    }
     select.id = props.id;
     select.toggleAttribute('required', props.required === true);
-    select.value = props.value;
+    if (!focused && select.value !== props.value) select.value = props.value;
   }
   apply();
 
