@@ -65,7 +65,7 @@ void app.whenReady().then(() => {
   // the "denied by policy" path visible in the example.
   const policy = new PolicyEngine(createDefaultPolicy(), app.isPackaged ? 'production' : 'preview');
 
-  registerMdmaIpc({ audit, actionHost: createActionHost(policy, audit) });
+  registerMdmaIpc({ audit, actionHost: createActionHost(policy, audit), isAppUrl });
   createWindow(audit);
 
   app.on('activate', () => {
