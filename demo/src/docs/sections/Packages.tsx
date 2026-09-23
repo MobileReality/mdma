@@ -27,7 +27,7 @@ export function Packages({ onNavigate }: PackagesProps) {
         rows={[
           [
             navLink('spec', 'mdma-spec', onNavigate),
-            'The foundation — Zod schemas, TypeScript types, and AST definitions for all 9 component types.',
+            'The foundation — Zod schemas, TypeScript types, and AST definitions for all 10 component types.',
           ],
           [
             navLink('parser', 'mdma-parser', onNavigate),
@@ -39,7 +39,7 @@ export function Packages({ onNavigate }: PackagesProps) {
           ],
           [
             navLink('attachables-core', 'mdma-attachables-core', onNavigate),
-            'Handlers for 7 of the 9 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook).',
+            'Handlers for 7 of the 10 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook).',
           ],
           [
             navLink('prompt-pack', 'mdma-prompt-pack', onNavigate),

@@ -52,7 +52,7 @@ const DOC_CATALOG: DocEntry[] = [
   {
     path: 'docs/reference/component-catalog.md',
     title: 'Component Catalog',
-    description: 'Reference for all 9 built-in component types and their fields',
+    description: 'Reference for all 10 built-in component types and their fields',
   },
   {
     path: 'blueprints/README.md',

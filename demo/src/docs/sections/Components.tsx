@@ -261,8 +261,9 @@ export function Components({ selected, onSelect }: ComponentsProps) {
     <>
       <h2>Components</h2>
       <p>
-        9 built-in component types defined by the MDMA spec — every renderer (React, Vue, vanilla
-        JS, React Native) renders them out of the box. Click a row to preview.
+        10 built-in component types defined by the MDMA spec — every renderer (React, Vue, vanilla
+        JS, React Native) renders them out of the box, except <code>custom</code>, whose rendering
+        the host registers as a named variant. Click a row to preview.
       </p>
 
       <div className="docs-table-wrap">
