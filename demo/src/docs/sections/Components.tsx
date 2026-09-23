@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
-import { parseMarkdown } from '../../chat/parse-markdown.js';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { useEffect, useRef, useState } from 'react';
 import { ChartRenderer } from '../../chart-components.js';
+import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { Graph3DRenderer } from '../../custom-variants/Graph3DRenderer.js';
 
 const CUSTOMIZATIONS = {
