@@ -13,10 +13,11 @@ import { Packages } from './sections/Packages.js';
 import { PromptMatrix } from './sections/PromptMatrix.js';
 import { ReactNative, ReactNativeSnack } from './sections/ReactNative.js';
 import { ReactWeb } from './sections/ReactWeb.js';
-import { Vue } from './sections/Vue.js';
 import { Theming, ThemingPreview, ThemingProvider } from './sections/Theming.js';
 import { Usage, UsageHydrationPreview } from './sections/Usage.js';
 import { Validator } from './sections/Validator.js';
+import { Vanilla } from './sections/Vanilla.js';
+import { Vue } from './sections/Vue.js';
 
 const INTEGRATION_COMPONENTS: Record<string, React.ComponentType> = {
   langchain: IntegrationLangchain,
@@ -55,6 +56,7 @@ const INTEGRATION_SECTIONS: Section[] = INTEGRATIONS.map((i) => ({
 const RENDERER_SECTIONS: Section[] = [
   { slug: 'react', label: 'React', component: ReactWeb },
   { slug: 'vue', label: 'Vue', component: Vue },
+  { slug: 'vanilla', label: 'Vanilla JS', component: Vanilla },
   { slug: 'react-native', label: 'React Native', component: ReactNative },
 ];
 
