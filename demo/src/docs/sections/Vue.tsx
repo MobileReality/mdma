@@ -105,6 +105,11 @@ const MyChartRenderer = defineComponent({
         A runnable example — an OpenRouter-backed agent chat that renders streamed MDMA replies —
         lives in the repo at <code>examples/renderers/mdma-vue</code>.
       </p>
+      <p>
+        A desktop counterpart, <code>examples/renderers/mdma-electron</code>, uses the React
+        renderer in Electron and keeps the API key, policy engine, audit chain, and action host in
+        the main process.
+      </p>
     </>
   );
 }
