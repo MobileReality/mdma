@@ -23,6 +23,8 @@ MDMA is a TypeScript monorepo managed with pnpm workspaces and Turborepo. It is 
               +-- @mobile-reality/mdma-renderer-react    React components + hooks
               |
               +-- @mobile-reality/mdma-renderer-vue      Vue 3 components + composables
+              |
+              +-- @mobile-reality/mdma-renderer-vanilla  Plain DOM, no framework
 
 @mobile-reality/mdma-evals                   LLM evaluation suite (promptfoo)
 ```
@@ -104,6 +106,20 @@ Vue 3 rendering layer — the same surface as the React renderer, in Vue idiom. 
 Ships the same `styles.css` as the React renderer, so a theme object is portable between them.
 
 Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`, `vue`
+
+### @mobile-reality/mdma-renderer-vanilla
+
+Framework-free rendering layer — plain DOM, no React or Vue. Provides:
+
+- **mountMdmaDocument(container, { ast, store })** -- mounts a document and returns a handle: `el`, `update(next)` to apply a new AST, store, customizations, or theme, and `destroy()`
+- **mountMdmaBlock** -- renders a single block outside a document
+- **stateless** / **withState** -- helpers for writing custom renderers, which are plain functions returning `{ el, update, destroy? }`
+- **RendererRegistry** -- maps component types to vanilla renderer functions
+- **Built-in renderers**: `FormRenderer`, `ButtonRenderer`, `TasklistRenderer`, `TableRenderer`, `CalloutRenderer`, `ApprovalGateRenderer`, `WebhookRenderer`, `ChartRenderer`, `ThinkingRenderer`, `CustomRenderer`
+
+There is no virtual DOM: each renderer owns its element and updates in place, so focus and in-progress form values survive the re-parses a streamed reply produces. Ships the same `styles.css` as the React and Vue renderers.
+
+Dependencies: `@mobile-reality/mdma-spec`, `@mobile-reality/mdma-runtime`
 
 ### @mobile-reality/mdma-prompt-pack
 

@@ -377,7 +377,7 @@ function App({ ast, store }) {
 
 ### Theming
 
-Both renderers accept a `theme` prop on `MdmaDocument`, so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
+Every renderer accepts a `theme` — a prop on `MdmaDocument`, or an option to `mountMdmaDocument` in the vanilla renderer — so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
 
 ```tsx
 <MdmaDocument ast={ast} store={store} theme="dark" />   // built-in dark palette
@@ -385,7 +385,7 @@ Both renderers accept a `theme` prop on `MdmaDocument`, so theming is entirely o
 <MdmaDocument ast={ast} store={store} theme={myTheme} /> // custom MdmaTheme tokens
 ```
 
-The web renderers (`renderer-react`, `renderer-vue`) and the native one (`renderer-react-native`) share the same `MdmaTheme` token shape, so a theme object is portable between them. On the web, tokens are applied as `--mdma-*` CSS variables (still fully overridable in your own CSS); on native, renderers read them via `useMdmaTheme()`. See the [Theming guide](docs/guides/theming.md) for the full token reference.
+The web renderers (`renderer-react`, `renderer-vue`, `renderer-vanilla`) and the native one (`renderer-react-native`) share the same `MdmaTheme` token shape, so a theme object is portable between them. On the web, tokens are applied as `--mdma-*` CSS variables (still fully overridable in your own CSS); on native, renderers read them via `useMdmaTheme()`. See the [Theming guide](docs/guides/theming.md) for the full token reference.
 
 ## Packages
 

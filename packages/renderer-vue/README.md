@@ -46,8 +46,8 @@ as a `data-theme` attribute, a custom theme as inline `--mdma-*` CSS variables. 
 components rendered outside a `MdmaDocument` (a lone `MdmaBlock`, say), wrap them in
 `MdmaThemeProvider`.
 
-The `MdmaTheme` token shape is shared with the React and React Native renderers, so a theme
-object is portable across all three. See the repo [Theming guide](../../docs/guides/theming.md)
+The `MdmaTheme` token shape is shared with the React, [vanilla](../renderer-vanilla) and React
+Native renderers, so a theme object is portable across all four. See the repo [Theming guide](../../docs/guides/theming.md)
 for the full token reference.
 
 ### Customizations
