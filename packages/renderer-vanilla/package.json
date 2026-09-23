@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-renderer-vanilla",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "keywords": [
     "mdma",
     "markdown",
@@ -41,7 +41,10 @@
     "unified": "^11.0.0",
     "vitest": "^3.2.0"
   },
-  "files": ["dist", "styles.css"],
+  "files": [
+    "dist",
+    "styles.css"
+  ],
   "publishConfig": {
     "access": "public"
   },

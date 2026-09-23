@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-mcp
 
+## 0.2.14
+
+### Patch Changes
+
+- d0e2ce4: Component Catalog doc description now says 10 built-in component types, matching the spec.
+
 ## 0.2.13
 
 ### Patch Changes
