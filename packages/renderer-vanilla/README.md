@@ -32,7 +32,7 @@ const registry = new AttachableRegistry();
 registerAllCoreAttachables(registry);
 const store = createDocumentStore(ast, { registry });
 
-const doc = mountMdmaDocument(document.querySelector('#app'), { ast, store, theme: 'auto' });
+const doc = mountMdmaDocument(document.getElementById('app')!, { ast, store, theme: 'auto' });
 ```
 
 `mountMdmaDocument` returns a handle:

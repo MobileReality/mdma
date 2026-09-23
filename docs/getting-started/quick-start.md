@@ -189,7 +189,7 @@ No framework? The vanilla renderer mounts into any element and returns a handle:
 import { mountMdmaDocument } from '@mobile-reality/mdma-renderer-vanilla';
 import '@mobile-reality/mdma-renderer-vanilla/styles.css';
 
-const doc = mountMdmaDocument(document.querySelector('#app'), { ast, store });
+const doc = mountMdmaDocument(document.getElementById('app')!, { ast, store });
 // doc.update({ ast: next }) on each re-parse; doc.destroy() to unmount
 ```
 
