@@ -140,7 +140,7 @@ One difference: `useMdmaTheme()` returns a `ComputedRef`, so read tokens as `the
 The framework-free renderer uses the same stylesheet and the same tokens too. There is no component to put a prop on, so `theme` is an option to `mountMdmaDocument`, and the handle's `update` changes it later:
 
 ```ts
-import { mountMdmaDocument, type MdmaTheme } from '@mobile-reality/mdma-renderer-vanilla';
+import { mountMdmaDocument } from '@mobile-reality/mdma-renderer-vanilla';
 import '@mobile-reality/mdma-renderer-vanilla/styles.css';
 
 // 'light' | 'dark' | 'auto', or a full MdmaTheme object

@@ -377,7 +377,7 @@ function App({ ast, store }) {
 
 ### Theming
 
-Every renderer accepts a `theme` — a prop on `MdmaDocument`, or an option to `mountMdmaDocument` in the vanilla renderer — so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
+Every renderer accepts a `theme` (a prop on `MdmaDocument`, or an option to `mountMdmaDocument` in the vanilla renderer), so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
 
 ```tsx
 <MdmaDocument ast={ast} store={store} theme="dark" />   // built-in dark palette
