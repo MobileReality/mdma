@@ -14,8 +14,7 @@ export interface Turn {
   store?: DocumentStore;
 }
 
-interface ActiveStream {
-  requestId: string;
+interface Stream {
   assistantId: number;
   parser: StreamParser;
 }
@@ -25,7 +24,11 @@ export function useChat() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const active = useRef<ActiveStream | null>(null);
+  // Keyed by requestId and cleared by the end/error handlers, never by `send`:
+  // `invoke` resolves before the terminal event is delivered, so a stream tracked
+  // by a single "active" ref would drop the very error it was waiting for.
+  const streams = useRef(new Map<string, Stream>());
+  const activeRequest = useRef<string | null>(null);
   const nextId = useRef(0);
   const parsers = useRef<StreamParser[]>([]);
 
@@ -34,23 +37,23 @@ export function useChat() {
   }, []);
 
   useEffect(() => {
-    const isCurrent = (requestId: string) => active.current?.requestId === requestId;
-
     const offDelta = window.mdma.chat.onDelta(({ requestId, full }) => {
-      if (!isCurrent(requestId) || !active.current) return;
-      const { assistantId, parser } = active.current;
-      patchTurn(assistantId, { content: full });
-      void parser.schedule(full);
+      const stream = streams.current.get(requestId);
+      if (!stream) return;
+      patchTurn(stream.assistantId, { content: full });
+      void stream.parser.schedule(full);
     });
 
     const offEnd = window.mdma.chat.onEnd(({ requestId, full }) => {
-      if (!isCurrent(requestId) || !active.current) return;
+      const stream = streams.current.get(requestId);
+      if (!stream) return;
+      streams.current.delete(requestId);
       // A chunk may have landed mid-parse; schedule the final text so it is never dropped.
-      if (full) void active.current.parser.schedule(full);
+      if (full) void stream.parser.schedule(full);
     });
 
     const offError = window.mdma.chat.onError(({ requestId, message }) => {
-      if (!isCurrent(requestId)) return;
+      if (!streams.current.delete(requestId)) return;
       setError(message);
     });
 
@@ -88,15 +91,17 @@ export function useChat() {
       parsers.current.push(parser);
 
       const requestId = crypto.randomUUID();
-      active.current = { requestId, assistantId, parser };
+      streams.current.set(requestId, { assistantId, parser });
+      activeRequest.current = requestId;
       setIsStreaming(true);
 
       try {
         await window.mdma.chat.start({ requestId, messages: history });
       } catch (cause) {
+        streams.current.delete(requestId);
         setError(cause instanceof Error ? cause.message : String(cause));
       } finally {
-        active.current = null;
+        activeRequest.current = null;
         setIsStreaming(false);
       }
     },
@@ -104,7 +109,7 @@ export function useChat() {
   );
 
   const stop = useCallback(() => {
-    const requestId = active.current?.requestId;
+    const requestId = activeRequest.current;
     if (requestId) void window.mdma.chat.abort(requestId);
   }, []);
 
@@ -112,6 +117,7 @@ export function useChat() {
     stop();
     for (const parser of parsers.current) parser.dispose();
     parsers.current = [];
+    streams.current.clear();
     setTurns([]);
     setError(null);
   }, [stop]);
