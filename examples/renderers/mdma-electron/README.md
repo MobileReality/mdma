@@ -12,8 +12,10 @@ a genuine privileged process, so here they don't:
 | :--- | :--- | :--- |
 | OpenRouter key | bundled into the page (`VITE_*`) | main process only; never in the renderer bundle |
 | `PolicyEngine` | editable from devtools | enforced in main, before any outbound call |
-| `ChainedEventLog` | a hash chain the auditee controls | chained and written to disk by main |
-| Integration calls | CORS-bound, credentials in the page | run in main with credentials the page never sees |
+| `ChainedEventLog` | a hash chain the auditee controls | chained and written to disk by main; entries the renderer forwards are its word, not main's (see below) |
+| Integration calls | CORS-bound, credentials in the page | run in main with credentials the page never sees; only main writes `integration_called` |
+| IPC | n/a | every handler checks the sender is the app's own top frame and validates its payload with zod |
+| Navigation | n/a | `will-navigate` blocked off the app page; `window.open` hands only `http(s)` to the OS browser; permission requests denied |
 
 ## Layout
 
@@ -21,7 +23,10 @@ a genuine privileged process, so here they don't:
 src/shared/ipc.ts       channel names + payload types — the one contract all three sides import
 src/main/
   index.ts              app lifecycle, BrowserWindow, policy environment
-  ipc.ts                thin transport: channels → chat / actions / audit
+  ipc.ts                thin transport: channels → chat / actions / audit, sender-checked
+  ipc-schemas.ts        zod schemas for every IPC payload
+  url-guards.ts         app-page and external-link allowlists
+  audit-input.ts        what main accepts from the renderer for the audit chain
   chat.ts               OpenRouter SSE streaming; reads the key here and only here
   actions.ts            action host — policy.enforce() then run, with server credentials
   audit.ts              main-owned ChainedEventLog, appended to a JSONL file in userData
@@ -82,9 +87,18 @@ the path is shown under the panel heading.
 
 ## Honest limits
 
-The `DocumentStore` still lives in the renderer, so field-level entries are *forwarded* to main
-rather than produced there — a hostile renderer could withhold one. What it cannot do is rewrite
-the chain, forge a link, or fake an integration call: main appends its own authoritative entry for
-every action it runs, and the renderer's copy of those is deliberately dropped on the way in. Moving
-the whole store into main would close the remaining gap at the cost of an IPC round-trip per
+The `DocumentStore` still lives in the renderer, so every entry except `integration_called` is
+*forwarded* to main rather than produced there. Main checks each one's shape against the spec
+schema and chains it, but it cannot check that it happened: field changes, approvals and denials —
+including the approval's `actor` — are attested by the renderer, not proven by main. A hostile
+renderer can withhold, reorder or invent those entries.
+
+What main does enforce: the chain and the file are written only there, so an entry cannot be
+rewritten or unlinked once appended; `integration_called` is refused on the way in, so every one in
+the log is main's own record of a call it actually ran; and the policy check and credentials never
+leave main. A page the window navigated away to cannot call any of it, since each handler rejects a
+sender that is not the app page. The app page itself can still start chats and run the two known
+actions — it uses the key and the credentials without ever reading them.
+
+Moving the whole store into main would close the remaining gap at the cost of an IPC round-trip per
 keystroke, which is the tradeoff a production host has to make deliberately.
