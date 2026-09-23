@@ -192,7 +192,7 @@ export function Theming() {
     <>
       <h2>Theming</h2>
       <p>
-        Both renderers ship with a polished default look and a first-class theming layer on top of
+        Every renderer ships with a polished default look and a first-class theming layer on top of
         it. Theming is <strong>opt-in</strong>: render a document with no <code>theme</code> and you
         get the built-in light palette, unchanged. When you want more, switch to a dark palette,
         follow the operating-system preference, or hand over a fully custom set of design tokens.
@@ -252,8 +252,8 @@ export function Theming() {
   fontSize: { small: number; body: number; label: number; title: number };
 }`}</Code>
       <p>
-        The <code>lightTheme</code> and <code>darkTheme</code> presets are exported from both
-        renderer packages, so the easiest way to build a custom theme is to spread a preset and
+        The <code>lightTheme</code> and <code>darkTheme</code> presets are exported from every
+        renderer package, so the easiest way to build a custom theme is to spread a preset and
         override just what you need (exactly what the playground above does):
       </p>
       <Code lang="ts">{`import { lightTheme, type MdmaTheme } from '@mobile-reality/mdma-renderer-react';
@@ -312,6 +312,20 @@ import '@mobile-reality/mdma-renderer-vue/styles.css';
   <!-- 'light' | 'dark' | 'auto', or a full MdmaTheme object -->
   <MdmaDocument :ast="ast" :store="store" theme="dark" />
 </template>`}</Code>
+
+      <h2>Vanilla renderer</h2>
+      <p>
+        The framework-free renderer (<code>@mobile-reality/mdma-renderer-vanilla</code>) ships the
+        same <code>styles.css</code> and the same <code>MdmaTheme</code> token shape too. There is
+        no component to put a prop on, so pass <code>theme</code> to <code>mountMdmaDocument</code>,
+        or change it later with the handle&apos;s <code>update</code>:
+      </p>
+      <Code lang="ts">{`import { mountMdmaDocument } from '@mobile-reality/mdma-renderer-vanilla';
+import '@mobile-reality/mdma-renderer-vanilla/styles.css';
+
+// 'light' | 'dark' | 'auto', or a full MdmaTheme object
+const doc = mountMdmaDocument(container, { ast, store, theme: 'dark' });
+doc.update({ theme: 'auto' });`}</Code>
 
       <h2>React Native renderer</h2>
       <p>
