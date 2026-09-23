@@ -62,7 +62,43 @@ describe('streaming re-parse', () => {
     input.value = 'partial typing';
     handle.update({ ast: await parseAst(FORM) });
 
+    expect(handle.el.contains(input)).toBe(true);
     expect(input.value).toBe('partial typing');
+  });
+
+  it('keeps focus when prose arrives above a block', async () => {
+    const { ast, store } = await parseDoc(FORM);
+    const handle = mountMdmaDocument(container, { ast, store });
+
+    const input = handle.el.querySelector<HTMLInputElement>('#intake-full-name');
+    if (!input) throw new Error('input not rendered');
+    input.focus();
+
+    handle.update({ ast: await parseAst(`Some intro prose\n\n${FORM}`) });
+
+    expect(handle.el.children).toHaveLength(2);
+    expect(handle.el.contains(input)).toBe(true);
+    expect(document.activeElement).toBe(input);
+  });
+
+  it('renders two blocks sharing an id and keeps focus in either', async () => {
+    const twice = `${FORM}\n${FORM}`;
+    const { ast, store } = await parseDoc(twice);
+    const handle = mountMdmaDocument(container, { ast, store });
+
+    expect(handle.el.querySelectorAll('.mdma-form')).toHaveLength(2);
+
+    for (const index of [0, 1]) {
+      const input = handle.el.querySelectorAll<HTMLInputElement>('#intake-full-name')[index];
+      if (!input) throw new Error(`input ${index} not rendered`);
+      input.focus();
+
+      handle.update({ ast: await parseAst(twice) });
+
+      expect(handle.el.querySelectorAll('.mdma-form')).toHaveLength(2);
+      expect(handle.el.contains(input)).toBe(true);
+      expect(document.activeElement).toBe(input);
+    }
   });
 
   it('holds the last parsed block when a fence briefly reverts to pending', async () => {

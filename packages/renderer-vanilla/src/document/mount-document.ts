@@ -187,8 +187,22 @@ export function mountMdmaDocument(
     return rebuilt;
   }
 
+  // A repeated id would otherwise share one slot between two positions, and the
+  // second insertBefore would move that node out of the first — blurring it.
+  // The first occurrence keeps the bare key so it stays stable as prose shifts it.
+  function planChildren(): Desired[] {
+    const occurrences = new Map<string, number>();
+    return current.ast.children.map((child, index) => {
+      const entry = planChild(child, index);
+      if (entry.kind !== 'block') return entry;
+      const seenBefore = occurrences.get(entry.key) ?? 0;
+      occurrences.set(entry.key, seenBefore + 1);
+      return seenBefore === 0 ? entry : { ...entry, key: `${entry.key}#${seenBefore}` };
+    });
+  }
+
   function render() {
-    const desired = current.ast.children.map((child, index) => planChild(child, index));
+    const desired = planChildren();
     const seen = new Set<string>();
 
     for (const entry of desired) {
