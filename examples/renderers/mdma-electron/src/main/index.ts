@@ -1,12 +1,17 @@
 import { randomUUID } from 'node:crypto';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { PolicyEngine, createDefaultPolicy } from '@mobile-reality/mdma-runtime';
-import { BrowserWindow, app, shell } from 'electron';
+import { BrowserWindow, app, session, shell } from 'electron';
 import { createActionHost } from './actions.js';
 import { type AuditTrail, createAuditTrail } from './audit.js';
 import { forwardAuditChanges, registerMdmaIpc } from './ipc.js';
+import { createAppUrlGuard, isAllowedExternalUrl } from './url-guards.js';
 
 const sessionId = randomUUID();
+const devServerUrl = process.env.ELECTRON_RENDERER_URL;
+const appPagePath = join(__dirname, '../renderer/index.html');
+const isAppUrl = createAppUrlGuard(devServerUrl ?? pathToFileURL(appPagePath).href);
 
 function createWindow(audit: AuditTrail) {
   const window = new BrowserWindow({
@@ -25,23 +30,30 @@ function createWindow(audit: AuditTrail) {
   const disposeAuditForwarding = forwardAuditChanges(audit, window.webContents);
   window.on('closed', disposeAuditForwarding);
 
-  // Anything the document links out to opens in the real browser, never in-app.
+  window.webContents.on('will-navigate', (event) => {
+    if (!isAppUrl(event.url)) event.preventDefault();
+  });
+
+  // Web links the document opens go to the real browser, never in-app; any other scheme is dropped.
   window.webContents.setWindowOpenHandler(({ url }) => {
-    void shell.openExternal(url);
+    if (isAllowedExternalUrl(url)) void shell.openExternal(url);
     return { action: 'deny' };
   });
 
-  const devServerUrl = process.env.ELECTRON_RENDERER_URL;
   if (devServerUrl) {
     void window.loadURL(devServerUrl);
   } else {
-    void window.loadFile(join(__dirname, '../renderer/index.html'));
+    void window.loadFile(appPagePath);
   }
 
   return window;
 }
 
 void app.whenReady().then(() => {
+  session.defaultSession.setPermissionRequestHandler((_webContents, _permission, callback) =>
+    callback(false),
+  );
+
   const audit = createAuditTrail({
     sessionId,
     documentId: 'electron-chat',
