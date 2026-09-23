@@ -21,7 +21,7 @@ export const PACKAGES: PackageInfo[] = [
     npm: '@mobile-reality/mdma-spec',
     dir: 'spec',
     tagline:
-      'Format specification — Zod schemas, TypeScript types, and AST node definitions for all 9 component types.',
+      'Format specification — Zod schemas, TypeScript types, and AST node definitions for all 10 component types.',
     purpose:
       'Everything in the MDMA stack depends on this package. It defines the TypeScript interfaces and Zod validation schemas for every node type in the MDMA AST. Import from mdma-spec when building custom parsers, renderers, or validators that need to work with typed MDMA nodes directly.',
   },

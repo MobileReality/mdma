@@ -181,6 +181,18 @@ import '@mobile-reality/mdma-renderer-vue/styles.css';
 </template>
 ```
 
+## Render with plain DOM
+
+No framework? The vanilla renderer mounts into any element and returns a handle:
+
+```ts
+import { mountMdmaDocument } from '@mobile-reality/mdma-renderer-vanilla';
+import '@mobile-reality/mdma-renderer-vanilla/styles.css';
+
+const doc = mountMdmaDocument(document.getElementById('app')!, { ast, store });
+// doc.update({ ast: next }) on each re-parse; doc.destroy() to unmount
+```
+
 ## Next Steps
 
 - [Key Concepts](./concepts.md) -- understand MDMA blocks, bindings, events, and policies

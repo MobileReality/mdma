@@ -68,6 +68,13 @@ function App({ ast, store }) {
     />
   );
 }`}</Code>
+
+      <p>
+        For a desktop host, <code>examples/renderers/mdma-electron</code> renders streamed replies
+        with this package unchanged in Electron&apos;s renderer process, while the API key, policy
+        engine, audit chain, and action host live in the main process. Its README&apos;s
+        &quot;Honest limits&quot; section spells out what main does and doesn&apos;t enforce.
+      </p>
     </>
   );
 }

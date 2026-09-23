@@ -1,0 +1,53 @@
+{
+  "name": "@mobile-reality/mdma-renderer-vanilla",
+  "version": "0.1.0",
+  "keywords": [
+    "mdma",
+    "markdown",
+    "ai",
+    "llm",
+    "interactive-document",
+    "vanilla",
+    "dom",
+    "no-framework",
+    "forms",
+    "ui"
+  ],
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./styles.css": "./styles.css"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "biome lint src/",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@mobile-reality/mdma-runtime": "workspace:*",
+    "@mobile-reality/mdma-spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@mobile-reality/mdma-attachables-core": "workspace:*",
+    "@mobile-reality/mdma-parser": "workspace:*",
+    "happy-dom": "^20.0.0",
+    "remark-gfm": "^4.0.0",
+    "remark-parse": "^11.0.0",
+    "typescript": "^5.7.0",
+    "unified": "^11.0.0",
+    "vitest": "^3.2.0"
+  },
+  "files": ["dist", "styles.css"],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MobileReality/mdma.git",
+    "directory": "packages/renderer-vanilla"
+  }
+}

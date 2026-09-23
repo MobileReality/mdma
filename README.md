@@ -377,7 +377,7 @@ function App({ ast, store }) {
 
 ### Theming
 
-Both renderers accept a `theme` prop on `MdmaDocument`, so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
+Every renderer accepts a `theme` (a prop on `MdmaDocument`, or an option to `mountMdmaDocument` in the vanilla renderer), so theming is entirely opt-in — omit it and you get the default light look. Pass a built-in palette, follow the OS preference, or hand over a full custom token object:
 
 ```tsx
 <MdmaDocument ast={ast} store={store} theme="dark" />   // built-in dark palette
@@ -385,7 +385,7 @@ Both renderers accept a `theme` prop on `MdmaDocument`, so theming is entirely o
 <MdmaDocument ast={ast} store={store} theme={myTheme} /> // custom MdmaTheme tokens
 ```
 
-The web renderers (`renderer-react`, `renderer-vue`) and the native one (`renderer-react-native`) share the same `MdmaTheme` token shape, so a theme object is portable between them. On the web, tokens are applied as `--mdma-*` CSS variables (still fully overridable in your own CSS); on native, renderers read them via `useMdmaTheme()`. See the [Theming guide](docs/guides/theming.md) for the full token reference.
+The web renderers (`renderer-react`, `renderer-vue`, `renderer-vanilla`) and the native one (`renderer-react-native`) share the same `MdmaTheme` token shape, so a theme object is portable between them. On the web, tokens are applied as `--mdma-*` CSS variables (still fully overridable in your own CSS); on native, renderers read them via `useMdmaTheme()`. See the [Theming guide](docs/guides/theming.md) for the full token reference.
 
 ## Packages
 
@@ -397,6 +397,7 @@ The web renderers (`renderer-react`, `renderer-vue`) and the native one (`render
 | `@mobile-reality/mdma-attachables-core` | Handlers for 7 of the 10 component types — the ones that manage state (form, button, tasklist, table, callout, approval-gate, webhook). Chart and thinking are display-only and rendered directly without state handlers. |
 | `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 10 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
 | `@mobile-reality/mdma-renderer-vue` | Vue 3 rendering layer — the same surface as the React renderer, in Vue idiom: `MdmaDocument`, `MdmaBlock`, and composables (`useComponentState`/`useBinding`) that return `ComputedRef`s. Ships the same `styles.css`, so a theme is portable between the two web renderers. |
+| `@mobile-reality/mdma-renderer-vanilla` | Framework-free rendering layer — plain DOM, no React or Vue. `mountMdmaDocument(container, { ast, store })` returns a handle you feed new ASTs to; renderers own their elements and update in place, so focus and in-progress form values survive the re-parses a streamed reply produces. Ships the same `styles.css` as the other web renderers. |
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
@@ -412,7 +413,8 @@ The web renderers (`renderer-react`, `renderer-vue`) and the native one (`render
   └── @mobile-reality/mdma-runtime         State / events / policy engine
         └── @mobile-reality/mdma-attachables-core   Component handlers
               ├── @mobile-reality/mdma-renderer-react   React components
-              └── @mobile-reality/mdma-renderer-vue     Vue 3 components
+              ├── @mobile-reality/mdma-renderer-vue     Vue 3 components
+              └── @mobile-reality/mdma-renderer-vanilla Plain DOM, no framework
 @mobile-reality/mdma-cli                   CLI prompt builder + validation
 @mobile-reality/mdma-mcp                   MCP server for AI assistants
 ```

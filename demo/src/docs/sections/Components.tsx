@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import type { DocumentStore } from '@mobile-reality/mdma-runtime';
-import { parseMarkdown } from '../../chat/parse-markdown.js';
+import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { useEffect, useRef, useState } from 'react';
 import { ChartRenderer } from '../../chart-components.js';
+import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { Graph3DRenderer } from '../../custom-variants/Graph3DRenderer.js';
 
 const CUSTOMIZATIONS = {
@@ -261,8 +261,9 @@ export function Components({ selected, onSelect }: ComponentsProps) {
     <>
       <h2>Components</h2>
       <p>
-        9 built-in component types defined by the MDMA spec — every renderer (React, React Native)
-        renders them out of the box. Click a row to preview.
+        10 built-in component types defined by the MDMA spec — every renderer (React, Vue, vanilla
+        JS, React Native) renders them out of the box, except <code>custom</code>, whose rendering
+        the host registers as a named variant. Click a row to preview.
       </p>
 
       <div className="docs-table-wrap">

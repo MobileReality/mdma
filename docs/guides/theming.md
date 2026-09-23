@@ -2,7 +2,7 @@
 
 MDMA renderers ship with a polished default look and a first-class theming layer on top of it. Theming is **opt-in**: render a document with no `theme` and you get the built-in light palette, unchanged. When you want more, you can switch to a dark palette, follow the operating-system preference, or hand over a fully custom set of design tokens.
 
-The web renderers (`@mobile-reality/mdma-renderer-react` and `@mobile-reality/mdma-renderer-vue`) and the React Native renderer (`@mobile-reality/mdma-renderer-react-native`) all expose the **same `MdmaTheme` token shape**, so a custom theme object is portable between them. The two web renderers also ship an identical `styles.css`.
+The web renderers (`@mobile-reality/mdma-renderer-react`, `@mobile-reality/mdma-renderer-vue` and `@mobile-reality/mdma-renderer-vanilla`) and the React Native renderer (`@mobile-reality/mdma-renderer-react-native`) all expose the **same `MdmaTheme` token shape**, so a custom theme object is portable between them. The three web renderers also ship an identical `styles.css`.
 
 ## The three modes
 
@@ -56,7 +56,7 @@ interface MdmaTheme {
 }
 ```
 
-The `lightTheme` and `darkTheme` presets are exported from both renderer packages, so the easiest way to build a custom theme is to spread a preset and override just what you need:
+The `lightTheme` and `darkTheme` presets are exported from every renderer package, so the easiest way to build a custom theme is to spread a preset and override just what you need:
 
 ```ts
 import { lightTheme, type MdmaTheme } from '@mobile-reality/mdma-renderer-react';
@@ -134,6 +134,19 @@ Rendering a lone block outside a document works the same way, via `MdmaThemeProv
 ```
 
 One difference: `useMdmaTheme()` returns a `ComputedRef`, so read tokens as `theme.value.colors.primary` in `setup` (or unwrapped in a template) — that is what keeps them reactive when an ancestor's theme changes.
+
+## Vanilla renderer
+
+The framework-free renderer uses the same stylesheet and the same tokens too. There is no component to put a prop on, so `theme` is an option to `mountMdmaDocument`, and the handle's `update` changes it later:
+
+```ts
+import { mountMdmaDocument } from '@mobile-reality/mdma-renderer-vanilla';
+import '@mobile-reality/mdma-renderer-vanilla/styles.css';
+
+// 'light' | 'dark' | 'auto', or a full MdmaTheme object
+const doc = mountMdmaDocument(container, { ast, store, theme: 'dark' });
+doc.update({ theme: 'auto' });
+```
 
 ## React Native renderer
 
