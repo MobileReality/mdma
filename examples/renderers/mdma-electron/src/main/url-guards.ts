@@ -1,4 +1,4 @@
-const EXTERNAL_PROTOCOLS = ['https:', 'http:'] as const;
+const EXTERNAL_PROTOCOLS = new Set(['https:', 'http:']);
 
 function parseUrl(url: string): URL | undefined {
   try {
@@ -10,7 +10,7 @@ function parseUrl(url: string): URL | undefined {
 
 export function isAllowedExternalUrl(url: string): boolean {
   const parsed = parseUrl(url);
-  return parsed !== undefined && (EXTERNAL_PROTOCOLS as readonly string[]).includes(parsed.protocol);
+  return parsed !== undefined && EXTERNAL_PROTOCOLS.has(parsed.protocol);
 }
 
 export function createAppUrlGuard(appUrl: string): (url: string) => boolean {
