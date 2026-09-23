@@ -679,6 +679,40 @@ importers:
         specifier: ^3.2.0
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.13.3)(happy-dom@20.11.1)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2)
 
+  packages/renderer-vanilla:
+    dependencies:
+      '@mobile-reality/mdma-runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@mobile-reality/mdma-spec':
+        specifier: workspace:*
+        version: link:../spec
+    devDependencies:
+      '@mobile-reality/mdma-attachables-core':
+        specifier: workspace:*
+        version: link:../attachables-core
+      '@mobile-reality/mdma-parser':
+        specifier: workspace:*
+        version: link:../parser
+      happy-dom:
+        specifier: ^20.0.0
+        version: 20.11.1
+      remark-gfm:
+        specifier: ^4.0.0
+        version: 4.0.1
+      remark-parse:
+        specifier: ^11.0.0
+        version: 11.0.0
+      typescript:
+        specifier: ^5.7.0
+        version: 5.9.3
+      unified:
+        specifier: ^11.0.0
+        version: 11.0.5
+      vitest:
+        specifier: ^3.2.0
+        version: 3.2.4(@types/debug@4.1.12)(@types/node@24.13.3)(happy-dom@20.11.1)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2)
+
   packages/renderer-vue:
     dependencies:
       '@mobile-reality/mdma-runtime':
