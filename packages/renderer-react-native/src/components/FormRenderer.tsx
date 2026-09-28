@@ -1,8 +1,74 @@
 import { memo } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
+import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
+
+function DataDrivenOptions({
+  dataKey,
+  fieldValue,
+  onSelect,
+  theme,
+}: {
+  dataKey: string;
+  fieldValue: string;
+  onSelect: (value: string) => void;
+  theme: ReturnType<typeof useMdmaTheme>;
+}) {
+  const { colors, spacing, fontSize, radius } = theme;
+  const store = useDocumentStore();
+  const dataState = useDataState(dataKey);
+
+  if (!dataState || dataState.status === 'loading') {
+    return <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>Loading…</Text>;
+  }
+  if (dataState.status === 'error') {
+    return (
+      <View style={{ gap: spacing.xs }}>
+        <Text style={{ color: colors.text, fontSize: fontSize.small }}>
+          {dataState.error ?? 'Failed to load options'}
+        </Text>
+        <Pressable accessibilityRole="button" onPress={() => store.retryData(dataKey)}>
+          <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Retry</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const options = dataState.rows as { label: string; value: string }[];
+
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+      {options.map((opt) => {
+        const selected = fieldValue === opt.value;
+        return (
+          <Pressable
+            key={opt.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            onPress={() => onSelect(opt.value)}
+            style={{
+              paddingHorizontal: spacing.sm,
+              paddingVertical: spacing.xs,
+              borderRadius: radius.sm,
+              borderWidth: 1,
+              borderColor: selected ? colors.primary : colors.border,
+              backgroundColor: selected ? colors.primary : colors.background,
+            }}
+          >
+            <Text
+              style={{ color: selected ? colors.onPrimary : colors.text, fontSize: fontSize.body }}
+            >
+              {opt.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 /**
  * RN form renderer. Emits the same store actions as the web `FormRenderer`:
@@ -60,7 +126,9 @@ export const FormRenderer = memo(function FormRenderer({
         const options =
           typeof field.options === 'string'
             ? (dataSources?.[field.options] ?? [])
-            : (field.options ?? []);
+            : isDataSourceRef(field.options)
+              ? []
+              : (field.options ?? []);
 
         return (
           <View key={field.name} style={{ gap: spacing.xs }}>
@@ -76,36 +144,45 @@ export const FormRenderer = memo(function FormRenderer({
                 accessibilityLabel={field.label}
               />
             ) : field.type === 'select' ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
-                {options.map((opt) => {
-                  const selected = fieldValue === opt.value;
-                  return (
-                    <Pressable
-                      key={opt.value}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      onPress={() => handleChange(opt.value)}
-                      style={{
-                        paddingHorizontal: spacing.sm,
-                        paddingVertical: spacing.xs,
-                        borderRadius: radius.sm,
-                        borderWidth: 1,
-                        borderColor: selected ? colors.primary : colors.border,
-                        backgroundColor: selected ? colors.primary : colors.background,
-                      }}
-                    >
-                      <Text
+              isDataSourceRef(field.options) ? (
+                <DataDrivenOptions
+                  dataKey={`${component.id}.${field.name}`}
+                  fieldValue={fieldValue}
+                  onSelect={handleChange}
+                  theme={theme}
+                />
+              ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+                  {options.map((opt) => {
+                    const selected = fieldValue === opt.value;
+                    return (
+                      <Pressable
+                        key={opt.value}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected }}
+                        onPress={() => handleChange(opt.value)}
                         style={{
-                          color: selected ? colors.onPrimary : colors.text,
-                          fontSize: fontSize.body,
+                          paddingHorizontal: spacing.sm,
+                          paddingVertical: spacing.xs,
+                          borderRadius: radius.sm,
+                          borderWidth: 1,
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: selected ? colors.primary : colors.background,
                         }}
                       >
-                        {opt.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+                        <Text
+                          style={{
+                            color: selected ? colors.onPrimary : colors.text,
+                            fontSize: fontSize.body,
+                          }}
+                        >
+                          {opt.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )
             ) : field.type === 'textarea' ? (
               <TextInput
                 multiline

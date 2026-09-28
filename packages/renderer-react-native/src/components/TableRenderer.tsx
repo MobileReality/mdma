@@ -1,25 +1,124 @@
 import { memo } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
+import { isDataSourceRef, type TableComponent, type TableColumn } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
 
-/**
- * RN table: a `View` grid inside a horizontal `ScrollView` so wide tables stay
- * readable on narrow screens (the plan's documented constraint). Sensitive
- * columns are masked (parity with the web renderer).
- */
 export const TableRenderer = memo(function TableRenderer({
   component,
   resolveBinding,
 }: MdmaBlockRendererProps) {
   const theme = useMdmaTheme();
-  const { colors, spacing, radius, fontSize } = theme;
 
   if (component.type !== 'table') return null;
+
+  if (isDataSourceRef(component.data)) {
+    return <DataDrivenTable component={component} theme={theme} />;
+  }
 
   const rawData =
     typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
   const data = Array.isArray(rawData) ? (rawData as Record<string, unknown>[]) : [];
+
+  return <TableGrid component={component} data={data} theme={theme} resolveBinding={resolveBinding} />;
+});
+
+function DataDrivenTable({
+  component,
+  theme,
+}: {
+  component: TableComponent;
+  theme: ReturnType<typeof useMdmaTheme>;
+}) {
+  const { colors, spacing, fontSize } = theme;
+  const store = useDocumentStore();
+  const dataState = useDataState(component.id);
+
+  if (!dataState || dataState.status === 'loading') {
+    return (
+      <View style={{ padding: spacing.sm }}>
+        <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>Loading…</Text>
+      </View>
+    );
+  }
+  if (dataState.status === 'error') {
+    return (
+      <View style={{ padding: spacing.sm, gap: spacing.xs }}>
+        <Text style={{ color: colors.text, fontSize: fontSize.small }}>
+          {dataState.error ?? 'Failed to load data'}
+        </Text>
+        <Pressable accessibilityRole="button" onPress={() => store.retryData(component.id)}>
+          <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Retry</Text>
+        </Pressable>
+      </View>
+    );
+  }
+  if (dataState.rows.length === 0) {
+    return (
+      <View style={{ padding: spacing.sm }}>
+        <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>No data</Text>
+      </View>
+    );
+  }
+
+  const pageSize = component.pageSize ?? dataState.pageSize ?? dataState.rows.length;
+  const total = dataState.total ?? dataState.rows.length;
+  const pageCount = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
+
+  return (
+    <View style={{ gap: spacing.xs }}>
+      <TableGrid
+        component={component}
+        data={dataState.rows as Record<string, unknown>[]}
+        theme={theme}
+        onSort={(key) => {
+          const next =
+            dataState.sort?.key === key && dataState.sort.direction === 'asc'
+              ? { key, direction: 'desc' as const }
+              : { key, direction: 'asc' as const };
+          store.setDataSort(component.id, next);
+        }}
+      />
+      {pageCount > 1 ? (
+        <View style={{ flexDirection: 'row', gap: spacing.sm, alignItems: 'center' }}>
+          <Pressable
+            accessibilityRole="button"
+            disabled={dataState.page <= 1}
+            onPress={() => store.setDataPage(component.id, dataState.page - 1)}
+          >
+            <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Prev</Text>
+          </Pressable>
+          <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>
+            Page {dataState.page} / {pageCount}
+          </Text>
+          <Pressable
+            accessibilityRole="button"
+            disabled={dataState.page >= pageCount}
+            onPress={() => store.setDataPage(component.id, dataState.page + 1)}
+          >
+            <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Next</Text>
+          </Pressable>
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
+function TableGrid({
+  component,
+  data,
+  theme,
+  onSort,
+  resolveBinding,
+}: {
+  component: TableComponent;
+  data: Record<string, unknown>[];
+  theme: ReturnType<typeof useMdmaTheme>;
+  onSort?: (key: string) => void;
+  resolveBinding?: (expr: string) => unknown;
+}) {
+  const { colors, spacing, radius, fontSize } = theme;
   const sensitiveKeys = new Set(
     component.columns.filter((col) => col.sensitive).map((col) => col.key),
   );
@@ -49,18 +148,25 @@ export const TableRenderer = memo(function TableRenderer({
         }}
       >
         <View style={{ backgroundColor: colors.background }}>
-          {/* Header */}
           <View style={{ flexDirection: 'row', backgroundColor: colors.surface }}>
-            {component.columns.map((col) => (
-              <View key={col.key} style={cellBase}>
-                <Text style={{ fontWeight: '700', color: colors.text, fontSize: fontSize.small }}>
-                  {col.header}
-                  {col.sensitive ? ' 🔒' : ''}
-                </Text>
-              </View>
-            ))}
+            {component.columns.map((col: TableColumn) => {
+              const HeaderCell = onSort && col.sortable ? Pressable : View;
+              return (
+                <HeaderCell
+                  key={col.key}
+                  style={cellBase}
+                  {...(onSort && col.sortable
+                    ? { onPress: () => onSort(col.key), accessibilityRole: 'button' as const }
+                    : {})}
+                >
+                  <Text style={{ fontWeight: '700', color: colors.text, fontSize: fontSize.small }}>
+                    {col.header}
+                    {col.sensitive ? ' 🔒' : ''}
+                  </Text>
+                </HeaderCell>
+              );
+            })}
           </View>
-          {/* Rows */}
           {data.map((row, i) => (
             <View
               key={i}
@@ -70,10 +176,12 @@ export const TableRenderer = memo(function TableRenderer({
                 borderTopColor: colors.border,
               }}
             >
-              {component.columns.map((col) => {
+              {component.columns.map((col: TableColumn) => {
                 const raw = row[col.key] ?? '';
                 const resolved =
-                  typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw) ? resolveBinding(raw) : raw;
+                  resolveBinding && typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
+                    ? resolveBinding(raw)
+                    : raw;
                 const value = String(resolved ?? '');
                 const masked = sensitiveKeys.has(col.key) && value;
                 return (
@@ -95,4 +203,4 @@ export const TableRenderer = memo(function TableRenderer({
       </ScrollView>
     </View>
   );
-});
+}
