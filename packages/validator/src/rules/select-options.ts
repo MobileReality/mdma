@@ -36,7 +36,8 @@ export const selectOptionsRule: ValidationRule = {
           continue;
         }
 
-        // Skip binding expressions (strings are valid as binding refs)
+        // A string here is a data source name (shorthand for { source: <name> }),
+        // checked against the catalog by the data-source rule, not this one.
         if (typeof field.options === 'string') continue;
 
         if (Array.isArray(field.options)) {
