@@ -1,6 +1,8 @@
 import { memo, useState } from 'react';
+import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
 import {
   useElementOverride,
   type FormInputElementProps,
@@ -11,6 +13,36 @@ import {
   type FormSubmitElementProps,
   type FormSensitiveIndicatorElementProps,
 } from '../context/ElementOverridesContext.js';
+import { DefaultDataLoading, DefaultDataError } from './DataStateViews.js';
+
+function DataDrivenSelect({
+  Select,
+  dataKey,
+  ...rest
+}: {
+  Select: React.ComponentType<FormSelectElementProps>;
+  dataKey: string;
+} & Omit<FormSelectElementProps, 'options'>) {
+  const store = useDocumentStore();
+  const dataState = useDataState(dataKey);
+  const DataLoading = useElementOverride('form', 'dataLoading') ?? DefaultDataLoading;
+  const DataError = useElementOverride('form', 'dataError') ?? DefaultDataError;
+
+  if (!dataState || dataState.status === 'loading') {
+    return <DataLoading componentId={dataKey} />;
+  }
+  if (dataState.status === 'error') {
+    return (
+      <DataError
+        componentId={dataKey}
+        error={dataState.error ?? 'Failed to load options'}
+        onRetry={() => store.retryData(dataKey)}
+      />
+    );
+  }
+  const options = dataState.rows as { label: string; value: string }[];
+  return <Select {...rest} options={options} />;
+}
 
 // ─── Sensitive field indicator ──────────────────────────────────────────────
 
@@ -178,21 +210,36 @@ export const FormRenderer = memo(function FormRenderer({
               {field.sensitive && <SensitiveMark name={field.name} label={field.label} />}
             </label>
             {field.type === 'select' ? (
-              <Select
-                id={fieldId}
-                name={field.name}
-                label={field.label}
-                type="select"
-                value={fieldValue}
-                onChange={handleChange}
-                required={field.required}
-                sensitive={field.sensitive}
-                options={
-                  typeof field.options === 'string'
-                    ? (dataSources?.[field.options] ?? [])
-                    : (field.options ?? [])
-                }
-              />
+              isDataSourceRef(field.options) ? (
+                <DataDrivenSelect
+                  Select={Select}
+                  dataKey={`${component.id}.${field.name}`}
+                  id={fieldId}
+                  name={field.name}
+                  label={field.label}
+                  type="select"
+                  value={fieldValue}
+                  onChange={handleChange}
+                  required={field.required}
+                  sensitive={field.sensitive}
+                />
+              ) : (
+                <Select
+                  id={fieldId}
+                  name={field.name}
+                  label={field.label}
+                  type="select"
+                  value={fieldValue}
+                  onChange={handleChange}
+                  required={field.required}
+                  sensitive={field.sensitive}
+                  options={
+                    typeof field.options === 'string'
+                      ? (dataSources?.[field.options] ?? [])
+                      : (field.options ?? [])
+                  }
+                />
+              )
             ) : field.type === 'checkbox' ? (
               <Checkbox
                 id={fieldId}

@@ -68,6 +68,20 @@ export interface FormSensitiveIndicatorElementProps {
   label: string;
 }
 
+export interface DataLoadingElementProps {
+  componentId: string;
+}
+
+export interface DataErrorElementProps {
+  componentId: string;
+  error: string;
+  onRetry: () => void;
+}
+
+export interface DataEmptyElementProps {
+  componentId: string;
+}
+
 // ─── Element overrides map ───────────────────────────────────────────────────
 
 /**
