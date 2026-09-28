@@ -1,3 +1,4 @@
+import type { DataSourceMap } from '@mobile-reality/mdma-runtime';
 import type { RenderContext } from '../../src/context/render-context.js';
 import { blockRendererProps, mountMdmaBlock } from '../../src/document/mount-block.js';
 import type { MdmaBlockRenderer } from '../../src/renderers/renderer-props.js';
@@ -13,8 +14,9 @@ export async function mountBlockFor(
   markdown: string,
   renderer: MdmaBlockRenderer,
   context: RenderContext = {},
+  dataSources?: DataSourceMap,
 ) {
-  const { ast, store } = await parseDoc(markdown);
+  const { ast, store } = await parseDoc(markdown, { dataSources });
   const block = firstBlock(ast);
 
   const instance = mountMdmaBlock({

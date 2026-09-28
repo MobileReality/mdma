@@ -1,4 +1,4 @@
-import type { ComponentState } from '@mobile-reality/mdma-runtime';
+import type { ComponentState, DataSlotState, DataSort } from '@mobile-reality/mdma-runtime';
 import type { MdmaComponent, StoreAction } from '@mobile-reality/mdma-spec';
 import type { RenderContext } from '../context/render-context.js';
 
@@ -10,6 +10,11 @@ export interface MdmaBlockRendererProps {
   resolveBinding: (expr: string) => unknown;
   /** Host customizations — data sources, element overrides, custom variants. */
   context: RenderContext;
+  getDataState: (key: string) => DataSlotState | undefined;
+  retryData: (key: string) => void;
+  setDataPage: (key: string, page: number) => void;
+  setDataSort: (key: string, sort: DataSort | undefined) => void;
+  setDataFilter: (key: string, filter: string | undefined) => void;
 }
 
 /**
