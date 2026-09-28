@@ -1,6 +1,8 @@
 import { defineComponent, h, ref, type PropType, type VNodeChild } from 'vue';
+import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import { blockRendererProps } from '../renderers/renderer-props.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
+import { useDataState, useDocumentStore } from '../composables/use-document-store.js';
 import {
   useElementOverride,
   type FormCheckboxElementProps,
@@ -11,6 +13,7 @@ import {
   type FormSubmitElementProps,
   type FormTextareaElementProps,
 } from '../context/ElementOverridesContext.js';
+import { DefaultDataLoading, DefaultDataError } from './DataStateViews.js';
 
 // ─── Sensitive field indicator ──────────────────────────────────────────────
 
@@ -221,6 +224,39 @@ const DefaultSubmitButton = defineComponent({
   },
 });
 
+const DataDrivenSelect = defineComponent({
+  name: 'MdmaDataDrivenSelect',
+  props: {
+    dataKey: { type: String, required: true },
+    select: { type: Object, required: true },
+    selectProps: { type: Object, required: true },
+  },
+  setup(props) {
+    const store = useDocumentStore();
+    const dataState = useDataState(() => props.dataKey);
+    const DataLoading = useElementOverride('form', 'dataLoading');
+    const DataError = useElementOverride('form', 'dataError');
+
+    return () => {
+      const state = dataState.value;
+      if (!state || state.status === 'loading') {
+        return h(DataLoading.value ?? DefaultDataLoading, { componentId: props.dataKey });
+      }
+      if (state.status === 'error') {
+        return h(DataError.value ?? DefaultDataError, {
+          componentId: props.dataKey,
+          error: state.error ?? 'Failed to load options',
+          onRetry: () => store.value.retryData(props.dataKey),
+        });
+      }
+      return h(props.select as object, {
+        ...(props.selectProps as Record<string, unknown>),
+        options: state.rows,
+      });
+    };
+  },
+});
+
 // ─── FormRenderer ────────────────────────────────────────────────────────────
 
 export const FormRenderer = defineComponent({
@@ -280,16 +316,29 @@ export const FormRenderer = defineComponent({
 
         let control: VNodeChild;
         if (field.type === 'select') {
-          control = h(Select.value ?? DefaultSelect, {
-            ...shared,
-            type: 'select',
-            value: fieldValue,
-            onChange: handleChange,
-            options:
-              typeof field.options === 'string'
-                ? (ctx.value.dataSources?.[field.options] ?? [])
-                : (field.options ?? []),
-          });
+          if (isDataSourceRef(field.options)) {
+            control = h(DataDrivenSelect, {
+              dataKey: `${component.id}.${field.name}`,
+              select: Select.value ?? DefaultSelect,
+              selectProps: {
+                ...shared,
+                type: 'select',
+                value: fieldValue,
+                onChange: handleChange,
+              },
+            });
+          } else {
+            control = h(Select.value ?? DefaultSelect, {
+              ...shared,
+              type: 'select',
+              value: fieldValue,
+              onChange: handleChange,
+              options:
+                typeof field.options === 'string'
+                  ? (ctx.value.dataSources?.[field.options] ?? [])
+                  : (field.options ?? []),
+            });
+          }
         } else if (field.type === 'checkbox') {
           control = h(Checkbox.value ?? DefaultCheckbox, {
             id: fieldId,
