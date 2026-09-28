@@ -1,4 +1,10 @@
-import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mobile-reality/mdma-spec';
+import {
+  isDataSourceRef,
+  type MdmaRoot,
+  type MdmaBlock,
+  type StoreAction,
+  type EventType,
+} from '@mobile-reality/mdma-spec';
 import { createEventBus, type TypedEventBus } from './event-bus.js';
 import { createEventLog, type AppendOnlyEventLog } from './event-log.js';
 import { resolveValue } from './binding-resolver.js';
@@ -6,6 +12,12 @@ import { serializeFiles } from './serialize-files.js';
 import { redactPayload, type RedactionContext } from '../redaction/redactor.js';
 import { PolicyEngine, createDefaultPolicy } from '../policy/policy-engine.js';
 import type { AttachableRegistry, ComponentState } from '../attachable/registry.js';
+import {
+  DataSourceManager,
+  type DataSourceMap,
+  type DataSlotState,
+  type DataSort,
+} from './data-source-manager.js';
 
 export interface DocumentState {
   bindings: Record<string, unknown>;
@@ -26,6 +38,8 @@ export interface DocumentStoreOptions {
    * edits during streaming re-parses.
    */
   initialState?: Record<string, Record<string, unknown>>;
+  /** Host-registered external data sources for `{ source, params }` refs in select options, table.data, chart.data. */
+  dataSources?: DataSourceMap;
 }
 
 export interface DocumentStore {
@@ -41,6 +55,12 @@ export interface DocumentStore {
   /** Incrementally update the store from a new AST — adds new components,
    *  removes deleted ones, and preserves existing component state (values, touched, etc.). */
   updateAst(ast: MdmaRoot): void;
+  getDataState(key: string): DataSlotState | undefined;
+  setDataPage(key: string, page: number): void;
+  setDataSort(key: string, sort: DataSort | undefined): void;
+  setDataFilter(key: string, filter: string | undefined): void;
+  retryData(key: string): void;
+  resolveAllData(): Promise<void>;
 }
 
 export function createDocumentStore(
@@ -60,6 +80,56 @@ export function createDocumentStore(
   };
 
   const initialState = options.initialState;
+
+  const listeners = new Set<(state: DocumentState) => void>();
+
+  function notify() {
+    for (const listener of listeners) {
+      listener(state);
+    }
+  }
+
+  const dataManager = new DataSourceManager({
+    dataSources: options.dataSources,
+    onChange: notify,
+    onLog: ({ key, eventType, payload }) => {
+      eventLog.append({ eventType, componentId: key, payload, redacted: false });
+    },
+  });
+
+  /** Called on every parse of `comp`, not only its first — a still-streaming block can reparse
+   *  into a valid MdmaBlock with a truncated data ref before the real one lands, so freezing the
+   *  ref at first sight would leave the slot stuck on it. */
+  function syncComponentDataSlots(comp: MdmaBlock['component']) {
+    if (comp.type === 'table') {
+      if (isDataSourceRef(comp.data)) {
+        dataManager.sync(comp.id, comp.data, state.bindings, { pageSize: comp.pageSize });
+      } else {
+        dataManager.unregister(comp.id);
+      }
+    } else if (comp.type === 'chart') {
+      if (isDataSourceRef(comp.data)) {
+        dataManager.sync(comp.id, comp.data, state.bindings);
+      } else {
+        dataManager.unregister(comp.id);
+      }
+    } else if (comp.type === 'form') {
+      for (const field of comp.fields) {
+        const key = `${comp.id}.${field.name}`;
+        if (isDataSourceRef(field.options)) {
+          dataManager.sync(key, field.options, state.bindings);
+        } else {
+          dataManager.unregister(key);
+        }
+      }
+    }
+  }
+
+  function unregisterComponentDataSlots(id: string) {
+    for (const key of dataManager.keys()) {
+      if (key === id || key.startsWith(`${id}.`)) dataManager.unregister(key);
+    }
+  }
 
   /**
    * Overlay hydrated values (e.g. restored from a persisted conversation) onto a freshly-built
@@ -124,16 +194,15 @@ export function createDocumentStore(
 
       applyInitialState(compState);
       state.components.set(comp.id, compState);
+      syncComponentDataSlots(comp);
     }
   }
 
-  const listeners = new Set<(state: DocumentState) => void>();
-
-  function notify() {
-    for (const listener of listeners) {
-      listener(state);
-    }
-  }
+  // A ref registered above may bind to a component that comes later in document order — its
+  // default value wasn't in `state.bindings` yet when that ref's slot resolved its params. Now
+  // that every component's defaults are seeded, re-resolve every slot's params against the
+  // settled bindings; `onBindingsChanged` only refetches the ones that actually changed.
+  dataManager.onBindingsChanged(state.bindings);
 
   function logAction(action: StoreAction) {
     const eventTypeMap: Record<StoreAction['type'], EventType> = {
@@ -215,6 +284,7 @@ export function createDocumentStore(
             }
             (state.bindings[action.componentId] as Record<string, unknown>)[action.field] =
               action.value;
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -227,6 +297,7 @@ export function createDocumentStore(
           if (comp) {
             comp.values = { ...comp.values, status: 'approved', approvedBy: action.actor };
             state.bindings[`${action.componentId}.status`] = 'approved';
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -240,6 +311,7 @@ export function createDocumentStore(
               deniedReason: action.reason,
             };
             state.bindings[`${action.componentId}.status`] = 'denied';
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -291,6 +363,7 @@ export function createDocumentStore(
         if (!newIds.has(id)) {
           state.components.delete(id);
           redactionCtx.sensitiveComponents.delete(id);
+          unregisterComponentDataSlots(id);
         }
       }
 
@@ -304,7 +377,10 @@ export function createDocumentStore(
         // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
         // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
         const existing = state.components.get(comp.id);
-        if (existing && existing.type === comp.type) continue;
+        if (existing && existing.type === comp.type) {
+          syncComponentDataSlots(comp);
+          continue;
+        }
         redactionCtx.sensitiveComponents.delete(comp.id);
 
         // New (or retyped) component — initialize with defaults
@@ -346,9 +422,39 @@ export function createDocumentStore(
 
         applyInitialState(compState);
         state.components.set(comp.id, compState);
+        syncComponentDataSlots(comp);
       }
 
+      // Mirrors the constructor: a ref registered above may bind to a component seeded later in
+      // this same pass (forward reference), so its first-resolved params can be stale until every
+      // component's defaults have landed in `state.bindings`.
+      dataManager.onBindingsChanged(state.bindings);
+
       notify();
+    },
+
+    getDataState(key) {
+      return dataManager.getState(key);
+    },
+
+    setDataPage(key, page) {
+      dataManager.setPage(key, page);
+    },
+
+    setDataSort(key, sort) {
+      dataManager.setSort(key, sort);
+    },
+
+    setDataFilter(key, filter) {
+      dataManager.setFilter(key, filter);
+    },
+
+    retryData(key) {
+      dataManager.retry(key);
+    },
+
+    async resolveAllData() {
+      await dataManager.resolveAll();
     },
   };
 
