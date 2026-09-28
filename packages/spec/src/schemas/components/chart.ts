@@ -1,11 +1,12 @@
 import { z } from 'zod';
 import { ComponentBaseSchema } from '../component-base.js';
 import { BindingExpressionSchema } from '../binding.js';
+import { DataSourceRefSchema } from '../data-source.js';
 
 export const ChartComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('chart'),
   variant: z.enum(['line', 'bar', 'area', 'pie']).default('line'),
-  data: z.union([z.string(), BindingExpressionSchema]),
+  data: z.union([z.string(), BindingExpressionSchema, DataSourceRefSchema]),
   xAxis: z.string().optional(),
   yAxis: z.union([z.string(), z.array(z.string())]).optional(),
   colors: z.array(z.string()).optional(),
