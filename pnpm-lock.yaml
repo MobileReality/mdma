@@ -650,9 +650,18 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.3(@types/react@19.2.14)
+      happy-dom:
+        specifier: ^20.0.0
+        version: 20.11.1
       react:
         specifier: ^19.0.0
         version: 19.2.4
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.4(react@19.2.4)
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -672,12 +681,18 @@ importers:
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
+      '@types/react-test-renderer':
+        specifier: 19.0.0
+        version: 19.0.0
       react:
         specifier: ^19.0.0
         version: 19.2.4
       react-native:
         specifier: ^0.76.0
         version: 0.76.9(@babel/core@7.29.0)(@babel/preset-env@7.29.7(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.2.4)
+      react-test-renderer:
+        specifier: 19.0.0
+        version: 19.0.0(react@19.2.4)
       typescript:
         specifier: ^5.7.0
         version: 5.9.3
@@ -4994,6 +5009,9 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
+  '@types/react-test-renderer@19.0.0':
+    resolution: {integrity: sha512-qDVnNybqFm2eZKJ4jD34EvRd6VHD67KjgnWaEMM0Id9L22EpWe3nOSVKHWL1XWRCxUWe3lhXwlEeCKD1BlJCQA==}
+
   '@types/react@19.1.17':
     resolution: {integrity: sha512-Qec1E3mhALmaspIrhWt9jkQMNdw6bReVu64mjvhbhq2NFPftLPVr+l1SZgmw/66WwBNpDh7ao5AT6gF5v41PFA==}
 
@@ -9180,6 +9198,11 @@ packages:
     peerDependencies:
       react: '>= 0.14.0'
 
+  react-test-renderer@19.0.0:
+    resolution: {integrity: sha512-oX5u9rOQlHzqrE/64CNr0HB0uWxkCQmZNSfozlYvwE71TLVgeZxVf0IjouGEr1v7r1kcDifdAJBeOhdhxsG/DA==}
+    peerDependencies:
+      react: ^19.0.0
+
   react-transition-group@4.4.5:
     resolution: {integrity: sha512-pZcd1MCJoiKiBR2NRxeCRg13uCXbydPnmB4EOeRrY7480qNWO8IIgQG6zlDkm6uRMsURXPuKq0GWtiM59a5Q6g==}
     peerDependencies:
@@ -9442,6 +9465,9 @@ packages:
 
   scheduler@0.24.0-canary-efb381bbf-20230505:
     resolution: {integrity: sha512-ABvovCDe/k9IluqSh4/ISoq8tIJnW8euVAWYt5j/bg6dRnqwQwiGO1F/V4AyK96NGF/FB04FhOUDuWj8IKfABA==}
+
+  scheduler@0.25.0:
+    resolution: {integrity: sha512-xFVuu11jh+xcO7JOAGJNOXld8/TcEHK/4CituBUeUb5hqxJLj9YuemAEuvm9gQ/+pgXYfbQuqAkiYu+u7YEsNA==}
 
   scheduler@0.26.0:
     resolution: {integrity: sha512-NlHwttCI/l5gCPR3D1nNXtWABUmBwvZpEQiD4IXSbIDq8BzLIK/7Ir5gTFSGZDUu37K5cMNp0hFtzO38sC7gWA==}
@@ -16231,6 +16257,10 @@ snapshots:
     dependencies:
       '@types/react': 19.2.14
 
+  '@types/react-test-renderer@19.0.0':
+    dependencies:
+      '@types/react': 19.1.17
+
   '@types/react@19.1.17':
     dependencies:
       csstype: 3.2.3
@@ -21716,6 +21746,12 @@ snapshots:
       react: 19.2.4
       refractor: 5.0.0
 
+  react-test-renderer@19.0.0(react@19.2.4):
+    dependencies:
+      react: 19.2.4
+      react-is: 19.2.4
+      scheduler: 0.25.0
+
   react-transition-group@4.4.5(react-dom@19.2.4(react@19.2.4))(react@19.2.4):
     dependencies:
       '@babel/runtime': 7.28.6
@@ -22094,6 +22130,8 @@ snapshots:
   scheduler@0.24.0-canary-efb381bbf-20230505:
     dependencies:
       loose-envify: 1.4.0
+
+  scheduler@0.25.0: {}
 
   scheduler@0.26.0: {}
 
