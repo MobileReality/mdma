@@ -46,27 +46,31 @@ export const CUSTOM_COMPONENTS = [
  */
 const promptByProvider = new Map();
 
-function resolveAuthorPrompt(providerId) {
-  if (!promptByProvider.has(providerId)) {
+function resolveAuthorPrompt(providerId, withDataSources) {
+  const key = `${providerId}|${withDataSources}`;
+  if (!promptByProvider.has(key)) {
     promptByProvider.set(
-      providerId,
+      key,
       selectAuthorPrompt(providerId).then(({ prompt, source }) => {
         console.error(
-          `[author] system prompt: ${source} (+custom-component and data-source catalogs)`,
+          `[author] system prompt: ${source} (+custom-component catalog${withDataSources ? ' and data-source catalog' : ''})`,
         );
         return buildSystemPrompt({
           authorPrompt: prompt,
           customComponents: CUSTOM_COMPONENTS,
-          dataSources: DATA_SOURCES,
+          ...(withDataSources ? { dataSources: DATA_SOURCES } : {}),
         });
       }),
     );
   }
-  return promptByProvider.get(providerId);
+  return promptByProvider.get(key);
 }
 
 export default async function ({ vars, provider }) {
-  const systemPrompt = await resolveAuthorPrompt(provider?.id ?? process.env.EVAL_PROVIDER);
+  const systemPrompt = await resolveAuthorPrompt(
+    provider?.id ?? process.env.EVAL_PROVIDER,
+    vars.dataSources === true || vars.dataSources === 'true',
+  );
 
   return [
     { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
