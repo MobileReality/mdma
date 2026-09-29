@@ -198,7 +198,7 @@ export class DataSourceManager {
   }
 
   hasSource(name: string): boolean {
-    return name in this.dataSources;
+    return Object.hasOwn(this.dataSources, name);
   }
 
   beginBatch(): void {
@@ -404,7 +404,7 @@ export class DataSourceManager {
 
     const current = entry;
     current.refCount++;
-    // the shared request is cancelled only when its last caller aborts
+    // other slots may share this in-flight request, so only the last caller aborting cancels it
     const onCallerAbort = () => {
       current.refCount--;
       if (current.refCount <= 0) current.controller.abort();
