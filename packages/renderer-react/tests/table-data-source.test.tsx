@@ -83,4 +83,69 @@ describe('TableRenderer with a data source ref', () => {
     expect(container.textContent).toContain('Globex');
     expect(container.textContent).not.toContain('Loading');
   });
+
+  it('keeps the previous rows visible with a loading indicator while a page change loads', async () => {
+    let releasePage2: (() => void) | undefined;
+    const resolver = vi.fn(async (req: { page?: number }) => {
+      if (req.page === 2) {
+        await new Promise<void>((resolve) => {
+          releasePage2 = resolve;
+        });
+        return { rows: [{ id: 21, name: 'Page Two' }], total: 40 };
+      }
+      return { rows: [{ id: 1, name: 'Acme' }], total: 40 };
+    });
+
+    const component = {
+      id: 'accounts',
+      type: 'table',
+      sensitive: false,
+      disabled: false,
+      visible: true,
+      pageSize: 20,
+      columns: [
+        { key: 'id', header: 'ID' },
+        { key: 'name', header: 'Name' },
+      ],
+      data: { source: 'accounts' },
+    };
+    const store = createDocumentStore(makeAst(component), {
+      dataSources: { accounts: resolver },
+    });
+
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+
+    act(() => {
+      root!.render(
+        <MdmaProvider store={store}>
+          <TableRenderer
+            component={component as never}
+            componentState={store.getComponentState('accounts')}
+            dispatch={(action) => store.dispatch(action)}
+            resolveBinding={(expr) => store.resolveBinding(expr)}
+          />
+        </MdmaProvider>,
+      );
+    });
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Acme');
+
+    act(() => store.setDataPage('accounts', 2));
+
+    expect(container.textContent).toContain('Acme');
+    expect(container.textContent).toContain('Loading');
+
+    await act(async () => {
+      releasePage2?.();
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.textContent).toContain('Page Two');
+    expect(container.textContent).not.toContain('Loading');
+  });
 });

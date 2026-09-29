@@ -316,9 +316,14 @@ export const FormRenderer = defineComponent({
 
         let control: VNodeChild;
         if (field.type === 'select') {
-          if (isDataSourceRef(field.options)) {
+          const dataKey = `${component.id}.${field.name}`;
+          const isDataDriven =
+            isDataSourceRef(field.options) ||
+            (typeof field.options === 'string' &&
+              ctx.value.store.getDataState(dataKey) !== undefined);
+          if (isDataDriven) {
             control = h(DataDrivenSelect, {
-              dataKey: `${component.id}.${field.name}`,
+              dataKey,
               select: Select.value ?? DefaultSelect,
               selectProps: {
                 ...shared,

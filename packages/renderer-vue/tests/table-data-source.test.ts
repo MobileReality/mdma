@@ -16,6 +16,19 @@ data:
   source: accounts
 `);
 
+const PAGED_TABLE = mdma(`
+type: table
+id: accounts
+pageSize: 20
+columns:
+  - key: id
+    header: "ID"
+  - key: name
+    header: "Name"
+data:
+  source: accounts
+`);
+
 describe('TableRenderer with a data source ref', () => {
   it('shows loading, then renders resolved rows', async () => {
     let resolveFetch: ((rows: Array<Record<string, unknown>>) => void) | undefined;
@@ -41,6 +54,38 @@ describe('TableRenderer with a data source ref', () => {
 
     expect(wrapper.text()).toContain('Acme');
     expect(wrapper.text()).toContain('Globex');
+    expect(wrapper.text()).not.toContain('Loading');
+  });
+
+  it('keeps the previous rows visible with a loading indicator while a page change loads', async () => {
+    let releasePage2: (() => void) | undefined;
+    const resolver = vi.fn(async (req: { page?: number }) => {
+      if (req.page === 2) {
+        await new Promise<void>((resolve) => {
+          releasePage2 = resolve;
+        });
+        return { rows: [{ id: 21, name: 'Page Two' }], total: 40 };
+      }
+      return { rows: [{ id: 1, name: 'Acme' }], total: 40 };
+    });
+
+    const { wrapper, store } = await mountBlock(PAGED_TABLE, TableRenderer, {
+      storeDataSources: { accounts: resolver },
+    });
+    await flushPromises();
+    expect(wrapper.text()).toContain('Acme');
+
+    store.setDataPage('accounts', 2);
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('Acme');
+    expect(wrapper.text()).toContain('Loading');
+
+    releasePage2?.();
+    await flushPromises();
+    await flushPromises();
+
+    expect(wrapper.text()).toContain('Page Two');
     expect(wrapper.text()).not.toContain('Loading');
   });
 });

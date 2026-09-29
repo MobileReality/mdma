@@ -102,6 +102,14 @@ interface Built {
   shape: string;
 }
 
+function isDataDrivenOptions(field: Field, component: FormComponent, props: MdmaBlockRendererProps) {
+  if (isDataSourceRef(field.options)) return true;
+  return (
+    typeof field.options === 'string' &&
+    props.getDataState(`${component.id}.${field.name}`) !== undefined
+  );
+}
+
 function optionsFor(field: Field, props: MdmaBlockRendererProps) {
   if (typeof field.options === 'string') {
     return props.context.dataSources?.[field.options] ?? [];
@@ -187,7 +195,7 @@ function build(props: MdmaBlockRendererProps, component: FormComponent, getProps
 
   const rows = component.fields.map((field) => {
     const instance =
-      field.type === 'select' && isDataSourceRef(field.options)
+      field.type === 'select' && isDataDrivenOptions(field, component, props)
         ? createDataDrivenSelect(component, field, getProps, `${component.id}.${field.name}`)
         : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
             elementPropsFor(field, component, props, getProps),

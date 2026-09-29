@@ -120,7 +120,8 @@ const DataDrivenTable = defineComponent({
       const component = props.component as TableComponent;
       const state = dataState.value;
 
-      if (!state || state.status === 'loading') {
+      const isReloading = state?.status === 'loading' && state.rows.length > 0;
+      if (!state || (state.status === 'loading' && !isReloading)) {
         return h(DataLoading.value ?? DefaultDataLoading, { componentId: component.id });
       }
       if (state.status === 'error') {
@@ -173,7 +174,11 @@ const DataDrivenTable = defineComponent({
             ])
           : null;
 
-      return h('div', [body, pagination]);
+      return h('div', { 'aria-busy': isReloading ? 'true' : undefined }, [
+        isReloading ? h('span', { class: 'mdma-table-loading-indicator' }, 'Loading…') : null,
+        body,
+        pagination,
+      ]);
     };
   },
 });

@@ -161,7 +161,7 @@ export const FormRenderer = memo(function FormRenderer({
   dispatch,
 }: MdmaBlockRendererProps) {
   // Hooks must be called unconditionally (Rules of Hooks)
-  const { dataSources } = useMdmaContext();
+  const { dataSources, store } = useMdmaContext();
   const Input = useElementOverride<FormInputElementProps>('form', 'input') ?? DefaultInput;
   const Select = useElementOverride<FormSelectElementProps>('form', 'select') ?? DefaultSelect;
   const Checkbox =
@@ -210,7 +210,9 @@ export const FormRenderer = memo(function FormRenderer({
               {field.sensitive && <SensitiveMark name={field.name} label={field.label} />}
             </label>
             {field.type === 'select' ? (
-              isDataSourceRef(field.options) ? (
+              isDataSourceRef(field.options) ||
+              (typeof field.options === 'string' &&
+                store.getDataState(`${component.id}.${field.name}`) !== undefined) ? (
                 <DataDrivenSelect
                   Select={Select}
                   dataKey={`${component.id}.${field.name}`}

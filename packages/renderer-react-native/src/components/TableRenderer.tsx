@@ -35,7 +35,8 @@ function DataDrivenTable({
   const store = useDocumentStore();
   const dataState = useDataState(component.id);
 
-  if (!dataState || dataState.status === 'loading') {
+  const isReloading = dataState?.status === 'loading' && dataState.rows.length > 0;
+  if (!dataState || (dataState.status === 'loading' && !isReloading)) {
     return (
       <View style={{ padding: spacing.sm }}>
         <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>Loading…</Text>
@@ -67,7 +68,10 @@ function DataDrivenTable({
   const pageCount = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
 
   return (
-    <View style={{ gap: spacing.xs }}>
+    <View style={{ gap: spacing.xs }} accessibilityState={{ busy: isReloading }}>
+      {isReloading ? (
+        <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>Loading…</Text>
+      ) : null}
       <TableGrid
         component={component}
         data={dataState.rows as Record<string, unknown>[]}

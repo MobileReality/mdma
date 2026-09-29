@@ -42,7 +42,8 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
   const DataError = useElementOverride('table', 'dataError') ?? DefaultDataError;
   const DataEmpty = useElementOverride('table', 'dataEmpty') ?? DefaultDataEmpty;
 
-  if (!dataState || dataState.status === 'loading') {
+  const isReloading = dataState?.status === 'loading' && dataState.rows.length > 0;
+  if (!dataState || (dataState.status === 'loading' && !isReloading)) {
     return <DataLoading componentId={component.id} />;
   }
   if (dataState.status === 'error') {
@@ -63,7 +64,8 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
   const pageCount = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
 
   return (
-    <div>
+    <div aria-busy={isReloading}>
+      {isReloading && <span className="mdma-table-loading-indicator">Loading…</span>}
       <TableBody
         component={component}
         data={dataState.rows}

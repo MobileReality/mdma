@@ -103,7 +103,8 @@ function tableBody(
 function dataDrivenTable(props: MdmaBlockRendererProps, component: TableComponent): HTMLElement {
   const state = props.getDataState(component.id);
 
-  if (!state || state.status === 'loading') {
+  const isReloading = state?.status === 'loading' && state.rows.length > 0;
+  if (!state || (state.status === 'loading' && !isReloading)) {
     return renderDataLoading(props.context, 'table', component.id);
   }
   if (state.status === 'error') {
@@ -154,7 +155,11 @@ function dataDrivenTable(props: MdmaBlockRendererProps, component: TableComponen
         ])
       : undefined;
 
-  return el('div', {}, [body, pagination]);
+  return el('div', { 'aria-busy': isReloading ? 'true' : undefined }, [
+    isReloading && el('span', { class: 'mdma-table-loading-indicator' }, ['Loading…']),
+    body,
+    pagination,
+  ]);
 }
 
 export const TableRenderer = withState<Set<string>>(

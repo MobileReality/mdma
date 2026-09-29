@@ -85,7 +85,7 @@ export const FormRenderer = memo(function FormRenderer({
   componentState,
   dispatch,
 }: MdmaBlockRendererProps) {
-  const { dataSources } = useMdmaContext();
+  const { dataSources, store } = useMdmaContext();
   const theme = useMdmaTheme();
   const { colors, spacing, fontSize, radius } = theme;
 
@@ -123,6 +123,10 @@ export const FormRenderer = memo(function FormRenderer({
         const handleChange = (value: unknown) =>
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
 
+        const dataKey = `${component.id}.${field.name}`;
+        const isDataDriven =
+          isDataSourceRef(field.options) ||
+          (typeof field.options === 'string' && store.getDataState(dataKey) !== undefined);
         const options =
           typeof field.options === 'string'
             ? (dataSources?.[field.options] ?? [])
@@ -144,9 +148,9 @@ export const FormRenderer = memo(function FormRenderer({
                 accessibilityLabel={field.label}
               />
             ) : field.type === 'select' ? (
-              isDataSourceRef(field.options) ? (
+              isDataDriven ? (
                 <DataDrivenOptions
-                  dataKey={`${component.id}.${field.name}`}
+                  dataKey={dataKey}
                   fieldValue={fieldValue}
                   onSelect={handleChange}
                   theme={theme}
