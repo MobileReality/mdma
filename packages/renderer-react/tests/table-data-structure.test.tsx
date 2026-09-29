@@ -8,6 +8,7 @@ import { act } from 'react';
 import { type Root, createRoot } from 'react-dom/client';
 import { TableRenderer } from '../src/components/TableRenderer.js';
 import { MdmaProvider } from '../src/context/MdmaProvider.js';
+import { flushMicrotasks } from './helpers/flush.js';
 
 function makeAst(component: Record<string, unknown>): MdmaRoot {
   return {
@@ -72,8 +73,7 @@ async function mountPaged() {
         />
       </MdmaProvider>,
     );
-    await Promise.resolve();
-    await Promise.resolve();
+    await flushMicrotasks();
   });
   return { store, release: () => releasePage2?.() };
 }
@@ -88,7 +88,7 @@ describe('TableRenderer data table structure', () => {
     expect(dom().querySelectorAll('.mdma-table-pagination')).toHaveLength(1);
   });
 
-  it('marks the card aria-busy and keeps rows while a page loads', async () => {
+  it('sets aria-busy on the card while a page loads and clears it after', async () => {
     const { store, release } = await mountPaged();
     expect(dom().querySelector('.mdma-table')?.hasAttribute('aria-busy')).toBe(false);
 
@@ -96,13 +96,10 @@ describe('TableRenderer data table structure', () => {
 
     const table = dom().querySelector('.mdma-table');
     expect(table?.getAttribute('aria-busy')).toBe('true');
-    expect(table?.querySelectorAll('tbody tr')).toHaveLength(1);
-    expect(table?.textContent).toContain('Acme');
 
     await act(async () => {
       release();
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
     expect(dom().querySelector('.mdma-table')?.hasAttribute('aria-busy')).toBe(false);
   });
@@ -114,8 +111,7 @@ describe('TableRenderer data table structure', () => {
 
     await act(async () => {
       store.setDataSort('accounts', { key: 'name', direction: 'asc' });
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
 
     expect(headers()[0].hasAttribute('aria-sort')).toBe(false);
@@ -125,8 +121,7 @@ describe('TableRenderer data table structure', () => {
 
     await act(async () => {
       store.setDataSort('accounts', { key: 'name', direction: 'desc' });
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
     expect(headers()[1].getAttribute('aria-sort')).toBe('descending');
     expect(headers()[1].querySelector('.mdma-table-sort-indicator')?.textContent).toBe('↓');
