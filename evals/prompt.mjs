@@ -41,7 +41,7 @@ export const CUSTOM_COMPONENTS = [
  * even when the provider is pinned in the config's `providers:` block rather
  * than via the env var. If a model-specialized variant lives at
  * packages/prompt-pack/src/prompts/mdma-author/<family>/<model>.ts, it wins
- * over the default. Resolution is memoized per provider id so the selector
+ * over the default. Resolution is memoized per provider id and data-source flag so the selector
  * runs once per model per eval run.
  */
 const promptByProvider = new Map();
