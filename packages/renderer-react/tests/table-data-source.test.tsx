@@ -7,6 +7,7 @@ import { act } from 'react';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import { MdmaProvider } from '../src/context/MdmaProvider.js';
+import { ElementOverridesProvider } from '../src/context/ElementOverridesContext.js';
 import { TableRenderer } from '../src/components/TableRenderer.js';
 
 function makeAst(component: Record<string, unknown>): MdmaRoot {
@@ -147,5 +148,65 @@ describe('TableRenderer with a data source ref', () => {
     });
     expect(container.textContent).toContain('Page Two');
     expect(container.textContent).not.toContain('Loading');
+  });
+
+  it('routes the reload indicator through the dataLoading override with reloading set', async () => {
+    let releasePage2: (() => void) | undefined;
+    const resolver = vi.fn(async (req: { page?: number }) => {
+      if (req.page === 2) {
+        await new Promise<void>((resolve) => {
+          releasePage2 = resolve;
+        });
+        return { rows: [{ id: 21, name: 'Page Two' }], total: 40 };
+      }
+      return { rows: [{ id: 1, name: 'Acme' }], total: 40 };
+    });
+    const component = {
+      id: 'accounts',
+      type: 'table',
+      sensitive: false,
+      disabled: false,
+      visible: true,
+      pageSize: 20,
+      columns: [{ key: 'name', header: 'Name' }],
+      data: { source: 'accounts' },
+    };
+    const store = createDocumentStore(makeAst(component), {
+      dataSources: { accounts: resolver },
+    });
+    const CustomLoading = ({ reloading }: { reloading?: boolean }) => (
+      <i className="custom-loading">{reloading ? 'reload' : 'first'}</i>
+    );
+
+    container = document.createElement('div');
+    document.body.appendChild(container);
+    root = createRoot(container);
+    await act(async () => {
+      root!.render(
+        <MdmaProvider store={store}>
+          <ElementOverridesProvider value={{ table: { dataLoading: CustomLoading } }}>
+            <TableRenderer
+              component={component as never}
+              componentState={store.getComponentState('accounts')}
+              dispatch={(action) => store.dispatch(action)}
+              resolveBinding={(expr) => store.resolveBinding(expr)}
+            />
+          </ElementOverridesProvider>
+        </MdmaProvider>,
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+    expect(container.querySelector('.custom-loading')).toBeNull();
+
+    act(() => store.setDataPage('accounts', 2));
+
+    expect(container.querySelector('.custom-loading')?.textContent).toBe('reload');
+    expect(container.textContent).toContain('Acme');
+
+    await act(async () => {
+      releasePage2?.();
+      await Promise.resolve();
+    });
   });
 });

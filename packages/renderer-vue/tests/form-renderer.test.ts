@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { flushPromises } from '@vue/test-utils';
 import { defineComponent, h, type PropType } from 'vue';
 import { FormRenderer } from '../src/components/FormRenderer.js';
 import { mdma } from './helpers/doc.js';
@@ -88,6 +89,29 @@ describe('FormRenderer', () => {
 
     await wrapper.find('#intake-country').setValue('jp');
     expect(store.getComponentState('intake')?.values.country).toBe('jp');
+  });
+
+  it('resolves a string select from the store data source', async () => {
+    const { wrapper } = await mountForm({
+      storeDataSources: { countries: [{ label: 'Poland', value: 'pl' }] },
+    });
+    await flushPromises();
+    expect(wrapper.findAll('#intake-country option').map((o) => o.text())).toEqual([
+      'Select...',
+      'Poland',
+    ]);
+  });
+
+  it('prefers the store data source over customizations.dataSources', async () => {
+    const { wrapper } = await mountForm({
+      storeDataSources: { countries: [{ label: 'Poland', value: 'pl' }] },
+      dataSources: { countries: [{ label: 'Japan', value: 'jp' }] },
+    });
+    await flushPromises();
+    expect(wrapper.findAll('#intake-country option').map((o) => o.text())).toEqual([
+      'Select...',
+      'Poland',
+    ]);
   });
 
   it('resolves select options from a named data source, and empties when unknown', async () => {
