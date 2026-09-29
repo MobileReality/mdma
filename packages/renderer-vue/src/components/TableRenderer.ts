@@ -1,9 +1,9 @@
-import { defineComponent, h, ref } from 'vue';
-import { isDataSourceRef, type TableColumn, type TableComponent } from '@mobile-reality/mdma-spec';
-import { blockRendererProps } from '../renderers/renderer-props.js';
+import { type TableColumn, type TableComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
+import { type VNode, defineComponent, h, ref } from 'vue';
 import { useDataState, useDocumentStore } from '../composables/use-document-store.js';
 import { useElementOverride } from '../context/ElementOverridesContext.js';
-import { DefaultDataLoading, DefaultDataError, DefaultDataEmpty } from './DataStateViews.js';
+import { blockRendererProps } from '../renderers/renderer-props.js';
+import { DefaultDataEmpty, DefaultDataError, DefaultDataLoading } from './DataStateViews.js';
 
 const MaskedCell = defineComponent({
   name: 'MdmaMaskedCell',
@@ -33,71 +33,98 @@ function renderTableBody(
   resolveBinding: ((expr: string) => unknown) | undefined,
   sort: { key: string; direction: 'asc' | 'desc' } | undefined,
   onSort: ((key: string) => void) | undefined,
+  chrome: { busy?: boolean; indicator?: VNode | null; footer?: VNode | null } = {},
 ) {
   const sensitiveKeys = new Set(
     component.columns.filter((col) => col.sensitive).map((col) => col.key),
   );
 
-  return h('div', { class: 'mdma-table', 'data-component-id': component.id }, [
-    component.label ? h('h3', { class: 'mdma-table-label' }, component.label) : null,
-    h('table', [
-      h('thead', [
-        h(
-          'tr',
-          component.columns.map((col: TableColumn) =>
-            h(
-              'th',
-              {
-                key: col.key,
-                style: col.width ? { width: col.width } : undefined,
-                class: onSort && col.sortable ? 'mdma-table-sortable' : undefined,
-                onClick: onSort && col.sortable ? () => onSort(col.key) : undefined,
-              },
-              [
-                col.header,
-                sort?.key === col.key ? (sort.direction === 'asc' ? ' ↑' : ' ↓') : null,
-                col.sensitive
-                  ? h(
-                      'span',
-                      { class: 'mdma-sensitive-badge', title: 'Sensitive column (PII)' },
-                      '\u{1F512}',
-                    )
-                  : null,
-              ],
-            ),
-          ),
-        ),
-      ]),
-      h('tbody', [
-        ...data.map((row, i) =>
+  return h(
+    'div',
+    {
+      class: 'mdma-table',
+      'data-component-id': component.id,
+      'aria-busy': chrome.busy ? 'true' : undefined,
+    },
+    [
+      chrome.indicator ?? null,
+      component.label ? h('h3', { class: 'mdma-table-label' }, component.label) : null,
+      h('table', [
+        h('thead', [
           h(
             'tr',
-            { key: i },
-            component.columns.map((col: TableColumn) => {
-              const raw = (row as Record<string, unknown>)[col.key] ?? '';
-              const resolved =
-                resolveBinding && typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
-                  ? resolveBinding(raw)
-                  : raw;
-              const cellValue = String(resolved ?? '');
-              return h(
-                'td',
-                { key: col.key },
-                sensitiveKeys.has(col.key) && cellValue
-                  ? h(MaskedCell, { value: cellValue })
-                  : cellValue,
-              );
-            }),
+            component.columns.map((col: TableColumn) =>
+              h(
+                'th',
+                {
+                  key: col.key,
+                  style: col.width ? { width: col.width } : undefined,
+                  class: onSort && col.sortable ? 'mdma-table-sortable' : undefined,
+                  'aria-sort':
+                    sort?.key === col.key
+                      ? sort.direction === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : undefined,
+                  onClick: onSort && col.sortable ? () => onSort(col.key) : undefined,
+                },
+                [
+                  col.header,
+                  sort?.key === col.key
+                    ? h(
+                        'span',
+                        { class: 'mdma-table-sort-indicator', 'aria-hidden': 'true' },
+                        sort.direction === 'asc' ? '↑' : '↓',
+                      )
+                    : null,
+                  col.sensitive
+                    ? h(
+                        'span',
+                        { class: 'mdma-sensitive-badge', title: 'Sensitive column (PII)' },
+                        '\u{1F512}',
+                      )
+                    : null,
+                ],
+              ),
+            ),
           ),
-        ),
-        data.length === 0
-          ? h('tr', [
-              h('td', { colspan: component.columns.length, class: 'mdma-table-empty' }, 'No data'),
-            ])
-          : null,
+        ]),
+        h('tbody', [
+          ...data.map((row, i) =>
+            h(
+              'tr',
+              { key: i },
+              component.columns.map((col: TableColumn) => {
+                const raw = (row as Record<string, unknown>)[col.key] ?? '';
+                const resolved =
+                  resolveBinding && typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
+                    ? resolveBinding(raw)
+                    : raw;
+                const cellValue = String(resolved ?? '');
+                return h(
+                  'td',
+                  { key: col.key },
+                  sensitiveKeys.has(col.key) && cellValue
+                    ? h(MaskedCell, { value: cellValue })
+                    : cellValue,
+                );
+              }),
+            ),
+          ),
+          data.length === 0
+            ? h('tr', [
+                h(
+                  'td',
+                  { colspan: component.columns.length, class: 'mdma-table-empty' },
+                  'No data',
+                ),
+              ])
+            : null,
+        ]),
       ]),
-    ]),
-  ]);
+      chrome.footer ?? null,
+    ],
+  );
 }
 
 const DataDrivenTable = defineComponent({
@@ -143,8 +170,6 @@ const DataDrivenTable = defineComponent({
         store.value.setDataSort(component.id, next);
       };
 
-      const body = renderTableBody(component, state.rows, undefined, state.sort, onSort);
-
       const pagination =
         pageCount > 1
           ? h('div', { class: 'mdma-table-pagination' }, [
@@ -157,7 +182,11 @@ const DataDrivenTable = defineComponent({
                 },
                 'Prev',
               ),
-              h('span', `Page ${state.page} / ${pageCount}`),
+              h(
+                'span',
+                { class: 'mdma-table-pagination-status' },
+                `Page ${state.page} / ${pageCount}`,
+              ),
               h(
                 'button',
                 {
@@ -170,16 +199,16 @@ const DataDrivenTable = defineComponent({
             ])
           : null;
 
-      return h('div', { 'aria-busy': isReloading ? 'true' : undefined }, [
-        isReloading
+      return renderTableBody(component, state.rows, undefined, state.sort, onSort, {
+        busy: isReloading,
+        indicator: isReloading
           ? h(DataLoading.value ?? DefaultDataLoading, {
               componentId: component.id,
               reloading: true,
             })
           : null,
-        body,
-        pagination,
-      ]);
+        footer: pagination,
+      });
     };
   },
 });

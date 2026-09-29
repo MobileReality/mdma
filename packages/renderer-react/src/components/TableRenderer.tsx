@@ -1,9 +1,9 @@
-import { memo, useState } from 'react';
-import { isDataSourceRef, type TableComponent, type TableColumn } from '@mobile-reality/mdma-spec';
-import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
-import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
+import { type TableColumn, type TableComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
+import { type ReactNode, memo, useState } from 'react';
 import { useElementOverride } from '../context/ElementOverridesContext.js';
-import { DefaultDataLoading, DefaultDataError, DefaultDataEmpty } from './DataStateViews.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
+import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
+import { DefaultDataEmpty, DefaultDataError, DefaultDataLoading } from './DataStateViews.js';
 
 function MaskedCell({ value }: { value: string }) {
   const [revealed, setRevealed] = useState(false);
@@ -63,43 +63,45 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
   const total = dataState.total ?? dataState.rows.length;
   const pageCount = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
 
+  const pagination =
+    pageCount > 1 ? (
+      <div className="mdma-table-pagination">
+        <button
+          type="button"
+          disabled={dataState.page <= 1}
+          onClick={() => store.setDataPage(component.id, dataState.page - 1)}
+        >
+          Prev
+        </button>
+        <span className="mdma-table-pagination-status">
+          Page {dataState.page} / {pageCount}
+        </span>
+        <button
+          type="button"
+          disabled={dataState.page >= pageCount}
+          onClick={() => store.setDataPage(component.id, dataState.page + 1)}
+        >
+          Next
+        </button>
+      </div>
+    ) : null;
+
   return (
-    <div aria-busy={isReloading}>
-      {isReloading && <DataLoading componentId={component.id} reloading />}
-      <TableBody
-        component={component}
-        data={dataState.rows}
-        sort={dataState.sort}
-        onSort={(key) => {
-          const next =
-            dataState.sort?.key === key && dataState.sort.direction === 'asc'
-              ? { key, direction: 'desc' as const }
-              : { key, direction: 'asc' as const };
-          store.setDataSort(component.id, next);
-        }}
-      />
-      {pageCount > 1 && (
-        <div className="mdma-table-pagination">
-          <button
-            type="button"
-            disabled={dataState.page <= 1}
-            onClick={() => store.setDataPage(component.id, dataState.page - 1)}
-          >
-            Prev
-          </button>
-          <span>
-            Page {dataState.page} / {pageCount}
-          </span>
-          <button
-            type="button"
-            disabled={dataState.page >= pageCount}
-            onClick={() => store.setDataPage(component.id, dataState.page + 1)}
-          >
-            Next
-          </button>
-        </div>
-      )}
-    </div>
+    <TableBody
+      component={component}
+      data={dataState.rows}
+      sort={dataState.sort}
+      busy={isReloading}
+      indicator={isReloading ? <DataLoading componentId={component.id} reloading /> : null}
+      footer={pagination}
+      onSort={(key) => {
+        const next =
+          dataState.sort?.key === key && dataState.sort.direction === 'asc'
+            ? { key, direction: 'desc' as const }
+            : { key, direction: 'asc' as const };
+        store.setDataSort(component.id, next);
+      }}
+    />
   );
 }
 
@@ -109,19 +111,26 @@ function TableBody({
   sort,
   onSort,
   resolveBinding,
+  busy,
+  indicator,
+  footer,
 }: {
   component: TableComponent;
   data: unknown[];
   sort?: { key: string; direction: 'asc' | 'desc' };
   onSort?: (key: string) => void;
   resolveBinding?: (expr: string) => unknown;
+  busy?: boolean;
+  indicator?: ReactNode;
+  footer?: ReactNode;
 }) {
   const sensitiveKeys = new Set(
     component.columns.filter((col) => col.sensitive).map((col) => col.key),
   );
 
   return (
-    <div className="mdma-table" data-component-id={component.id}>
+    <div className="mdma-table" data-component-id={component.id} aria-busy={busy || undefined}>
+      {indicator}
       {component.label && <h3 className="mdma-table-label">{component.label}</h3>}
       <table>
         <thead>
@@ -132,9 +141,20 @@ function TableBody({
                 style={col.width ? { width: col.width } : undefined}
                 onClick={onSort && col.sortable ? () => onSort(col.key) : undefined}
                 className={onSort && col.sortable ? 'mdma-table-sortable' : undefined}
+                aria-sort={
+                  sort?.key === col.key
+                    ? sort.direction === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : undefined
+                }
               >
                 {col.header}
-                {sort?.key === col.key && (sort.direction === 'asc' ? ' ↑' : ' ↓')}
+                {sort?.key === col.key && (
+                  <span className="mdma-table-sort-indicator" aria-hidden="true">
+                    {sort.direction === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
                 {col.sensitive && (
                   <span className="mdma-sensitive-badge" title="Sensitive column (PII)">
                     &#128274;
@@ -175,6 +195,7 @@ function TableBody({
           )}
         </tbody>
       </table>
+      {footer}
     </div>
   );
 }
