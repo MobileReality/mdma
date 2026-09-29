@@ -38,7 +38,6 @@ export interface DocumentStoreOptions {
    * edits during streaming re-parses.
    */
   initialState?: Record<string, Record<string, unknown>>;
-  /** Host-registered external data sources for `{ source, params }` refs in select options, table.data, chart.data. */
   dataSources?: DataSourceMap;
 }
 
@@ -97,9 +96,14 @@ export function createDocumentStore(
     },
   });
 
-  /** Called on every parse of `comp`, not only its first — a still-streaming block can reparse
-   *  into a valid MdmaBlock with a truncated data ref before the real one lands, so freezing the
-   *  ref at first sight would leave the slot stuck on it. */
+  function optionsRef(options: unknown) {
+    if (isDataSourceRef(options)) return options;
+    if (typeof options === 'string' && dataManager.hasSource(options)) {
+      return { source: options };
+    }
+    return undefined;
+  }
+
   function syncComponentDataSlots(comp: MdmaBlock['component']) {
     if (comp.type === 'table') {
       if (isDataSourceRef(comp.data)) {
@@ -116,8 +120,9 @@ export function createDocumentStore(
     } else if (comp.type === 'form') {
       for (const field of comp.fields) {
         const key = `${comp.id}.${field.name}`;
-        if (isDataSourceRef(field.options)) {
-          dataManager.sync(key, field.options, state.bindings);
+        const ref = optionsRef(field.options);
+        if (ref) {
+          dataManager.sync(key, ref, state.bindings);
         } else {
           dataManager.unregister(key);
         }
@@ -158,6 +163,7 @@ export function createDocumentStore(
   };
 
   // Initialize components from AST
+  dataManager.beginBatch();
   for (const child of ast.children) {
     if (isMdmaBlock(child)) {
       const comp = child.component;
@@ -198,11 +204,7 @@ export function createDocumentStore(
     }
   }
 
-  // A ref registered above may bind to a component that comes later in document order — its
-  // default value wasn't in `state.bindings` yet when that ref's slot resolved its params. Now
-  // that every component's defaults are seeded, re-resolve every slot's params against the
-  // settled bindings; `onBindingsChanged` only refetches the ones that actually changed.
-  dataManager.onBindingsChanged(state.bindings);
+  dataManager.endBatch(state.bindings);
 
   function logAction(action: StoreAction) {
     const eventTypeMap: Record<StoreAction['type'], EventType> = {
@@ -368,6 +370,7 @@ export function createDocumentStore(
       }
 
       // Add new components, preserve existing ones
+      dataManager.beginBatch();
       for (const child of newAst.children) {
         if (!isMdmaBlock(child)) continue;
         const comp = child.component;
@@ -425,10 +428,7 @@ export function createDocumentStore(
         syncComponentDataSlots(comp);
       }
 
-      // Mirrors the constructor: a ref registered above may bind to a component seeded later in
-      // this same pass (forward reference), so its first-resolved params can be stale until every
-      // component's defaults have landed in `state.bindings`.
-      dataManager.onBindingsChanged(state.bindings);
+      dataManager.endBatch(state.bindings);
 
       notify();
     },

@@ -162,8 +162,7 @@ describe('DataSourceManager via DocumentStore', () => {
 
     expect(store.getDataState('accounts')?.status).toBe('loading');
 
-    // resolveAllData re-fetches every registered slot, including one already mid-flight —
-    // this must not join the just-aborted in-flight request and fail with it.
+    // must not join the just-aborted in-flight request and fail with it
     await store.resolveAllData();
 
     expect(store.getDataState('accounts')?.status).toBe('ready');
@@ -274,8 +273,6 @@ describe('DataSourceManager via DocumentStore', () => {
 
     const store = createDocumentStore(ast, { dataSources: { accounts: resolver } });
 
-    // The corrective fetch goes through the same binding-change debounce as any other param
-    // change, so this settles a little after the first (stale) resolve rather than immediately.
     await vi.waitFor(
       () => {
         expect(calls.at(-1)?.params.region).toBe('eu');
@@ -417,5 +414,102 @@ describe('DataSourceManager via DocumentStore', () => {
       expect(store.getDataState('b')?.status).toBe('ready');
     });
     expect(store.getDataState('b')?.rows).toEqual([{ id: 1 }]);
+  });
+
+  it('never fires a fetch with stale params for a forward-referenced binding', async () => {
+    const calls: DataRequest[] = [];
+    const resolver = vi.fn(async (req: DataRequest): Promise<DataResult> => {
+      calls.push(req);
+      return { rows: [{ id: 1 }], total: 1 };
+    });
+    const ast = makeAst([
+      {
+        id: 'accounts',
+        type: 'table',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        columns: [{ key: 'id', header: 'ID' }],
+        data: { source: 'accounts', params: { region: '{{filters.region}}' } },
+      },
+      {
+        id: 'filters',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        onSubmit: 'apply',
+        fields: [{ name: 'region', type: 'select', label: 'Region', defaultValue: 'eu' }],
+      },
+    ]);
+
+    const store = createDocumentStore(ast, { dataSources: { accounts: resolver } });
+    await store.resolveAllData();
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    expect(calls.every((c) => c.params.region === 'eu')).toBe(true);
+    expect(calls).toHaveLength(2);
+  });
+
+  it('does not refetch after resolveAllData when a param change had a pending debounce', async () => {
+    vi.useFakeTimers();
+    try {
+      const resolver = vi.fn(async (): Promise<DataResult> => ({ rows: [{ id: 1 }], total: 1 }));
+      const store = createDocumentStore(tableAst(), { dataSources: { accounts: resolver } });
+      await store.resolveAllData();
+      resolver.mockClear();
+
+      store.dispatch({
+        type: 'FIELD_CHANGED',
+        componentId: 'filters',
+        field: 'service',
+        value: 'billing',
+      });
+      await store.resolveAllData();
+      expect(resolver).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(resolver).toHaveBeenCalledTimes(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('resolves a string options ref from the store data sources', async () => {
+    const ast = makeAst([
+      {
+        id: 'intake',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        onSubmit: 'go',
+        fields: [{ name: 'country', type: 'select', label: 'Country', options: 'countries' }],
+      },
+    ]);
+    const store = createDocumentStore(ast, {
+      dataSources: { countries: [{ label: 'Poland', value: 'PL' }] },
+    });
+
+    await store.resolveAllData();
+
+    expect(store.getDataState('intake.country')?.rows).toEqual([{ label: 'Poland', value: 'PL' }]);
+  });
+
+  it('leaves a string options name unregistered when the store has no such source', () => {
+    const ast = makeAst([
+      {
+        id: 'intake',
+        type: 'form',
+        sensitive: false,
+        disabled: false,
+        visible: true,
+        onSubmit: 'go',
+        fields: [{ name: 'country', type: 'select', label: 'Country', options: 'countries' }],
+      },
+    ]);
+    const store = createDocumentStore(ast, { dataSources: {} });
+
+    expect(store.getDataState('intake.country')).toBeUndefined();
   });
 });

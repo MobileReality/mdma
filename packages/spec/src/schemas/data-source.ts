@@ -15,8 +15,6 @@ export const DataSourceRefSchema = z.object({
 export type DataSourceParamValue = z.infer<typeof DataSourceParamValueSchema>;
 export type DataSourceRef = z.infer<typeof DataSourceRefSchema>;
 
-/** Narrows a `table.data`/`chart.data`/`field.options` value to a `{ source, params? }` ref —
- *  the one shape every renderer and the runtime store need to detect the same way. */
 export function isDataSourceRef(value: unknown): value is DataSourceRef {
   return (
     typeof value === 'object' &&

@@ -151,6 +151,7 @@ export class DataSourceManager {
   private readonly onLog: DataSourceManagerOptions['onLog'];
   private readonly onChange: DataSourceManagerOptions['onChange'];
   private readonly slots = new Map<string, DataSlot>();
+  private deferredKeys: Set<string> | undefined;
   private readonly cache = new Map<
     string,
     { promise: Promise<DataResult>; controller: AbortController; refCount: number }
@@ -193,12 +194,29 @@ export class DataSourceManager {
       },
     };
     this.slots.set(key, slot);
-    this.fetch(slot);
+    this.requestFetch(slot);
   }
 
-  /** A binding-only param change goes through `onBindingsChanged` instead — this only reacts to
-   *  a structural change to the ref itself (e.g. a streamed block reparsing with a different
-   *  source/params). */
+  hasSource(name: string): boolean {
+    return name in this.dataSources;
+  }
+
+  beginBatch(): void {
+    this.deferredKeys = new Set();
+  }
+
+  endBatch(bindings: Record<string, unknown>): void {
+    const deferred = this.deferredKeys ?? new Set<string>();
+    this.deferredKeys = undefined;
+    for (const key of deferred) {
+      const slot = this.slots.get(key);
+      if (!slot) continue;
+      slot.resolvedParams = resolveParams(slot.ref.params, bindings);
+      this.fetch(slot);
+    }
+    this.onBindingsChanged(bindings);
+  }
+
   sync(
     key: string,
     ref: { source: string; params?: Record<string, unknown> },
@@ -215,7 +233,7 @@ export class DataSourceManager {
     slot.pageSize = options.pageSize;
     slot.resolvedParams = resolveParams(ref.params, bindings);
     slot.state = { ...slot.state, page: 1, pageSize: options.pageSize };
-    this.fetch(slot);
+    this.requestFetch(slot);
   }
 
   unregister(key: string): void {
@@ -224,6 +242,7 @@ export class DataSourceManager {
     slot.fetchToken++;
     slot.abortController?.abort();
     if (slot.debounceTimer) clearTimeout(slot.debounceTimer);
+    this.deferredKeys?.delete(key);
     this.slots.delete(key);
   }
 
@@ -272,6 +291,11 @@ export class DataSourceManager {
     await Promise.all([...this.slots.values()].map((slot) => this.fetch(slot)));
   }
 
+  private requestFetch(slot: DataSlot): void {
+    if (this.deferredKeys) this.deferredKeys.add(slot.key);
+    else this.fetch(slot);
+  }
+
   private scheduleFetch(slot: DataSlot): void {
     if (slot.debounceTimer) clearTimeout(slot.debounceTimer);
     slot.abortController?.abort();
@@ -282,6 +306,10 @@ export class DataSourceManager {
   }
 
   private async fetch(slot: DataSlot): Promise<void> {
+    if (slot.debounceTimer) {
+      clearTimeout(slot.debounceTimer);
+      slot.debounceTimer = undefined;
+    }
     slot.abortController?.abort();
     const controller = new AbortController();
     slot.abortController = controller;
@@ -301,8 +329,7 @@ export class DataSourceManager {
 
     slot.state = { ...slot.state, status: 'loading', error: undefined };
     this.onChange?.();
-    // Param values may come from sensitive bindings — log the shape, never the values, so
-    // this event never needs its own pass through the redactor.
+    // param values may be sensitive: log keys only, so the event skips the redactor
     this.log(slot, 'data_loading', {
       source: slot.ref.source,
       paramKeys: Object.keys(slot.resolvedParams),
@@ -354,9 +381,7 @@ export class DataSourceManager {
   ): Promise<DataResult> {
     const key = cacheKey(request.source, request);
     let entry = this.cache.get(key);
-    // A same-key entry whose controller already aborted is on its way out (eviction runs in a
-    // microtask, in `.finally`) but isn't gone yet — joining it here would await a promise that
-    // is guaranteed to reject/never resolve for this caller. Treat it as if it weren't cached.
+    // an aborted entry is evicted in a microtask and can still be cached; joining it would never resolve
     if (entry?.controller.signal.aborted) entry = undefined;
 
     if (!entry) {
@@ -369,9 +394,7 @@ export class DataSourceManager {
       });
       entry = { promise, controller, refCount: 0 };
       this.cache.set(key, entry);
-      // Every real caller awaits `entry.promise` itself (and so observes a rejection) — this
-      // second chain exists purely for the cache-eviction side effect, so it must swallow the
-      // rejection itself instead of leaving it unhandled.
+      // callers observe rejections via entry.promise; this chain only evicts, so it must swallow them
       promise
         .catch(() => {})
         .finally(() => {
@@ -381,8 +404,7 @@ export class DataSourceManager {
 
     const current = entry;
     current.refCount++;
-    // A caller aborting only means IT no longer needs the result — the underlying request keeps
-    // going for any other slot sharing this in-flight fetch, and is only cancelled once nobody does.
+    // the shared request is cancelled only when its last caller aborts
     const onCallerAbort = () => {
       current.refCount--;
       if (current.refCount <= 0) current.controller.abort();
