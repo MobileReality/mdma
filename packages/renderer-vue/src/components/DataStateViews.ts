@@ -40,9 +40,15 @@ export const DefaultDataError = defineComponent({
 
 export const DefaultDataEmpty = defineComponent({
   name: 'MdmaDataEmpty',
-  props: { componentId: { type: String, required: true } },
+  props: {
+    componentId: { type: String, required: true },
+    label: { type: String, default: undefined },
+  },
   setup(props) {
     return () =>
-      h('div', { class: 'mdma-data-empty', 'data-component-id': props.componentId }, 'No data');
+      h('div', { class: 'mdma-data-empty', 'data-component-id': props.componentId }, [
+        props.label ? h('div', { class: 'mdma-chart-label' }, props.label) : null,
+        'No data',
+      ]);
   },
 });
