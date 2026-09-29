@@ -1,4 +1,5 @@
-import type { DataSourceDescriptor } from '@mobile-reality/mdma-spec';
+import { indexDataSources } from '@mobile-reality/mdma-spec';
+import type { DataSourceDefinition, DataSourceDescriptor } from '@mobile-reality/mdma-spec';
 import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 
 /**
@@ -38,7 +39,7 @@ export interface BuildSystemPromptOptions {
    * with `{ source, params }` instead of generating rows. Omit (or pass empty)
    * and the prompt is unchanged.
    */
-  dataSources?: DataSourceDescriptor[];
+  dataSources?: readonly DataSourceDefinition[];
 }
 
 /** Render the host's custom-component catalog the model authors `custom` blocks against. */
@@ -59,7 +60,7 @@ The host has registered these custom components. To use one, emit a \`custom\` b
 ${items}`;
 }
 
-function renderDataSourceCatalog(sources: DataSourceDescriptor[]): string {
+function renderDataSourceCatalog(sources: readonly DataSourceDescriptor[]): string {
   const items = sources
     .map((source) => {
       const lines = [`- **${source.name}** (kind: ${source.kind})`];
@@ -131,6 +132,7 @@ export function buildSystemPrompt(options: BuildSystemPromptOptions = {}): strin
   const catalog = customComponents?.length
     ? `\n\n---\n\n${renderCustomCatalog(customComponents)}`
     : '';
+  if (dataSources) indexDataSources(dataSources);
   const dataCatalog = dataSources?.length
     ? `\n\n---\n\n${renderDataSourceCatalog(dataSources)}`
     : '';

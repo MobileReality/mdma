@@ -15,7 +15,10 @@ function createBlock(index: number, data: Record<string, unknown>): ParsedBlock 
   };
 }
 
-function createContext(blocks: ParsedBlock[], options: ValidatorOptions = {}): ValidationRuleContext {
+function createContext(
+  blocks: ParsedBlock[],
+  options: ValidatorOptions = {},
+): ValidationRuleContext {
   const idMap = new Map<string, number>();
   for (const block of blocks) {
     if (block.data && typeof block.data.id === 'string') idMap.set(block.data.id, block.index);
@@ -214,7 +217,10 @@ describe('data-source rule', () => {
         createBlock(0, {
           type: 'table',
           id: 't',
-          columns: [{ key: 'id', header: 'ID' }, { key: 'ghost', header: 'Ghost' }],
+          columns: [
+            { key: 'id', header: 'ID' },
+            { key: 'ghost', header: 'Ghost' },
+          ],
           data: { source: 'accounts', params: { service: 'billing' } },
         }),
       ],
@@ -298,9 +304,7 @@ describe('data-source rule', () => {
         createBlock(0, {
           type: 'form',
           id: 'f',
-          fields: [
-            { name: 'country', type: 'select', label: 'Country', options: '{{countries}}' },
-          ],
+          fields: [{ name: 'country', type: 'select', label: 'Country', options: '{{countries}}' }],
         }),
       ],
       { dataSourceCatalog: { accounts: accountsDescriptor } },
@@ -322,5 +326,28 @@ describe('data-source rule', () => {
     );
     dataSourceRule.validate(ctx);
     expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('accepts a DataSourceDefinition array as the catalog', () => {
+    const tableWith = (source: string) =>
+      createBlock(0, {
+        type: 'table',
+        id: 't',
+        columns: [{ key: 'id', header: 'ID' }],
+        data: { source, params: { service: 'billing' } },
+      });
+    const known = createContext([tableWith('accounts')], {
+      dataSourceCatalog: [{ ...accountsDescriptor, resolve: async () => ({ rows: [] }) }],
+    });
+    dataSourceRule.validate(known);
+    expect(known.issues).toHaveLength(0);
+
+    const unknown = createContext([tableWith('nope')], {
+      dataSourceCatalog: [accountsDescriptor],
+    });
+    dataSourceRule.validate(unknown);
+    expect(unknown.issues.some((issue) => issue.message.includes('Unknown data source'))).toBe(
+      true,
+    );
   });
 });
