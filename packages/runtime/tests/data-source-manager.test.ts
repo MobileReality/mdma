@@ -542,6 +542,19 @@ describe('DataSourceManager batching', () => {
     expect(resolver).toHaveBeenCalledTimes(2);
   });
 
+  it('surfaces the callback error when endBatch also throws', () => {
+    const { manager } = setup();
+    vi.spyOn(manager, 'endBatch').mockImplementation(() => {
+      throw new Error('end failed');
+    });
+
+    expect(() =>
+      manager.runBatch({}, () => {
+        throw new Error('boom');
+      }),
+    ).toThrow('boom');
+  });
+
   it('keeps the outer batch deferred keys when a nested batch ends', () => {
     const { resolver, manager } = setup();
 

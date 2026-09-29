@@ -222,11 +222,17 @@ export class DataSourceManager {
 
   runBatch<T>(bindings: Record<string, unknown>, fn: () => T): T {
     this.beginBatch();
+    let result: T;
     try {
-      return fn();
-    } finally {
-      this.endBatch(bindings);
+      result = fn();
+    } catch (error) {
+      try {
+        this.endBatch(bindings);
+      } catch {}
+      throw error;
     }
+    this.endBatch(bindings);
+    return result;
   }
 
   sync(
