@@ -2,11 +2,13 @@ import fs from 'node:fs';
 import chalk from 'chalk';
 import { globby } from 'globby';
 import { validate } from '@mobile-reality/mdma-validator';
+import { loadDataSources, toCatalog } from './load-data-sources.js';
 import type { ValidationIssue, ValidationResult } from '@mobile-reality/mdma-validator';
 
 interface ValidateOptions {
   fix: boolean;
   json: boolean;
+  dataSources?: string;
 }
 
 function severityColor(severity: string): (text: string) => string {
@@ -51,6 +53,10 @@ export async function validateCommand(patterns: string[], options: ValidateOptio
     process.exit(0);
   }
 
+  const dataSourceCatalog = options.dataSources
+    ? toCatalog(loadDataSources(options.dataSources))
+    : undefined;
+
   let totalErrors = 0;
   let totalWarnings = 0;
   let totalFixed = 0;
@@ -58,7 +64,7 @@ export async function validateCommand(patterns: string[], options: ValidateOptio
 
   for (const file of files) {
     const markdown = fs.readFileSync(file, 'utf-8');
-    const result = validate(markdown, { autoFix: options.fix });
+    const result = validate(markdown, { autoFix: options.fix, dataSourceCatalog });
 
     allResults[file] = result;
     totalErrors += result.summary.errors;

@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
+import { DataSourceDescriptorSchema } from '@mobile-reality/mdma-spec';
 import { getSpec } from './tools/get-spec.js';
 import { getPrompt } from './tools/get-prompt.js';
 import { buildPrompt } from './tools/build-system-prompt.js';
@@ -55,7 +56,7 @@ export function createMdmaMcpServer(): McpServer {
 
   server.tool(
     'build-system-prompt',
-    'Generates a custom MDMA prompt from structured input (domain, components, fields, steps). Returns only the custom prompt part — use buildSystemPrompt({ customPrompt }) in code to combine it with the base MDMA spec.',
+    'Generates a custom MDMA prompt from structured input (domain, components, fields, steps). Returns only the custom prompt part — use buildSystemPrompt({ customPrompt }) in code to combine it with the base MDMA spec. When dataSources (an external data-source catalog) is passed, returns the full system prompt instead: base MDMA spec, the data-source catalog with the rule to reference it via { source, params }, and the custom part.',
     {
       domain: z
         .string()
@@ -90,6 +91,12 @@ export function createMdmaMcpServer(): McpServer {
         .optional()
         .describe('Multi-step flow definitions — each step becomes a separate conversation turn'),
       businessRules: z.string().optional().describe('Business rules or constraints'),
+      dataSources: z
+        .array(DataSourceDescriptorSchema)
+        .optional()
+        .describe(
+          'External data-source catalog (name, description, kind, columns, params). The model is told to reference these via { source, params } instead of generating rows.',
+        ),
     },
     async (input) => ({
       content: [{ type: 'text', text: buildPrompt(input) }],

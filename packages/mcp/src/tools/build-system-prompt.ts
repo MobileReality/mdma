@@ -1,4 +1,5 @@
-import { COMPONENT_TYPES } from '@mobile-reality/mdma-spec';
+import { COMPONENT_TYPES, type DataSourceDescriptor } from '@mobile-reality/mdma-spec';
+import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 
 export interface FieldDefinition {
   name: string;
@@ -25,6 +26,8 @@ export interface BuildPromptInput {
   steps?: FlowStep[];
   /** Business rules or constraints */
   businessRules?: string;
+  /** External data-source catalog; when set, the result is the full system prompt including the catalog */
+  dataSources?: DataSourceDescriptor[];
 }
 
 const VALID_TYPES = new Set(COMPONENT_TYPES as readonly string[]);
@@ -120,9 +123,14 @@ export function buildPrompt(input: BuildPromptInput): string {
     input.steps?.length ||
     input.businessRules;
 
-  if (!hasStructuredInput) {
-    return '';
+  const customPrompt = hasStructuredInput ? generateCustomPrompt(input) : '';
+
+  if (input.dataSources?.length) {
+    return buildSystemPrompt({
+      customPrompt: customPrompt || undefined,
+      dataSources: input.dataSources,
+    });
   }
 
-  return generateCustomPrompt(input);
+  return customPrompt;
 }
