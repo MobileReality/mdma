@@ -1,4 +1,10 @@
-import type { MdmaRoot, MdmaBlock, StoreAction, EventType } from '@mobile-reality/mdma-spec';
+import {
+  isDataSourceRef,
+  type MdmaRoot,
+  type MdmaBlock,
+  type StoreAction,
+  type EventType,
+} from '@mobile-reality/mdma-spec';
 import { createEventBus, type TypedEventBus } from './event-bus.js';
 import { createEventLog, type AppendOnlyEventLog } from './event-log.js';
 import { resolveValue } from './binding-resolver.js';
@@ -6,6 +12,12 @@ import { serializeFiles } from './serialize-files.js';
 import { redactPayload, type RedactionContext } from '../redaction/redactor.js';
 import { PolicyEngine, createDefaultPolicy } from '../policy/policy-engine.js';
 import type { AttachableRegistry, ComponentState } from '../attachable/registry.js';
+import {
+  DataSourceManager,
+  type DataSourceMap,
+  type DataSlotState,
+  type DataSort,
+} from './data-source-manager.js';
 
 export interface DocumentState {
   bindings: Record<string, unknown>;
@@ -26,6 +38,7 @@ export interface DocumentStoreOptions {
    * edits during streaming re-parses.
    */
   initialState?: Record<string, Record<string, unknown>>;
+  dataSources?: DataSourceMap;
 }
 
 export interface DocumentStore {
@@ -41,6 +54,12 @@ export interface DocumentStore {
   /** Incrementally update the store from a new AST — adds new components,
    *  removes deleted ones, and preserves existing component state (values, touched, etc.). */
   updateAst(ast: MdmaRoot): void;
+  getDataState(key: string): DataSlotState | undefined;
+  setDataPage(key: string, page: number): void;
+  setDataSort(key: string, sort: DataSort | undefined): void;
+  setDataFilter(key: string, filter: string | undefined): void;
+  retryData(key: string): void;
+  resolveAllData(): Promise<void>;
 }
 
 export function createDocumentStore(
@@ -60,6 +79,62 @@ export function createDocumentStore(
   };
 
   const initialState = options.initialState;
+
+  const listeners = new Set<(state: DocumentState) => void>();
+
+  function notify() {
+    for (const listener of listeners) {
+      listener(state);
+    }
+  }
+
+  const dataManager = new DataSourceManager({
+    dataSources: options.dataSources,
+    onChange: notify,
+    onLog: ({ key, eventType, payload }) => {
+      eventLog.append({ eventType, componentId: key, payload, redacted: false });
+    },
+  });
+
+  function optionsRef(options: unknown) {
+    if (isDataSourceRef(options)) return options;
+    if (typeof options === 'string' && dataManager.hasSource(options)) {
+      return { source: options };
+    }
+    return undefined;
+  }
+
+  function syncComponentDataSlots(comp: MdmaBlock['component']) {
+    if (comp.type === 'table') {
+      if (isDataSourceRef(comp.data)) {
+        dataManager.sync(comp.id, comp.data, state.bindings, { pageSize: comp.pageSize });
+      } else {
+        dataManager.unregister(comp.id);
+      }
+    } else if (comp.type === 'chart') {
+      if (isDataSourceRef(comp.data)) {
+        dataManager.sync(comp.id, comp.data, state.bindings);
+      } else {
+        dataManager.unregister(comp.id);
+      }
+    } else if (comp.type === 'form') {
+      for (const field of comp.fields) {
+        const key = `${comp.id}.${field.name}`;
+        const ref = optionsRef(field.options);
+        if (ref) {
+          dataManager.sync(key, ref, state.bindings);
+        } else {
+          dataManager.unregister(key);
+        }
+      }
+    }
+  }
+
+  function unregisterComponentDataSlots(id: string) {
+    for (const key of dataManager.keys()) {
+      if (key === id || key.startsWith(`${id}.`)) dataManager.unregister(key);
+    }
+  }
 
   /**
    * Overlay hydrated values (e.g. restored from a persisted conversation) onto a freshly-built
@@ -88,52 +163,47 @@ export function createDocumentStore(
   };
 
   // Initialize components from AST
-  for (const child of ast.children) {
-    if (isMdmaBlock(child)) {
-      const comp = child.component;
-      const compState: ComponentState = {
-        id: comp.id,
-        type: comp.type,
-        values: {},
-        errors: [],
-        touched: false,
-        visible: resolveValue(comp.visible, state.bindings) !== false,
-        disabled: resolveValue(comp.disabled, state.bindings) === true,
-      };
+  dataManager.runBatch(state.bindings, () => {
+    for (const child of ast.children) {
+      if (isMdmaBlock(child)) {
+        const comp = child.component;
+        const compState: ComponentState = {
+          id: comp.id,
+          type: comp.type,
+          values: {},
+          errors: [],
+          touched: false,
+          visible: resolveValue(comp.visible, state.bindings) !== false,
+          disabled: resolveValue(comp.disabled, state.bindings) === true,
+        };
 
-      if (comp.sensitive) {
-        redactionCtx.sensitiveComponents.add(comp.id);
-      }
+        if (comp.sensitive) {
+          redactionCtx.sensitiveComponents.add(comp.id);
+        }
 
-      // Extract sensitive fields from form components
-      if (comp.type === 'form') {
-        for (const field of comp.fields) {
-          if (field.sensitive) {
-            redactionCtx.sensitiveFields.add(field.name);
-          }
-          if (field.defaultValue !== undefined) {
-            compState.values[field.name] = field.defaultValue;
-            state.bindings[field.name] = field.defaultValue;
-            if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
-              state.bindings[comp.id] = {};
+        // Extract sensitive fields from form components
+        if (comp.type === 'form') {
+          for (const field of comp.fields) {
+            if (field.sensitive) {
+              redactionCtx.sensitiveFields.add(field.name);
             }
-            (state.bindings[comp.id] as Record<string, unknown>)[field.name] = field.defaultValue;
+            if (field.defaultValue !== undefined) {
+              compState.values[field.name] = field.defaultValue;
+              state.bindings[field.name] = field.defaultValue;
+              if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+                state.bindings[comp.id] = {};
+              }
+              (state.bindings[comp.id] as Record<string, unknown>)[field.name] = field.defaultValue;
+            }
           }
         }
+
+        applyInitialState(compState);
+        state.components.set(comp.id, compState);
+        syncComponentDataSlots(comp);
       }
-
-      applyInitialState(compState);
-      state.components.set(comp.id, compState);
     }
-  }
-
-  const listeners = new Set<(state: DocumentState) => void>();
-
-  function notify() {
-    for (const listener of listeners) {
-      listener(state);
-    }
-  }
+  });
 
   function logAction(action: StoreAction) {
     const eventTypeMap: Record<StoreAction['type'], EventType> = {
@@ -215,6 +285,7 @@ export function createDocumentStore(
             }
             (state.bindings[action.componentId] as Record<string, unknown>)[action.field] =
               action.value;
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -227,6 +298,7 @@ export function createDocumentStore(
           if (comp) {
             comp.values = { ...comp.values, status: 'approved', approvedBy: action.actor };
             state.bindings[`${action.componentId}.status`] = 'approved';
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -240,6 +312,7 @@ export function createDocumentStore(
               deniedReason: action.reason,
             };
             state.bindings[`${action.componentId}.status`] = 'denied';
+            dataManager.onBindingsChanged(state.bindings);
           }
           break;
         }
@@ -291,64 +364,95 @@ export function createDocumentStore(
         if (!newIds.has(id)) {
           state.components.delete(id);
           redactionCtx.sensitiveComponents.delete(id);
+          unregisterComponentDataSlots(id);
         }
       }
 
       // Add new components, preserve existing ones
-      for (const child of newAst.children) {
-        if (!isMdmaBlock(child)) continue;
-        const comp = child.component;
+      dataManager.runBatch(state.bindings, () => {
+        for (const child of newAst.children) {
+          if (!isMdmaBlock(child)) continue;
+          const comp = child.component;
 
-        // If this component already exists with the same type, keep its state — this preserves
-        // in-flight values/touched/focus across streamed re-parses. If the type changed, an
-        // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
-        // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
-        const existing = state.components.get(comp.id);
-        if (existing && existing.type === comp.type) continue;
-        redactionCtx.sensitiveComponents.delete(comp.id);
+          // If this component already exists with the same type, keep its state — this preserves
+          // in-flight values/touched/focus across streamed re-parses. If the type changed, an
+          // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
+          // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
+          const existing = state.components.get(comp.id);
+          if (existing && existing.type === comp.type) {
+            syncComponentDataSlots(comp);
+            continue;
+          }
+          redactionCtx.sensitiveComponents.delete(comp.id);
 
-        // New (or retyped) component — initialize with defaults
-        const compState: ComponentState = {
-          id: comp.id,
-          type: comp.type,
-          values: {},
-          errors: [],
-          touched: false,
-          visible: resolveValue(comp.visible, state.bindings) !== false,
-          disabled: resolveValue(comp.disabled, state.bindings) === true,
-        };
+          // New (or retyped) component — initialize with defaults
+          const compState: ComponentState = {
+            id: comp.id,
+            type: comp.type,
+            values: {},
+            errors: [],
+            touched: false,
+            visible: resolveValue(comp.visible, state.bindings) !== false,
+            disabled: resolveValue(comp.disabled, state.bindings) === true,
+          };
 
-        if (comp.sensitive) {
-          redactionCtx.sensitiveComponents.add(comp.id);
-        }
+          if (comp.sensitive) {
+            redactionCtx.sensitiveComponents.add(comp.id);
+          }
 
-        if (comp.type === 'form') {
-          for (const field of comp.fields) {
-            if (field.sensitive) {
-              redactionCtx.sensitiveFields.add(field.name);
-            }
-            if (field.defaultValue !== undefined) {
-              compState.values[field.name] = field.defaultValue;
-              // Only set binding if not already set by user interaction
-              if (!(field.name in state.bindings)) {
-                state.bindings[field.name] = field.defaultValue;
+          if (comp.type === 'form') {
+            for (const field of comp.fields) {
+              if (field.sensitive) {
+                redactionCtx.sensitiveFields.add(field.name);
               }
-              if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
-                state.bindings[comp.id] = {};
-              }
-              const nested = state.bindings[comp.id] as Record<string, unknown>;
-              if (!(field.name in nested)) {
-                nested[field.name] = field.defaultValue;
+              if (field.defaultValue !== undefined) {
+                compState.values[field.name] = field.defaultValue;
+                // Only set binding if not already set by user interaction
+                if (!(field.name in state.bindings)) {
+                  state.bindings[field.name] = field.defaultValue;
+                }
+                if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+                  state.bindings[comp.id] = {};
+                }
+                const nested = state.bindings[comp.id] as Record<string, unknown>;
+                if (!(field.name in nested)) {
+                  nested[field.name] = field.defaultValue;
+                }
               }
             }
           }
-        }
 
-        applyInitialState(compState);
-        state.components.set(comp.id, compState);
-      }
+          applyInitialState(compState);
+          state.components.set(comp.id, compState);
+          syncComponentDataSlots(comp);
+        }
+      });
 
       notify();
+    },
+
+    getDataState(key) {
+      return dataManager.getState(key);
+    },
+
+    setDataPage(key, page) {
+      dataManager.setPage(key, page);
+    },
+
+    setDataSort(key, sort) {
+      dataManager.setSort(key, sort);
+    },
+
+    setDataFilter(key, filter) {
+      dataManager.setFilter(key, filter);
+    },
+
+    retryData(key) {
+      dataManager.retry(key);
+    },
+
+    async resolveAllData() {
+      await dataManager.resolveAll();
     },
   };
 

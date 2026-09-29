@@ -7,7 +7,12 @@ import {
   type MaybeRefOrGetter,
   type ShallowRef,
 } from 'vue';
-import type { ComponentState, DocumentState, DocumentStore } from '@mobile-reality/mdma-runtime';
+import type {
+  ComponentState,
+  DataSlotState,
+  DocumentState,
+  DocumentStore,
+} from '@mobile-reality/mdma-runtime';
 import { useMdmaContext, type MdmaContextValue } from '../context/MdmaProvider.js';
 
 /**
@@ -88,6 +93,15 @@ export function useComponentState(
     const snapshot = { ...current };
     cached = snapshot;
     return snapshot;
+  });
+}
+
+export function useDataState(key: MaybeRefOrGetter<string>): ComputedRef<DataSlotState | undefined> {
+  const ctx = useMdmaContext();
+  const tick = useStoreTick(ctx);
+  return computed(() => {
+    tick.value;
+    return ctx.value.store.getDataState(toValue(key));
   });
 }
 

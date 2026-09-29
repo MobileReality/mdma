@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ComponentBaseSchema } from '../component-base.js';
 import { BindingExpressionSchema } from '../binding.js';
+import { DataSourceRefSchema } from '../data-source.js';
 
 export const TableColumnSchema = z.preprocess(
   (val) => {
@@ -30,7 +31,7 @@ export const TableColumnSchema = z.preprocess(
 export const TableComponentSchema = ComponentBaseSchema.extend({
   type: z.literal('table'),
   columns: z.array(TableColumnSchema).min(1),
-  data: z.union([z.array(z.record(z.unknown())), BindingExpressionSchema]),
+  data: z.union([z.array(z.record(z.unknown())), BindingExpressionSchema, DataSourceRefSchema]),
   sortable: z.boolean().default(false),
   filterable: z.boolean().default(false),
   pageSize: z.number().positive().optional(),

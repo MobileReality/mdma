@@ -36,7 +36,6 @@ export const selectOptionsRule: ValidationRule = {
           continue;
         }
 
-        // Skip binding expressions (strings are valid as binding refs)
         if (typeof field.options === 'string') continue;
 
         if (Array.isArray(field.options)) {

@@ -6,6 +6,13 @@ export type { AttachableDefinition } from './attachable.js';
 export type { ComponentBase } from '../schemas/component-base.js';
 export type { BindingExpression } from '../schemas/binding.js';
 export type {
+  DataSourceRef,
+  DataSourceParamValue,
+  DataSourceDescriptor,
+  DataSourceColumnDescriptor,
+  DataSourceParamDescriptor,
+} from '../schemas/data-source.js';
+export type {
   MdmaComponent,
   ComponentType,
   FormComponent,

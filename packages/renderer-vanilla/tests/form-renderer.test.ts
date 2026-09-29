@@ -96,6 +96,36 @@ describe('FormRenderer', () => {
     ]);
   });
 
+  it('resolves a string select from the store data source', async () => {
+    const { instance } = await mountBlockFor(
+      FORM,
+      FormRenderer,
+      {},
+      {
+        countries: [{ label: 'Poland', value: 'pl' }],
+      },
+    );
+    const options = instance.el.querySelectorAll('#intake-country option');
+    expect(Array.from(options).map((option) => option.textContent)).toEqual([
+      'Select...',
+      'Poland',
+    ]);
+  });
+
+  it('prefers the store data source over customizations.dataSources', async () => {
+    const { instance } = await mountBlockFor(
+      FORM,
+      FormRenderer,
+      { dataSources: { countries: [{ label: 'Japan', value: 'jp' }] } },
+      { countries: [{ label: 'Poland', value: 'pl' }] },
+    );
+    const options = instance.el.querySelectorAll('#intake-country option');
+    expect(Array.from(options).map((option) => option.textContent)).toEqual([
+      'Select...',
+      'Poland',
+    ]);
+  });
+
   it('triggers the submit action', async () => {
     const { instance, store } = await mountForm();
     const actions: string[] = [];

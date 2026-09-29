@@ -43,6 +43,7 @@ export {
   useDocumentState,
   useComponentState,
   useBinding,
+  useDataState,
 } from './composables/use-document-store.js';
 export {
   RendererRegistry,
