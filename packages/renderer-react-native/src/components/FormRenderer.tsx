@@ -1,10 +1,10 @@
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { memo } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
-import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
-import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
 import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
+import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
+import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
 
 function DataDrivenOptions({
   dataKey,

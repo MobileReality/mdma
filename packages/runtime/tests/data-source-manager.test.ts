@@ -1,8 +1,8 @@
-import { describe, it, expect, vi } from 'vitest';
-import { createDocumentStore } from '../src/core/document-store.js';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { describe, expect, it, vi } from 'vitest';
 import { DataSourceManager } from '../src/core/data-source-manager.js';
 import type { DataRequest, DataResult } from '../src/core/data-source-manager.js';
+import { createDocumentStore } from '../src/core/document-store.js';
 
 function makeAst(components: Array<Record<string, unknown>>): MdmaRoot {
   return {
@@ -272,7 +272,7 @@ describe('DataSourceManager via DocumentStore', () => {
       },
     ]);
 
-    const store = createDocumentStore(ast, { dataSources: { accounts: resolver } });
+    createDocumentStore(ast, { dataSources: { accounts: resolver } });
 
     await vi.waitFor(
       () => {
@@ -544,7 +544,7 @@ describe('DataSourceManager batching', () => {
 
   it('surfaces the callback error when endBatch also throws', () => {
     const { manager } = setup();
-    vi.spyOn(manager, 'endBatch').mockImplementation(() => {
+    const endBatch = vi.spyOn(manager, 'endBatch').mockImplementation(() => {
       throw new Error('end failed');
     });
 
@@ -553,6 +553,7 @@ describe('DataSourceManager batching', () => {
         throw new Error('boom');
       }),
     ).toThrow('boom');
+    expect(endBatch).toHaveBeenCalledOnce();
   });
 
   it('keeps the outer batch deferred keys when a nested batch ends', () => {

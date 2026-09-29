@@ -228,7 +228,9 @@ export class DataSourceManager {
     } catch (error) {
       try {
         this.endBatch(bindings);
-      } catch {}
+      } catch {
+        // an endBatch failure must not mask the callback's error
+      }
       throw error;
     }
     this.endBatch(bindings);
