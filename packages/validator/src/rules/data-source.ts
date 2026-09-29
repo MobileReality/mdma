@@ -17,10 +17,13 @@ function asObjectRef(value: unknown): RefLike | null {
   return candidate as unknown as RefLike;
 }
 
-/** Form `options` also accepts a bare string as a source-name shorthand — but never a
- *  `{{binding}}`, which is a live reference, not a source name. `table.data`/`chart.data`
- *  never take a plain string as a ref: there it is inline CSV or a binding. */
+function isLiteralParamValue(value: unknown): value is string | number | boolean {
+  if (typeof value === 'string') return !isBindingExpression(value);
+  return typeof value === 'number' || typeof value === 'boolean';
+}
+
 function asOptionsRef(value: unknown): RefLike | null {
+  // a {{binding}} string is a live reference, not a source name
   if (typeof value === 'string') return isBindingExpression(value) ? null : { source: value };
   return asObjectRef(value);
 }
@@ -79,9 +82,7 @@ function checkRef(
     const value = params[paramDesc.name];
     if (
       paramDesc.allowed &&
-      typeof value !== 'undefined' &&
-      typeof value === 'string' &&
-      !isBindingExpression(value) &&
+      isLiteralParamValue(value) &&
       !paramDesc.allowed.includes(value)
     ) {
       context.issues.push({
