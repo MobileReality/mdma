@@ -703,6 +703,7 @@
   padding: 24px;
   margin-bottom: 20px;
   overflow-x: auto;
+  position: relative;
 }
 
 .mdma-table-label {
@@ -745,10 +746,6 @@
   padding: 20px;
   color: var(--mdma-color-text-muted);
   font-style: italic;
-}
-
-.mdma-table {
-  position: relative;
 }
 
 .mdma-table[aria-busy="true"] tbody {
