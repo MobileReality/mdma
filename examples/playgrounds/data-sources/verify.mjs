@@ -1,9 +1,3 @@
-/**
- * Drives every playground scenario in a real browser, asserts the data states,
- * and saves screenshots to ./.screenshots. Exits non-zero on any failed assertion.
- *
- *   pnpm --filter mdma-playground-data-sources verify
- */
 import { spawn } from 'node:child_process';
 import { mkdir, rm } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
