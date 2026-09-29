@@ -116,7 +116,7 @@ function DataDrivenChart({ component }: { component: ChartComponent }) {
     );
   }
   if (dataState.rows.length === 0) {
-    return <DataEmpty componentId={component.id} />;
+    return <DataEmpty componentId={component.id} label={component.label} />;
   }
 
   const data = rowsToChartData(dataState.rows);

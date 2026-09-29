@@ -30,9 +30,10 @@ export function DefaultDataError({ componentId, error, onRetry }: DataErrorEleme
   );
 }
 
-export function DefaultDataEmpty({ componentId }: DataEmptyElementProps) {
+export function DefaultDataEmpty({ componentId, label }: DataEmptyElementProps) {
   return (
     <div className="mdma-data-empty" data-component-id={componentId}>
+      {label && <div className="mdma-chart-label">{label}</div>}
       No data
     </div>
   );

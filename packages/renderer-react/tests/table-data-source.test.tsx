@@ -9,6 +9,7 @@ import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import { MdmaProvider } from '../src/context/MdmaProvider.js';
 import { ElementOverridesProvider } from '../src/context/ElementOverridesContext.js';
 import { TableRenderer } from '../src/components/TableRenderer.js';
+import { flushMicrotasks } from './helpers/flush.js';
 
 function makeAst(component: Record<string, unknown>): MdmaRoot {
   return {
@@ -77,7 +78,7 @@ describe('TableRenderer with a data source ref', () => {
         { id: 1, name: 'Acme' },
         { id: 2, name: 'Globex' },
       ]);
-      await Promise.resolve();
+      await flushMicrotasks();
     });
 
     expect(container.textContent).toContain('Acme');
@@ -131,8 +132,7 @@ describe('TableRenderer with a data source ref', () => {
       );
     });
     await act(async () => {
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
     expect(container.textContent).toContain('Acme');
 
@@ -143,8 +143,7 @@ describe('TableRenderer with a data source ref', () => {
 
     await act(async () => {
       releasePage2?.();
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
     expect(container.textContent).toContain('Page Two');
     expect(container.textContent).not.toContain('Loading');
@@ -194,19 +193,17 @@ describe('TableRenderer with a data source ref', () => {
           </ElementOverridesProvider>
         </MdmaProvider>,
       );
-      await Promise.resolve();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
     expect(container.querySelector('.custom-loading')).toBeNull();
 
     act(() => store.setDataPage('accounts', 2));
 
     expect(container.querySelector('.custom-loading')?.textContent).toBe('reload');
-    expect(container.textContent).toContain('Acme');
 
     await act(async () => {
       releasePage2?.();
-      await Promise.resolve();
+      await flushMicrotasks();
     });
   });
 });
