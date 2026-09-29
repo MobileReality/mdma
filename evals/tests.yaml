@@ -1162,6 +1162,7 @@
 # ---------------------------------------------------------------------------
 - description: Table of open incidents references the incidents source
   vars:
+    dataSources: true
     request: |
       Show me a table of the open incidents for the payments service.
   assert:
@@ -1183,6 +1184,7 @@
 # ---------------------------------------------------------------------------
 - description: Country select references the countries source
   vars:
+    dataSources: true
     request: |
       Create a shipping form with a full name field and a country dropdown
       listing all countries.
@@ -1202,6 +1204,7 @@
 # ---------------------------------------------------------------------------
 - description: Monthly sales chart references the sales-by-month source
   vars:
+    dataSources: true
     request: |
       Show a bar chart of revenue per month for 2025.
   assert:
@@ -1222,6 +1225,7 @@
 # ---------------------------------------------------------------------------
 - description: Does not invent a data source for employee salaries
   vars:
+    dataSources: true
     request: |
       Show a table of our employees with their department and salary.
   assert:
