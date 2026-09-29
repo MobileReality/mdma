@@ -66,7 +66,7 @@ fields:
     required: true | false       # default: false
     sensitive: true | false      # default: false — set true for PII
     defaultValue: <any>          # optional
-    options:                     # required when type is "select"
+    options:                     # required when type is "select" — a list, OR { source, params } from a data-source catalog
       - label: <label>
         value: <value>           # string — quote numeric-looking values, e.g. "1" not 1
     validation:                  # optional
@@ -124,9 +124,10 @@ columns:
     sortable: true | false      # default: false
     sensitive: true | false     # default: false
     width: <css-width>          # optional, e.g. "200px"
-data:                           # array of row objects OR a binding
+data:                           # array of row objects OR a binding OR a data-source ref
   - { key1: value1, key2: value2 }
 # OR: data: "{{variable.path}}"
+# OR: data: { source: <source-name>, params: { <param>: <value> } }   # source from the data-source catalog
 sortable: true | false          # default: false (table-level)
 filterable: true | false        # default: false
 pageSize: <number>              # optional, positive integer
@@ -189,7 +190,7 @@ type: chart
 id: <unique-id>
 variant: line | bar | area | pie            # default: line
 label: <chart-title>                         # optional
-data: |                                      # required — CSV multiline string or binding
+data: |                                      # required — CSV multiline string, binding, or { source, params } data-source ref
   <col1>, <col2>, <col3>
   <val1>, <val2>, <val3>
   <val1>, <val2>, <val3>

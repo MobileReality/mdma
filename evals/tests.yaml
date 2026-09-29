@@ -1149,3 +1149,85 @@
       value: file://assertions/custom-name-in-catalog.mjs
       config:
         catalog: [signature-pad, map-picker]
+
+# ===========================================================================
+# External data sources — the host catalog (from data-sources.mjs) is:
+# incidents (rows), countries (options), sales-by-month (series). Scenarios
+# cover referencing a source with valid params instead of generating rows, and
+# NOT inventing a source when the catalog cannot serve the request.
+# ===========================================================================
+
+# ---------------------------------------------------------------------------
+# Data source 1. Table of open incidents filtered by service
+# ---------------------------------------------------------------------------
+- description: Table of open incidents references the incidents source
+  vars:
+    request: |
+      Show me a table of the open incidents for the payments service.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table, callout]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: table
+        source: incidents
+        expectParams:
+          status: open
+          service: payments
+
+# ---------------------------------------------------------------------------
+# Data source 2. Select of countries
+# ---------------------------------------------------------------------------
+- description: Country select references the countries source
+  vars:
+    request: |
+      Create a shipping form with a full name field and a country dropdown
+      listing all countries.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: form
+        source: countries
+
+# ---------------------------------------------------------------------------
+# Data source 3. Sales chart per month
+# ---------------------------------------------------------------------------
+- description: Monthly sales chart references the sales-by-month source
+  vars:
+    request: |
+      Show a bar chart of revenue per month for 2025.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart, callout]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: chart
+        source: sales-by-month
+        expectParams:
+          year: 2025
+
+# ---------------------------------------------------------------------------
+# Data source 4. Anti-hallucination — data outside the catalog
+# ---------------------------------------------------------------------------
+- description: Does not invent a data source for employee salaries
+  vars:
+    request: |
+      Show a table of our employees with their department and salary.
+  assert:
+    # No catalog source serves employee data. The model must not invent a
+    # source name, nor bend incidents/countries/sales-by-month to fit.
+    - type: javascript
+      value: file://assertions/no-invented-source.mjs
+      config:
+        forbidCatalogSources: true

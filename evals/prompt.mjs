@@ -1,5 +1,6 @@
 import { buildSystemPrompt } from '@mobile-reality/mdma-prompt-pack';
 import { selectAuthorPrompt } from './select-prompt.mjs';
+import { DATA_SOURCES } from './data-sources.mjs';
 
 /**
  * Host-registered custom components advertised to the model, mirroring what a
@@ -50,8 +51,14 @@ function resolveAuthorPrompt(providerId) {
     promptByProvider.set(
       providerId,
       selectAuthorPrompt(providerId).then(({ prompt, source }) => {
-        console.error(`[author] system prompt: ${source} (+custom-component catalog)`);
-        return buildSystemPrompt({ authorPrompt: prompt, customComponents: CUSTOM_COMPONENTS });
+        console.error(
+          `[author] system prompt: ${source} (+custom-component and data-source catalogs)`,
+        );
+        return buildSystemPrompt({
+          authorPrompt: prompt,
+          customComponents: CUSTOM_COMPONENTS,
+          dataSources: DATA_SOURCES,
+        });
       }),
     );
   }
