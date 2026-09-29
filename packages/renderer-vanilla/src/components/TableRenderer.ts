@@ -1,8 +1,8 @@
-import { isDataSourceRef, type TableColumn, type TableComponent } from '@mobile-reality/mdma-spec';
+import { type TableColumn, type TableComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
 import { el } from '../dom/el.js';
 import { withState } from '../renderers/renderer-props.js';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-props.js';
-import { renderDataLoading, renderDataError, renderDataEmpty } from './data-state-views.js';
+import { renderDataEmpty, renderDataError, renderDataLoading } from './data-state-views.js';
 
 const MASK = '•••••';
 
@@ -25,17 +25,29 @@ function maskedCell(value: string, key: string, revealed: Set<string>): HTMLElem
   return span;
 }
 
-function tableBody(
-  component: TableComponent,
-  rows: unknown[],
-  resolveBinding: ((expr: string) => unknown) | undefined,
-  revealed: Set<string>,
-  sort: { key: string; direction: 'asc' | 'desc' } | undefined,
-  onSort: ((key: string) => void) | undefined,
-  busy?: boolean,
-  indicator?: HTMLElement,
-  footer?: HTMLElement,
-): HTMLElement {
+interface TableBodyOptions {
+  component: TableComponent;
+  rows: unknown[];
+  resolveBinding?: (expr: string) => unknown;
+  revealed: Set<string>;
+  sort?: { key: string; direction: 'asc' | 'desc' };
+  onSort?: (key: string) => void;
+  isBusy?: boolean;
+  indicator?: HTMLElement;
+  footer?: HTMLElement;
+}
+
+function tableBody({
+  component,
+  rows,
+  resolveBinding,
+  revealed,
+  sort,
+  onSort,
+  isBusy,
+  indicator,
+  footer,
+}: TableBodyOptions): HTMLElement {
   const sensitiveKeys = new Set(
     component.columns.filter((column) => column.sensitive).map((column) => column.key),
   );
@@ -45,7 +57,7 @@ function tableBody(
     {
       class: 'mdma-table',
       dataset: { 'component-id': component.id },
-      'aria-busy': busy ? 'true' : undefined,
+      'aria-busy': isBusy ? 'true' : undefined,
     },
     [
       indicator,
@@ -176,17 +188,18 @@ function dataDrivenTable(props: MdmaBlockRendererProps, component: TableComponen
         ])
       : undefined;
 
-  return tableBody(
+  return tableBody({
     component,
-    state.rows,
-    undefined,
-    new Set(),
-    state.sort,
+    rows: state.rows,
+    revealed: new Set(),
+    sort: state.sort,
     onSort,
-    isReloading,
-    isReloading ? renderDataLoading(props.context, 'table', component.id, true) : undefined,
-    pagination,
-  );
+    isBusy: isReloading,
+    indicator: isReloading
+      ? renderDataLoading(props.context, 'table', component.id, true)
+      : undefined,
+    footer: pagination,
+  });
 }
 
 export const TableRenderer = withState<Set<string>>(
@@ -203,6 +216,6 @@ export const TableRenderer = withState<Set<string>>(
       typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
     const rows = Array.isArray(raw) ? raw : [];
 
-    return tableBody(component, rows, resolveBinding, revealed, undefined, undefined);
+    return tableBody({ component, rows, resolveBinding, revealed });
   },
 );

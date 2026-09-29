@@ -1,6 +1,6 @@
-import { el } from '../dom/el.js';
 import { resolveElementOverride } from '../context/render-context.js';
 import type { RenderContext } from '../context/render-context.js';
+import { el } from '../dom/el.js';
 
 export function renderDataLoading(
   context: RenderContext,
