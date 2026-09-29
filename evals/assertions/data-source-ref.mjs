@@ -22,7 +22,7 @@ function parseBlocks(output) {
       const doc = parse(match[1]);
       if (doc && typeof doc === 'object') blocks.push(doc);
     } catch {
-      continue;
+      // unparseable block is skipped
     }
   }
   return blocks;

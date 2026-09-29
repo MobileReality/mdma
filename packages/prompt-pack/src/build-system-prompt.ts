@@ -97,7 +97,7 @@ Sources:
 ${items}
 
 Rules:
-- Use only source names listed below. NEVER invent a source; if the request needs data no listed source provides, do not reference a source and do not fabricate the data — say the data is not available.
+- Use only source names listed above. NEVER invent a source; if the request needs data no listed source provides, do not reference a source and do not fabricate the data — say the data is not available.
 - \`table.columns[].key\` and chart \`xAxis\` / \`yAxis\` MUST be columns of the referenced source.
 - Give each param only a value of its declared type, respecting \`allowed\` values, and always supply required params. A param value may be a \`{{binding}}\` to react to another component.
 
