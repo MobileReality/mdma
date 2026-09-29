@@ -7,7 +7,7 @@ import { chromium } from 'playwright';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const SHOTS = join(HERE, '.screenshots');
-const PORT = 5190;
+const PORT = Number(process.env.PORT ?? 5190);
 const BASE = `http://localhost:${PORT}`;
 const T = 10_000;
 
@@ -209,12 +209,18 @@ async function chartScenario(page) {
   console.log('chart');
   await open(page, 'chart');
   await step('chart renders rows from the source', async () => {
-    await page.locator('.mdma-chart').waitFor({ timeout: T });
+    await page.locator('.mdma-chart .recharts-surface').first().waitFor({ timeout: T });
     const log = await logEntries(page);
     assert(
       log.some((e) => e.kind === 'resolved' && e.source === 'sales'),
       'sales source never resolved',
     );
+    await page.locator('.mdma-chart .recharts-line-curve').first().waitFor({ timeout: T });
+    assert(
+      (await page.locator('.mdma-chart table').count()) === 0,
+      'chart card contains a fallback table',
+    );
+    await sleep(600);
     await shot(page, '09-chart');
   });
 }

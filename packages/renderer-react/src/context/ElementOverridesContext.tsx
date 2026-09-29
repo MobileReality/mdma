@@ -81,6 +81,7 @@ export interface DataErrorElementProps {
 
 export interface DataEmptyElementProps {
   componentId: string;
+  label?: string;
 }
 
 // ─── Element overrides map ───────────────────────────────────────────────────
