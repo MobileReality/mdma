@@ -1,5 +1,5 @@
 import { defineComponent, h, ref, type PropType, type VNodeChild } from 'vue';
-import { isDataSourceRef } from '@mobile-reality/mdma-spec';
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { blockRendererProps } from '../renderers/renderer-props.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import { useDataState, useDocumentStore } from '../composables/use-document-store.js';
@@ -317,10 +317,9 @@ export const FormRenderer = defineComponent({
         let control: VNodeChild;
         if (field.type === 'select') {
           const dataKey = `${component.id}.${field.name}`;
-          const isDataDriven =
-            isDataSourceRef(field.options) ||
-            (typeof field.options === 'string' &&
-              ctx.value.store.getDataState(dataKey) !== undefined);
+          const isDataDriven = isDataDrivenOptions(field.options, dataKey, (key) =>
+            ctx.value.store.getDataState(key),
+          );
           if (isDataDriven) {
             control = h(DataDrivenSelect, {
               dataKey,

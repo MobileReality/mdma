@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
@@ -210,9 +211,9 @@ export const FormRenderer = memo(function FormRenderer({
               {field.sensitive && <SensitiveMark name={field.name} label={field.label} />}
             </label>
             {field.type === 'select' ? (
-              isDataSourceRef(field.options) ||
-              (typeof field.options === 'string' &&
-                store.getDataState(`${component.id}.${field.name}`) !== undefined) ? (
+              isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
+                store.getDataState(key),
+              ) ? (
                 <DataDrivenSelect
                   Select={Select}
                   dataKey={`${component.id}.${field.name}`}
@@ -238,7 +239,9 @@ export const FormRenderer = memo(function FormRenderer({
                   options={
                     typeof field.options === 'string'
                       ? (dataSources?.[field.options] ?? [])
-                      : (field.options ?? [])
+                      : isDataSourceRef(field.options)
+                        ? []
+                        : (field.options ?? [])
                   }
                 />
               )

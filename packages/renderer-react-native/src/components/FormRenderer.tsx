@@ -1,3 +1,4 @@
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { memo } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
 import { isDataSourceRef } from '@mobile-reality/mdma-spec';
@@ -124,9 +125,7 @@ export const FormRenderer = memo(function FormRenderer({
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
 
         const dataKey = `${component.id}.${field.name}`;
-        const isDataDriven =
-          isDataSourceRef(field.options) ||
-          (typeof field.options === 'string' && store.getDataState(dataKey) !== undefined);
+        const isDataDriven = isDataDrivenOptions(field.options, dataKey, store.getDataState);
         const options =
           typeof field.options === 'string'
             ? (dataSources?.[field.options] ?? [])

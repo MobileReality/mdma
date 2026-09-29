@@ -17,6 +17,7 @@ export {
   type DataSortDirection,
 } from './core/data-source-manager.js';
 export { resolveAllData } from './core/resolve-all-data.js';
+export { isDataDrivenOptions } from './core/is-data-driven-options.js';
 export { createEventBus, type TypedEventBus, type EventHandler } from './core/event-bus.js';
 export { createEventLog, type AppendOnlyEventLog, type EventLogOptions } from './core/event-log.js';
 export {

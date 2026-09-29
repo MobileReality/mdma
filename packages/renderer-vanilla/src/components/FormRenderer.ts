@@ -1,4 +1,5 @@
-import { isDataSourceRef, type FormComponent } from '@mobile-reality/mdma-spec';
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
+import type { FormComponent } from '@mobile-reality/mdma-spec';
 import { resolveElementOverride } from '../context/render-context.js';
 import type { ElementInstance } from '../context/render-context.js';
 import { el } from '../dom/el.js';
@@ -51,8 +52,12 @@ function createDataDrivenSelect(
     }
     if (state.status === 'error') {
       container.appendChild(
-        renderDataError(props.context, 'form', dataKey, state.error ?? 'Failed to load options', () =>
-          props.retryData(dataKey),
+        renderDataError(
+          props.context,
+          'form',
+          dataKey,
+          state.error ?? 'Failed to load options',
+          () => props.retryData(dataKey),
         ),
       );
       return;
@@ -100,14 +105,6 @@ interface Built {
   fields: Map<string, ElementInstance<never>>;
   submit?: ElementInstance<never>;
   shape: string;
-}
-
-function isDataDrivenOptions(field: Field, component: FormComponent, props: MdmaBlockRendererProps) {
-  if (isDataSourceRef(field.options)) return true;
-  return (
-    typeof field.options === 'string' &&
-    props.getDataState(`${component.id}.${field.name}`) !== undefined
-  );
 }
 
 function optionsFor(field: Field, props: MdmaBlockRendererProps) {
@@ -195,7 +192,8 @@ function build(props: MdmaBlockRendererProps, component: FormComponent, getProps
 
   const rows = component.fields.map((field) => {
     const instance =
-      field.type === 'select' && isDataDrivenOptions(field, component, props)
+      field.type === 'select' &&
+      isDataDrivenOptions(field.options, `${component.id}.${field.name}`, props.getDataState)
         ? createDataDrivenSelect(component, field, getProps, `${component.id}.${field.name}`)
         : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
             elementPropsFor(field, component, props, getProps),
