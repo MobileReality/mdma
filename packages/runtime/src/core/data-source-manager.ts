@@ -152,6 +152,7 @@ export class DataSourceManager {
   private readonly onChange: DataSourceManagerOptions['onChange'];
   private readonly slots = new Map<string, DataSlot>();
   private deferredKeys: Set<string> | undefined;
+  private batchDepth = 0;
   private readonly cache = new Map<
     string,
     { promise: Promise<DataResult>; controller: AbortController; refCount: number }
@@ -202,10 +203,12 @@ export class DataSourceManager {
   }
 
   beginBatch(): void {
-    this.deferredKeys = new Set();
+    if (this.batchDepth++ === 0) this.deferredKeys = new Set();
   }
 
   endBatch(bindings: Record<string, unknown>): void {
+    if (this.batchDepth === 0) return;
+    if (--this.batchDepth > 0) return;
     const deferred = this.deferredKeys ?? new Set<string>();
     this.deferredKeys = undefined;
     for (const key of deferred) {
@@ -215,6 +218,15 @@ export class DataSourceManager {
       this.fetch(slot);
     }
     this.onBindingsChanged(bindings);
+  }
+
+  runBatch<T>(bindings: Record<string, unknown>, fn: () => T): T {
+    this.beginBatch();
+    try {
+      return fn();
+    } finally {
+      this.endBatch(bindings);
+    }
   }
 
   sync(

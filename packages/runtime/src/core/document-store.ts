@@ -163,48 +163,47 @@ export function createDocumentStore(
   };
 
   // Initialize components from AST
-  dataManager.beginBatch();
-  for (const child of ast.children) {
-    if (isMdmaBlock(child)) {
-      const comp = child.component;
-      const compState: ComponentState = {
-        id: comp.id,
-        type: comp.type,
-        values: {},
-        errors: [],
-        touched: false,
-        visible: resolveValue(comp.visible, state.bindings) !== false,
-        disabled: resolveValue(comp.disabled, state.bindings) === true,
-      };
+  dataManager.runBatch(state.bindings, () => {
+    for (const child of ast.children) {
+      if (isMdmaBlock(child)) {
+        const comp = child.component;
+        const compState: ComponentState = {
+          id: comp.id,
+          type: comp.type,
+          values: {},
+          errors: [],
+          touched: false,
+          visible: resolveValue(comp.visible, state.bindings) !== false,
+          disabled: resolveValue(comp.disabled, state.bindings) === true,
+        };
 
-      if (comp.sensitive) {
-        redactionCtx.sensitiveComponents.add(comp.id);
-      }
+        if (comp.sensitive) {
+          redactionCtx.sensitiveComponents.add(comp.id);
+        }
 
-      // Extract sensitive fields from form components
-      if (comp.type === 'form') {
-        for (const field of comp.fields) {
-          if (field.sensitive) {
-            redactionCtx.sensitiveFields.add(field.name);
-          }
-          if (field.defaultValue !== undefined) {
-            compState.values[field.name] = field.defaultValue;
-            state.bindings[field.name] = field.defaultValue;
-            if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
-              state.bindings[comp.id] = {};
+        // Extract sensitive fields from form components
+        if (comp.type === 'form') {
+          for (const field of comp.fields) {
+            if (field.sensitive) {
+              redactionCtx.sensitiveFields.add(field.name);
             }
-            (state.bindings[comp.id] as Record<string, unknown>)[field.name] = field.defaultValue;
+            if (field.defaultValue !== undefined) {
+              compState.values[field.name] = field.defaultValue;
+              state.bindings[field.name] = field.defaultValue;
+              if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+                state.bindings[comp.id] = {};
+              }
+              (state.bindings[comp.id] as Record<string, unknown>)[field.name] = field.defaultValue;
+            }
           }
         }
+
+        applyInitialState(compState);
+        state.components.set(comp.id, compState);
+        syncComponentDataSlots(comp);
       }
-
-      applyInitialState(compState);
-      state.components.set(comp.id, compState);
-      syncComponentDataSlots(comp);
     }
-  }
-
-  dataManager.endBatch(state.bindings);
+  });
 
   function logAction(action: StoreAction) {
     const eventTypeMap: Record<StoreAction['type'], EventType> = {
@@ -370,65 +369,64 @@ export function createDocumentStore(
       }
 
       // Add new components, preserve existing ones
-      dataManager.beginBatch();
-      for (const child of newAst.children) {
-        if (!isMdmaBlock(child)) continue;
-        const comp = child.component;
+      dataManager.runBatch(state.bindings, () => {
+        for (const child of newAst.children) {
+          if (!isMdmaBlock(child)) continue;
+          const comp = child.component;
 
-        // If this component already exists with the same type, keep its state — this preserves
-        // in-flight values/touched/focus across streamed re-parses. If the type changed, an
-        // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
-        // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
-        const existing = state.components.get(comp.id);
-        if (existing && existing.type === comp.type) {
-          syncComponentDataSlots(comp);
-          continue;
-        }
-        redactionCtx.sensitiveComponents.delete(comp.id);
+          // If this component already exists with the same type, keep its state — this preserves
+          // in-flight values/touched/focus across streamed re-parses. If the type changed, an
+          // earlier partial parse produced a placeholder/truncated type (e.g. `approval-gat` before
+          // the streamed `approval-gate` completed), so fall through and re-initialize from scratch.
+          const existing = state.components.get(comp.id);
+          if (existing && existing.type === comp.type) {
+            syncComponentDataSlots(comp);
+            continue;
+          }
+          redactionCtx.sensitiveComponents.delete(comp.id);
 
-        // New (or retyped) component — initialize with defaults
-        const compState: ComponentState = {
-          id: comp.id,
-          type: comp.type,
-          values: {},
-          errors: [],
-          touched: false,
-          visible: resolveValue(comp.visible, state.bindings) !== false,
-          disabled: resolveValue(comp.disabled, state.bindings) === true,
-        };
+          // New (or retyped) component — initialize with defaults
+          const compState: ComponentState = {
+            id: comp.id,
+            type: comp.type,
+            values: {},
+            errors: [],
+            touched: false,
+            visible: resolveValue(comp.visible, state.bindings) !== false,
+            disabled: resolveValue(comp.disabled, state.bindings) === true,
+          };
 
-        if (comp.sensitive) {
-          redactionCtx.sensitiveComponents.add(comp.id);
-        }
+          if (comp.sensitive) {
+            redactionCtx.sensitiveComponents.add(comp.id);
+          }
 
-        if (comp.type === 'form') {
-          for (const field of comp.fields) {
-            if (field.sensitive) {
-              redactionCtx.sensitiveFields.add(field.name);
-            }
-            if (field.defaultValue !== undefined) {
-              compState.values[field.name] = field.defaultValue;
-              // Only set binding if not already set by user interaction
-              if (!(field.name in state.bindings)) {
-                state.bindings[field.name] = field.defaultValue;
+          if (comp.type === 'form') {
+            for (const field of comp.fields) {
+              if (field.sensitive) {
+                redactionCtx.sensitiveFields.add(field.name);
               }
-              if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
-                state.bindings[comp.id] = {};
-              }
-              const nested = state.bindings[comp.id] as Record<string, unknown>;
-              if (!(field.name in nested)) {
-                nested[field.name] = field.defaultValue;
+              if (field.defaultValue !== undefined) {
+                compState.values[field.name] = field.defaultValue;
+                // Only set binding if not already set by user interaction
+                if (!(field.name in state.bindings)) {
+                  state.bindings[field.name] = field.defaultValue;
+                }
+                if (!state.bindings[comp.id] || typeof state.bindings[comp.id] !== 'object') {
+                  state.bindings[comp.id] = {};
+                }
+                const nested = state.bindings[comp.id] as Record<string, unknown>;
+                if (!(field.name in nested)) {
+                  nested[field.name] = field.defaultValue;
+                }
               }
             }
           }
+
+          applyInitialState(compState);
+          state.components.set(comp.id, compState);
+          syncComponentDataSlots(comp);
         }
-
-        applyInitialState(compState);
-        state.components.set(comp.id, compState);
-        syncComponentDataSlots(comp);
-      }
-
-      dataManager.endBatch(state.bindings);
+      });
 
       notify();
     },

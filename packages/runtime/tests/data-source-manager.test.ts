@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { createDocumentStore } from '../src/core/document-store.js';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { DataSourceManager } from '../src/core/data-source-manager.js';
 import type { DataRequest, DataResult } from '../src/core/data-source-manager.js';
 
 function makeAst(components: Array<Record<string, unknown>>): MdmaRoot {
@@ -443,12 +444,17 @@ describe('DataSourceManager via DocumentStore', () => {
       },
     ]);
 
-    const store = createDocumentStore(ast, { dataSources: { accounts: resolver } });
-    await store.resolveAllData();
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    vi.useFakeTimers();
+    try {
+      const store = createDocumentStore(ast, { dataSources: { accounts: resolver } });
+      await store.resolveAllData();
+      await vi.advanceTimersByTimeAsync(300);
 
-    expect(calls.every((c) => c.params.region === 'eu')).toBe(true);
-    expect(calls).toHaveLength(2);
+      expect(calls.every((c) => c.params.region === 'eu')).toBe(true);
+      expect(calls).toHaveLength(2);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('does not refetch after resolveAllData when a param change had a pending debounce', async () => {
@@ -511,5 +517,43 @@ describe('DataSourceManager via DocumentStore', () => {
     const store = createDocumentStore(ast, { dataSources: {} });
 
     expect(store.getDataState('intake.country')).toBeUndefined();
+  });
+});
+
+describe('DataSourceManager batching', () => {
+  function setup() {
+    const resolver = vi.fn(async (): Promise<DataResult> => ({ rows: [{ id: 1 }], total: 1 }));
+    const manager = new DataSourceManager({ dataSources: { items: resolver } });
+    return { resolver, manager };
+  }
+
+  it('stops deferring fetches when the batch callback throws', () => {
+    const { resolver, manager } = setup();
+
+    expect(() =>
+      manager.runBatch({}, () => {
+        manager.register('a', { source: 'items' }, {});
+        throw new Error('boom');
+      }),
+    ).toThrow('boom');
+
+    expect(resolver).toHaveBeenCalledTimes(1);
+    manager.register('b', { source: 'items', params: { x: 1 } }, {});
+    expect(resolver).toHaveBeenCalledTimes(2);
+  });
+
+  it('keeps the outer batch deferred keys when a nested batch ends', () => {
+    const { resolver, manager } = setup();
+
+    manager.beginBatch();
+    manager.register('a', { source: 'items' }, {});
+    manager.beginBatch();
+    manager.register('b', { source: 'items', params: { x: 1 } }, {});
+    manager.endBatch({});
+    manager.register('c', { source: 'items', params: { x: 2 } }, {});
+    expect(resolver).not.toHaveBeenCalled();
+
+    manager.endBatch({});
+    expect(resolver).toHaveBeenCalledTimes(3);
   });
 });
