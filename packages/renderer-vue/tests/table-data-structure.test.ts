@@ -1,8 +1,8 @@
 import { flushPromises } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 import { TableRenderer } from '../src/components/TableRenderer.js';
-import { flushMicrotasks } from './helpers/flush.js';
 import { mdma } from './helpers/doc.js';
+import { flushMicrotasks } from './helpers/flush.js';
 import { mountBlock } from './helpers/mount-block.js';
 
 const SORTABLE_TABLE = mdma(`

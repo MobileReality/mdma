@@ -7,8 +7,8 @@ import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 import { act } from 'react';
 import { type Root, createRoot } from 'react-dom/client';
 import { TableRenderer } from '../src/components/TableRenderer.js';
-import { flushMicrotasks } from './helpers/flush.js';
 import { MdmaProvider } from '../src/context/MdmaProvider.js';
+import { flushMicrotasks } from './helpers/flush.js';
 
 function makeAst(component: Record<string, unknown>): MdmaRoot {
   return {
