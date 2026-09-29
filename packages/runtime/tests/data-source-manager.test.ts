@@ -571,3 +571,48 @@ describe('DataSourceManager batching', () => {
     expect(resolver).toHaveBeenCalledTimes(3);
   });
 });
+
+describe('DocumentStore with DataSourceDefinition[]', () => {
+  it('fetches through the definition resolver', async () => {
+    const resolve = vi.fn(
+      async (): Promise<DataResult> => ({ rows: [{ id: 1, name: 'A' }], total: 1 }),
+    );
+    const store = createDocumentStore(tableAst(), {
+      dataSources: [{ name: 'accounts', kind: 'rows', resolve }],
+    });
+    await vi.waitFor(() => {
+      expect(store.getDataState('accounts')?.status).toBe('ready');
+    });
+    expect(store.getDataState('accounts')?.rows).toEqual([{ id: 1, name: 'A' }]);
+  });
+
+  it('accepts static rows as resolve', async () => {
+    const store = createDocumentStore(tableAst(), {
+      dataSources: [{ name: 'accounts', kind: 'rows', resolve: [{ id: 1, name: 'A' }] }],
+    });
+    await vi.waitFor(() => {
+      expect(store.getDataState('accounts')?.status).toBe('ready');
+    });
+  });
+
+  it('errors with "no resolver registered" when a definition has no resolve', async () => {
+    const store = createDocumentStore(tableAst(), {
+      dataSources: [{ name: 'accounts', kind: 'rows' }],
+    });
+    await vi.waitFor(() => {
+      expect(store.getDataState('accounts')?.status).toBe('error');
+    });
+    expect(store.getDataState('accounts')?.error).toMatch(/no resolver registered/i);
+  });
+
+  it('throws on duplicate names', () => {
+    expect(() =>
+      createDocumentStore(tableAst(), {
+        dataSources: [
+          { name: 'accounts', kind: 'rows' },
+          { name: 'accounts', kind: 'rows' },
+        ],
+      }),
+    ).toThrow(/Duplicate data source name "accounts"/);
+  });
+});
