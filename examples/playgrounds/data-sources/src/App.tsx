@@ -9,6 +9,9 @@ import { unified } from 'unified';
 import { clearCallLog, useCallLog } from './call-log.js';
 import { createMockSources } from './mock-sources.js';
 import { SCENARIOS, type Scenario } from './scenarios.js';
+import { SourceChartRenderer } from './SourceChart.js';
+
+const customizations = { components: { chart: SourceChartRenderer } };
 
 const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
 
@@ -92,7 +95,14 @@ export function App() {
       <p className="pg-hint">{scenario.hint}</p>
       <div className="pg-body">
         <main className="pg-main" data-scenario-view={scenario.id}>
-          {loaded && <MdmaDocument key={scenario.id} ast={loaded.ast} store={loaded.store} />}
+          {loaded && (
+            <MdmaDocument
+              key={scenario.id}
+              ast={loaded.ast}
+              store={loaded.store}
+              customizations={customizations}
+            />
+          )}
         </main>
         <CallLog />
       </div>

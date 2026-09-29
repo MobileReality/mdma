@@ -17,6 +17,7 @@
     "@mobile-reality/mdma-spec": "workspace:*",
     "react": "19.2.4",
     "react-dom": "19.2.4",
+    "recharts": "^3.7.0",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.0"
