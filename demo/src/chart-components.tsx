@@ -1,22 +1,26 @@
-import { memo, useMemo } from 'react';
-import type { ChartComponent } from '@mobile-reality/mdma-spec';
-import type { MdmaBlockRendererProps } from '@mobile-reality/mdma-renderer-react';
 import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  BarChart,
-  Bar,
-  AreaChart,
+  type MdmaBlockRendererProps,
+  useDataState,
+  useDocumentStore,
+} from '@mobile-reality/mdma-renderer-react';
+import { type ChartComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
+import { memo, useMemo } from 'react';
+import {
   Area,
-  PieChart,
-  Pie,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
   Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
 } from 'recharts';
 
 // ─── CSV Data Parser ─────────────────────────────────────────────────────────
@@ -40,7 +44,7 @@ function parseCsvData(raw: string): ParsedChartData {
     headers.forEach((header, i) => {
       const val = values[i] ?? '';
       const num = Number(val);
-      row[header] = val !== '' && !isNaN(num) ? num : val;
+      row[header] = val !== '' && !Number.isNaN(num) ? num : val;
     });
     return row;
   });
@@ -81,9 +85,12 @@ const DEFAULT_COLORS = [
 function resolveChartData(
   chart: ChartComponent,
   resolveBinding: (expr: string) => unknown,
+  sourceRows?: unknown[],
 ): { data: ParsedChartData; xKey: string; yKeys: string[]; colors: string[] } {
   let parsed: ParsedChartData;
-  if (typeof chart.data === 'string' && chart.data.startsWith('{{')) {
+  if (sourceRows) {
+    parsed = arrayToChartData(sourceRows);
+  } else if (typeof chart.data === 'string' && chart.data.startsWith('{{')) {
     const resolved = resolveBinding(chart.data);
     parsed = typeof resolved === 'string' ? parseCsvData(resolved) : arrayToChartData(resolved);
   } else {
@@ -307,20 +314,22 @@ function RechartPie({
 
 // ─── Main Renderer ───────────────────────────────────────────────────────────
 
-export const ChartRenderer = memo(function ChartRenderer({
-  component,
-  resolveBinding,
-}: MdmaBlockRendererProps) {
-  const chart = component as unknown as ChartComponent;
-
-  const { data, xKey, yKeys, colors } = useMemo(
-    () => resolveChartData(chart, resolveBinding),
-    [chart, resolveBinding],
-  );
-
+function ChartView({
+  chart,
+  data,
+  xKey,
+  yKeys,
+  colors,
+}: {
+  chart: ChartComponent;
+  data: ParsedChartData;
+  xKey: string;
+  yKeys: string[];
+  colors: string[];
+}) {
   if (data.rows.length === 0) {
     return (
-      <div className="mdma-chart mdma-chart--empty" data-component-id={component.id}>
+      <div className="mdma-chart mdma-chart--empty" data-component-id={chart.id}>
         {chart.label && <div className="mdma-chart-label">{chart.label}</div>}
         <div className="mdma-chart-empty">No chart data</div>
       </div>
@@ -330,7 +339,7 @@ export const ChartRenderer = memo(function ChartRenderer({
   const props = { data, xKey, yKeys, colors, chart };
 
   return (
-    <div className="mdma-chart" data-component-id={component.id}>
+    <div className="mdma-chart" data-component-id={chart.id}>
       {chart.label && <div className="mdma-chart-label">{chart.label}</div>}
       {chart.variant === 'line' && <RechartLine {...props} />}
       {chart.variant === 'bar' && <RechartBar {...props} />}
@@ -338,4 +347,52 @@ export const ChartRenderer = memo(function ChartRenderer({
       {chart.variant === 'pie' && <RechartPie {...props} />}
     </div>
   );
+}
+
+function SourceChart({ chart }: { chart: ChartComponent }) {
+  const store = useDocumentStore();
+  const dataState = useDataState(chart.id);
+  const rows = dataState?.status === 'ready' ? dataState.rows : undefined;
+  const resolved = useMemo(
+    () => resolveChartData(chart, () => undefined, rows ?? []),
+    [chart, rows],
+  );
+
+  if (!dataState || dataState.status === 'loading' || dataState.status === 'idle') {
+    return (
+      <div className="mdma-data-loading" data-component-id={chart.id}>
+        Loading…
+      </div>
+    );
+  }
+  if (dataState.status === 'error') {
+    return (
+      <div className="mdma-data-error" data-component-id={chart.id}>
+        <span>{dataState.error ?? 'Failed to load chart data'}</span>
+        <button type="button" onClick={() => store.retryData(chart.id)}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+  return <ChartView chart={chart} {...resolved} />;
+}
+
+export const ChartRenderer = memo(function ChartRenderer({
+  component,
+  resolveBinding,
+}: MdmaBlockRendererProps) {
+  const chart = component as unknown as ChartComponent;
+  const fromSource = isDataSourceRef(chart.data);
+
+  const resolved = useMemo(
+    () =>
+      fromSource
+        ? { data: { headers: [], rows: [] }, xKey: '', yKeys: [], colors: [] }
+        : resolveChartData(chart, resolveBinding),
+    [chart, resolveBinding, fromSource],
+  );
+
+  if (fromSource) return <SourceChart chart={chart} />;
+  return <ChartView chart={chart} {...resolved} />;
 });
