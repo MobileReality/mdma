@@ -1,11 +1,6 @@
 import { z } from 'zod';
 
-export const DataSourceParamValueSchema = z.union([
-  z.string(),
-  z.number(),
-  z.boolean(),
-  z.null(),
-]);
+export const DataSourceParamValueSchema = z.union([z.string(), z.number(), z.boolean(), z.null()]);
 
 export const DataSourceRefSchema = z.object({
   source: z.string().min(1),
@@ -48,3 +43,50 @@ export const DataSourceDescriptorSchema = z.object({
 export type DataSourceColumnDescriptor = z.infer<typeof DataSourceColumnDescriptorSchema>;
 export type DataSourceParamDescriptor = z.infer<typeof DataSourceParamDescriptorSchema>;
 export type DataSourceDescriptor = z.infer<typeof DataSourceDescriptorSchema>;
+
+export type DataSourceSortDirection = 'asc' | 'desc';
+
+export interface DataSourceSort {
+  key: string;
+  direction: DataSourceSortDirection;
+}
+
+export interface DataSourceRequest {
+  source: string;
+  params: Record<string, unknown>;
+  page?: number;
+  pageSize?: number;
+  sort?: DataSourceSort;
+  filter?: string;
+}
+
+export interface DataSourceResult<TRow = unknown> {
+  rows: TRow[];
+  total?: number;
+}
+
+export type DataSourceResolver = (
+  request: DataSourceRequest,
+  ctx: { signal: AbortSignal },
+) => Promise<DataSourceResult>;
+
+export interface DataSourceDefinition extends DataSourceDescriptor {
+  resolve?: unknown[] | DataSourceResolver;
+}
+
+export function defineDataSource<const T extends DataSourceDefinition>(definition: T): T {
+  return definition;
+}
+
+export function indexDataSources<T extends DataSourceDescriptor>(
+  definitions: readonly T[],
+): Record<string, T> {
+  const index: Record<string, T> = {};
+  for (const definition of definitions) {
+    if (Object.hasOwn(index, definition.name)) {
+      throw new Error(`Duplicate data source name "${definition.name}"`);
+    }
+    index[definition.name] = definition;
+  }
+  return index;
+}

@@ -14,7 +14,8 @@ import { PolicyEngine, createDefaultPolicy } from '../policy/policy-engine.js';
 import type { AttachableRegistry, ComponentState } from '../attachable/registry.js';
 import {
   DataSourceManager,
-  type DataSourceMap,
+  type DataSourceInput,
+  toDataSourceMap,
   type DataSlotState,
   type DataSort,
 } from './data-source-manager.js';
@@ -38,7 +39,7 @@ export interface DocumentStoreOptions {
    * edits during streaming re-parses.
    */
   initialState?: Record<string, Record<string, unknown>>;
-  dataSources?: DataSourceMap;
+  dataSources?: DataSourceInput;
 }
 
 export interface DocumentStore {
@@ -89,7 +90,7 @@ export function createDocumentStore(
   }
 
   const dataManager = new DataSourceManager({
-    dataSources: options.dataSources,
+    dataSources: toDataSourceMap(options.dataSources),
     onChange: notify,
     onLog: ({ key, eventType, payload }) => {
       eventLog.append({ eventType, componentId: key, payload, redacted: false });

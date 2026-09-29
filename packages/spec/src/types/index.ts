@@ -11,6 +11,12 @@ export type {
   DataSourceDescriptor,
   DataSourceColumnDescriptor,
   DataSourceParamDescriptor,
+  DataSourceDefinition,
+  DataSourceResolver,
+  DataSourceRequest,
+  DataSourceResult,
+  DataSourceSort,
+  DataSourceSortDirection,
 } from '../schemas/data-source.js';
 export type {
   MdmaComponent,
