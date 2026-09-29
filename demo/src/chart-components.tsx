@@ -1,7 +1,11 @@
 import {
+  type DataEmptyElementProps,
+  type DataErrorElementProps,
+  type DataLoadingElementProps,
   type MdmaBlockRendererProps,
   useDataState,
   useDocumentStore,
+  useElementOverride,
 } from '@mobile-reality/mdma-renderer-react';
 import { type ChartComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
 import { memo, useMemo } from 'react';
@@ -349,9 +353,40 @@ function ChartView({
   );
 }
 
+function DefaultLoading({ componentId }: DataLoadingElementProps) {
+  return (
+    <div className="mdma-data-loading" data-component-id={componentId}>
+      Loading…
+    </div>
+  );
+}
+
+function DefaultError({ componentId, error, onRetry }: DataErrorElementProps) {
+  return (
+    <div className="mdma-data-error" data-component-id={componentId}>
+      <span>{error}</span>
+      <button type="button" onClick={onRetry}>
+        Retry
+      </button>
+    </div>
+  );
+}
+
+function DefaultEmpty({ componentId }: DataEmptyElementProps) {
+  return (
+    <div className="mdma-chart mdma-chart--empty" data-component-id={componentId}>
+      <div className="mdma-chart-empty">No chart data</div>
+    </div>
+  );
+}
+
 function SourceChart({ chart }: { chart: ChartComponent }) {
   const store = useDocumentStore();
   const dataState = useDataState(chart.id);
+  const DataLoading =
+    useElementOverride<DataLoadingElementProps>('chart', 'dataLoading') ?? DefaultLoading;
+  const DataError = useElementOverride<DataErrorElementProps>('chart', 'dataError') ?? DefaultError;
+  const DataEmpty = useElementOverride<DataEmptyElementProps>('chart', 'dataEmpty') ?? DefaultEmpty;
   const rows = dataState?.status === 'ready' ? dataState.rows : undefined;
   const resolved = useMemo(
     () => resolveChartData(chart, () => undefined, rows ?? []),
@@ -359,22 +394,29 @@ function SourceChart({ chart }: { chart: ChartComponent }) {
   );
 
   if (!dataState || dataState.status === 'loading' || dataState.status === 'idle') {
-    return (
-      <div className="mdma-data-loading" data-component-id={chart.id}>
-        Loading…
-      </div>
-    );
+    return <DataLoading componentId={chart.id} />;
   }
   if (dataState.status === 'error') {
     return (
-      <div className="mdma-data-error" data-component-id={chart.id}>
-        <span>{dataState.error ?? 'Failed to load chart data'}</span>
-        <button type="button" onClick={() => store.retryData(chart.id)}>
-          Retry
-        </button>
-      </div>
+      <DataError
+        componentId={chart.id}
+        error={dataState.error ?? 'Failed to load chart data'}
+        onRetry={() => store.retryData(chart.id)}
+      />
     );
   }
+  if (resolved.data.rows.length === 0) return <DataEmpty componentId={chart.id} />;
+  return <ChartView chart={chart} {...resolved} />;
+}
+
+function LiteralChart({
+  chart,
+  resolveBinding,
+}: {
+  chart: ChartComponent;
+  resolveBinding: (expr: string) => unknown;
+}) {
+  const resolved = useMemo(() => resolveChartData(chart, resolveBinding), [chart, resolveBinding]);
   return <ChartView chart={chart} {...resolved} />;
 }
 
@@ -383,16 +425,6 @@ export const ChartRenderer = memo(function ChartRenderer({
   resolveBinding,
 }: MdmaBlockRendererProps) {
   const chart = component as unknown as ChartComponent;
-  const fromSource = isDataSourceRef(chart.data);
-
-  const resolved = useMemo(
-    () =>
-      fromSource
-        ? { data: { headers: [], rows: [] }, xKey: '', yKeys: [], colors: [] }
-        : resolveChartData(chart, resolveBinding),
-    [chart, resolveBinding, fromSource],
-  );
-
-  if (fromSource) return <SourceChart chart={chart} />;
-  return <ChartView chart={chart} {...resolved} />;
+  if (isDataSourceRef(chart.data)) return <SourceChart chart={chart} />;
+  return <LiteralChart chart={chart} resolveBinding={resolveBinding} />;
 });
