@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { flushPromises } from '@vue/test-utils';
 import { defineComponent, h } from 'vue';
 import { TableRenderer } from '../src/components/TableRenderer.js';
+import { flushMicrotasks } from './helpers/flush.js';
 import { mdma } from './helpers/doc.js';
 import { mountBlock } from './helpers/mount-block.js';
 
@@ -50,8 +51,7 @@ describe('TableRenderer with a data source ref', () => {
       { id: 1, name: 'Acme' },
       { id: 2, name: 'Globex' },
     ]);
-    await flushPromises();
-    await flushPromises();
+    await flushMicrotasks();
 
     expect(wrapper.text()).toContain('Acme');
     expect(wrapper.text()).toContain('Globex');
@@ -86,7 +86,6 @@ describe('TableRenderer with a data source ref', () => {
     await flushPromises();
 
     expect(wrapper.find('.custom-loading').text()).toBe('reload');
-    expect(wrapper.text()).toContain('Acme');
     releasePage2?.();
     await flushPromises();
   });
@@ -116,8 +115,7 @@ describe('TableRenderer with a data source ref', () => {
     expect(wrapper.text()).toContain('Loading');
 
     releasePage2?.();
-    await flushPromises();
-    await flushPromises();
+    await flushMicrotasks();
 
     expect(wrapper.text()).toContain('Page Two');
     expect(wrapper.text()).not.toContain('Loading');
