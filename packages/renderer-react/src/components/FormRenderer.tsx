@@ -1,6 +1,5 @@
 import { memo, useState } from 'react';
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
-import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
@@ -239,9 +238,9 @@ export const FormRenderer = memo(function FormRenderer({
                   options={
                     typeof field.options === 'string'
                       ? (dataSources?.[field.options] ?? [])
-                      : isDataSourceRef(field.options)
-                        ? []
-                        : (field.options ?? [])
+                      : Array.isArray(field.options)
+                        ? field.options
+                        : []
                   }
                 />
               )

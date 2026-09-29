@@ -1,7 +1,6 @@
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { memo } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
-import { isDataSourceRef } from '@mobile-reality/mdma-spec';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
@@ -125,13 +124,15 @@ export const FormRenderer = memo(function FormRenderer({
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
 
         const dataKey = `${component.id}.${field.name}`;
-        const isDataDriven = isDataDrivenOptions(field.options, dataKey, store.getDataState);
+        const isDataDriven = isDataDrivenOptions(field.options, dataKey, (key) =>
+          store.getDataState(key),
+        );
         const options =
           typeof field.options === 'string'
             ? (dataSources?.[field.options] ?? [])
-            : isDataSourceRef(field.options)
-              ? []
-              : (field.options ?? []);
+            : Array.isArray(field.options)
+              ? field.options
+              : [];
 
         return (
           <View key={field.name} style={{ gap: spacing.xs }}>

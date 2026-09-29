@@ -193,7 +193,9 @@ function build(props: MdmaBlockRendererProps, component: FormComponent, getProps
   const rows = component.fields.map((field) => {
     const instance =
       field.type === 'select' &&
-      isDataDrivenOptions(field.options, `${component.id}.${field.name}`, props.getDataState)
+      isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
+        props.getDataState(key),
+      )
         ? createDataDrivenSelect(component, field, getProps, `${component.id}.${field.name}`)
         : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
             elementPropsFor(field, component, props, getProps),
