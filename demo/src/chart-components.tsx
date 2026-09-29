@@ -1,4 +1,7 @@
 import {
+  DefaultDataEmpty,
+  DefaultDataError,
+  DefaultDataLoading,
   type DataEmptyElementProps,
   type DataErrorElementProps,
   type DataLoadingElementProps,
@@ -353,40 +356,15 @@ function ChartView({
   );
 }
 
-function DefaultLoading({ componentId }: DataLoadingElementProps) {
-  return (
-    <div className="mdma-data-loading" data-component-id={componentId}>
-      Loading…
-    </div>
-  );
-}
-
-function DefaultError({ componentId, error, onRetry }: DataErrorElementProps) {
-  return (
-    <div className="mdma-data-error" data-component-id={componentId}>
-      <span>{error}</span>
-      <button type="button" onClick={onRetry}>
-        Retry
-      </button>
-    </div>
-  );
-}
-
-function DefaultEmpty({ componentId }: DataEmptyElementProps) {
-  return (
-    <div className="mdma-chart mdma-chart--empty" data-component-id={componentId}>
-      <div className="mdma-chart-empty">No chart data</div>
-    </div>
-  );
-}
-
 function SourceChart({ chart }: { chart: ChartComponent }) {
   const store = useDocumentStore();
   const dataState = useDataState(chart.id);
   const DataLoading =
-    useElementOverride<DataLoadingElementProps>('chart', 'dataLoading') ?? DefaultLoading;
-  const DataError = useElementOverride<DataErrorElementProps>('chart', 'dataError') ?? DefaultError;
-  const DataEmpty = useElementOverride<DataEmptyElementProps>('chart', 'dataEmpty') ?? DefaultEmpty;
+    useElementOverride<DataLoadingElementProps>('chart', 'dataLoading') ?? DefaultDataLoading;
+  const DataError =
+    useElementOverride<DataErrorElementProps>('chart', 'dataError') ?? DefaultDataError;
+  const DataEmpty =
+    useElementOverride<DataEmptyElementProps>('chart', 'dataEmpty') ?? DefaultDataEmpty;
   const rows = dataState?.status === 'ready' ? dataState.rows : undefined;
   const resolved = useMemo(
     () => resolveChartData(chart, () => undefined, rows ?? []),
@@ -405,7 +383,8 @@ function SourceChart({ chart }: { chart: ChartComponent }) {
       />
     );
   }
-  if (resolved.data.rows.length === 0) return <DataEmpty componentId={chart.id} />;
+  if (resolved.data.rows.length === 0)
+    return <DataEmpty componentId={chart.id} label={chart.label} />;
   return <ChartView chart={chart} {...resolved} />;
 }
 
