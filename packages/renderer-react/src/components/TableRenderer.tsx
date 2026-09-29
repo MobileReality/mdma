@@ -65,7 +65,7 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
 
   return (
     <div aria-busy={isReloading}>
-      {isReloading && <span className="mdma-table-loading-indicator">Loading…</span>}
+      {isReloading && <DataLoading componentId={component.id} reloading />}
       <TableBody
         component={component}
         data={dataState.rows}

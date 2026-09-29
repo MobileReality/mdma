@@ -70,6 +70,7 @@ export interface FormSensitiveIndicatorElementProps {
 
 export interface DataLoadingElementProps {
   componentId: string;
+  reloading?: boolean;
 }
 
 export interface DataErrorElementProps {

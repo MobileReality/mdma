@@ -92,11 +92,7 @@ function renderTableBody(
         ),
         data.length === 0
           ? h('tr', [
-              h(
-                'td',
-                { colspan: component.columns.length, class: 'mdma-table-empty' },
-                'No data',
-              ),
+              h('td', { colspan: component.columns.length, class: 'mdma-table-empty' }, 'No data'),
             ])
           : null,
       ]),
@@ -175,7 +171,12 @@ const DataDrivenTable = defineComponent({
           : null;
 
       return h('div', { 'aria-busy': isReloading ? 'true' : undefined }, [
-        isReloading ? h('span', { class: 'mdma-table-loading-indicator' }, 'Loading…') : null,
+        isReloading
+          ? h(DataLoading.value ?? DefaultDataLoading, {
+              componentId: component.id,
+              reloading: true,
+            })
+          : null,
         body,
         pagination,
       ]);

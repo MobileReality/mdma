@@ -2,10 +2,23 @@ import { defineComponent, h, type PropType } from 'vue';
 
 export const DefaultDataLoading = defineComponent({
   name: 'MdmaDataLoading',
-  props: { componentId: { type: String, required: true } },
+  props: {
+    componentId: { type: String, required: true },
+    reloading: { type: Boolean, default: false },
+  },
   setup(props) {
     return () =>
-      h('div', { class: 'mdma-data-loading', 'data-component-id': props.componentId }, 'Loading…');
+      props.reloading
+        ? h(
+            'span',
+            { class: 'mdma-table-loading-indicator', 'data-component-id': props.componentId },
+            'Loading…',
+          )
+        : h(
+            'div',
+            { class: 'mdma-data-loading', 'data-component-id': props.componentId },
+            'Loading…',
+          );
   },
 });
 

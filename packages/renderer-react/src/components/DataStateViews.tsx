@@ -4,7 +4,14 @@ import type {
   DataEmptyElementProps,
 } from '../context/ElementOverridesContext.js';
 
-export function DefaultDataLoading({ componentId }: DataLoadingElementProps) {
+export function DefaultDataLoading({ componentId, reloading }: DataLoadingElementProps) {
+  if (reloading) {
+    return (
+      <span className="mdma-table-loading-indicator" data-component-id={componentId}>
+        Loading…
+      </span>
+    );
+  }
   return (
     <div className="mdma-data-loading" data-component-id={componentId}>
       Loading…
