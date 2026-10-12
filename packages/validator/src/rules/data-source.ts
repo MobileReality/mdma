@@ -23,6 +23,15 @@ function isLiteralParamValue(value: unknown): value is string | number | boolean
   return typeof value === 'number' || typeof value === 'boolean';
 }
 
+type DataSourceKind = DataSourceDescriptor['kind'];
+
+function matchesParamType(value: unknown, type: string): boolean {
+  if (value === null || value === undefined) return true;
+  if (typeof value === 'string' && isBindingExpression(value)) return true;
+  const actual: string = typeof value;
+  return actual === type;
+}
+
 function asOptionsRef(value: unknown): RefLike | null {
   // a {{binding}} string is a live reference, not a source name
   if (typeof value === 'string') return isBindingExpression(value) ? null : { source: value };
@@ -45,6 +54,7 @@ function checkRef(
   componentId: string | null,
   field: string,
   blockIndex: number,
+  expectedKind: DataSourceKind,
 ): DataSourceDescriptor | undefined {
   if (ref.source.trim() === '') {
     context.issues.push({
@@ -76,9 +86,37 @@ function checkRef(
     return undefined;
   }
 
+  if (descriptor.kind !== expectedKind) {
+    context.issues.push({
+      ruleId: 'data-source',
+      severity: 'error',
+      message: `Data source "${ref.source}" is kind "${descriptor.kind}" but "${field}" needs kind "${expectedKind}"`,
+      componentId,
+      field,
+      blockIndex,
+      fixed: false,
+    });
+  }
+
   const params = ref.params ?? {};
+  const declaredNames = new Set((descriptor.params ?? []).map((p) => p.name));
+  for (const name of Object.keys(params)) {
+    if (!declaredNames.has(name)) {
+      context.issues.push({
+        ruleId: 'data-source',
+        severity: 'error',
+        message: `Data source "${ref.source}" does not declare param "${name}"`,
+        componentId,
+        field,
+        blockIndex,
+        fixed: false,
+      });
+    }
+  }
+
   for (const paramDesc of descriptor.params ?? []) {
-    if (paramDesc.required && !(paramDesc.name in params)) {
+    const value = params[paramDesc.name];
+    if (paramDesc.required && (value === null || value === undefined)) {
       context.issues.push({
         ruleId: 'data-source',
         severity: 'error',
@@ -90,7 +128,18 @@ function checkRef(
       });
       continue;
     }
-    const value = params[paramDesc.name];
+    if (!matchesParamType(value, paramDesc.type)) {
+      context.issues.push({
+        ruleId: 'data-source',
+        severity: 'error',
+        message: `Data source "${ref.source}" param "${paramDesc.name}" must be of type ${paramDesc.type}`,
+        componentId,
+        field,
+        blockIndex,
+        fixed: false,
+      });
+      continue;
+    }
     if (paramDesc.allowed && isLiteralParamValue(value) && !paramDesc.allowed.includes(value)) {
       context.issues.push({
         ruleId: 'data-source',
@@ -124,14 +173,14 @@ export const dataSourceRule: ValidationRule = {
           if (typeof field !== 'object' || field === null) return;
           const ref = asOptionsRef((field as Record<string, unknown>).options);
           if (!ref) return;
-          checkRef(context, ref, id, `fields[${i}].options`, block.index);
+          checkRef(context, ref, id, `fields[${i}].options`, block.index, 'options');
         });
       }
 
       if (block.data.type === 'table') {
         const ref = asObjectRef(block.data.data);
         if (ref) {
-          const descriptor = checkRef(context, ref, id, 'data', block.index);
+          const descriptor = checkRef(context, ref, id, 'data', block.index, 'rows');
           if (descriptor?.columns) {
             const sourceKeys = new Set(descriptor.columns.map((c) => c.key));
             const columns = Array.isArray(block.data.columns) ? block.data.columns : [];
@@ -157,7 +206,7 @@ export const dataSourceRule: ValidationRule = {
       if (block.data.type === 'chart') {
         const ref = asObjectRef(block.data.data);
         if (ref) {
-          const descriptor = checkRef(context, ref, id, 'data', block.index);
+          const descriptor = checkRef(context, ref, id, 'data', block.index, 'series');
           if (descriptor?.columns) {
             const sourceKeys = new Set(descriptor.columns.map((c) => c.key));
             const axisKeys: Array<[string, unknown]> = [
