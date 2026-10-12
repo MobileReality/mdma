@@ -41,32 +41,36 @@ export const CUSTOM_COMPONENTS = [
  * even when the provider is pinned in the config's `providers:` block rather
  * than via the env var. If a model-specialized variant lives at
  * packages/prompt-pack/src/prompts/mdma-author/<family>/<model>.ts, it wins
- * over the default. Resolution is memoized per provider id so the selector
+ * over the default. Resolution is memoized per provider id and data-source flag so the selector
  * runs once per model per eval run.
  */
 const promptByProvider = new Map();
 
-function resolveAuthorPrompt(providerId) {
-  if (!promptByProvider.has(providerId)) {
+function resolveAuthorPrompt(providerId, withDataSources) {
+  const key = `${providerId}|${withDataSources}`;
+  if (!promptByProvider.has(key)) {
     promptByProvider.set(
-      providerId,
+      key,
       selectAuthorPrompt(providerId).then(({ prompt, source }) => {
         console.error(
-          `[author] system prompt: ${source} (+custom-component and data-source catalogs)`,
+          `[author] system prompt: ${source} (+custom-component catalog${withDataSources ? ' and data-source catalog' : ''})`,
         );
         return buildSystemPrompt({
           authorPrompt: prompt,
           customComponents: CUSTOM_COMPONENTS,
-          dataSources: DATA_SOURCES,
+          ...(withDataSources ? { dataSources: DATA_SOURCES } : {}),
         });
       }),
     );
   }
-  return promptByProvider.get(providerId);
+  return promptByProvider.get(key);
 }
 
 export default async function ({ vars, provider }) {
-  const systemPrompt = await resolveAuthorPrompt(provider?.id ?? process.env.EVAL_PROVIDER);
+  const systemPrompt = await resolveAuthorPrompt(
+    provider?.id ?? process.env.EVAL_PROVIDER,
+    vars.dataSources === true || vars.dataSources === 'true',
+  );
 
   return [
     { role: 'system', content: `{% raw %}${systemPrompt}{% endraw %}` },
