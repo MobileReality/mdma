@@ -67,6 +67,7 @@ export interface DataSourceManagerOptions {
     payload: Record<string, unknown>;
   }) => void;
   onChange?: () => void;
+  onResolved?: (key: string, rows: unknown[]) => void;
 }
 
 function resolveParams(
@@ -154,6 +155,8 @@ export class DataSourceManager {
   private readonly debounceMs: number;
   private readonly onLog: DataSourceManagerOptions['onLog'];
   private readonly onChange: DataSourceManagerOptions['onChange'];
+  private readonly onResolved: DataSourceManagerOptions['onResolved'];
+  private disposed = false;
   private readonly slots = new Map<string, DataSlot>();
   private deferredKeys: Set<string> | undefined;
   private batchDepth = 0;
@@ -167,6 +170,12 @@ export class DataSourceManager {
     this.debounceMs = options.debounceMs ?? 150;
     this.onLog = options.onLog;
     this.onChange = options.onChange;
+    this.onResolved = options.onResolved;
+  }
+
+  dispose(): void {
+    this.disposed = true;
+    for (const key of this.keys()) this.unregister(key);
   }
 
   has(key: string): boolean {
@@ -183,7 +192,7 @@ export class DataSourceManager {
     bindings: Record<string, unknown>,
     options: { pageSize?: number } = {},
   ): void {
-    if (this.slots.has(key)) return;
+    if (this.disposed || this.slots.has(key)) return;
     const resolvedParams = resolveParams(ref.params, bindings);
     const slot: DataSlot = {
       key,
@@ -257,7 +266,7 @@ export class DataSourceManager {
     slot.pageSize = options.pageSize;
     slot.resolvedParams = resolveParams(ref.params, bindings);
     slot.state = { ...slot.state, page: 1, pageSize: options.pageSize };
-    this.requestFetch(slot);
+    this.scheduleFetch(slot);
   }
 
   unregister(key: string): void {
@@ -322,6 +331,7 @@ export class DataSourceManager {
 
   private scheduleFetch(slot: DataSlot): void {
     if (slot.debounceTimer) clearTimeout(slot.debounceTimer);
+    slot.fetchToken++;
     slot.abortController?.abort();
     slot.debounceTimer = setTimeout(() => {
       slot.debounceTimer = undefined;
@@ -387,6 +397,7 @@ export class DataSourceManager {
         rowCount: result.rows.length,
         total: result.total,
       });
+      this.onResolved?.(slot.key, result.rows);
       this.onChange?.();
     } catch (err) {
       if (controller.signal.aborted) return;
@@ -410,12 +421,7 @@ export class DataSourceManager {
 
     if (!entry) {
       const controller = new AbortController();
-      const promise = resolver(request, { signal: controller.signal }).then((result) => {
-        if (result.total === undefined) {
-          return applyInMemory(result.rows, { ...request, params: {} });
-        }
-        return result;
-      });
+      const promise = resolver(request, { signal: controller.signal });
       entry = { promise, controller, refCount: 0 };
       this.cache.set(key, entry);
       // callers observe rejections via entry.promise; this chain only evicts, so it must swallow them
