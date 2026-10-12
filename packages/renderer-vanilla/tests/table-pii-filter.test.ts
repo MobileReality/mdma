@@ -87,6 +87,7 @@ describe('TableRenderer filter on a data source', () => {
     expect(input).not.toBeNull();
     input.value = 'glob';
     input.dispatchEvent(new Event('input'));
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await tick();
     refresh();
 

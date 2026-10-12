@@ -615,4 +615,32 @@ describe('DocumentStore with DataSourceDefinition[]', () => {
       }),
     ).toThrow(/Duplicate data source name "accounts"/);
   });
+
+  it('debounces rapid setFilter calls into one request and aborts the in-flight one', async () => {
+    vi.useFakeTimers();
+    try {
+      const signals: AbortSignal[] = [];
+      const resolver = vi.fn(
+        (_req: DataRequest, ctx: { signal: AbortSignal }): Promise<DataResult> => {
+          signals.push(ctx.signal);
+          return new Promise<DataResult>(() => {});
+        },
+      );
+      const store = createDocumentStore(tableAst(), { dataSources: { accounts: resolver } });
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(resolver).toHaveBeenCalledTimes(1);
+
+      for (const value of ['a', 'ab', 'abc']) store.setDataFilter('accounts', value);
+      expect(store.getDataState('accounts')?.filter).toBe('abc');
+      expect(store.getDataState('accounts')?.page).toBe(1);
+      expect(signals[0]?.aborted).toBe(true);
+      expect(resolver).toHaveBeenCalledTimes(1);
+
+      await vi.advanceTimersByTimeAsync(1000);
+      expect(resolver).toHaveBeenCalledTimes(2);
+      expect(resolver.mock.calls[1]?.[0].filter).toBe('abc');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

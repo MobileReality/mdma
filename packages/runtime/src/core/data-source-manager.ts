@@ -301,7 +301,8 @@ export class DataSourceManager {
     const slot = this.slots.get(key);
     if (!slot) return;
     slot.state = { ...slot.state, filter, page: 1 };
-    this.fetch(slot);
+    this.onChange?.();
+    this.scheduleFetch(slot);
   }
 
   retry(key: string): void {
