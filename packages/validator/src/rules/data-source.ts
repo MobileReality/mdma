@@ -1,3 +1,4 @@
+import { indexDataSources } from '@mobile-reality/mdma-spec';
 import type { DataSourceDescriptor } from '@mobile-reality/mdma-spec';
 import type { ValidationRule, ValidationRuleContext } from '../types.js';
 
@@ -28,6 +29,16 @@ function asOptionsRef(value: unknown): RefLike | null {
   return asObjectRef(value);
 }
 
+function resolveCatalog(
+  context: ValidationRuleContext,
+): Record<string, DataSourceDescriptor> | undefined {
+  const catalog = context.options.dataSourceCatalog;
+  if (!catalog) return undefined;
+  return Array.isArray(catalog)
+    ? indexDataSources(catalog)
+    : (catalog as Record<string, DataSourceDescriptor>);
+}
+
 function checkRef(
   context: ValidationRuleContext,
   ref: RefLike,
@@ -48,7 +59,7 @@ function checkRef(
     return undefined;
   }
 
-  const catalog = context.options.dataSourceCatalog;
+  const catalog = resolveCatalog(context);
   if (!catalog) return undefined;
 
   const descriptor = catalog[ref.source];
@@ -80,11 +91,7 @@ function checkRef(
       continue;
     }
     const value = params[paramDesc.name];
-    if (
-      paramDesc.allowed &&
-      isLiteralParamValue(value) &&
-      !paramDesc.allowed.includes(value)
-    ) {
+    if (paramDesc.allowed && isLiteralParamValue(value) && !paramDesc.allowed.includes(value)) {
       context.issues.push({
         ruleId: 'data-source',
         severity: 'error',

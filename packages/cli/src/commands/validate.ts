@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import chalk from 'chalk';
 import { globby } from 'globby';
 import { validate } from '@mobile-reality/mdma-validator';
-import { loadDataSources, toCatalog } from './load-data-sources.js';
+import { loadDataSources } from './load-data-sources.js';
 import type { ValidationIssue, ValidationResult } from '@mobile-reality/mdma-validator';
 
 interface ValidateOptions {
@@ -53,9 +53,7 @@ export async function validateCommand(patterns: string[], options: ValidateOptio
     process.exit(0);
   }
 
-  const dataSourceCatalog = options.dataSources
-    ? toCatalog(loadDataSources(options.dataSources))
-    : undefined;
+  const dataSourceCatalog = options.dataSources ? loadDataSources(options.dataSources) : undefined;
 
   let totalErrors = 0;
   let totalWarnings = 0;

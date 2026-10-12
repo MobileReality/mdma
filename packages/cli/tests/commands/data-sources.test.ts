@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { validate } from '@mobile-reality/mdma-validator';
 import { buildPromptText } from '../../src/commands/prompt.js';
-import { parseDataSources, toCatalog } from '../../src/commands/load-data-sources.js';
+import { parseDataSources } from '../../src/commands/load-data-sources.js';
 
 const catalogJson = JSON.stringify([
   {
@@ -23,10 +23,10 @@ function writeTemp(content: string): string {
 }
 
 describe('data-source catalog file', () => {
-  it('parses a descriptor array and keys it by name', () => {
-    const catalog = toCatalog(parseDataSources(catalogJson));
-    expect(Object.keys(catalog)).toEqual(['incidents']);
-    expect(catalog.incidents.columns?.[0].key).toBe('title');
+  it('parses a descriptor array', () => {
+    const sources = parseDataSources(catalogJson);
+    expect(sources.map((source) => source.name)).toEqual(['incidents']);
+    expect(sources[0].columns?.[0].key).toBe('title');
   });
 
   it('rejects an invalid catalog', () => {
@@ -54,8 +54,10 @@ data:
   source: nope
 \`\`\`
 `;
-    const catalog = toCatalog(parseDataSources(catalogJson));
-    const result = validate(markdown, { autoFix: false, dataSourceCatalog: catalog });
+    const result = validate(markdown, {
+      autoFix: false,
+      dataSourceCatalog: parseDataSources(catalogJson),
+    });
     expect(result.issues.some((issue) => issue.ruleId === 'data-source')).toBe(true);
   });
 });

@@ -8,6 +8,8 @@ export {
   DataSourceManager,
   type DataSourceEntry,
   type DataSourceMap,
+  type DataSourceInput,
+  toDataSourceMap,
   type DataResolver,
   type DataRequest,
   type DataResult,

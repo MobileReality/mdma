@@ -10,6 +10,8 @@ export {
   DataSourceColumnDescriptorSchema,
   DataSourceParamDescriptorSchema,
   isDataSourceRef,
+  defineDataSource,
+  indexDataSources,
 } from './schemas/data-source.js';
 export {
   MdmaComponentSchema,
@@ -67,4 +69,10 @@ export type {
   DataSourceDescriptor,
   DataSourceColumnDescriptor,
   DataSourceParamDescriptor,
+  DataSourceDefinition,
+  DataSourceResolver,
+  DataSourceRequest,
+  DataSourceResult,
+  DataSourceSort,
+  DataSourceSortDirection,
 } from './types/index.js';

@@ -134,7 +134,9 @@ export interface ValidatorOptions {
    * regenerated a previous step instead of advancing to the next one.
    */
   priorComponentIds?: string[];
-  dataSourceCatalog?: Record<string, import('@mobile-reality/mdma-spec').DataSourceDescriptor>;
+  dataSourceCatalog?:
+    | Record<string, import('@mobile-reality/mdma-spec').DataSourceDescriptor>
+    | readonly import('@mobile-reality/mdma-spec').DataSourceDefinition[];
 }
 
 export interface ValidationResult {
