@@ -64,8 +64,10 @@ export function withState<TState>(
       el: render(initial, state),
       update(next) {
         const replacement = render(next, state);
+        const focused = document.activeElement;
         instance.el.replaceWith(replacement);
         instance.el = replacement;
+        if (focused instanceof HTMLElement && replacement.contains(focused)) focused.focus();
       },
     };
     return instance;
