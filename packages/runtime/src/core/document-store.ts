@@ -61,6 +61,7 @@ export interface DocumentStore {
   setDataFilter(key: string, filter: string | undefined): void;
   retryData(key: string): void;
   resolveAllData(): Promise<void>;
+  dispose(): void;
 }
 
 export function createDocumentStore(
@@ -83,7 +84,11 @@ export function createDocumentStore(
 
   const listeners = new Set<(state: DocumentState) => void>();
 
+  let disposed = false;
+  const optionSlots = new Map<string, { componentId: string; field: string }>();
+
   function notify() {
+    if (disposed) return;
     for (const listener of listeners) {
       listener(state);
     }
@@ -92,7 +97,9 @@ export function createDocumentStore(
   const dataManager = new DataSourceManager({
     dataSources: toDataSourceMap(options.dataSources),
     onChange: notify,
+    onResolved: clearStaleOptionValue,
     onLog: ({ key, eventType, payload }) => {
+      if (disposed) return;
       eventLog.append({ eventType, componentId: key, payload, redacted: false });
     },
   });
@@ -106,34 +113,62 @@ export function createDocumentStore(
   }
 
   function syncComponentDataSlots(comp: MdmaBlock['component']) {
+    const live = new Set<string>();
     if (comp.type === 'table') {
       if (isDataSourceRef(comp.data)) {
+        live.add(comp.id);
         dataManager.sync(comp.id, comp.data, state.bindings, { pageSize: comp.pageSize });
-      } else {
-        dataManager.unregister(comp.id);
       }
     } else if (comp.type === 'chart') {
       if (isDataSourceRef(comp.data)) {
+        live.add(comp.id);
         dataManager.sync(comp.id, comp.data, state.bindings);
-      } else {
-        dataManager.unregister(comp.id);
       }
     } else if (comp.type === 'form') {
       for (const field of comp.fields) {
         const key = `${comp.id}.${field.name}`;
         const ref = optionsRef(field.options);
         if (ref) {
+          live.add(key);
+          optionSlots.set(key, { componentId: comp.id, field: field.name });
           dataManager.sync(key, ref, state.bindings);
-        } else {
-          dataManager.unregister(key);
         }
+      }
+    }
+    for (const key of dataManager.keys()) {
+      if ((key === comp.id || key.startsWith(`${comp.id}.`)) && !live.has(key)) {
+        dataManager.unregister(key);
+        optionSlots.delete(key);
       }
     }
   }
 
+  function clearStaleOptionValue(key: string, rows: unknown[]) {
+    const slot = optionSlots.get(key);
+    if (!slot) return;
+    const comp = state.components.get(slot.componentId);
+    const current = comp?.values[slot.field];
+    if (!comp || current === undefined || current === null || current === '') return;
+    const stillOffered = rows.some(
+      (row) => String((row as { value?: unknown } | null)?.value) === String(current),
+    );
+    if (stillOffered) return;
+    const { [slot.field]: _dropped, ...remaining } = comp.values;
+    comp.values = remaining;
+    const nested = state.bindings[slot.componentId];
+    if (typeof nested === 'object' && nested !== null) {
+      delete (nested as Record<string, unknown>)[slot.field];
+    }
+    if (state.bindings[slot.field] === current) delete state.bindings[slot.field];
+    dataManager.onBindingsChanged(state.bindings);
+  }
+
   function unregisterComponentDataSlots(id: string) {
     for (const key of dataManager.keys()) {
-      if (key === id || key.startsWith(`${id}.`)) dataManager.unregister(key);
+      if (key === id || key.startsWith(`${id}.`)) {
+        dataManager.unregister(key);
+        optionSlots.delete(key);
+      }
     }
   }
 
@@ -454,6 +489,13 @@ export function createDocumentStore(
 
     async resolveAllData() {
       await dataManager.resolveAll();
+    },
+
+    dispose() {
+      disposed = true;
+      listeners.clear();
+      dataManager.dispose();
+      optionSlots.clear();
     },
   };
 

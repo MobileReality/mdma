@@ -62,6 +62,10 @@ export interface DataSourceRequest {
 
 export interface DataSourceResult<TRow = unknown> {
   rows: TRow[];
+  /**
+   * Total row count across all pages. When omitted, `rows` is taken as exactly the requested page:
+   * the runtime applies no client-side paging, sorting or filtering and the total stays unknown.
+   */
   total?: number;
 }
 
