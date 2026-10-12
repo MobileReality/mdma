@@ -1,13 +1,13 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 // biome-ignore lint/suspicious/noExplicitAny: react's act() global switch has no typed home
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
-import { createRoot, type Root } from 'react-dom/client';
-import { act } from 'react';
 import { createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
-import { MdmaProvider } from '../src/context/MdmaProvider.js';
+import { act } from 'react';
+import { type Root, createRoot } from 'react-dom/client';
 import { TableRenderer } from '../src/components/TableRenderer.js';
+import { MdmaProvider } from '../src/context/MdmaProvider.js';
 import { flushMicrotasks } from './helpers/flush.js';
 
 const MASK = '•••••';

@@ -1,7 +1,7 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { TableRenderer } from '../src/components/TableRenderer.js';
-import { flushMicrotasks } from './helpers/flush.js';
 import { mdma } from './helpers/doc.js';
+import { flushMicrotasks } from './helpers/flush.js';
 import { mountBlock } from './helpers/mount-block.js';
 
 const TABLE = mdma(`
