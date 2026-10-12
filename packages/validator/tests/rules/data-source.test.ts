@@ -328,6 +328,136 @@ describe('data-source rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
+  describe('kind fit', () => {
+    const salesDescriptor: DataSourceDescriptor = {
+      name: 'sales',
+      kind: 'series',
+      columns: [{ key: 'month', type: 'string', sensitive: false }],
+    };
+    const catalog = {
+      accounts: accountsDescriptor,
+      countries: countriesDescriptor,
+      sales: salesDescriptor,
+    };
+    const kindIssues = (data: Record<string, unknown>) => {
+      const ctx = createContext([createBlock(0, data)], { dataSourceCatalog: catalog });
+      dataSourceRule.validate(ctx);
+      return ctx.issues.filter((i) => i.message.includes('needs kind'));
+    };
+
+    it('flags a series source in table.data', () => {
+      expect(
+        kindIssues({
+          type: 'table',
+          id: 't',
+          columns: [{ key: 'month', header: 'M' }],
+          data: { source: 'sales' },
+        }),
+      ).toHaveLength(1);
+    });
+
+    it('flags a rows source in select options', () => {
+      expect(
+        kindIssues({
+          type: 'form',
+          id: 'f',
+          fields: [
+            {
+              name: 'a',
+              type: 'select',
+              label: 'A',
+              options: { source: 'accounts', params: { service: 'x' } },
+            },
+          ],
+        }),
+      ).toHaveLength(1);
+    });
+
+    it('flags a rows source in chart.data', () => {
+      expect(
+        kindIssues({
+          type: 'chart',
+          id: 'c',
+          data: { source: 'accounts', params: { service: 'x' } },
+          xAxis: 'id',
+          yAxis: 'name',
+        }),
+      ).toHaveLength(1);
+    });
+
+    it('accepts each kind in its own place', () => {
+      const ctx = createContext(
+        [
+          createBlock(0, {
+            type: 'chart',
+            id: 'c',
+            data: { source: 'sales' },
+            xAxis: 'month',
+            yAxis: 'month',
+          }),
+          createBlock(1, {
+            type: 'form',
+            id: 'f',
+            fields: [{ name: 'c', type: 'select', label: 'C', options: 'countries' }],
+          }),
+        ],
+        { dataSourceCatalog: catalog },
+      );
+      dataSourceRule.validate(ctx);
+      expect(ctx.issues).toHaveLength(0);
+    });
+  });
+
+  describe('param validation', () => {
+    const limited: DataSourceDescriptor = {
+      name: 'limited',
+      kind: 'options',
+      params: [
+        { name: 'limit', type: 'number', required: false },
+        { name: 'tenant', type: 'string', required: true },
+      ],
+    };
+    const validateParams = (params: Record<string, unknown>) => {
+      const ctx = createContext(
+        [
+          createBlock(0, {
+            type: 'form',
+            id: 'f',
+            fields: [
+              { name: 'x', type: 'select', label: 'X', options: { source: 'limited', params } },
+            ],
+          }),
+        ],
+        { dataSourceCatalog: { limited } },
+      );
+      dataSourceRule.validate(ctx);
+      return ctx.issues.map((i) => i.message);
+    };
+
+    it('flags a param value that does not match the declared type', () => {
+      const messages = validateParams({ tenant: 'a', limit: 'ten' });
+      expect(messages.some((m) => m.includes('must be of type number'))).toBe(true);
+    });
+
+    it('lets a binding template through for a typed param', () => {
+      expect(validateParams({ tenant: 'a', limit: '{{filters.limit}}' })).toHaveLength(0);
+    });
+
+    it('accepts a correctly typed param', () => {
+      expect(validateParams({ tenant: 'a', limit: 10 })).toHaveLength(0);
+    });
+
+    it('flags a param name the descriptor does not declare', () => {
+      const messages = validateParams({ tenant: 'a', limt: 10 });
+      expect(messages.some((m) => m.includes('does not declare param "limt"'))).toBe(true);
+    });
+
+    it('does not satisfy a required param with null', () => {
+      const messages = validateParams({ tenant: null });
+      expect(messages.some((m) => m.includes('missing required param "tenant"'))).toBe(true);
+    });
+  });
+
   it('accepts a DataSourceDefinition array as the catalog', () => {
     const tableWith = (source: string) =>
       createBlock(0, {
