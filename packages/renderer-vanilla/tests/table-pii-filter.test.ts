@@ -96,6 +96,20 @@ describe('TableRenderer filter on a data source', () => {
     expect(instance.el.querySelector('.mdma-table-filter input')).toBe(input);
   });
 
+  it('keeps focus on the filter input while typing', async () => {
+    const { instance, refresh } = await mountTable();
+    const input = instance.el.querySelector('.mdma-table-filter input') as HTMLInputElement;
+    input.focus();
+    expect(document.activeElement).toBe(input);
+
+    input.value = 'glob';
+    input.dispatchEvent(new Event('input'));
+    await tick();
+    refresh();
+
+    expect(document.activeElement).toBe(input);
+  });
+
   it('keeps the input when the filter matches nothing', async () => {
     const { instance, refresh } = await mountTable();
     const input = instance.el.querySelector('.mdma-table-filter input') as HTMLInputElement;

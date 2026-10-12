@@ -163,11 +163,9 @@ function dataDrivenTable(
     view.revealScope = state.rows;
   }
   const withFilter = (content: HTMLElement): HTMLElement =>
-    component.filterable
-      ? el('div', {}, [filterField(view, state.filter), content])
-      : content;
+    component.filterable ? el('div', {}, [filterField(view, state.filter), content]) : content;
 
-  const isReloading = state?.status === 'loading' && state.rows.length > 0;
+  const isReloading = state.status === 'loading' && state.rows.length > 0;
   if (state.status === 'loading' && !isReloading) {
     return withFilter(renderDataLoading(props.context, 'table', component.id));
   }

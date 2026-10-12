@@ -201,7 +201,9 @@ const DataDrivenTable = defineComponent({
       const withFilter = (content: VNode) => h(Fragment, [filter, content]);
 
       if (state.status === 'loading' && !isReloading) {
-        return withFilter(h(DataLoading.value ?? DefaultDataLoading, { componentId: component.id }));
+        return withFilter(
+          h(DataLoading.value ?? DefaultDataLoading, { componentId: component.id }),
+        );
       }
       if (state.status === 'error') {
         return withFilter(

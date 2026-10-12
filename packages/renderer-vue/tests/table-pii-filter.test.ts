@@ -90,10 +90,11 @@ describe('TableRenderer filter on a data source', () => {
 
   it('keeps the input when the filter matches nothing', async () => {
     const { wrapper } = await mountTable();
+    const input = wrapper.find('.mdma-table-filter input').element;
 
     await wrapper.find('.mdma-table-filter input').setValue('nothing');
     await flushMicrotasks();
 
-    expect(wrapper.find('.mdma-table-filter input').exists()).toBe(true);
+    expect(wrapper.find('.mdma-table-filter input').element).toBe(input);
   });
 });
