@@ -81,6 +81,7 @@ describe('TableRenderer filter on a data source', () => {
     const input = wrapper.find('.mdma-table-filter input');
     expect(input.exists()).toBe(true);
     await input.setValue('glob');
+    await new Promise((resolve) => setTimeout(resolve, 250));
     await flushMicrotasks();
 
     expect(spy).toHaveBeenCalledWith('accounts', 'glob');

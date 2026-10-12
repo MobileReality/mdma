@@ -123,6 +123,7 @@ describe('TableRenderer filter on a data source', () => {
       const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set;
       setter?.call(input, 'glob');
       input.dispatchEvent(new Event('input', { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 250));
       await flushMicrotasks();
     });
 
