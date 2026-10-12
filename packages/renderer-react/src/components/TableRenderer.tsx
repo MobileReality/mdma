@@ -5,16 +5,51 @@ import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { DefaultDataEmpty, DefaultDataError, DefaultDataLoading } from './DataStateViews.js';
 
-function MaskedCell({ value }: { value: string }) {
-  const [revealed, setRevealed] = useState(false);
+interface RevealState {
+  scope: unknown;
+  keys: ReadonlySet<string>;
+}
+
+const NO_KEYS: ReadonlySet<string> = new Set();
+
+function MaskedCell({
+  value,
+  revealed,
+  onToggle,
+}: {
+  value: string;
+  revealed: boolean;
+  onToggle: () => void;
+}) {
   return (
     <span
       className="mdma-table-cell--sensitive"
-      onClick={() => setRevealed(!revealed)}
+      onClick={onToggle}
       title={revealed ? 'Click to mask' : 'Click to reveal'}
     >
       {revealed ? value : '•••••'}
     </span>
+  );
+}
+
+function TableFilter({
+  componentId,
+  defaultValue,
+}: {
+  componentId: string;
+  defaultValue?: string;
+}) {
+  const store = useDocumentStore();
+  return (
+    <div className="mdma-table-filter">
+      <input
+        type="search"
+        aria-label="Filter rows"
+        placeholder="Filter…"
+        defaultValue={defaultValue ?? ''}
+        onChange={(event) => store.setDataFilter(componentId, event.target.value || undefined)}
+      />
+    </div>
   );
 }
 
@@ -43,20 +78,41 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
   const DataEmpty = useElementOverride('table', 'dataEmpty') ?? DefaultDataEmpty;
 
   const isReloading = dataState?.status === 'loading' && dataState.rows.length > 0;
-  if (!dataState || (dataState.status === 'loading' && !isReloading)) {
+  if (!dataState) {
     return <DataLoading componentId={component.id} />;
+  }
+
+  const filter = component.filterable ? (
+    <TableFilter componentId={component.id} defaultValue={dataState.filter} />
+  ) : null;
+
+  if (dataState.status === 'loading' && !isReloading) {
+    return (
+      <>
+        {filter}
+        <DataLoading componentId={component.id} />
+      </>
+    );
   }
   if (dataState.status === 'error') {
     return (
-      <DataError
-        componentId={component.id}
-        error={dataState.error ?? 'Failed to load data'}
-        onRetry={() => store.retryData(component.id)}
-      />
+      <>
+        {filter}
+        <DataError
+          componentId={component.id}
+          error={dataState.error ?? 'Failed to load data'}
+          onRetry={() => store.retryData(component.id)}
+        />
+      </>
     );
   }
   if (dataState.rows.length === 0) {
-    return <DataEmpty componentId={component.id} />;
+    return (
+      <>
+        {filter}
+        <DataEmpty componentId={component.id} />
+      </>
+    );
   }
 
   const pageSize = component.pageSize ?? dataState.pageSize ?? dataState.rows.length;
@@ -87,27 +143,32 @@ function DataDrivenTable({ component }: { component: TableComponent }) {
     ) : null;
 
   return (
-    <TableBody
-      component={component}
-      data={dataState.rows}
-      sort={dataState.sort}
-      busy={isReloading}
-      indicator={isReloading ? <DataLoading componentId={component.id} reloading /> : null}
-      footer={pagination}
-      onSort={(key) => {
-        const next =
-          dataState.sort?.key === key && dataState.sort.direction === 'asc'
-            ? { key, direction: 'desc' as const }
-            : { key, direction: 'asc' as const };
-        store.setDataSort(component.id, next);
-      }}
-    />
+    <>
+      {filter}
+      <TableBody
+        component={component}
+        data={dataState.rows}
+        revealScope={dataState.rows}
+        sort={dataState.sort}
+        busy={isReloading}
+        indicator={isReloading ? <DataLoading componentId={component.id} reloading /> : null}
+        footer={pagination}
+        onSort={(key) => {
+          const next =
+            dataState.sort?.key === key && dataState.sort.direction === 'asc'
+              ? { key, direction: 'desc' as const }
+              : { key, direction: 'asc' as const };
+          store.setDataSort(component.id, next);
+        }}
+      />
+    </>
   );
 }
 
 function TableBody({
   component,
   data,
+  revealScope,
   sort,
   onSort,
   resolveBinding,
@@ -117,6 +178,7 @@ function TableBody({
 }: {
   component: TableComponent;
   data: unknown[];
+  revealScope?: unknown;
   sort?: { key: string; direction: 'asc' | 'desc' };
   onSort?: (key: string) => void;
   resolveBinding?: (expr: string) => unknown;
@@ -127,6 +189,14 @@ function TableBody({
   const sensitiveKeys = new Set(
     component.columns.filter((col) => col.sensitive).map((col) => col.key),
   );
+  const [reveal, setReveal] = useState<RevealState>({ scope: revealScope, keys: new Set() });
+  const revealedKeys = reveal.scope === revealScope ? reveal.keys : NO_KEYS;
+  const toggleReveal = (cellKey: string) =>
+    setReveal((prev) => {
+      const keys = new Set(prev.scope === revealScope ? prev.keys : NO_KEYS);
+      if (!keys.delete(cellKey)) keys.add(cellKey);
+      return { scope: revealScope, keys };
+    });
 
   return (
     <div className="mdma-table" data-component-id={component.id} aria-busy={busy || undefined}>
@@ -177,7 +247,11 @@ function TableBody({
                 return (
                   <td key={col.key}>
                     {sensitiveKeys.has(col.key) && cellValue ? (
-                      <MaskedCell value={cellValue} />
+                      <MaskedCell
+                        value={cellValue}
+                        revealed={revealedKeys.has(`${i}:${col.key}`)}
+                        onToggle={() => toggleReveal(`${i}:${col.key}`)}
+                      />
                     ) : (
                       cellValue
                     )}

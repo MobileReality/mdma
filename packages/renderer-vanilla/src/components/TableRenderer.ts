@@ -25,6 +25,27 @@ function maskedCell(value: string, key: string, revealed: Set<string>): HTMLElem
   return span;
 }
 
+interface TableViewState {
+  revealed: Set<string>;
+  revealScope: unknown;
+  filterInput?: HTMLInputElement;
+  applyFilter: (value: string | undefined) => void;
+}
+
+function filterField(view: TableViewState, initial: string | undefined): HTMLElement {
+  if (!view.filterInput) {
+    const input = el('input', {
+      type: 'search',
+      'aria-label': 'Filter rows',
+      placeholder: 'Filter…',
+      on: { input: () => view.applyFilter(input.value || undefined) },
+    });
+    input.value = initial ?? '';
+    view.filterInput = input;
+  }
+  return el('div', { class: 'mdma-table-filter' }, [view.filterInput]);
+}
+
 interface TableBodyOptions {
   component: TableComponent;
   rows: unknown[];
@@ -129,24 +150,38 @@ function tableBody({
   );
 }
 
-function dataDrivenTable(props: MdmaBlockRendererProps, component: TableComponent): HTMLElement {
+function dataDrivenTable(
+  props: MdmaBlockRendererProps,
+  component: TableComponent,
+  view: TableViewState,
+): HTMLElement {
   const state = props.getDataState(component.id);
+  if (!state) return renderDataLoading(props.context, 'table', component.id);
 
-  const isReloading = state?.status === 'loading' && state.rows.length > 0;
-  if (!state || (state.status === 'loading' && !isReloading)) {
-    return renderDataLoading(props.context, 'table', component.id);
+  if (view.revealScope !== state.rows) {
+    view.revealed.clear();
+    view.revealScope = state.rows;
+  }
+  const withFilter = (content: HTMLElement): HTMLElement =>
+    component.filterable ? el('div', {}, [filterField(view, state.filter), content]) : content;
+
+  const isReloading = state.status === 'loading' && state.rows.length > 0;
+  if (state.status === 'loading' && !isReloading) {
+    return withFilter(renderDataLoading(props.context, 'table', component.id));
   }
   if (state.status === 'error') {
-    return renderDataError(
-      props.context,
-      'table',
-      component.id,
-      state.error ?? 'Failed to load data',
-      () => props.retryData(component.id),
+    return withFilter(
+      renderDataError(
+        props.context,
+        'table',
+        component.id,
+        state.error ?? 'Failed to load data',
+        () => props.retryData(component.id),
+      ),
     );
   }
   if (state.rows.length === 0) {
-    return renderDataEmpty(props.context, 'table', component.id);
+    return withFilter(renderDataEmpty(props.context, 'table', component.id));
   }
 
   const pageSize = component.pageSize ?? state.pageSize ?? state.rows.length;
@@ -188,34 +223,41 @@ function dataDrivenTable(props: MdmaBlockRendererProps, component: TableComponen
         ])
       : undefined;
 
-  return tableBody({
-    component,
-    rows: state.rows,
-    revealed: new Set(),
-    sort: state.sort,
-    onSort,
-    isBusy: isReloading,
-    indicator: isReloading
-      ? renderDataLoading(props.context, 'table', component.id, true)
-      : undefined,
-    footer: pagination,
-  });
+  return withFilter(
+    tableBody({
+      component,
+      rows: state.rows,
+      revealed: view.revealed,
+      sort: state.sort,
+      onSort,
+      isBusy: isReloading,
+      indicator: isReloading
+        ? renderDataLoading(props.context, 'table', component.id, true)
+        : undefined,
+      footer: pagination,
+    }),
+  );
 }
 
-export const TableRenderer = withState<Set<string>>(
-  () => new Set(),
-  (props, revealed) => {
+export const TableRenderer = withState<TableViewState>(
+  () => ({
+    revealed: new Set(),
+    revealScope: undefined,
+    applyFilter: () => undefined,
+  }),
+  (props, view) => {
     const { component, resolveBinding } = props;
     if (component.type !== 'table') return el('div');
 
     if (isDataSourceRef(component.data)) {
-      return dataDrivenTable(props, component);
+      view.applyFilter = (value) => props.setDataFilter(component.id, value);
+      return dataDrivenTable(props, component, view);
     }
 
     const raw =
       typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
     const rows = Array.isArray(raw) ? raw : [];
 
-    return tableBody({ component, rows, resolveBinding, revealed });
+    return tableBody({ component, rows, resolveBinding, revealed: view.revealed });
   },
 );

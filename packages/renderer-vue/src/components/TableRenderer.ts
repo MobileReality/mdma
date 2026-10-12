@@ -1,28 +1,57 @@
 import { type TableColumn, type TableComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
-import { type VNode, defineComponent, h, ref } from 'vue';
+import { Fragment, type VNode, defineComponent, h, shallowRef } from 'vue';
 import { useDataState, useDocumentStore } from '../composables/use-document-store.js';
 import { useElementOverride } from '../context/ElementOverridesContext.js';
 import { blockRendererProps } from '../renderers/renderer-props.js';
 import { DefaultDataEmpty, DefaultDataError, DefaultDataLoading } from './DataStateViews.js';
 
+interface CellReveal {
+  isRevealed: (cellKey: string) => boolean;
+  toggle: (cellKey: string) => void;
+}
+
+function createCellReveal(getScope: () => unknown): CellReveal {
+  const version = shallowRef(0);
+  let scope: unknown;
+  let keys = new Set<string>();
+  const sync = () => {
+    const current = getScope();
+    if (current !== scope) {
+      scope = current;
+      keys = new Set();
+    }
+  };
+  return {
+    isRevealed(cellKey) {
+      version.value;
+      sync();
+      return keys.has(cellKey);
+    },
+    toggle(cellKey) {
+      sync();
+      if (!keys.delete(cellKey)) keys.add(cellKey);
+      version.value++;
+    },
+  };
+}
+
 const MaskedCell = defineComponent({
   name: 'MdmaMaskedCell',
   props: {
     value: { type: String, required: true },
+    revealed: { type: Boolean, default: false },
   },
-  setup(props) {
-    const revealed = ref(false);
+  emits: ['toggle'],
+  setup(props, { emit }) {
     return () =>
       h(
         'span',
         {
           class: 'mdma-table-cell--sensitive',
-          title: revealed.value ? 'Click to mask' : 'Click to reveal',
-          onClick: () => {
-            revealed.value = !revealed.value;
-          },
+          title: props.revealed ? 'Click to mask' : 'Click to reveal',
+          onClick: () => emit('toggle'),
         },
-        revealed.value ? props.value : '•••••',
+        props.revealed ? props.value : '•••••',
       );
   },
 });
@@ -33,6 +62,7 @@ function renderTableBody(
   resolveBinding: ((expr: string) => unknown) | undefined,
   sort: { key: string; direction: 'asc' | 'desc' } | undefined,
   onSort: ((key: string) => void) | undefined,
+  reveal: CellReveal,
   chrome: { busy?: boolean; indicator?: VNode | null; footer?: VNode | null } = {},
 ) {
   const sensitiveKeys = new Set(
@@ -105,7 +135,11 @@ function renderTableBody(
                   'td',
                   { key: col.key },
                   sensitiveKeys.has(col.key) && cellValue
-                    ? h(MaskedCell, { value: cellValue })
+                    ? h(MaskedCell, {
+                        value: cellValue,
+                        revealed: reveal.isRevealed(`${i}:${col.key}`),
+                        onToggle: () => reveal.toggle(`${i}:${col.key}`),
+                      })
                     : cellValue,
                 );
               }),
@@ -138,24 +172,50 @@ const DataDrivenTable = defineComponent({
     const DataLoading = useElementOverride('table', 'dataLoading');
     const DataError = useElementOverride('table', 'dataError');
     const DataEmpty = useElementOverride('table', 'dataEmpty');
+    const reveal = createCellReveal(() => dataState.value?.rows);
 
     return () => {
       const component = props.component as TableComponent;
       const state = dataState.value;
 
       const isReloading = state?.status === 'loading' && state.rows.length > 0;
-      if (!state || (state.status === 'loading' && !isReloading)) {
+      if (!state) {
         return h(DataLoading.value ?? DefaultDataLoading, { componentId: component.id });
       }
+
+      const filter = component.filterable
+        ? h('div', { class: 'mdma-table-filter', key: 'filter' }, [
+            h('input', {
+              type: 'search',
+              'aria-label': 'Filter rows',
+              placeholder: 'Filter…',
+              value: state.filter ?? '',
+              onInput: (event: Event) =>
+                store.value.setDataFilter(
+                  component.id,
+                  (event.target as HTMLInputElement).value || undefined,
+                ),
+            }),
+          ])
+        : null;
+      const withFilter = (content: VNode) => h(Fragment, [filter, content]);
+
+      if (state.status === 'loading' && !isReloading) {
+        return withFilter(
+          h(DataLoading.value ?? DefaultDataLoading, { componentId: component.id }),
+        );
+      }
       if (state.status === 'error') {
-        return h(DataError.value ?? DefaultDataError, {
-          componentId: component.id,
-          error: state.error ?? 'Failed to load data',
-          onRetry: () => store.value.retryData(component.id),
-        });
+        return withFilter(
+          h(DataError.value ?? DefaultDataError, {
+            componentId: component.id,
+            error: state.error ?? 'Failed to load data',
+            onRetry: () => store.value.retryData(component.id),
+          }),
+        );
       }
       if (state.rows.length === 0) {
-        return h(DataEmpty.value ?? DefaultDataEmpty, { componentId: component.id });
+        return withFilter(h(DataEmpty.value ?? DefaultDataEmpty, { componentId: component.id }));
       }
 
       const pageSize = component.pageSize ?? state.pageSize ?? state.rows.length;
@@ -199,16 +259,18 @@ const DataDrivenTable = defineComponent({
             ])
           : null;
 
-      return renderTableBody(component, state.rows, undefined, state.sort, onSort, {
-        busy: isReloading,
-        indicator: isReloading
-          ? h(DataLoading.value ?? DefaultDataLoading, {
-              componentId: component.id,
-              reloading: true,
-            })
-          : null,
-        footer: pagination,
-      });
+      return withFilter(
+        renderTableBody(component, state.rows, undefined, state.sort, onSort, reveal, {
+          busy: isReloading,
+          indicator: isReloading
+            ? h(DataLoading.value ?? DefaultDataLoading, {
+                componentId: component.id,
+                reloading: true,
+              })
+            : null,
+          footer: pagination,
+        }),
+      );
     };
   },
 });
@@ -217,6 +279,7 @@ export const TableRenderer = defineComponent({
   name: 'TableRenderer',
   props: blockRendererProps,
   setup(props) {
+    const reveal = createCellReveal(() => undefined);
     return () => {
       const component = props.component;
       if (component.type !== 'table') return null;
@@ -229,7 +292,7 @@ export const TableRenderer = defineComponent({
         typeof component.data === 'string' ? props.resolveBinding(component.data) : component.data;
       const data = Array.isArray(rawData) ? rawData : [];
 
-      return renderTableBody(component, data, props.resolveBinding, undefined, undefined);
+      return renderTableBody(component, data, props.resolveBinding, undefined, undefined, reveal);
     };
   },
 });

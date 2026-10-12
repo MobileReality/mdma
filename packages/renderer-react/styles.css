@@ -835,6 +835,28 @@
   cursor: not-allowed;
 }
 
+.mdma-table-filter {
+  margin-bottom: 12px;
+}
+
+.mdma-table-filter input {
+  width: 100%;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--mdma-color-border);
+  border-radius: var(--mdma-radius-sm);
+  background: var(--mdma-color-input-bg);
+  color: var(--mdma-color-text);
+  transition: border-color 0.15s, box-shadow 0.15s;
+  outline: none;
+}
+
+.mdma-table-filter input:focus {
+  border-color: var(--mdma-color-primary);
+  box-shadow: 0 0 0 3px var(--mdma-color-focus-ring);
+}
+
 @keyframes mdma-data-spin {
   to {
     transform: rotate(360deg);
