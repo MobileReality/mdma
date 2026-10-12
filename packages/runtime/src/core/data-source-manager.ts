@@ -1,34 +1,38 @@
+import { indexDataSources } from '@mobile-reality/mdma-spec';
+import type {
+  DataSourceDefinition,
+  DataSourceResolver,
+  DataSourceRequest,
+  DataSourceResult,
+  DataSourceSort,
+  DataSourceSortDirection,
+} from '@mobile-reality/mdma-spec';
 import { resolveValue } from './binding-resolver.js';
 
-export type DataSortDirection = 'asc' | 'desc';
-
-export interface DataSort {
-  key: string;
-  direction: DataSortDirection;
-}
-
-export interface DataRequest {
-  source: string;
-  params: Record<string, unknown>;
-  page?: number;
-  pageSize?: number;
-  sort?: DataSort;
-  filter?: string;
-}
-
-export interface DataResult<TRow = unknown> {
-  rows: TRow[];
-  total?: number;
-}
-
-export type DataResolver = (
-  request: DataRequest,
-  ctx: { signal: AbortSignal },
-) => Promise<DataResult>;
+export type DataSortDirection = DataSourceSortDirection;
+export type DataSort = DataSourceSort;
+export type DataRequest = DataSourceRequest;
+export type DataResult<TRow = unknown> = DataSourceResult<TRow>;
+export type DataResolver = DataSourceResolver;
 
 export type DataSourceEntry = unknown[] | DataResolver;
 
 export type DataSourceMap = Record<string, DataSourceEntry>;
+
+export type DataSourceInput = DataSourceMap | readonly DataSourceDefinition[];
+
+export function toDataSourceMap(input: DataSourceInput | undefined): DataSourceMap | undefined {
+  if (!input || !Array.isArray(input)) return input as DataSourceMap | undefined;
+  const map: DataSourceMap = {};
+  for (const [name, definition] of Object.entries(indexDataSources(input))) {
+    map[name] =
+      definition.resolve ??
+      (async () => {
+        throw new Error(`No resolver registered for data source "${name}"`);
+      });
+  }
+  return map;
+}
 
 export type DataStatus = 'idle' | 'loading' | 'ready' | 'error';
 

@@ -10,7 +10,7 @@ import { extractMdmaBlocksFromMarkdown } from './extract-blocks.js';
 import { getRulesExcluding } from './rules/index.js';
 import { FIX_REGISTRY, FIX_ORDER } from './fixes/index.js';
 import { reconstructMarkdown } from './reserialize.js';
-import { COMPONENT_TYPES } from '@mobile-reality/mdma-spec';
+import { COMPONENT_TYPES, indexDataSources } from '@mobile-reality/mdma-spec';
 
 const KNOWN_TYPES = new Set(COMPONENT_TYPES as readonly string[]);
 
@@ -80,7 +80,14 @@ function buildIdMap(blocks: ParsedBlock[]): Map<string, number> {
   return map;
 }
 
-export function validate(markdown: string, options: ValidatorOptions = {}): ValidationResult {
+function normalizeOptions(options: ValidatorOptions): ValidatorOptions {
+  const { dataSourceCatalog } = options;
+  if (!Array.isArray(dataSourceCatalog)) return options;
+  return { ...options, dataSourceCatalog: indexDataSources(dataSourceCatalog) };
+}
+
+export function validate(markdown: string, rawOptions: ValidatorOptions = {}): ValidationResult {
+  const options = normalizeOptions(rawOptions);
   const { exclude = [], autoFix = true } = options;
 
   // 0. Detect MDMA-like YAML outside of fenced blocks

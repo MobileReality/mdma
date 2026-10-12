@@ -343,3 +343,31 @@ describe('get-doc', () => {
     }
   });
 });
+
+describe('build-system-prompt dataSources', () => {
+  const dataSources = [
+    {
+      name: 'incidents',
+      kind: 'rows' as const,
+      columns: [{ key: 'title', type: 'string' as const, sensitive: false }],
+    },
+  ];
+
+  it('returns only the custom part without dataSources', () => {
+    const result = buildPrompt({ domain: 'Ops' });
+    expect(result).toContain('Ops');
+    expect(result).not.toContain('## Available data sources');
+  });
+
+  it('returns the full system prompt with the catalog when dataSources is given', () => {
+    const result = buildPrompt({ domain: 'Ops', dataSources });
+    expect(result).toContain('## Available data sources');
+    expect(result).toContain('**incidents** (kind: rows)');
+    expect(result).toContain('## Role & Domain');
+    expect(result).toContain('### 10. custom');
+  });
+
+  it('works with dataSources only', () => {
+    expect(buildPrompt({ dataSources })).toContain('## Available data sources');
+  });
+});
