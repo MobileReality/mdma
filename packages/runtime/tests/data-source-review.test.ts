@@ -253,6 +253,16 @@ describe('dependent select', () => {
     expect(store.getBindings()).not.toHaveProperty('city');
   });
 
+  it('keeps a string value when the options carry the same value as a number', async () => {
+    const numeric = async (): Promise<DataResult> => ({
+      rows: [{ label: 'Warsaw', value: 1 }],
+      total: 1,
+    });
+    const store = createDocumentStore(intakeAst('1'), { dataSources: { cities: numeric } });
+    await vi.waitFor(() => expect(store.getDataState('intake.city')?.status).toBe('ready'));
+    expect(store.getComponentState('intake')?.values.city).toBe('1');
+  });
+
   it('keeps a value the options still contain', async () => {
     const store = createDocumentStore(intakeAst('WAW'), { dataSources: { cities: resolver } });
     await vi.waitFor(() => expect(store.getDataState('intake.city')?.status).toBe('ready'));

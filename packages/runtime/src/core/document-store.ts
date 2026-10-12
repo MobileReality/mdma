@@ -149,7 +149,9 @@ export function createDocumentStore(
     const comp = state.components.get(slot.componentId);
     const current = comp?.values[slot.field];
     if (!comp || current === undefined || current === null || current === '') return;
-    const stillOffered = rows.some((row) => (row as { value?: unknown } | null)?.value === current);
+    const stillOffered = rows.some(
+      (row) => String((row as { value?: unknown } | null)?.value) === String(current),
+    );
     if (stillOffered) return;
     const { [slot.field]: _dropped, ...remaining } = comp.values;
     comp.values = remaining;
