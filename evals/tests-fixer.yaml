@@ -638,3 +638,35 @@
       value: file://assertions/custom-envelope.mjs
       config:
         name: signature-pad
+
+# ---------------------------------------------------------------------------
+# Broken data-source ref: unknown source, undeclared param, column not in source
+# ---------------------------------------------------------------------------
+- description: Repairs a broken table data-source ref from the catalog without inlining rows
+  vars:
+    dataSources: true
+    brokenDocument: |
+      ```mdma
+      type: table
+      id: open-incidents
+      columns:
+        - key: title
+          header: Title
+        - key: assignee
+          header: Assignee
+      data:
+        source: ticket-list
+        params: { state: open }
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-preserves-components.mjs
+      config:
+        min: 1
+    - type: javascript
+      value: file://assertions/fixer-keeps-data-source-ref.mjs
+      config:
+        component: table
+        source: incidents
+    - type: javascript
+      value: file://assertions/no-invented-source.mjs
