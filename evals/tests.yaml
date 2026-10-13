@@ -1152,7 +1152,8 @@
 
 # ===========================================================================
 # External data sources — the host catalog (from data-sources.mjs) is:
-# incidents (rows), countries (options), sales-by-month (series). Scenarios
+# incidents (rows), countries (options), sales-by-month (series), sales-records
+# (rows twin of sales-by-month). Scenarios
 # cover referencing a source with valid params instead of generating rows, and
 # NOT inventing a source when the catalog cannot serve the request.
 # ===========================================================================
@@ -1219,6 +1220,44 @@
         source: sales-by-month
         expectParams:
           year: 2025
+
+# ---------------------------------------------------------------------------
+# Data source 3b. Sales table binds the rows twin, never the series source
+# ---------------------------------------------------------------------------
+- description: Sales by month table references the sales-records source
+  vars:
+    dataSources: true
+    request: |
+      Show the sales by month data in a table.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [table, callout]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: table
+        source: sales-records
+
+# ---------------------------------------------------------------------------
+# Data source 3c. Monthly sales bar chart binds the series source
+# ---------------------------------------------------------------------------
+- description: Monthly sales bar chart references the sales-by-month source
+  vars:
+    dataSources: true
+    request: |
+      Show the monthly sales as a bar chart.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [chart, callout]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: chart
+        source: sales-by-month
 
 # ---------------------------------------------------------------------------
 # Data source 4. Anti-hallucination — data outside the catalog

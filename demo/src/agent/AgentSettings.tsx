@@ -254,7 +254,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
           </div>
           <p className="agent-settings-note">
             Lets the agent reference prepared sources instead of inventing data: an incidents table,
-            countries select options and a sales-by-month chart.
+            countries select options and sales data as a chart or a table.
           </p>
           {provider === 'own-model' && (
             <p className="agent-settings-note">
