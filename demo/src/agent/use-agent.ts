@@ -1,16 +1,14 @@
 import {
-  MDMA_IL_AGENT_SYSTEM_PROMPT,
   buildFixerMessage,
   buildFixerPrompt,
   buildSystemPrompt,
-  getAgentToolPromptVariant,
 } from '@mobile-reality/mdma-prompt-pack';
 import { type ValidatorOptions, validate } from '@mobile-reality/mdma-validator';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { parseMarkdown } from '../chat/parse-markdown.js';
 import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
-import { buildAuthorSubAgentPrompt, buildInlineAgentPrompt } from './agent-prompts.js';
+import { buildAuthorSubAgentPrompt, buildConversationPrompt } from './agent-prompts.js';
 import {
   type AnthropicConfig,
   type ApiAssistantBlock,
@@ -919,23 +917,9 @@ export function useAgent(options: UseAgentOptions = {}) {
       // Our own model runs the whole turn itself (tool-calling enabled), so it
       // emits the MDMA document inline via generate_mdma — no author sub-agent.
       const useSubAgent = (options.useAuthorSubAgent ?? false) && provider !== 'own-model';
-      const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
       // Our own model gets its own Gemma-aligned agentic prompt (no <thinking>
-      // leak — see prompt-pack mdma-agent/mobile-reality/mdma-il). Other
-      // providers: sub-agent mode uses just the tool prompt; inline mode layers
-      // the author prompt via buildSystemPrompt.
-      let systemPrompt: string;
-      if (provider === 'own-model') {
-        systemPrompt = options.flowPrompt
-          ? `${MDMA_IL_AGENT_SYSTEM_PROMPT}\n\n---\n\n${options.flowPrompt}`
-          : MDMA_IL_AGENT_SYSTEM_PROMPT;
-      } else if (useSubAgent) {
-        systemPrompt = options.flowPrompt
-          ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
-          : toolPrompt;
-      } else {
-        systemPrompt = buildInlineAgentPrompt(config, options.flowPrompt);
-      }
+      // leak — see prompt-pack mdma-agent/mobile-reality/mdma-il).
+      const systemPrompt = buildConversationPrompt(config, useSubAgent, options.flowPrompt);
 
       const subAgent = useSubAgent ? makeAuthorSubAgent(config) : null;
 
