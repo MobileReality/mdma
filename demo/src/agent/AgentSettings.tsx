@@ -1,5 +1,5 @@
-import { memo, useState } from 'react';
 import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
+import { memo, useState } from 'react';
 import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
 import type { AnthropicConfig } from './anthropic-client.js';
 
@@ -243,7 +243,19 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
                 </select>
               )}
             </div>
+            <label className="ai-setting ai-setting--toggle">
+              <span>External data sources</span>
+              <input
+                type="checkbox"
+                checked={config.externalDataSources ?? false}
+                onChange={(e) => onUpdate({ externalDataSources: e.target.checked })}
+              />
+            </label>
           </div>
+          <p className="agent-settings-note">
+            Lets the agent reference prepared sources instead of inventing data: an incidents table,
+            countries select options and sales data as a chart or a table.
+          </p>
           {provider === 'own-model' && (
             <p className="agent-settings-note">
               The entire agent runs on your self-hosted <strong>MDMA model</strong> endpoint

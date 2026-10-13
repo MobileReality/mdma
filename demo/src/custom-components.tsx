@@ -1,20 +1,21 @@
-import { z } from 'zod';
-import { memo, useState, useRef } from 'react';
-import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
-import { ChartRenderer } from './chart-components.js';
 import type {
-  MdmaBlockRendererProps,
+  FormCheckboxElementProps,
+  FormFileElementProps,
   FormInputElementProps,
   FormSelectElementProps,
-  FormCheckboxElementProps,
-  FormTextareaElementProps,
-  FormFileElementProps,
-  FormSubmitElementProps,
   FormSensitiveIndicatorElementProps,
+  FormSubmitElementProps,
+  FormTextareaElementProps,
+  MdmaBlockRendererProps,
 } from '@mobile-reality/mdma-renderer-react';
+import { ComponentBaseSchema } from '@mobile-reality/mdma-spec';
+import { memo, useRef, useState } from 'react';
+import { z } from 'zod';
 import type { MdmaCustomizations } from './ChatView.js';
+import { ChartRenderer } from './chart-components.js';
+import { extractComponentId, useEditableField } from './chat/EditableMessageContext.js';
+import { CustomTableRenderer } from './custom-table.js';
 import { Graph3DRenderer } from './custom-variants/Graph3DRenderer.js';
-import { useEditableField, extractComponentId } from './chat/EditableMessageContext.js';
 
 // ─── Progress ────────────────────────────────────────────────────────────────
 
@@ -420,92 +421,6 @@ export const CustomButtonRenderer = memo(function CustomButtonRenderer({
     >
       {component.text}
     </button>
-  );
-});
-
-// ─── Custom Table (override) ─────────────────────────────────────────────────
-
-function SensitiveCell({ value }: { value: string }) {
-  const [revealed, setRevealed] = useState(false);
-  return (
-    <span
-      className="custom-table-cell--sensitive"
-      onClick={() => setRevealed(!revealed)}
-      title={revealed ? 'Click to mask' : 'Click to reveal'}
-    >
-      {revealed ? value : '\u2022\u2022\u2022\u2022\u2022'}
-    </span>
-  );
-}
-
-export const CustomTableRenderer = memo(function CustomTableRenderer({
-  component,
-  resolveBinding,
-}: MdmaBlockRendererProps) {
-  if (component.type !== 'table') return null;
-
-  const rawData =
-    typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
-  const data = Array.isArray(rawData) ? rawData : [];
-
-  const sensitiveKeys = new Set(
-    component.columns
-      .filter((col: { key: string; sensitive?: boolean }) => col.sensitive)
-      .map((col: { key: string }) => col.key),
-  );
-
-  return (
-    <div className="custom-table" data-component-id={component.id}>
-      {component.label && <h3 className="custom-table-label">{component.label}</h3>}
-      <div className="custom-table-scroll">
-        <table>
-          <thead>
-            <tr>
-              {component.columns.map(
-                (col: { key: string; header: string; width?: string; sensitive?: boolean }) => (
-                  <th key={col.key} style={col.width ? { width: col.width } : undefined}>
-                    {col.header}
-                    {col.sensitive && (
-                      <span className="mdma-sensitive-badge" title="Sensitive (PII)">
-                        &#128274;
-                      </span>
-                    )}
-                  </th>
-                ),
-              )}
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr key={i}>
-                {component.columns.map((col: { key: string }) => {
-                  const raw = (row as Record<string, unknown>)[col.key] ?? '';
-                  const resolved =
-                    typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw) ? resolveBinding(raw) : raw;
-                  const cellValue = String(resolved ?? '');
-                  return (
-                    <td key={col.key}>
-                      {sensitiveKeys.has(col.key) && cellValue ? (
-                        <SensitiveCell value={cellValue} />
-                      ) : (
-                        cellValue
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-            {data.length === 0 && (
-              <tr>
-                <td colSpan={component.columns.length} className="custom-table-empty">
-                  No data available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
   );
 });
 

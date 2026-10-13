@@ -37,8 +37,20 @@ export const DATA_SOURCES = [
   },
   {
     name: 'sales-by-month',
-    description: 'Monthly sales totals for a calendar year.',
+    description: 'Monthly sales totals for a calendar year, as a chart series.',
     kind: 'series',
+    columns: [
+      { key: 'month', type: 'string', sensitive: false },
+      { key: 'revenue', type: 'number', sensitive: false },
+      { key: 'orders', type: 'number', sensitive: false },
+    ],
+    params: [{ name: 'year', type: 'number', required: true }],
+  },
+  {
+    name: 'sales-records',
+    description:
+      'The same monthly sales totals for a calendar year, as table rows (use it for tables).',
+    kind: 'rows',
     columns: [
       { key: 'month', type: 'string', sensitive: false },
       { key: 'revenue', type: 'number', sensitive: false },
