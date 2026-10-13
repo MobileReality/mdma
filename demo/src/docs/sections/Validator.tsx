@@ -127,7 +127,9 @@ const result = validate(markdown);
         ref names a source. Pass the host's catalog — the same definitions you register on the store
         — to check the ref against it:
       </p>
-      <Code lang="ts">{`const result = validate(markdown, { dataSourceCatalog: dataSources });`}</Code>
+      <Code lang="ts">
+        {'const result = validate(markdown, { dataSourceCatalog: dataSources });'}
+      </Code>
       <p>
         Messages include <code>Unknown data source "x"</code>,{' '}
         <code>Data source "x" is kind "rows" but "data" needs kind "series"</code>,{' '}

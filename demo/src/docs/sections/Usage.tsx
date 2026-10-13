@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import { type DocumentStore, createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { useEffect, useRef, useState } from 'react';
 import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { Code } from '../Code.js';
 
@@ -137,8 +137,8 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
         model. The LLM writes <code>{'{ source, params }'}</code> and never the rows; you register
         what each source name means. A source has a <code>kind</code>: <code>rows</code> feeds a
         table, <code>series</code> feeds a chart, and <code>options</code> feeds a form select. When
-        the same data is needed as a table and as a chart, declare two sources — a{' '}
-        <code>rows</code> one and a <code>series</code> one.
+        the same data is needed as a table and as a chart, declare two sources — a <code>rows</code>{' '}
+        one and a <code>series</code> one.
       </p>
       <Code lang="mdma">{`type: table
 id: open-incidents

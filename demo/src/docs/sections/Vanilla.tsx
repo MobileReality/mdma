@@ -119,12 +119,11 @@ doc.destroy();               // unsubscribe from the store and detach`}</Code>
 });`}</Code>
       <p>
         The <code>dataSources</code> above are fixed option lists a select field can reference by
-        name. For data that comes from your own system, register{' '}
-        <code>{'{ source, params }'}</code> sources on the store instead (
-        <code>createDocumentStore(ast, {'{ dataSources }'})</code>): tables, charts, and selects
-        that reference them show loading, error (with Retry), and empty states, and send paging,
-        sorting, and the filter to the resolver. Replace a state view with the{' '}
-        <code>dataLoading</code>, <code>dataError</code>, or <code>dataEmpty</code> element
+        name. For data that comes from your own system, register <code>{'{ source, params }'}</code>{' '}
+        sources on the store instead (<code>createDocumentStore(ast, {'{ dataSources }'})</code>):
+        tables, charts, and selects that reference them show loading, error (with Retry), and empty
+        states, and send paging, sorting, and the filter to the resolver. Replace a state view with
+        the <code>dataLoading</code>, <code>dataError</code>, or <code>dataEmpty</code> element
         override, each a function that returns <code>{'{ el, update }'}</code>:
       </p>
       <Code lang="ts">{`mountMdmaDocument(container, {
