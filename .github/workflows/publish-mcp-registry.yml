@@ -1,0 +1,55 @@
+# The organization restricts third-party OAuth apps, so interactive `mcp-publisher login github`
+# cannot see the organization. OIDC derives the right to io.github.MobileReality/* from the
+# repository owner instead.
+name: Publish to MCP Registry
+
+on:
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Check manifest versions match package.json
+        run: |
+          expected=$(node -p "require('./packages/mcp/package.json').version")
+          server=$(node -p "require('./packages/mcp/server.json').version")
+          server_package=$(node -p "require('./packages/mcp/server.json').packages[0].version")
+          manifest=$(node -p "require('./packages/mcp/manifest.json').version")
+          status=0
+          for pair in "server.json version=$server" "server.json packages[0].version=$server_package" "manifest.json version=$manifest"; do
+            label=${pair%=*}
+            actual=${pair##*=}
+            if [ "$actual" != "$expected" ]; then
+              echo "::error::$label is $actual but packages/mcp/package.json is $expected"
+              status=1
+            fi
+          done
+          exit $status
+
+      - name: Install mcp-publisher
+        run: |
+          os=$(uname -s | tr '[:upper:]' '[:lower:]')
+          case "$(uname -m)" in
+            x86_64) arch=amd64 ;;
+            aarch64|arm64) arch=arm64 ;;
+            *) echo "::error::unsupported architecture $(uname -m)"; exit 1 ;;
+          esac
+          mkdir -p "$RUNNER_TEMP/mcp-publisher"
+          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_${os}_${arch}.tar.gz" \
+            | tar -xz -C "$RUNNER_TEMP/mcp-publisher" mcp-publisher
+          echo "$RUNNER_TEMP/mcp-publisher" >> "$GITHUB_PATH"
+
+      - name: Log in to the registry with GitHub OIDC
+        working-directory: packages/mcp
+        run: mcp-publisher login github-oidc
+
+      - name: Publish
+        working-directory: packages/mcp
+        run: mcp-publisher publish
