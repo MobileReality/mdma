@@ -24,7 +24,7 @@ export const COMPONENTS: ComponentEntry[] = [
     type: 'form',
     label: 'Form',
     description:
-      'Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags.',
+      'Multi-field forms with text, email, number, select, textarea, checkbox, datetime, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. Select options can be inline or loaded from an external data source.',
     example: `\`\`\`mdma
 type: form
 id: demo-form
@@ -84,7 +84,8 @@ items:
   {
     type: 'table',
     label: 'Table',
-    description: 'Data tables with typed columns and row data.',
+    description:
+      'Data tables with typed columns and row data — inline, bound, or fetched from an external data source with data: { source, params }.',
     example: `\`\`\`mdma
 type: table
 id: demo-table
@@ -114,7 +115,7 @@ data:
     type: 'chart',
     label: 'Chart',
     description:
-      'Table fallback by default — renders chart data as a simple HTML table. Override with your own renderer via customizations.components.chart.',
+      'Table fallback by default — renders chart data as a simple HTML table. Data is inline CSV, a binding, or an external series source with data: { source, params }. Override with your own renderer via customizations.components.chart.',
     example: `\`\`\`mdma
 type: chart
 id: demo-chart

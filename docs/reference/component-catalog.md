@@ -40,7 +40,7 @@ Collects structured user input through typed fields with validation.
 | `required` | `boolean` | `false` | Whether the field must have a value. |
 | `sensitive` | `boolean` | `false` | If true, this field's value is redacted in event logs. |
 | `defaultValue` | `unknown` | -- | Initial value. |
-| `options` | `{ label: string, value: string }[]` | -- | Required when `type` is `"select"`. |
+| `options` | `{ label: string, value: string }[] \| { source, params? }` | -- | Required when `type` is `"select"`. Either an inline list or a reference to an `options` [data source](../guides/external-data-sources.md). |
 | `validation` | `object` | -- | Optional validation rules (see below). |
 | `bind` | `string` | -- | Binding expression in `{{path}}` format. |
 
@@ -91,6 +91,22 @@ fields:
     label: I agree to the terms and conditions
     required: true
 onSubmit: submit-onboarding
+```
+
+A select can also load its options from an external data source:
+
+```mdma
+id: country-form
+type: form
+fields:
+  - name: country
+    type: select
+    label: Country
+    options:
+      source: countries
+      params:
+        region: Europe
+onSubmit: submit-country
 ```
 
 ---
@@ -191,7 +207,7 @@ Displays tabular data with optional sorting, filtering, and pagination.
 |----------|------|---------|-------------|
 | `type` | `"table"` | *required* | Must be `"table"`. |
 | `columns` | `TableColumn[]` | *required* | At least one column. |
-| `data` | `object[] \| binding` | *required* | Array of row objects, or a binding expression. |
+| `data` | `object[] \| binding \| { source, params? }` | *required* | Array of row objects, a binding expression, or a reference to a `rows` [data source](../guides/external-data-sources.md). |
 | `sortable` | `boolean` | `false` | Enable table-level sorting. |
 | `filterable` | `boolean` | `false` | Enable filtering. |
 | `pageSize` | `number` | -- | Rows per page (positive integer). |
@@ -231,6 +247,28 @@ data:
 sortable: true
 filterable: true
 pageSize: 25
+```
+
+### Example with an External Data Source
+
+Rows come from a host-registered `rows` source. With a source, paging, sorting, and filtering are requested from the host, and `pageSize` is sent with each request.
+
+```mdma
+id: open-incidents
+type: table
+columns:
+  - key: title
+    header: Title
+  - key: severity
+    header: Severity
+    sortable: true
+data:
+  source: incidents
+  params:
+    status: open
+sortable: true
+filterable: true
+pageSize: 10
 ```
 
 ### Example with Bound Data
@@ -443,7 +481,7 @@ Renders data visualizations. Supports line, bar, area, and pie chart types.
 |----------|------|---------|-------------|
 | `type` | `"chart"` | *required* | Must be `"chart"`. |
 | `variant` | `enum` | `"line"` | One of: `line`, `bar`, `area`, `pie`. |
-| `data` | `string \| binding` | -- | Data source for the chart. |
+| `data` | `string \| binding \| { source, params? }` | -- | CSV text, a binding expression, or a reference to a `series` [data source](../guides/external-data-sources.md). |
 | `xAxis` | `string` | -- | X-axis field name. |
 | `yAxis` | `string \| string[]` | -- | Y-axis field name(s). |
 | `colors` | `string[]` | -- | Custom colors for data series. |
@@ -466,6 +504,20 @@ colors:
   - "#10b981"
 showLegend: true
 height: 400
+```
+
+An external `series` source instead of inline data:
+
+```mdma
+id: sales-chart
+type: chart
+variant: bar
+data:
+  source: sales-by-month
+  params:
+    year: 2026
+xAxis: month
+yAxis: revenue
 ```
 
 ```mdma

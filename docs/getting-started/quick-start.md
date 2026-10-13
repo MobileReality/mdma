@@ -150,6 +150,27 @@ store.dispatch({
 console.log(store.getBindings()); // { full_name: 'Jane Doe' }
 ```
 
+### Connect external data (optional)
+
+If your documents reference tables, charts, or selects by `{ source, params }`, register the sources when creating the store:
+
+```typescript
+import { defineDataSource } from '@mobile-reality/mdma-spec';
+
+const countries = defineDataSource({
+  name: 'countries',
+  kind: 'options',
+  resolve: [
+    { label: 'Poland', value: 'PL' },
+    { label: 'Germany', value: 'DE' },
+  ],
+});
+
+const store = createDocumentStore(ast, { dataSources: [countries] });
+```
+
+See [External Data Sources](../guides/external-data-sources.md) for resolvers, paging, and validation.
+
 ## Render with React
 
 Wrap your app with `MdmaProvider` and render MDMA blocks:
@@ -198,4 +219,5 @@ const doc = mountMdmaDocument(document.getElementById('app')!, { ast, store });
 - [Key Concepts](./concepts.md) -- understand MDMA blocks, bindings, events, and policies
 - [Architecture Overview](./architecture.md) -- how the packages fit together
 - [Creating Documents](../guides/creating-documents.md) -- in-depth authoring guide
+- [External Data Sources](../guides/external-data-sources.md) -- tables, charts, and selects fed by your own data
 - [Component Catalog](../reference/component-catalog.md) -- full reference for all 10 component types

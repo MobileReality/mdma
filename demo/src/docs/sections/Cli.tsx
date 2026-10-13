@@ -11,7 +11,18 @@ npx @mobile-reality/mdma-cli
 # Validate MDMA documents
 npx @mobile-reality/mdma-cli validate "docs/**/*.md"
 npx @mobile-reality/mdma-cli validate "docs/**/*.md" --fix   # auto-fix issues
-npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json  # JSON output`}</Code>
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json  # JSON output
+
+# Check { source, params } refs against a catalog of external data sources
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --data-sources ./data-sources.json
+
+# Print the system prompt, including the data source catalog
+npx @mobile-reality/mdma-cli prompt --data-sources ./data-sources.json`}</Code>
+      <p>
+        The catalog file is a JSON array of data source descriptors (<code>name</code>,{' '}
+        <code>kind</code>, <code>columns</code>, <code>params</code>) — the definitions you register
+        on the store, without <code>resolve</code>.
+      </p>
 
       <p>The prompt builder walks you through:</p>
       <ol className="docs-list">

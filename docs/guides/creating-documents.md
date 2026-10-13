@@ -91,6 +91,7 @@ The `disabled` and `visible` base properties accept binding expressions on all c
 - `form` fields have an optional `bind` property
 - `tasklist` items have an optional `bind` property
 - `table` `data` can be a binding expression instead of inline data
+- `table` and `chart` `data`, and a select field's `options`, can be a `{ source, params }` reference to an external data source, whose `params` values may themselves be bindings (see [External Data Sources](#external-data-sources))
 - `webhook` `url` and `body` accept binding expressions
 
 ## Marking Sensitive Fields
@@ -251,6 +252,58 @@ columns:
 data: "{{search_results}}"
 ```
 
+## External Data Sources
+
+When the data lives in your system (incidents, sales figures, a country list), do not write the rows into the document. Reference a data source the host has registered with `{ source, params }`, and the runtime fetches the rows when the document renders:
+
+```mdma
+id: open-incidents
+type: table
+columns:
+  - key: title
+    header: Title
+  - key: severity
+    header: Severity
+    sortable: true
+data:
+  source: incidents
+  params:
+    status: open
+sortable: true
+pageSize: 10
+```
+
+The same `{ source, params }` shape works in a chart's `data` and in a select field's `options`. Each source has a `kind` that decides where it can be used: `rows` for tables, `series` for charts, `options` for form selects. When the same data is needed as a table and as a chart, the host declares two sources, a `rows` one and a `series` one.
+
+```mdma
+id: sales-chart
+type: chart
+variant: bar
+xAxis: month
+yAxis: revenue
+data:
+  source: sales-by-month
+  params:
+    year: 2026
+```
+
+Param values can be bindings, so a table can follow a form field:
+
+```mdma
+id: incidents-by-service
+type: table
+columns:
+  - key: title
+    header: Title
+data:
+  source: incidents
+  params:
+    status: open
+    service: "{{filters.service}}"
+```
+
+Only use sources the host has told you about, pass only the params they declare, and keep `table.columns[].key` and chart `xAxis` / `yAxis` within the columns the source provides. The `data-source` validator rule checks all of this when given the host's catalog. See the [External Data Sources guide](./external-data-sources.md) for declaring sources, writing resolvers, and the loading, error, and empty states.
+
 ## Approval Gates
 
 For workflows requiring sign-off, use approval gates:
@@ -277,10 +330,11 @@ Before finalizing a document, verify:
 - [ ] All PII fields have `sensitive: true`
 - [ ] All `{{bindings}}` reference existing fields or component paths
 - [ ] Required form fields are marked `required: true`
-- [ ] Select fields include an `options` array
+- [ ] Select fields include an `options` array, or a `{ source, params }` reference to an `options` data source
+- [ ] Data source refs name a registered source of the right kind (`rows` for tables, `series` for charts, `options` for selects) with its required params
 - [ ] Action IDs referenced in event handlers (`onSubmit`, `onAction`, `trigger`, etc.) are consistent
 - [ ] YAML syntax is valid in all `mdma` blocks
-- [ ] Table `data` column keys match the declared `columns[].key` values
+- [ ] Table `data` column keys match the declared `columns[].key` values (for a data source, the columns the source provides)
 
 Use `@mobile-reality/mdma-validator` to automate these checks programmatically.
 
@@ -301,3 +355,5 @@ content: "Warning: this is dangerous"
 **Binding typos** -- A binding like `{{user_eamil}}` (typo) will silently resolve to `undefined`. The linter's `bindings-resolved` rule will warn about unresolvable bindings.
 
 **Missing options on select fields** -- A `type: select` field without `options` will fail schema validation.
+
+**Inventing data that a source provides** -- When the host registers a data source, write `{ source, params }` instead of rows, options, or CSV. Naming a source the host does not have, or a param it does not declare, is reported by the `data-source` rule.
