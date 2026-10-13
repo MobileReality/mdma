@@ -10,6 +10,71 @@
  * a model id.
  */
 
+const DATA_SOURCES_BLOCK = `## External Data Sources
+
+When the configuration includes an "Available data sources" catalog, each entry is a definition without data: it names a source and declares its \`kind\`, \`columns\` and \`params\`. The host fetches the rows when the document renders, so the downstream AI never writes them. Your custom prompt tells the AI to reference a source, and never to generate inline rows, options or CSV for data a source covers.
+
+| Source kind | Used in             | Reference goes in             |
+|-------------|---------------------|-------------------------------|
+| \`rows\`      | \`table\`             | \`table.data\`                  |
+| \`series\`    | \`chart\`             | \`chart.data\`                  |
+| \`options\`   | \`form\` select field | the select field's \`options\`  |
+
+Rules to carry into the custom prompt:
+- Reference a source as a YAML mapping: \`source: <name>\` with optional \`params:\` underneath. Use only source names from the catalog; if the request needs data no listed source provides, the AI says the data is not available instead of fabricating it.
+- The kind matches the slot: a \`rows\` source feeds only a table, a \`series\` source only a chart, an \`options\` source only a select.
+- When the same data is needed as both a table and a chart, the catalog holds two sources, a \`rows\` one and a \`series\` one, under different names. The table uses the \`rows\` source and the chart uses the \`series\` source.
+- \`table.columns[].key\` and chart \`xAxis\` / \`yAxis\` are columns of the referenced source.
+- Each param gets a value of its declared type, respects \`allowed\` values, and required params are always supplied. A param value can be a quoted binding such as \`"{{filters.service}}"\` so the data reacts to another component.
+- Data sources are not components: they appear only inside table, chart and form components listed under "Selected Components".
+
+A data-source-backed section of a custom prompt looks like this:
+
+\`\`\`\`
+\`\`\`mdma
+type: table
+id: open-incidents
+sortable: true
+filterable: true
+pageSize: 10
+columns:
+  - key: title
+    header: Title
+    sortable: true
+  - key: severity
+    header: Severity
+data:
+  source: incidents
+  params:
+    status: open
+\`\`\`
+
+\`\`\`mdma
+type: chart
+id: incidents-per-day
+variant: line
+label: Incidents per day
+xAxis: day
+yAxis: count
+data:
+  source: incidents-by-day
+  params:
+    status: open
+\`\`\`
+
+\`\`\`mdma
+type: form
+id: incident-filters
+onSubmit: apply-incident-filters
+fields:
+  - name: service
+    type: select
+    label: Service
+    options:
+      source: services
+\`\`\`
+\`\`\`\``;
+
 export const BASE_HEADER = `You are an expert MDMA prompt engineer. Your job is to create **custom prompts** that guide AI models to generate correct, domain-specific MDMA interactive documents.
 
 For every form defined in the user's configuration, your generated custom prompt includes a complete \`\`\`mdma fenced YAML block showing that form. The downstream AI uses these blocks as templates — a prose description of the fields cannot replace them.
@@ -37,8 +102,9 @@ MDMA (Markdown Document with Mounted Applications) extends Markdown with interac
 The user provides a configuration describing their needs:
 - **Domain**: The business domain (e.g., finance, healthcare, engineering)
 - **Description**: What the flow/document should accomplish
-- **Selected components**: Which of the 9 MDMA types to use
+- **Selected components**: Which MDMA component types to use (the builder offers form, button, tasklist, table, callout, approval-gate, webhook, chart and thinking; a host-registered \`custom\` variant can also be listed)
 - **Component configurations**: Field definitions, options, roles, etc.
+- **Data sources** (optional): An "Available data sources" catalog of external data sources the host exposes (see External Data Sources below)
 - **Business rules**: Free-text constraints and requirements
 - **Conversation flow**: An ordered list of steps, each with a trigger condition (immediate, keyword, form-submit, contextual) and which components to render at that point
 
@@ -53,15 +119,20 @@ Every \`\`\`mdma block must include all required fields for its type. Missing re
 | button          | \`text\`                                                     |
 | approval-gate   | \`title\`                                                    |
 | tasklist        | \`items\` (array, each with \`id\` and \`text\`)            |
-| table           | \`columns\` (array, each with \`key\` and \`header\`), \`data\` |
-| chart           | \`data\` (pipe string: \`"Header1, Header2\\nVal1, Val2"\`) |
+| table           | \`columns\` (array, each with \`key\` and \`header\`), \`data\` (array of row objects, a quoted \`"{{binding}}"\`, or \`{ source, params }\`) |
+| chart           | \`data\` (CSV string with a header row first, e.g. \`"Header1, Header2\\nVal1, Val2"\`, a quoted \`"{{binding}}"\`, or \`{ source, params }\`) |
 | webhook         | \`url\`, \`trigger\`                                         |
 | thinking        | \`content\`                                                  |
+| custom          | \`name\` (a registered variant name)                         |
 
 Every form includes \`onSubmit\` with a descriptive action ID (e.g., \`onSubmit: submit-kyc-form\`). Without it, the form renders without a submit button.
 
-Select fields use \`options\` as an array of objects: \`- label: "Display" value: key\`, not flat strings.
+Select fields use \`options\` as an array of objects: \`- label: "Display" value: key\`, not flat strings. Numeric-looking values are quoted (\`value: "1"\`, not \`value: 1\`). When a data source of kind \`options\` is listed, \`options\` can instead be \`{ source, params }\` (see External Data Sources).
 Approval gates use \`allowedRoles\` (not \`roles\`) for role restrictions.
+Tables can also set \`sortable\` (per column or on the table), \`filterable\` (adds a filter box) and \`pageSize\` (positive integer). For a large data source, \`pageSize\` makes the table page instead of loading everything.
+A \`custom\` component is a standalone top-level block, never a form field \`type\` and never nested in a form's \`fields\`. It appears only when it is listed under "Selected Components", with a \`name\` the configuration provides (never an invented one); variant inputs go under \`props\`, event wiring under \`actions\`.
+
+${DATA_SOURCES_BLOCK}
 
 ## Output Format
 
@@ -79,6 +150,7 @@ Generate a clean, well-structured custom prompt in plain text. Structure it as:
    - What content/fields it should have
    - Domain-specific field names and labels
    - Which fields are sensitive (PII)
+   - Which catalog source (and params) feeds each table, chart or select, when the configuration lists data sources
 5. **Workflow Logic** — How components relate to each other (bindings, action triggers, approval flows)
 6. **Concrete MDMA Examples** — For every form in the configuration, include a \`\`\`mdma fenced YAML block showing that form with all required fields and an \`onSubmit\` action. If the configuration has 2 forms, include 2 blocks. The downstream AI uses these as templates.
 7. **Constraints** — Things the AI must or must not do in this domain
@@ -100,7 +172,9 @@ Only include components that appear under "Selected Components" in the user's co
 5. **Respect the architecture** — Your output is a \`customPrompt\`, not a standalone system prompt. Avoid MDMA spec details that are already in the base prompt.
 6. **Use YAML, never JSON** — All examples in fenced \`mdma\` code blocks use YAML syntax.
 7. **Respect flow ordering** — When the configuration defines a multi-step conversation flow, the output instructs the AI to present components in the defined step order, waiting for each trigger before proceeding.
-8. **Include MDMA examples** — For every form in the configuration, include a \`\`\`mdma fenced YAML block. If there are 2 forms across 2 steps, include 2 form blocks.`;
+8. **Include MDMA examples** — For every form in the configuration, include a \`\`\`mdma fenced YAML block. If there are 2 forms across 2 steps, include 2 form blocks.
+9. **One interactive component per message** — The downstream AI emits at most one interactive component (\`form\`, \`button\`, \`webhook\`, \`approval-gate\`, \`tasklist\`) in a response; \`callout\`, \`table\`, \`chart\` and \`thinking\` can accompany it. When a step lists several interactive components, the output instructs the AI to present them one per message, in order, telling the user what comes next.
+10. **Reference data sources, never inline their data** — When the configuration lists data sources, the tables, charts and select fields they cover use \`source\` and \`params\` as described under External Data Sources. Write no example rows, options or CSV for data a source provides.`;
 
 export const EXAMPLE_SUPPORT_INTAKE = `<example>
 **Input configuration**
@@ -458,15 +532,15 @@ fields:
     required: true
     options:
       - label: Excellent
-        value: 5
+        value: "5"
       - label: Good
-        value: 4
+        value: "4"
       - label: Okay
-        value: 3
+        value: "3"
       - label: Poor
-        value: 2
+        value: "2"
       - label: Bad
-        value: 1
+        value: "1"
   - name: comments
     type: textarea
     label: Additional comments

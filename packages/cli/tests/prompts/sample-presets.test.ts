@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { MASTER_PROMPT } from '../../src/prompts/master-prompt.js';
 import { serializeConfig } from '../../src/prompts/serialize-config.js';
 import type { DomainConfig } from '../../src/prompts/types.js';
@@ -422,8 +422,8 @@ describe('sample preset prompt evaluation', () => {
       }
     });
 
-    it('full prompt should be under 12k chars', () => {
-      expect(fullPrompt.length).toBeLessThan(13000);
+    it('full prompt should be under 18k chars', () => {
+      expect(fullPrompt.length).toBeLessThan(18000);
     });
   });
 });
