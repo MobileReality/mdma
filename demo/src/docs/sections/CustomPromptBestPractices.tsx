@@ -165,8 +165,10 @@ follow-up steps and appear in later turns.`}</Code>
         <code>authorPrompt</code> instead of sending the default prompt to every model.
       </p>
       <p>
-        Variants differ only by short framing blocks added for failure modes that were measured on
-        that model, composed from the shared blocks of the vendor folder rather than copied whole:
+        Variants differ mostly by short framing blocks added for failure modes that were measured on
+        that model, composed from the shared blocks of the vendor folder rather than copied whole.
+        In one case (<code>anthropic/sonnet-5.5</code>) the difference is instead a reworded
+        description of the <code>thinking</code> component (practice 7):
       </p>
       <ul className="docs-list">
         <li>
@@ -225,15 +227,20 @@ structured.`}</Code>
       </div>
       <p>
         The <code>anthropic/sonnet-5.5</code> variant already uses the second wording. Some
-        OpenRouter upstreams still return <code>content_filter</code> for this model, so pin the
-        provider to Anthropic or call the Anthropic API directly.
+        OpenRouter upstreams still return <code>content_filter</code> for this model. Measured on
+        this branch with the reworded prompt, Sonnet 5.5 passed 95 of 95 author cases on
+        Anthropic&apos;s own API, 32 of 95 through OpenRouter&apos;s default routing (many empty{' '}
+        <code>content_filter</code> responses) and 86 of 95 with the OpenRouter provider pinned to
+        Anthropic. Pin the provider to Anthropic or call the Anthropic API directly.
       </p>
 
       <h3>8. Evaluate through the path you ship</h3>
       <ul className="docs-list">
         <li>
-          The same prompt gave different results through OpenRouter&apos;s default routing than on
-          Anthropic&apos;s own API. Measure with the provider and routing production will use.
+          The same prompt scored differently by path. Sonnet 5.5 with the reworded prompt passed 95
+          of 95 author cases on Anthropic&apos;s own API, 32 of 95 through OpenRouter&apos;s default
+          routing and 86 of 95 with the provider pinned to Anthropic. Measure with the provider and
+          routing production will use.
         </li>
         <li>
           promptfoo prepends the response&apos;s separate <code>reasoning</code> field to the output
@@ -277,8 +284,9 @@ structured.`}</Code>
           anyway.
         </li>
         <li>
-          Without a fitting source in the catalog a model may try the wrong kind, and the repair
-          step may then change the component type to match it.
+          Without a fitting source in the catalog a model may try the wrong kind. On a kind mismatch
+          the fixer is instructed to switch to a catalog source of the required kind, so offer one
+          for every presentation you want to support.
         </li>
       </ul>
       <div className="docs-do-dont">
@@ -350,7 +358,8 @@ data:
         </li>
         <li>
           For Claude Sonnet 5.5, <code>thinking</code> is a plan summary, never
-          &quot;reasoning&quot;, and the provider is pinned to Anthropic.
+          &quot;reasoning&quot;, and the provider is pinned to Anthropic (measured: 95 of 95 cases
+          on Anthropic&apos;s API, 32 of 95 on OpenRouter default routing, 86 of 95 pinned).
         </li>
         <li>Evals run through the shipped provider path, one run per flagship model.</li>
         <li>
