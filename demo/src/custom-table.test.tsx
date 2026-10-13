@@ -261,6 +261,25 @@ describe('custom table with a source-backed ref', () => {
     expect(view.textContent).not.toContain('No data available');
   });
 
+  it('filters the sales-records rows through the resolver', async () => {
+    const view = await renderDocument(
+      SALES_RECORDS_DOCUMENT.replace('columns:', 'filterable: true\ncolumns:'),
+    );
+    await settle();
+
+    const input = view.querySelector<HTMLInputElement>('.custom-table-filter input');
+    await act(async () => {
+      if (!input) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'jan');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(cellTexts(view, 0)).toEqual(['Jan']);
+  });
+
   it('shows the empty view when the resolver returns no rows', async () => {
     const view = await renderDocument(INCIDENTS_DOCUMENT, {
       dataSources: { incidents: async () => ({ rows: [], total: 0 }) },
