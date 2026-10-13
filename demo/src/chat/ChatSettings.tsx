@@ -5,6 +5,8 @@ import { PROVIDER_PRESETS, type LlmConfig } from '../llm-client.js';
 
 const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
   openai: [
+    { value: 'gpt-6.1-sol', label: 'gpt-6.1-sol' },
+    { value: 'gpt-6-sol', label: 'gpt-6-sol' },
     { value: 'gpt-5.6-sol', label: 'gpt-5.6-sol' },
     { value: 'gpt-5.6-terra', label: 'gpt-5.6-terra' },
     { value: 'gpt-5.6-luna', label: 'gpt-5.6-luna' },
@@ -25,6 +27,11 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'gpt-4.1-nano', label: 'gpt-4.1-nano' },
   ],
   anthropic: [
+    { value: 'claude-opus-5-5', label: 'claude-opus-5.5' },
+    { value: 'claude-opus-5', label: 'claude-opus-5' },
+    { value: 'claude-sonnet-5-5', label: 'claude-sonnet-5.5' },
+    { value: 'claude-sonnet-5', label: 'claude-sonnet-5' },
+    { value: 'claude-haiku-5-5', label: 'claude-haiku-5.5' },
     { value: 'claude-opus-4-8', label: 'claude-opus-4.8' },
     { value: 'claude-opus-4-7', label: 'claude-opus-4.7' },
     { value: 'claude-opus-4-6', label: 'claude-opus-4.6' },
@@ -34,6 +41,8 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'claude-sonnet-4-5-20250929', label: 'claude-sonnet-4.5' },
   ],
   openrouter: [
+    { value: 'google/gemini-3.8-flash', label: 'google/gemini-3.8-flash' },
+    { value: 'google/gemini-3.7-flash', label: 'google/gemini-3.7-flash' },
     { value: 'google/gemini-3.5-flash', label: 'google/gemini-3.5-flash' },
     { value: 'google/gemini-3.1-pro-preview', label: 'google/gemini-3.1-pro-preview' },
     {
@@ -44,11 +53,22 @@ const MODEL_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
     { value: 'google/gemini-2.5-pro', label: 'google/gemini-2.5-pro' },
     { value: 'google/gemini-2.5-flash', label: 'google/gemini-2.5-flash' },
     { value: 'google/gemini-2.5-flash-lite', label: 'google/gemini-2.5-flash-lite' },
+    { value: 'x-ai/grok-4.7', label: 'x-ai/grok-4.7' },
+    { value: 'x-ai/grok-4.6', label: 'x-ai/grok-4.6' },
     { value: 'x-ai/grok-4.5', label: 'x-ai/grok-4.5' },
     { value: 'x-ai/grok-4.20', label: 'x-ai/grok-4.20' },
     { value: 'x-ai/grok-4.3', label: 'x-ai/grok-4.3' },
+    { value: 'openai/gpt-6.1-sol', label: 'openai/gpt-6.1-sol' },
+    { value: 'openai/gpt-6-sol', label: 'openai/gpt-6-sol' },
+    { value: 'openai/gpt-5.6-terra', label: 'openai/gpt-5.6-terra' },
+    { value: 'openai/gpt-5.6-luna', label: 'openai/gpt-5.6-luna' },
     { value: 'openai/gpt-5.4', label: 'openai/gpt-5.4' },
     { value: 'openai/gpt-5.4-mini', label: 'openai/gpt-5.4-mini' },
+    { value: 'anthropic/claude-opus-5.5', label: 'anthropic/claude-opus-5.5' },
+    { value: 'anthropic/claude-opus-5', label: 'anthropic/claude-opus-5' },
+    { value: 'anthropic/claude-sonnet-5.5', label: 'anthropic/claude-sonnet-5.5' },
+    { value: 'anthropic/claude-sonnet-5', label: 'anthropic/claude-sonnet-5' },
+    { value: 'anthropic/claude-haiku-5.5', label: 'anthropic/claude-haiku-5.5' },
     { value: 'anthropic/claude-opus-4-6', label: 'anthropic/claude-opus-4.6' },
     { value: 'anthropic/claude-sonnet-4-6', label: 'anthropic/claude-sonnet-4.6' },
     { value: 'meta-llama/llama-4-scout', label: 'meta-llama/llama-4-scout' },

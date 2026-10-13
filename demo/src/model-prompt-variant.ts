@@ -55,6 +55,11 @@ const MODEL_TO_PROMPT_VARIANT: Record<string, string> = {
   'grok-4.5': 'x-ai/grok-4.5',
   'grok-4.3': 'x-ai/grok-4.3',
   // OpenRouter models whose value differs from the author variant ID
+  'anthropic/claude-opus-5.5': 'anthropic/opus-5.5',
+  'anthropic/claude-opus-5': 'anthropic/opus-5',
+  'anthropic/claude-sonnet-5.5': 'anthropic/sonnet-5.5',
+  'anthropic/claude-sonnet-5': 'anthropic/sonnet-5',
+  'anthropic/claude-haiku-5.5': 'anthropic/haiku-5.5',
   'anthropic/claude-opus-4-6': 'anthropic/opus-4.6',
   'anthropic/claude-sonnet-4-6': 'anthropic/sonnet',
 };
