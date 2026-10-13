@@ -26,6 +26,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "smoke:pack": "node scripts/smoke-pack.mjs",
     "lint": "biome lint src/",
     "typecheck": "tsc --noEmit"
   },
@@ -33,12 +34,12 @@
     "@mobile-reality/mdma-spec": "workspace:*",
     "@mobile-reality/mdma-prompt-pack": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.12.0",
+    "zod": "^3.24.0",
     "zod-to-json-schema": "^3.24.0"
   },
   "devDependencies": {
     "typescript": "^5.7.0",
-    "vitest": "^3.2.0",
-    "zod": "^3.24.0"
+    "vitest": "^3.2.0"
   },
   "files": [
     "dist"
