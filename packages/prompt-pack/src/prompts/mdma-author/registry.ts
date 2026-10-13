@@ -43,6 +43,17 @@ import { MDMA_AUTHOR_PROMPT_GPT_5_6_SOL } from './openai/gpt-5.6-sol.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_6_TERRA } from './openai/gpt-5.6-terra.js';
 import { MDMA_AUTHOR_PROMPT_GPT_5_6_LUNA } from './openai/gpt-5.6-luna.js';
 import { MDMA_AUTHOR_PROMPT_GROK_4_5 } from './x-ai/grok-4.5.js';
+import { MDMA_AUTHOR_PROMPT_GPT_6_SOL } from './openai/gpt-6-sol.js';
+import { MDMA_AUTHOR_PROMPT_GPT_6_1_SOL } from './openai/gpt-6.1-sol.js';
+import { MDMA_AUTHOR_PROMPT_SONNET_5 } from './anthropic/sonnet-5.js';
+import { MDMA_AUTHOR_PROMPT_SONNET_5_5 } from './anthropic/sonnet-5.5.js';
+import { MDMA_AUTHOR_PROMPT_OPUS_5 } from './anthropic/opus-5.js';
+import { MDMA_AUTHOR_PROMPT_OPUS_5_5 } from './anthropic/opus-5.5.js';
+import { MDMA_AUTHOR_PROMPT_HAIKU_5_5 } from './anthropic/haiku-5.5.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_7_FLASH } from './google/gemini-3.7-flash.js';
+import { MDMA_AUTHOR_PROMPT_GEMINI_3_8_FLASH } from './google/gemini-3.8-flash.js';
+import { MDMA_AUTHOR_PROMPT_GROK_4_6 } from './x-ai/grok-4.6.js';
+import { MDMA_AUTHOR_PROMPT_GROK_4_7 } from './x-ai/grok-4.7.js';
 
 export interface AuthorPromptVariant {
   /** Stable id, persisted in user settings (e.g. "default", "anthropic/haiku"). */
@@ -288,6 +299,83 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
     description:
       'Minimal composition (scope_discipline + select_options). A hidden-reasoning model; its residual reasoning-token leak is handled at the API layer (reasoning.exclude), not the prompt.',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_5,
+  },
+  {
+    id: 'anthropic/sonnet-5.5',
+    label: 'Anthropic — Claude Sonnet 5.5',
+    description:
+      'Sonnet composition with the `thinking` component described as a plan summary — the shared wording ("AI reasoning") draws `reasoning_extraction` refusals from this model.',
+    prompt: MDMA_AUTHOR_PROMPT_SONNET_5_5,
+  },
+  {
+    id: 'anthropic/sonnet-5',
+    label: 'Anthropic — Claude Sonnet 5',
+    description:
+      'Same Anthropic-styled framing as Sonnet (<scope_discipline> + <fence_closing>).',
+    prompt: MDMA_AUTHOR_PROMPT_SONNET_5,
+  },
+  {
+    id: 'anthropic/opus-5.5',
+    label: 'Anthropic — Claude Opus 5.5',
+    description:
+      'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
+    prompt: MDMA_AUTHOR_PROMPT_OPUS_5_5,
+  },
+  {
+    id: 'anthropic/opus-5',
+    label: 'Anthropic — Claude Opus 5',
+    description:
+      'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
+    prompt: MDMA_AUTHOR_PROMPT_OPUS_5,
+  },
+  {
+    id: 'anthropic/haiku-5.5',
+    label: 'Anthropic — Claude Haiku 5.5',
+    description:
+      'XML-tagged framing (<output_format>, <self_check>) as for Claude Haiku, with <scope_discipline>.',
+    prompt: MDMA_AUTHOR_PROMPT_HAIKU_5_5,
+  },
+  {
+    id: 'google/gemini-3.8-flash',
+    label: 'Google — Gemini 3.8 Flash',
+    description:
+      'Flash tier — same Gemini-native composition as Gemini 3.5 Flash (all negative-constraint blocks plus <emit_component>).',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_8_FLASH,
+  },
+  {
+    id: 'google/gemini-3.7-flash',
+    label: 'Google — Gemini 3.7 Flash',
+    description:
+      'Flash tier — same Gemini-native composition as Gemini 3.5 Flash (all negative-constraint blocks plus <emit_component>).',
+    prompt: MDMA_AUTHOR_PROMPT_GEMINI_3_7_FLASH,
+  },
+  {
+    id: 'openai/gpt-6.1-sol',
+    label: 'OpenAI — GPT-6.1 Sol',
+    description:
+      'GPT-6 sibling — proven gpt-5.6 flagship framing (<scope_discipline> + <component_types> + <single_interactive> + <select_options> + <custom_usage>).',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_6_1_SOL,
+  },
+  {
+    id: 'openai/gpt-6-sol',
+    label: 'OpenAI — GPT-6 Sol',
+    description:
+      'GPT-6 sibling — proven gpt-5.6 flagship framing (<scope_discipline> + <component_types> + <single_interactive> + <select_options> + <custom_usage>).',
+    prompt: MDMA_AUTHOR_PROMPT_GPT_6_SOL,
+  },
+  {
+    id: 'x-ai/grok-4.7',
+    label: 'xAI — Grok 4.7',
+    description:
+      'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
+    prompt: MDMA_AUTHOR_PROMPT_GROK_4_7,
+  },
+  {
+    id: 'x-ai/grok-4.6',
+    label: 'xAI — Grok 4.6',
+    description:
+      'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
+    prompt: MDMA_AUTHOR_PROMPT_GROK_4_6,
   },
 ];
 
