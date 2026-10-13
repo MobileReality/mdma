@@ -1,5 +1,27 @@
 # @mobile-reality/mdma-mcp
 
+## 0.3.0
+
+### Minor Changes
+
+- 6ec6eb1: Teach the LLM authoring path about external data sources.
+
+  - `@mobile-reality/mdma-prompt-pack`: `buildSystemPrompt({ dataSources })` renders an "Available data sources" catalog (name, description, kind, columns, params) plus the rule to reference catalog data with `{ source, params }` in select `options`, `table.data` and `chart.data` instead of generating rows. The author spec block documents the `{ source, params }` form. Without `dataSources` the prompt is unchanged apart from that spec note.
+  - `@mobile-reality/mdma-mcp`: the `build-system-prompt` tool accepts `dataSources`; when given it returns the full system prompt including the catalog.
+  - `@mobile-reality/mdma-cli`: new `mdma prompt --data-sources <file>` prints the system prompt with a catalog, and `mdma validate --data-sources <file>` validates source refs against it.
+
+- 0d38fd9: Bring the MCP server up to date with external data sources and the new author prompt variants. `get-spec` now returns a `dataSources` section (`{ source, params }` refs, the `DataSourceDescriptor` shape, and the `rows` / `series` / `options` kinds), `build-system-prompt` documents the catalog descriptor shape, `list-docs` includes the external data sources guide, and `list-packages` mentions data-source support in runtime, validator, prompt-pack, and the React renderer.
+
+### Patch Changes
+
+- Updated dependencies [7fb5b2d]
+- Updated dependencies [776cab5]
+- Updated dependencies [6ec6eb1]
+- Updated dependencies [85cfde8]
+- Updated dependencies [a51f500]
+  - @mobile-reality/mdma-prompt-pack@0.6.0
+  - @mobile-reality/mdma-spec@0.5.0
+
 ## 0.2.14
 
 ### Patch Changes

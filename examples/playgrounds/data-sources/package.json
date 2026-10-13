@@ -1,7 +1,7 @@
 {
   "name": "mdma-playground-data-sources",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
   "description": "Isolated playground for external data sources: paged tables, chart, error and empty states with mock async resolvers.",
   "scripts": {

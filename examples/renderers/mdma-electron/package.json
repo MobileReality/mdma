@@ -1,7 +1,7 @@
 {
   "name": "mdma-example-electron",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "commonjs",
   "description": "Electron desktop agent chat: the model stream, policy, and audit chain live in the main process; the renderer only draws MDMA with @mobile-reality/mdma-renderer-react.",
   "main": "./out/main/index.js",
