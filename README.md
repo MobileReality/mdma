@@ -93,6 +93,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
 | :--- | :---: | :---: | :---: | :---: |
 | **OpenAI** | | | | |
+| `gpt-6.1-sol` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-6-sol` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-sol` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-terra` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-luna` | ✅ | ✅ | ✅ | ✅ |
@@ -109,6 +111,11 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-4.1-nano` | ✅ | ✅ | ✅ \* | 🟡 \* |
 | **Anthropic** | | | | |
+| `claude-opus-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-opus-5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-sonnet-5.5` § | ✅ | ✅ | ✅ | ✅ |
+| `claude-sonnet-5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-haiku-5.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `claude-opus-4.8` | ✅ | ✅ | ✅ | ✅ |
 | `claude-opus-4.7` | ✅ | ✅ | ✅ | ✅ |
 | `claude-opus-4.6` | ✅ | ✅ | ✅ | ✅ |
@@ -116,6 +123,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `claude-fable-5` | ✅ | ✅ | ✅ | ✅ |
 | **Google** | | | | |
+| `gemini-3.8-flash` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.7-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.5-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | 🟡 ‡ |
 | `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
@@ -127,6 +136,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | **xAI** | | | | |
 | `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
 | `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.7` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `grok-4.5` | ✅ | ✅ | ✅ | ✅ |
 | **Zhipu (z.ai)** | | | | |
 | `glm-4-plus` | TBD | TBD | TBD | TBD |
@@ -147,6 +158,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 ‡ **gemini-3.1-pro-preview stochastic preamble loop** — on ~7–15% of flow-eval runs, the model emits a chain-of-thought as visible Markdown prose (e.g. `**Investigating Production Errors**` repeated 3–5 times) instead of opening a ```` ```mdma ```` block, producing either `[yaml-correctness: outside fenced block]` or `[duplicate-ids]` errors. Per Google's official Gemini 3 prompting guide, this is a model-level behavior driven by temperature/sampling — prompt-level fixes shift which test loops rather than eliminating the loops. If deterministic flow output matters, prefer `gemini-2.5-pro` for production multi-step flows.
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
+
+§ **claude-sonnet-5.5 `thinking` wording** — the shared description of the `thinking` component ("AI reasoning or thinking process") makes Sonnet 5.5's safety classifier answer with `stop_reason: refusal` (category `reasoning_extraction`; 7 of 20 benign requests on Anthropic's API, shown as `finish_reason: content_filter` through OpenRouter). The `claude-sonnet-5.5` variant describes it as a plan summary instead and scores 100% on Anthropic's own API. Some OpenRouter upstreams still return `content_filter` for this model; pin the provider to Anthropic or call the API directly.
 
 \[i] Noticeably slow response times — single-turn responses commonly take tens of seconds and full eval runs measure in minutes.
 
