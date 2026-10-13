@@ -448,7 +448,7 @@ The web renderers (`renderer-react`, `renderer-vue`, `renderer-vanilla`) and the
 | `@mobile-reality/mdma-renderer-vanilla` | Framework-free rendering layer — plain DOM, no React or Vue. `mountMdmaDocument(container, { ast, store })` returns a handle you feed new ASTs to; renderers own their elements and update in place, so focus and in-progress form values survive the re-parses a streamed reply produces. Ships the same `styles.css` as the other web renderers. |
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI (GPT-4.1 through GPT-6.1), Anthropic (Haiku, Sonnet, Opus 4.6 to 5.5, Fable 5), Google (Gemini 2.5 to 3.8, Gemma), xAI (Grok 4.3 to 4.7), and our MDMA-IL model — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 18 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
-| `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
+| `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis and a `prompt` command that prints the system prompt; both take an external data source catalog via `--data-sources`. |
 | `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt` (with optional external `dataSources` catalog), `validate-prompt`, `list-packages`, `list-docs`, `get-doc`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
 
 ## Architecture
@@ -487,10 +487,29 @@ npx @mobile-reality/mdma-cli
 npx @mobile-reality/mdma-cli validate "docs/**/*.md"
 npx @mobile-reality/mdma-cli validate "docs/**/*.md" --fix  # auto-fix issues
 npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json # JSON output
+
+# Check { source, params } refs against a catalog of external data sources
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --data-sources ./data-sources.json
+
+# Print the system prompt, including the data source catalog
+npx @mobile-reality/mdma-cli prompt --data-sources ./data-sources.json
+```
+
+`--data-sources` reads a JSON array of data source definitions without `resolve`, i.e. the descriptors you register on the store: `name`, `kind` (`rows` for `table.data`, `series` for `chart.data`, `options` for form select `options`), `columns` and `params`. Run `mdma prompt --help` or `mdma validate --help` for the file shape.
+
+```json
+[
+  {
+    "name": "incidents",
+    "kind": "rows",
+    "columns": [{ "key": "title", "type": "string" }],
+    "params": [{ "name": "status", "type": "string", "required": true }]
+  }
+]
 ```
 
 The prompt builder walks you through:
-1. **Pick components** — select from the 10 MDMA types (form, table, approval-gate, etc.)
+1. **Pick components** — select from the MDMA component types the builder offers (form, table, approval-gate, etc.)
 2. **Configure** — define fields, options, roles, sensitive flags, and business rules
 3. **Set triggers** — specify when the AI should generate MDMA components (keywords, contextual conditions)
 4. **Generate** — an LLM creates a tailored `customPrompt` based on your configuration
@@ -503,6 +522,8 @@ const systemPrompt = buildSystemPrompt({
   customPrompt: '<paste generated prompt here>',
 });
 ```
+
+The prompt that drives the generation, `MASTER_PROMPT`, also ships model-specialised variants you can import to run the generation yourself: `@mobile-reality/mdma-cli/prompts/anthropic/{haiku,sonnet,sonnet-5.5,opus}` and `@mobile-reality/mdma-cli/prompts/google/gemma` (exports `MASTER_PROMPT_HAIKU`, `MASTER_PROMPT_SONNET_5_5`, and so on). Claude Sonnet 5.5 has its own variant because it refuses system prompts that ask it to write out its reasoning, so there the `thinking` component is described as a plan summary. Other models, including GPT, Gemini and Grok, use the default `MASTER_PROMPT`.
 
 ## Validator
 
