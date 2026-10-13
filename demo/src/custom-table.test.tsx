@@ -8,6 +8,7 @@ import { storeOptionsFor } from './agent/data-source-options.js';
 import { parseMarkdown } from './chat/parse-markdown.js';
 import { customizations } from './custom-components.js';
 import { INCIDENTS_LATENCY_MS, queryIncidents } from './data-sources/resolvers.js';
+import { salesForYear } from './data-sources/sales-data.js';
 
 // biome-ignore lint/suspicious/noExplicitAny: react's act() global switch has no typed home
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
@@ -75,6 +76,22 @@ data:
   source: sales-by-month
   params:
     year: 2025
+\`\`\`
+`;
+
+const SALES_RECORDS_DOCUMENT = `\`\`\`mdma
+id: sales-table
+type: table
+label: Sales 2024
+columns:
+  - key: month
+    header: Month
+  - key: revenue
+    header: Revenue
+data:
+  source: sales-records
+  params:
+    year: 2024
 \`\`\`
 `;
 
@@ -234,6 +251,33 @@ describe('custom table with a source-backed ref', () => {
     await settle();
 
     expect(cellTexts(view, 1)).toEqual(['{{incidents.id}}']);
+  });
+
+  it('shows the months from the sales-records source', async () => {
+    const view = await renderDocument(SALES_RECORDS_DOCUMENT);
+    await settle();
+
+    expect(cellTexts(view, 0)).toEqual(salesForYear(2024).map((row) => row.month));
+    expect(view.textContent).not.toContain('No data available');
+  });
+
+  it('filters the sales-records rows through the resolver', async () => {
+    const view = await renderDocument(
+      SALES_RECORDS_DOCUMENT.replace('columns:', 'filterable: true\ncolumns:'),
+    );
+    await settle();
+
+    const input = view.querySelector<HTMLInputElement>('.custom-table-filter input');
+    await act(async () => {
+      if (!input) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'jan');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(cellTexts(view, 0)).toEqual(['Jan']);
   });
 
   it('shows the empty view when the resolver returns no rows', async () => {
