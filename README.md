@@ -546,7 +546,7 @@ const result = validate(markdown, {
 | `placeholder-content` | info | -- | Catches `TODO`, `TBD`, `FIXME`, `...`, `lorem ipsum` in content fields. |
 | `flow-ordering` | warning | -- | Forward-only action references (targets defined later in the document), no circular refs, and multi-step flows flagged to be split across messages. |
 | `single-interactive-component` | warning | -- | At most one interactive component (form, button, webhook, approval-gate, tasklist) per message. |
-| `data-source` | error | -- | `{ source, params }` refs on table `data`, chart `data`, and select `options` name a source of the right kind. With a `dataSourceCatalog`, also checks source names, declared and required params, types, `allowed` values, and that table columns and chart axes exist in the source. |
+| `data-source` | error | -- | `{ source, params }` refs on table `data`, chart `data`, and select `options` name a source. With a `dataSourceCatalog`, also checks the source exists and is of the right kind, declared and required params, types, `allowed` values, and that table columns and chart axes exist in the source. |
 | `expected-components` | error | -- | Verifies that components present in the message match their expected types, form fields, and table columns. Components not in the message are silently skipped — useful for multi-turn flows where you pass all expected components upfront. |
 
 ### Auto-fix Pipeline

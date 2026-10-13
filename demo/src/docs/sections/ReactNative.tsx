@@ -261,11 +261,11 @@ export function Screen({ markdown }: { markdown: string }) {
         Tables, charts, and form selects that reference a data source —{' '}
         <code>{'{ source, params }'}</code> — read their rows from the sources registered on the
         store with <code>createDocumentStore(ast, {'{ dataSources }'})</code>. The native renderer
-        draws its own loading, error (with a Retry button), and reload states and sends paging,
-        sorting, and the filter to the resolver; the <code>dataLoading</code> /{' '}
-        <code>dataError</code> / <code>dataEmpty</code> element overrides are not part of the React
-        Native surface (an <code>elements</code> field is accepted and ignored). See{' '}
-        <strong>Usage</strong> for declaring sources.
+        draws its own loading, error (with a Retry button), and reload states and sends paging and
+        sorting to the resolver; the <code>dataLoading</code> / <code>dataError</code> /{' '}
+        <code>dataEmpty</code> element overrides are not part of the React Native surface (an{' '}
+        <code>elements</code> field is accepted and ignored). See <strong>Usage</strong> for
+        declaring sources.
       </p>
 
       <h2>Try it</h2>

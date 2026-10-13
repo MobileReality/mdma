@@ -169,8 +169,6 @@ export const incidents = defineDataSource({
 
 In TypeScript, `sensitive` and `required` are non-optional properties of the declared type, so spell them out (`false` when they do not apply); the JSON catalog used by the CLI fills in the defaults.
 
-In TypeScript, `sensitive` and `required` are non-optional properties of the declared type, so spell them out (`false` when they do not apply); the JSON catalog used by the CLI fills in the defaults.
-
 Everything except `resolve` is the **descriptor**: it is what the prompt, the validator, and the CLI see. Only the runtime ever calls `resolve`.
 
 ## Registering Sources on the Store
@@ -273,7 +271,7 @@ The React, Vue, and vanilla renderers let you replace each view through the usua
 |----------|-------|---------|
 | `dataLoading` | `componentId`, `reloading?` | `table`, `chart`, `form` |
 | `dataError` | `componentId`, `error`, `onRetry` | `table`, `chart`, `form` |
-| `dataEmpty` | `componentId`, `label?` | `table`, `chart` |
+| `dataEmpty` | `componentId`, `label?` (not passed by the vanilla renderer) | `table`, `chart` |
 
 ```tsx
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
@@ -402,7 +400,7 @@ npx @mobile-reality/mdma-cli validate "docs/**/*.md" --data-sources ./data-sourc
 
 ## Static Option Lists vs. Data Sources
 
-Renderers also accept `customizations.dataSources`, a map from a name to a ready-made list of `{ label, value }` options that a select field can reference by name (`options: countries`). That is a renderer-level lookup for fixed lists. The data sources on this page are registered on the **store**, are validated and described to the model, and add params, paging, sorting, filtering, and the loading, error, and empty states. When a name is registered on the store, `options: <name>` resolves through the store.
+Renderers also accept `customizations.dataSources`, a map from a name to a ready-made list of `{ label, value }` options that a select field can reference by name (`options: countries`). That is a renderer-level lookup for fixed lists. The data sources on this page are registered on the **store**, are validated and described to the model, and add params, paging, sorting, filtering, and the loading, error, and empty states. When a name is registered on the store, `options: <name>` resolves through the store. Note that when you pass a `dataSourceCatalog` to the validator, a plain-string `options` value is checked as a source name, so a select that points at a renderer-level list not present in the catalog is reported as `Unknown data source`.
 
 ## Try It
 
