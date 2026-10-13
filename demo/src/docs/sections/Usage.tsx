@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
 import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
-import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import { type DocumentStore, createDocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import { useEffect, useRef, useState } from 'react';
 import { parseMarkdown } from '../../chat/parse-markdown.js';
 import { Code } from '../Code.js';
 
@@ -102,8 +102,8 @@ const store = createDocumentStore(ast, {
       <h2>In a Chat</h2>
       <Code lang="ts">{`import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 
-// Pick the prompt variant tuned for your model
-const { prompt: authorPrompt } = getAuthorPromptVariant('google/gemini-2.5-pro');
+// Pick the prompt variant tuned for your model (ids come from AUTHOR_PROMPT_VARIANTS)
+const { prompt: authorPrompt } = getAuthorPromptVariant('openai/gpt-6.1-sol');
 
 const systemPrompt = buildSystemPrompt({
   authorPrompt,
@@ -116,13 +116,108 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
   method: 'POST',
   headers: { Authorization: \`Bearer \${apiKey}\` },
   body: JSON.stringify({
-    model: 'gemini-2.5-pro',
+    model: 'gpt-6.1-sol',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: 'The login page crashes after entering my password.' },
     ],
   }),
 });`}</Code>
+
+      <p className="docs-note">
+        <code>getAuthorPromptVariant(id)</code> returns the prompt tuned for that model and falls
+        back to <code>default</code> for an unknown id. The demo does this for you: picking a model
+        in its chat or agent settings selects the matching variant through its model-to-variant
+        mapping.
+      </p>
+
+      <h2>External Data Sources</h2>
+      <p>
+        Tables, charts, and form selects can take their data from your system instead of from the
+        model. The LLM writes <code>{'{ source, params }'}</code> and never the rows; you register
+        what each source name means. A source has a <code>kind</code>: <code>rows</code> feeds a
+        table, <code>series</code> feeds a chart, and <code>options</code> feeds a form select. When
+        the same data is needed as a table and as a chart, declare two sources — a <code>rows</code>{' '}
+        one and a <code>series</code> one.
+      </p>
+      <Code lang="mdma">{`type: table
+id: open-incidents
+columns:
+  - key: title
+    header: Title
+data:
+  source: incidents
+  params:
+    status: open
+    service: "{{filters.service}}"   # params may be bindings`}</Code>
+      <Code lang="ts">{`import { createDocumentStore } from '@mobile-reality/mdma-runtime';
+import { defineDataSource } from '@mobile-reality/mdma-spec';
+import type { DataSourceResolver } from '@mobile-reality/mdma-spec';
+
+const resolveIncidents: DataSourceResolver = async (request, { signal }) => {
+  const { params, page, pageSize, sort, filter } = request;
+  const query = new URLSearchParams({ status: String(params.status) });
+  if (page !== undefined) query.set('page', String(page));
+  if (pageSize !== undefined) query.set('pageSize', String(pageSize));
+  if (sort) query.set('sort', \`\${sort.key}:\${sort.direction}\`);
+  if (filter) query.set('q', filter);
+
+  const response = await fetch(\`/api/incidents?\${query}\`, { signal });
+  if (!response.ok) throw new Error(\`Incidents request failed (\${response.status})\`);
+  const body = (await response.json()) as { items: unknown[]; count: number };
+  return { rows: body.items, total: body.count };
+};
+
+const incidents = defineDataSource({
+  name: 'incidents',
+  description: 'Operational incidents raised against internal services.',
+  kind: 'rows',
+  columns: [
+    { key: 'title', type: 'string', sensitive: false },
+    { key: 'severity', type: 'string', sensitive: false },
+  ],
+  params: [
+    { name: 'status', type: 'string', required: true, allowed: ['open', 'resolved'] },
+    { name: 'service', type: 'string', required: false },
+  ],
+  resolve: resolveIncidents,
+});
+
+const store = createDocumentStore(ast, { dataSources: [incidents] });`}</Code>
+      <p>
+        The resolver receives the params (bindings already replaced), the page, page size, sort, and
+        filter, plus an <code>AbortSignal</code>. Return <code>{'{ rows, total }'}</code> for the
+        requested page. When <code>total</code> is omitted, <code>rows</code> is taken as exactly
+        the requested page: the runtime applies no client-side paging, sorting, or filtering, and
+        the total stays unknown. A plain array as <code>resolve</code> is paged, sorted, and
+        filtered by the runtime. Param changes and filter typing are debounced by 150 ms, and the
+        signal is aborted when a newer request replaces the one in flight.
+      </p>
+      <p>
+        Loading, error (with Retry), and empty states render out of the box and can be replaced with
+        the <code>dataLoading</code>, <code>dataError</code>, and <code>dataEmpty</code> element
+        overrides. Pass the same definitions to the prompt, the validator, and the fixer so the
+        model only references sources that exist:
+      </p>
+      <Code lang="ts">{`import { buildSystemPrompt, buildFixerMessage } from '@mobile-reality/mdma-prompt-pack';
+import { validate } from '@mobile-reality/mdma-validator';
+
+const dataSources = [incidents];
+
+const systemPrompt = buildSystemPrompt({ dataSources });
+
+// The data-source rule checks source names, kinds, params, and columns against the catalog
+const result = validate(markdown, { dataSourceCatalog: dataSources });
+const unfixed = result.issues.filter((issue) => !issue.fixed);
+const fixerMessage = buildFixerMessage(markdown, unfixed, { dataSources });`}</Code>
+      <p className="docs-note">
+        In the demo, turn on <strong>External data sources</strong> in the agent settings to give
+        the agent four prepared sources: <code>incidents</code>, <code>countries</code>,{' '}
+        <code>sales-by-month</code> (a series), and <code>sales-records</code> (the same data as
+        rows). A runnable page lives in <code>examples/playgrounds/data-sources</code>. The{' '}
+        <strong>External Data Sources</strong> guide in <code>docs/guides</code> covers the full
+        contract.
+      </p>
 
       <h2>React</h2>
       <Code lang="tsx">{`import { MdmaDocument } from '@mobile-reality/mdma-renderer-react';
@@ -192,7 +287,7 @@ const tools = [...YOUR_EXISTING_TOOLS, GENERATE_MDMA_TOOL];`}</Code>
   getAgentToolPromptVariant,
 } from '@mobile-reality/mdma-prompt-pack';
 
-const modelId = 'anthropic/claude-sonnet-4-6';
+const modelId = 'anthropic/opus-4.8'; // a variant id present in both prompt registries
 
 const systemPrompt = buildSystemPrompt({
   // MDMA spec knowledge — injected automatically
@@ -227,7 +322,7 @@ let continueLoop = true;
 
 while (continueLoop) {
   const message = await client.messages.create({
-    model: 'claude-sonnet-4-6',
+    model: 'claude-opus-4-8',
     max_tokens: 8192,
     system: systemPrompt,
     tools,

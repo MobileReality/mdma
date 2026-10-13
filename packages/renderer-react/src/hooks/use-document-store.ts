@@ -1,5 +1,5 @@
 import { useSyncExternalStore, useCallback, useRef } from 'react';
-import type { DocumentState, ComponentState } from '@mobile-reality/mdma-runtime';
+import type { DocumentState, ComponentState, DataSlotState } from '@mobile-reality/mdma-runtime';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 
 export function useDocumentStore() {
@@ -52,6 +52,13 @@ export function useComponentState(componentId: string): ComponentState | undefin
     return snapshot;
   }, [store, componentId]);
 
+  return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+}
+
+export function useDataState(key: string): DataSlotState | undefined {
+  const { store } = useMdmaContext();
+  const subscribe = useCallback((cb: () => void) => store.subscribe(cb), [store]);
+  const getSnapshot = useCallback(() => store.getDataState(key), [store, key]);
   return useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 }
 

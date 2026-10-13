@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { defineComponent, h, type Component } from 'vue';
-import type { DocumentStore } from '@mobile-reality/mdma-runtime';
+import type { DataSourceMap, DocumentStore } from '@mobile-reality/mdma-runtime';
 import type { MdmaBlock, MdmaComponent } from '@mobile-reality/mdma-spec';
 import { MdmaProvider, type DataSources } from '../../src/context/MdmaProvider.js';
 import {
@@ -18,6 +18,7 @@ export interface MountBlockOptions {
   dataSources?: DataSources;
   elementOverrides?: ElementOverrides;
   customVariants?: CustomVariants;
+  storeDataSources?: DataSourceMap;
 }
 
 /**
@@ -30,7 +31,7 @@ export async function mountBlock(
   Renderer: Component,
   options: MountBlockOptions = {},
 ) {
-  const { ast, store } = await parseDoc(markdown);
+  const { ast, store } = await parseDoc(markdown, { dataSources: options.storeDataSources });
   const block = ast.children.find(
     (child): child is MdmaBlock => (child as { type?: string }).type === 'mdmaBlock',
   );

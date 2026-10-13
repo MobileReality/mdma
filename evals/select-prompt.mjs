@@ -42,6 +42,11 @@ function parseProvider(provider) {
     const model = rest.slice(slash + 1).split(':')[0];
     return { family, model };
   }
+  if (provider.startsWith('anthropic:')) {
+    let rest = provider.slice('anthropic:'.length);
+    if (rest.startsWith('messages:')) rest = rest.slice('messages:'.length);
+    return { family: 'anthropic', model: rest };
+  }
   if (provider.startsWith('openai:')) {
     let rest = provider.slice('openai:'.length);
     if (rest.startsWith('chat:')) rest = rest.slice('chat:'.length);

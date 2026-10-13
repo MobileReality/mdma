@@ -1,3 +1,4 @@
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import type { FormComponent } from '@mobile-reality/mdma-spec';
 import { resolveElementOverride } from '../context/render-context.js';
 import type { ElementInstance } from '../context/render-context.js';
@@ -7,6 +8,7 @@ import type {
   MdmaBlockRendererProps,
   RendererInstance,
 } from '../renderers/renderer-props.js';
+import { renderDataError, renderDataLoading } from './data-state-views.js';
 import {
   DefaultCheckbox,
   DefaultFile,
@@ -19,6 +21,74 @@ import {
 
 type GetProps = () => MdmaBlockRendererProps;
 type Field = FormComponent['fields'][number];
+
+function createDataDrivenSelect(
+  component: FormComponent,
+  field: Field,
+  getProps: GetProps,
+  dataKey: string,
+): ElementInstance<never> {
+  const container = el('div', { class: 'mdma-select-data' });
+  let selectInstance: ElementInstance<never> | undefined;
+
+  function change(value: string) {
+    getProps().dispatch({
+      type: 'FIELD_CHANGED',
+      componentId: component.id,
+      field: field.name,
+      value,
+    });
+  }
+
+  function render() {
+    const props = getProps();
+    const state = props.getDataState(dataKey);
+    container.replaceChildren();
+    selectInstance = undefined;
+
+    if (!state || state.status === 'loading') {
+      container.appendChild(renderDataLoading(props.context, 'form', dataKey));
+      return;
+    }
+    if (state.status === 'error') {
+      container.appendChild(
+        renderDataError(
+          props.context,
+          'form',
+          dataKey,
+          state.error ?? 'Failed to load options',
+          () => props.retryData(dataKey),
+        ),
+      );
+      return;
+    }
+
+    const values = props.componentState?.values ?? {};
+    const create = (resolveElementOverride<never>(props.context, 'form', 'select') ??
+      DefaultSelect) as (p: unknown) => ElementInstance<never>;
+    selectInstance = create({
+      id: `${component.id}-${field.name}`,
+      name: field.name,
+      label: field.label,
+      type: 'select',
+      value: String(values[field.name] ?? ''),
+      required: field.required,
+      sensitive: field.sensitive,
+      options: state.rows,
+      onChange: (value: string) => change(value),
+    });
+    container.appendChild(selectInstance.el);
+  }
+
+  render();
+
+  return {
+    el: container,
+    update() {
+      render();
+    },
+  };
+}
 
 /** Any change here alters the form's structure, so the fields are rebuilt rather than updated. */
 const shapeOf = (component: FormComponent) =>
@@ -121,8 +191,15 @@ function build(props: MdmaBlockRendererProps, component: FormComponent, getProps
   const fields = new Map<string, ElementInstance<never>>();
 
   const rows = component.fields.map((field) => {
-    const create = elementFor(field, props) as (p: unknown) => ElementInstance<never>;
-    const instance = create(elementPropsFor(field, component, props, getProps));
+    const instance =
+      field.type === 'select' &&
+      isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
+        props.getDataState(key),
+      )
+        ? createDataDrivenSelect(component, field, getProps, `${component.id}.${field.name}`)
+        : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
+            elementPropsFor(field, component, props, getProps),
+          );
     fields.set(field.name, instance);
 
     const indicator = field.sensitive

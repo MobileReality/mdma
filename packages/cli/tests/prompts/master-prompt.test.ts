@@ -1,4 +1,5 @@
-import { describe, it, expect } from 'vitest';
+import { validate } from '@mobile-reality/mdma-validator';
+import { describe, expect, it } from 'vitest';
 import { MASTER_PROMPT } from '../../src/prompts/master-prompt.js';
 
 describe('MASTER_PROMPT content', () => {
@@ -74,5 +75,100 @@ describe('MASTER_PROMPT content', () => {
     expect(MASTER_PROMPT).toContain('Be concise');
     expect(MASTER_PROMPT).toContain('Respect the architecture');
     expect(MASTER_PROMPT).toContain('Use YAML, never JSON');
+  });
+});
+
+describe('MASTER_PROMPT component field tables', () => {
+  it('lets table and chart data be a data-source ref', () => {
+    const tableRow = MASTER_PROMPT.split('\n').find((line) => line.startsWith('| table'));
+    const chartRow = MASTER_PROMPT.split('\n').find((line) => line.startsWith('| chart'));
+    expect(tableRow).toContain('{ source, params }');
+    expect(chartRow).toContain('{ source, params }');
+  });
+
+  it('lets select options be a data-source ref and keeps values quoted', () => {
+    expect(MASTER_PROMPT).toContain('`options` can instead be `{ source, params }`');
+    expect(MASTER_PROMPT).toContain('`value: "1"`');
+  });
+
+  it('documents table sortable, filterable and pageSize', () => {
+    expect(MASTER_PROMPT).toContain('`sortable`');
+    expect(MASTER_PROMPT).toContain('`filterable`');
+    expect(MASTER_PROMPT).toContain('`pageSize`');
+  });
+
+  it('documents the custom envelope as a standalone component', () => {
+    expect(MASTER_PROMPT).toMatch(/\| custom\s+\| `name`/);
+    expect(MASTER_PROMPT).toContain('NEVER a form field `type`');
+    expect(MASTER_PROMPT).toContain('`props`');
+    expect(MASTER_PROMPT).toContain('`actions`');
+  });
+});
+
+describe('MASTER_PROMPT external data sources', () => {
+  it('describes catalog entries as definitions without data', () => {
+    expect(MASTER_PROMPT).toContain('## External Data Sources');
+    expect(MASTER_PROMPT).toContain('definition without data');
+    expect(MASTER_PROMPT).toContain('"Available data sources" catalog');
+  });
+
+  it('maps each source kind to the slot it feeds', () => {
+    expect(MASTER_PROMPT).toMatch(/`rows`\s+\| `table`\s+\| `table\.data`/);
+    expect(MASTER_PROMPT).toMatch(/`series`\s+\| `chart`\s+\| `chart\.data`/);
+    expect(MASTER_PROMPT).toMatch(/`options`\s+\| `form` select field/);
+  });
+
+  it('asks for a rows and a series source when data is needed as both', () => {
+    expect(MASTER_PROMPT).toContain(
+      'the catalog holds two sources, a `rows` one and a `series` one',
+    );
+  });
+
+  it('forbids inline rows and invented sources', () => {
+    expect(MASTER_PROMPT).toContain('NEVER invent one');
+    expect(MASTER_PROMPT).toContain('Reference data sources, never inline their data');
+  });
+
+  it('shows data-source examples that pass the validator against a catalog', () => {
+    const catalog = [
+      {
+        name: 'incidents',
+        kind: 'rows' as const,
+        columns: [
+          { key: 'title', type: 'string' as const, sensitive: false },
+          { key: 'severity', type: 'string' as const, sensitive: false },
+        ],
+        params: [{ name: 'status', type: 'string' as const, required: true }],
+      },
+      {
+        name: 'incidents-by-day',
+        kind: 'series' as const,
+        columns: [
+          { key: 'day', type: 'date' as const, sensitive: false },
+          { key: 'count', type: 'number' as const, sensitive: false },
+        ],
+        params: [{ name: 'status', type: 'string' as const, required: true }],
+      },
+      { name: 'services', kind: 'options' as const },
+    ];
+    const refBlocks = (MASTER_PROMPT.match(/```mdma\n([\s\S]*?)```/g) ?? []).filter((block) =>
+      block.includes('source:'),
+    );
+    expect(refBlocks).toHaveLength(3);
+    for (const block of refBlocks) {
+      const result = validate(block, { autoFix: false, dataSourceCatalog: catalog });
+      expect(result.summary.errors, JSON.stringify(result.issues)).toBe(0);
+    }
+  });
+});
+
+describe('MASTER_PROMPT interactive component rule', () => {
+  it('states the one interactive component per message rule', () => {
+    expect(MASTER_PROMPT).toContain('One interactive component per message');
+  });
+
+  it('does not put an approval gate and a tasklist in the same example step', () => {
+    expect(MASTER_PROMPT).not.toContain('Step 2: approval-gate + tasklist');
+    expect(MASTER_PROMPT).toContain('**Step 3 — Verification Checklist**');
   });
 });

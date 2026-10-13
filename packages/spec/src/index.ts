@@ -5,6 +5,15 @@ export { MDMA_LANG_TAG, MDMA_SPEC_VERSION } from './constants.js';
 export { ComponentBaseSchema } from './schemas/component-base.js';
 export { BindingExpressionSchema, bindable } from './schemas/binding.js';
 export {
+  DataSourceRefSchema,
+  DataSourceDescriptorSchema,
+  DataSourceColumnDescriptorSchema,
+  DataSourceParamDescriptorSchema,
+  isDataSourceRef,
+  defineDataSource,
+  indexDataSources,
+} from './schemas/data-source.js';
+export {
   MdmaComponentSchema,
   FormComponentSchema,
   ButtonComponentSchema,
@@ -55,4 +64,15 @@ export type {
   DocumentMetadata,
   BlueprintManifest,
   BlueprintMaturity,
+  DataSourceRef,
+  DataSourceParamValue,
+  DataSourceDescriptor,
+  DataSourceColumnDescriptor,
+  DataSourceParamDescriptor,
+  DataSourceDefinition,
+  DataSourceResolver,
+  DataSourceRequest,
+  DataSourceResult,
+  DataSourceSort,
+  DataSourceSortDirection,
 } from './types/index.js';

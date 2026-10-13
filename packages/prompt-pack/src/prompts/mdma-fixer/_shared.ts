@@ -1,3 +1,7 @@
+import { indexDataSources } from '@mobile-reality/mdma-spec';
+import type { DataSourceDefinition } from '@mobile-reality/mdma-spec';
+import { renderDataSourceCatalog } from '../../data-source-catalog.js';
+
 /**
  * Building blocks for all MDMA-Fixer prompt variants — the canonical default
  * and every per-vendor variant under `<vendor>/`.
@@ -38,7 +42,15 @@ When **Original Prompt Requirements** are provided, you MUST ensure the fixed do
 - Include the exact field names, types, and labels the prompt requires
 - Use the correct select options, approval roles, webhook URLs, etc.
 - If the original document used wrong names/IDs that differ from the prompt, fix them to match the prompt
-- The prompt requirements take precedence over whatever the original document contained`;
+- The prompt requirements take precedence over whatever the original document contained
+
+## Data Source Fixes
+
+When an issue has rule \`data-source\`, the component takes its data from an external source through a \`{ source, params }\` ref. Repair the ref so it matches the "Available data sources" catalog in the user message:
+- Use only source names, params and columns that exist in that catalog. NEVER invent a source.
+- Fix an unknown source name by choosing the catalog source that serves the component; fix a wrong or undeclared param name, a param of the wrong type, a value outside \`allowed\`, or a missing required param; fix \`table.columns[].key\` and chart \`xAxis\` / \`yAxis\` to columns of the referenced source.
+- A kind mismatch (\`is kind "X" but "<field>" needs kind "Y"\`) means the wrong source is referenced: switch to a catalog source of the required kind.
+- NEVER replace a \`{ source, params }\` ref with inline rows, options, or CSV.`;
 
 /**
  * Extension: Structure & YAML fixes.
@@ -155,6 +167,7 @@ export const MDMA_FIXER_FORMS = `
 | \`Missing options on select field\` | Add an \`options\` array with \`{label, value}\` objects. Generate realistic options for the field context. |
 | \`field is likely a typo\` | Rename the field to the suggested correct name (e.g. \`onClick\` → \`onAction\`, \`submit\` → \`onSubmit\`) |
 | \`placeholder content\` | Replace placeholder text like "TODO", "TBD", "FIXME", "...", or "Lorem ipsum" with real, meaningful content appropriate to the context. NEVER keep placeholder text — always replace it. |
+| \`data-source\` issue on a select field | Keep \`options\` as a \`{ source, params }\` ref to a catalog source of kind \`options\`; fix the source name or params. NEVER replace the ref with an inline \`options\` array. |
 | \`outside of a \\\`\\\`\\\`mdma fenced block\` | The YAML component is missing its fenced code block wrapper. Wrap it in \`\`\`mdma ... \`\`\`. Each component must be in its own separate fenced block. |`;
 
 /**
@@ -169,7 +182,8 @@ export const MDMA_FIXER_TABLES_CHARTS = `
 | \`Column has no matching keys in any data row\` | Either add matching data or remove the unused column |
 | \`xAxis does not match any CSV header\` | Fix xAxis to reference an actual CSV column header |
 | \`yAxis does not match any CSV header\` | Fix yAxis values to reference actual CSV column headers |
-| \`Chart data does not appear to be valid CSV\` | Ensure CSV has a header row and at least one data row |`;
+| \`Chart data does not appear to be valid CSV\` | Ensure CSV has a header row and at least one data row |
+| \`data-source\` issue on \`table.data\` or \`chart.data\` | Keep the \`{ source, params }\` ref and correct it to a catalog source, its declared params, and columns that exist in that source (\`table.columns[].key\`, chart \`xAxis\` / \`yAxis\`). NEVER replace the ref with inline rows or CSV, and never invent a source. |`;
 
 /**
  * Extension: Flow & reference fixes (multi-step splitting).
@@ -489,6 +503,8 @@ export interface FixerMessageOptions {
   conversationHistory?: Array<{ role: 'user' | 'assistant'; content: string }>;
   /** The original system/custom prompt that describes what components should be generated. */
   promptContext?: string;
+  /** External data-source catalog the document's `{ source, params }` refs must match. */
+  dataSources?: readonly DataSourceDefinition[];
 }
 
 /**
@@ -520,6 +536,11 @@ export function buildFixerMessage(
 
   if (options?.promptContext) {
     context += `\n\n## Original Prompt Requirements\n\nThe document was generated from the following instructions. The fixed output MUST comply with these requirements — use the correct component IDs, field names, types, options, and structure specified here:\n\n${options.promptContext}\n`;
+  }
+
+  if (options?.dataSources?.length) {
+    indexDataSources(options.dataSources);
+    context += `\n\n---\n\n${renderDataSourceCatalog(options.dataSources)}\n`;
   }
 
   return `Fix the following MDMA document. The validator found ${issues.length} issue(s) that need to be fixed:

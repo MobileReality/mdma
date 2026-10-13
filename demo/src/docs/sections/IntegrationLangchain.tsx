@@ -33,9 +33,9 @@ async function parseMarkdown(markdown: string) {
   return processor.run(tree);
 }
 
-const variant = AUTHOR_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet');
+const variant = AUTHOR_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet-5.5');
 
-const model = new ChatAnthropic({ model: 'claude-sonnet-4-6' });
+const model = new ChatAnthropic({ model: 'claude-sonnet-5-5' });
 
 const response = await model.invoke([
   new SystemMessage(variant.prompt),
@@ -55,9 +55,9 @@ const components = ast.children.filter((n) => n.type === 'mdma');
 
 // List all available variant IDs
 console.log(AUTHOR_PROMPT_VARIANTS.map((v) => v.id));
-// e.g. ['default', 'anthropic/haiku', 'anthropic/sonnet', 'openai/gpt-5.5', ...]
+// e.g. ['default', 'anthropic/sonnet-5.5', 'anthropic/opus-5.5', 'openai/gpt-6.1-sol', 'google/gemini-3.8-flash', ...]
 
-const variant = AUTHOR_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet');`}</Code>
+const variant = AUTHOR_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet-5.5');`}</Code>
 
       <h3>Agentic tool calling (MDMA_AGENT)</h3>
       <p>
@@ -84,7 +84,7 @@ const generateMdma = tool(
   }
 );
 
-const agentVariant = AGENT_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet');
+const agentVariant = AGENT_PROMPT_VARIANTS.find((v) => v.id === 'anthropic/sonnet-4.6');
 
 const agent = createToolCallingAgent({
   llm: model,
@@ -112,7 +112,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 # Copy the prompt string from mdma-prompt-pack or serve it from a JS endpoint
 MDMA_SYSTEM_PROMPT = "..."
 
-model = ChatAnthropic(model="claude-sonnet-4-6")
+model = ChatAnthropic(model="claude-sonnet-5-5")
 
 response = model.invoke([
     SystemMessage(content=MDMA_SYSTEM_PROMPT),

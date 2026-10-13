@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ComponentBaseSchema } from '../component-base.js';
 import { BindingExpressionSchema } from '../binding.js';
+import { DataSourceRefSchema } from '../data-source.js';
 
 export const FormFieldSchema = z.object({
   name: z.string().min(1),
@@ -13,7 +14,11 @@ export const FormFieldSchema = z.object({
     if (!Array.isArray(val)) return val;
     return val.map((item) => (typeof item === 'string' ? { label: item, value: item } : item));
   }, z
-    .union([z.array(z.object({ label: z.string(), value: z.string() })), z.string().min(1)])
+    .union([
+      z.array(z.object({ label: z.string(), value: z.string() })),
+      z.string().min(1),
+      DataSourceRefSchema,
+    ])
     .optional()),
   validation: z
     .object({

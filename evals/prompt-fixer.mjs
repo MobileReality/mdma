@@ -4,6 +4,7 @@ import {
   buildSystemPrompt,
 } from '@mobile-reality/mdma-prompt-pack';
 import { validate } from '@mobile-reality/mdma-validator';
+import { DATA_SOURCES, toCatalog } from './data-sources.mjs';
 import { selectFixerPrompt } from './select-prompt.mjs';
 
 /**
@@ -13,6 +14,7 @@ import { selectFixerPrompt } from './select-prompt.mjs';
  * - `brokenDocument` — MDMA markdown with intentional issues
  * - `conversationHistory` (optional) — prior messages for multi-step context
  * - `promptContext` (optional) — the original prompt that describes expected structure
+ * - `dataSources` (optional) — `true` to validate against and advertise the eval data-source catalog
  * - `variantKey` (optional) — validator variant key to select relevant fixer extensions
  *
  * This function:
@@ -29,7 +31,11 @@ export default async function ({ vars, provider }) {
   const exclude = ['thinking-block'];
   if (variantKey !== 'flow') exclude.push('flow-ordering');
 
-  const result = validate(vars.brokenDocument, { exclude });
+  const withDataSources = vars.dataSources === true || vars.dataSources === 'true';
+  const result = validate(vars.brokenDocument, {
+    exclude,
+    ...(withDataSources ? { dataSourceCatalog: toCatalog() } : {}),
+  });
   const allIssues = result.issues.filter((i) => i.severity === 'error' || i.severity === 'warning');
 
   const { prompt: variantPrompt, source: fixerSource } = await selectFixerPrompt(
@@ -46,6 +52,7 @@ export default async function ({ vars, provider }) {
   const userMessage = buildFixerMessage(vars.brokenDocument, allIssues, {
     conversationHistory: vars.conversationHistory ?? undefined,
     promptContext: vars.promptContext ?? undefined,
+    ...(withDataSources ? { dataSources: DATA_SOURCES } : {}),
   });
 
   return [

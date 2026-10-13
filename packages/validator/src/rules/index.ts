@@ -22,6 +22,7 @@ import { flowOrderingRule } from './flow-ordering.js';
 import { expectedComponentsRule } from './expected-components.js';
 import { formSubmitActionRule } from './form-submit-action.js';
 import { singleInteractiveComponentRule } from './single-interactive-component.js';
+import { dataSourceRule } from './data-source.js';
 
 /**
  * Ordered list of all validation rules.
@@ -45,6 +46,7 @@ export const ALL_RULES: readonly ValidationRule[] = [
   thinkingBlockRule,
   tableDataKeysRule,
   selectOptionsRule,
+  dataSourceRule,
   chartValidationRule,
   placeholderContentRule,
   // unreferencedComponentsRule,

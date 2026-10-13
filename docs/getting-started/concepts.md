@@ -87,6 +87,26 @@ const value = resolveBindingPath(state, path);
 
 Form fields automatically populate the binding map when their values change. For example, a form field with `name: severity` makes `{{severity}}` available to other components.
 
+## External Data Sources
+
+Tables, charts, and form selects can take their data from the host instead of from the document. The document holds a reference, `{ source, params }`, and never the rows:
+
+```yaml
+data:
+  source: incidents
+  params:
+    status: open
+    service: "{{filters.service}}"   # params may be bindings
+```
+
+The host registers what each source name means when it creates the store, and the runtime fetches, pages, sorts, and filters through it:
+
+```typescript
+const store = createDocumentStore(ast, { dataSources: [incidents] });
+```
+
+A source has a `kind`: `rows` feeds a table, `series` feeds a chart, and `options` feeds a form select. Each declares its columns and params, so the validator and the LLM prompt can describe it without seeing any data. See the [External Data Sources guide](../guides/external-data-sources.md).
+
 ## Event Log
 
 Every action dispatched through the document store is recorded in an append-only event log. Each entry contains:
@@ -96,7 +116,7 @@ Every action dispatched through the document store is recorded in an append-only
 | `timestamp` | ISO 8601 datetime |
 | `sessionId` | UUID for the current session |
 | `documentId` | Identifier of the document |
-| `eventType` | One of: `component_rendered`, `field_changed`, `action_triggered`, `integration_called`, `approval_granted`, `approval_denied`, `validation_error`, `policy_violation` |
+| `eventType` | One of: `component_rendered`, `field_changed`, `action_triggered`, `integration_called`, `approval_granted`, `approval_denied`, `validation_error`, `policy_violation`, `data_loading`, `data_resolved`, `data_error` |
 | `componentId` | Which component generated the event |
 | `payload` | Event-specific data (may be redacted) |
 | `redacted` | Whether sensitive values were redacted |

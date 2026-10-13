@@ -25,6 +25,11 @@ export function blockRendererProps(options: MountBlockOptions): MdmaBlockRendere
     dispatch: (action) => store.dispatch(action),
     resolveBinding: (expr) => store.resolveBinding(expr),
     context: options.context ?? {},
+    getDataState: (key) => store.getDataState(key),
+    retryData: (key) => store.retryData(key),
+    setDataPage: (key, page) => store.setDataPage(key, page),
+    setDataSort: (key, sort) => store.setDataSort(key, sort),
+    setDataFilter: (key, filter) => store.setDataFilter(key, filter),
   };
 }
 

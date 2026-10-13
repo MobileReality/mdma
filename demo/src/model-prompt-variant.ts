@@ -8,6 +8,11 @@ import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
  */
 const MODEL_TO_PROMPT_VARIANT: Record<string, string> = {
   // Anthropic (claude-* API IDs → anthropic/* variant IDs)
+  'claude-opus-5-5': 'anthropic/opus-5.5',
+  'claude-opus-5': 'anthropic/opus-5',
+  'claude-sonnet-5-5': 'anthropic/sonnet-5.5',
+  'claude-sonnet-5': 'anthropic/sonnet-5',
+  'claude-haiku-5-5': 'anthropic/haiku-5.5',
   'claude-opus-4-8': 'anthropic/opus-4.8',
   'claude-opus-4-7': 'anthropic/opus-4.7',
   'claude-opus-4-6': 'anthropic/opus-4.6',
@@ -16,6 +21,8 @@ const MODEL_TO_PROMPT_VARIANT: Record<string, string> = {
   'claude-haiku-4-5-20251001': 'anthropic/haiku',
   'claude-fable-5': 'anthropic/fable-5',
   // OpenAI (model name matches variant suffix)
+  'gpt-6.1-sol': 'openai/gpt-6.1-sol',
+  'gpt-6-sol': 'openai/gpt-6-sol',
   'gpt-5.6-sol': 'openai/gpt-5.6-sol',
   'gpt-5.6-terra': 'openai/gpt-5.6-terra',
   'gpt-5.6-luna': 'openai/gpt-5.6-luna',
@@ -32,6 +39,8 @@ const MODEL_TO_PROMPT_VARIANT: Record<string, string> = {
   'gpt-4.1-mini': 'openai/gpt-4.1-mini',
   'gpt-4.1-nano': 'openai/gpt-4.1-nano',
   // Google (model ID → google/* variant)
+  'gemini-3.8-flash': 'google/gemini-3.8-flash',
+  'gemini-3.7-flash': 'google/gemini-3.7-flash',
   'gemini-3.5-flash': 'google/gemini-3.5-flash',
   'gemini-3.1-pro-preview': 'google/gemini-3.1-pro-preview',
   'gemini-3.1-flash-lite-preview': 'google/gemini-3.1-flash-lite-preview',
@@ -41,9 +50,16 @@ const MODEL_TO_PROMPT_VARIANT: Record<string, string> = {
   'gemini-2.5-flash-lite': 'google/gemini-2.5-flash-lite',
   // xAI (model ID → x-ai/* variant)
   'grok-4.20': 'x-ai/grok-4.20',
+  'grok-4.7': 'x-ai/grok-4.7',
+  'grok-4.6': 'x-ai/grok-4.6',
   'grok-4.5': 'x-ai/grok-4.5',
   'grok-4.3': 'x-ai/grok-4.3',
   // OpenRouter models whose value differs from the author variant ID
+  'anthropic/claude-opus-5.5': 'anthropic/opus-5.5',
+  'anthropic/claude-opus-5': 'anthropic/opus-5',
+  'anthropic/claude-sonnet-5.5': 'anthropic/sonnet-5.5',
+  'anthropic/claude-sonnet-5': 'anthropic/sonnet-5',
+  'anthropic/claude-haiku-5.5': 'anthropic/haiku-5.5',
   'anthropic/claude-opus-4-6': 'anthropic/opus-4.6',
   'anthropic/claude-sonnet-4-6': 'anthropic/sonnet',
 };

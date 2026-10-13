@@ -12,6 +12,8 @@ export function PromptMatrix() {
       <Table
         headers={['Variant', 'one-shot', 'one-shot custom', 'conversation', 'specific flow']}
         rows={[
+          ['gpt-6.1-sol', '✅', '✅', '✅', '✅'],
+          ['gpt-6-sol', '✅', '✅', '✅', '✅'],
           ['gpt-5.6-sol', '✅', '✅', '✅', '✅'],
           ['gpt-5.6-terra', '✅', '✅', '✅', '✅'],
           ['gpt-5.6-luna', '✅', '✅', '✅', '✅'],
@@ -26,12 +28,19 @@ export function PromptMatrix() {
           ['gpt-4.1', '✅', '✅', '✅', '✅'],
           ['gpt-4.1-mini', '✅', '✅', '✅ *', '✅ *'],
           ['gpt-4.1-nano', '🟡', '✅', '✅ *', '✅ *'],
+          ['claude-opus-5.5', '✅', '✅', '✅', '✅'],
+          ['claude-opus-5', '✅', '✅', '✅', '✅'],
+          ['claude-sonnet-5.5', '✅', '✅', '✅', '✅'],
+          ['claude-sonnet-5', '✅', '✅', '✅', '✅'],
+          ['claude-haiku-5.5', '✅', '✅', '✅ *', '✅ *'],
           ['claude-opus-4.8', '✅', '✅', '✅', '✅'],
           ['claude-opus-4.7', '✅', '✅', '✅', '✅'],
           ['claude-opus-4.6', '✅', '✅', '✅', '✅'],
           ['claude-sonnet-4.6', '✅', '✅', '✅', '✅'],
           ['claude-haiku-4.5', '✅', '✅', '✅ *', '✅ *'],
           ['claude-fable-5', '✅', '✅', '✅', '✅'],
+          ['gemini-3.8-flash', '✅', '✅', '✅', '✅'],
+          ['gemini-3.7-flash', '✅', '✅', '✅', '✅'],
           ['gemini-3.5-flash', '✅', '✅', '✅', '✅'],
           ['gemini-3.1-pro-preview', '✅', '✅', '✅', '🟡 ‡'],
           ['gemini-3.1-pro-preview-customtools', '✅', '✅', '✅', '✅'],
@@ -42,6 +51,8 @@ export function PromptMatrix() {
           ['gemini-2.5-flash-lite', '🟡', '✅', '✅ *', '✅ *'],
           ['grok-4.3 [i]', '🟡', '🔴', '🔴', '🔴'],
           ['grok-4.20', '✅', '✅', '✅', '✅'],
+          ['grok-4.7', '✅', '✅', '✅', '✅'],
+          ['grok-4.6', '✅', '✅', '✅', '✅'],
           ['grok-4.5', '✅', '✅', '✅', '✅'],
         ]}
       />

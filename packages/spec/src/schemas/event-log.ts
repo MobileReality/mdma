@@ -9,6 +9,9 @@ export const EventTypeSchema = z.enum([
   'approval_denied',
   'validation_error',
   'policy_violation',
+  'data_loading',
+  'data_resolved',
+  'data_error',
 ]);
 
 export type EventType = z.infer<typeof EventTypeSchema>;

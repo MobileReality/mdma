@@ -1,16 +1,55 @@
-import { memo, useState } from 'react';
+import { type TableColumn, type TableComponent, isDataSourceRef } from '@mobile-reality/mdma-spec';
+import { type ReactNode, memo, useState } from 'react';
+import { useElementOverride } from '../context/ElementOverridesContext.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
 import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
+import { DefaultDataEmpty, DefaultDataError, DefaultDataLoading } from './DataStateViews.js';
 
-function MaskedCell({ value }: { value: string }) {
-  const [revealed, setRevealed] = useState(false);
+interface RevealState {
+  scope: unknown;
+  keys: ReadonlySet<string>;
+}
+
+const NO_KEYS: ReadonlySet<string> = new Set();
+
+function MaskedCell({
+  value,
+  revealed,
+  onToggle,
+}: {
+  value: string;
+  revealed: boolean;
+  onToggle: () => void;
+}) {
   return (
     <span
       className="mdma-table-cell--sensitive"
-      onClick={() => setRevealed(!revealed)}
+      onClick={onToggle}
       title={revealed ? 'Click to mask' : 'Click to reveal'}
     >
-      {revealed ? value : '\u2022\u2022\u2022\u2022\u2022'}
+      {revealed ? value : '•••••'}
     </span>
+  );
+}
+
+function TableFilter({
+  componentId,
+  defaultValue,
+}: {
+  componentId: string;
+  defaultValue?: string;
+}) {
+  const store = useDocumentStore();
+  return (
+    <div className="mdma-table-filter">
+      <input
+        type="search"
+        aria-label="Filter rows"
+        placeholder="Filter…"
+        defaultValue={defaultValue ?? ''}
+        onChange={(event) => store.setDataFilter(componentId, event.target.value || undefined)}
+      />
+    </div>
   );
 }
 
@@ -20,23 +59,172 @@ export const TableRenderer = memo(function TableRenderer({
 }: MdmaBlockRendererProps) {
   if (component.type !== 'table') return null;
 
+  if (isDataSourceRef(component.data)) {
+    return <DataDrivenTable component={component} />;
+  }
+
   const rawData =
     typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
   const data = Array.isArray(rawData) ? rawData : [];
 
+  return <TableBody component={component} data={data} resolveBinding={resolveBinding} />;
+});
+
+function DataDrivenTable({ component }: { component: TableComponent }) {
+  const store = useDocumentStore();
+  const dataState = useDataState(component.id);
+  const DataLoading = useElementOverride('table', 'dataLoading') ?? DefaultDataLoading;
+  const DataError = useElementOverride('table', 'dataError') ?? DefaultDataError;
+  const DataEmpty = useElementOverride('table', 'dataEmpty') ?? DefaultDataEmpty;
+
+  const isReloading = dataState?.status === 'loading' && dataState.rows.length > 0;
+  if (!dataState) {
+    return <DataLoading componentId={component.id} />;
+  }
+
+  const filter = component.filterable ? (
+    <TableFilter componentId={component.id} defaultValue={dataState.filter} />
+  ) : null;
+
+  if (dataState.status === 'loading' && !isReloading) {
+    return (
+      <>
+        {filter}
+        <DataLoading componentId={component.id} />
+      </>
+    );
+  }
+  if (dataState.status === 'error') {
+    return (
+      <>
+        {filter}
+        <DataError
+          componentId={component.id}
+          error={dataState.error ?? 'Failed to load data'}
+          onRetry={() => store.retryData(component.id)}
+        />
+      </>
+    );
+  }
+  if (dataState.rows.length === 0) {
+    return (
+      <>
+        {filter}
+        <DataEmpty componentId={component.id} />
+      </>
+    );
+  }
+
+  const pageSize = component.pageSize ?? dataState.pageSize ?? dataState.rows.length;
+  const total = dataState.total ?? dataState.rows.length;
+  const pageCount = pageSize > 0 ? Math.max(1, Math.ceil(total / pageSize)) : 1;
+
+  const pagination =
+    pageCount > 1 ? (
+      <div className="mdma-table-pagination">
+        <button
+          type="button"
+          disabled={dataState.page <= 1}
+          onClick={() => store.setDataPage(component.id, dataState.page - 1)}
+        >
+          Prev
+        </button>
+        <span className="mdma-table-pagination-status">
+          Page {dataState.page} / {pageCount}
+        </span>
+        <button
+          type="button"
+          disabled={dataState.page >= pageCount}
+          onClick={() => store.setDataPage(component.id, dataState.page + 1)}
+        >
+          Next
+        </button>
+      </div>
+    ) : null;
+
+  return (
+    <>
+      {filter}
+      <TableBody
+        component={component}
+        data={dataState.rows}
+        revealScope={dataState.rows}
+        sort={dataState.sort}
+        busy={isReloading}
+        indicator={isReloading ? <DataLoading componentId={component.id} reloading /> : null}
+        footer={pagination}
+        onSort={(key) => {
+          const next =
+            dataState.sort?.key === key && dataState.sort.direction === 'asc'
+              ? { key, direction: 'desc' as const }
+              : { key, direction: 'asc' as const };
+          store.setDataSort(component.id, next);
+        }}
+      />
+    </>
+  );
+}
+
+function TableBody({
+  component,
+  data,
+  revealScope,
+  sort,
+  onSort,
+  resolveBinding,
+  busy,
+  indicator,
+  footer,
+}: {
+  component: TableComponent;
+  data: unknown[];
+  revealScope?: unknown;
+  sort?: { key: string; direction: 'asc' | 'desc' };
+  onSort?: (key: string) => void;
+  resolveBinding?: (expr: string) => unknown;
+  busy?: boolean;
+  indicator?: ReactNode;
+  footer?: ReactNode;
+}) {
   const sensitiveKeys = new Set(
     component.columns.filter((col) => col.sensitive).map((col) => col.key),
   );
+  const [reveal, setReveal] = useState<RevealState>({ scope: revealScope, keys: new Set() });
+  const revealedKeys = reveal.scope === revealScope ? reveal.keys : NO_KEYS;
+  const toggleReveal = (cellKey: string) =>
+    setReveal((prev) => {
+      const keys = new Set(prev.scope === revealScope ? prev.keys : NO_KEYS);
+      if (!keys.delete(cellKey)) keys.add(cellKey);
+      return { scope: revealScope, keys };
+    });
 
   return (
-    <div className="mdma-table" data-component-id={component.id}>
+    <div className="mdma-table" data-component-id={component.id} aria-busy={busy || undefined}>
+      {indicator}
       {component.label && <h3 className="mdma-table-label">{component.label}</h3>}
       <table>
         <thead>
           <tr>
-            {component.columns.map((col) => (
-              <th key={col.key} style={col.width ? { width: col.width } : undefined}>
+            {component.columns.map((col: TableColumn) => (
+              <th
+                key={col.key}
+                style={col.width ? { width: col.width } : undefined}
+                onClick={onSort && col.sortable ? () => onSort(col.key) : undefined}
+                className={onSort && col.sortable ? 'mdma-table-sortable' : undefined}
+                aria-sort={
+                  sort?.key === col.key
+                    ? sort.direction === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : undefined
+                }
+              >
                 {col.header}
+                {sort?.key === col.key && (
+                  <span className="mdma-table-sort-indicator" aria-hidden="true">
+                    {sort.direction === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
                 {col.sensitive && (
                   <span className="mdma-sensitive-badge" title="Sensitive column (PII)">
                     &#128274;
@@ -49,15 +237,21 @@ export const TableRenderer = memo(function TableRenderer({
         <tbody>
           {data.map((row, i) => (
             <tr key={i}>
-              {component.columns.map((col) => {
+              {component.columns.map((col: TableColumn) => {
                 const raw = (row as Record<string, unknown>)[col.key] ?? '';
                 const resolved =
-                  typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw) ? resolveBinding(raw) : raw;
+                  resolveBinding && typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
+                    ? resolveBinding(raw)
+                    : raw;
                 const cellValue = String(resolved ?? '');
                 return (
                   <td key={col.key}>
                     {sensitiveKeys.has(col.key) && cellValue ? (
-                      <MaskedCell value={cellValue} />
+                      <MaskedCell
+                        value={cellValue}
+                        revealed={revealedKeys.has(`${i}:${col.key}`)}
+                        onToggle={() => toggleReveal(`${i}:${col.key}`)}
+                      />
                     ) : (
                       cellValue
                     )}
@@ -75,6 +269,7 @@ export const TableRenderer = memo(function TableRenderer({
           )}
         </tbody>
       </table>
+      {footer}
     </div>
   );
-});
+}

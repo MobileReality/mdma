@@ -4,6 +4,22 @@ export {
   type DocumentState,
   type DocumentStoreOptions,
 } from './core/document-store.js';
+export {
+  DataSourceManager,
+  type DataSourceEntry,
+  type DataSourceMap,
+  type DataSourceInput,
+  toDataSourceMap,
+  type DataResolver,
+  type DataRequest,
+  type DataResult,
+  type DataSlotState,
+  type DataStatus,
+  type DataSort,
+  type DataSortDirection,
+} from './core/data-source-manager.js';
+export { resolveAllData } from './core/resolve-all-data.js';
+export { isDataDrivenOptions } from './core/is-data-driven-options.js';
 export { createEventBus, type TypedEventBus, type EventHandler } from './core/event-bus.js';
 export { createEventLog, type AppendOnlyEventLog, type EventLogOptions } from './core/event-log.js';
 export {

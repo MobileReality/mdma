@@ -24,28 +24,32 @@ export function listPackages(): PackageInfo[] {
     },
     {
       name: '@mobile-reality/mdma-runtime',
-      purpose: 'Document store, binding resolution, event bus, policy engine, and PII redaction',
+      purpose:
+        'Document store, binding resolution, event bus, policy engine, PII redaction, and external data-source resolution (static or async resolvers with paging, sort, and filter)',
       install: 'npm install @mobile-reality/mdma-runtime',
       usage: 'import { createDocumentStore } from "@mobile-reality/mdma-runtime"',
       category: 'core',
     },
     {
       name: '@mobile-reality/mdma-renderer-react',
-      purpose: 'React components that render MDMA documents with customizable element overrides',
+      purpose:
+        'React components that render MDMA documents with customizable element overrides, including loading, error, and empty states for external data sources',
       install: 'npm install @mobile-reality/mdma-renderer-react',
       usage: 'import { MdmaDocument } from "@mobile-reality/mdma-renderer-react"',
       category: 'rendering',
     },
     {
       name: '@mobile-reality/mdma-validator',
-      purpose: 'Deterministic validator with 17 rules and auto-fix for MDMA documents',
+      purpose:
+        'Deterministic validator with auto-fix for MDMA documents, including a catalog-aware data-source rule that checks { source, params } refs',
       install: 'npm install @mobile-reality/mdma-validator',
       usage: 'import { validate } from "@mobile-reality/mdma-validator"',
       category: 'tooling',
     },
     {
       name: '@mobile-reality/mdma-prompt-pack',
-      purpose: 'System prompts (author, reviewer, fixer) and prompt builder utilities',
+      purpose:
+        'System prompts (author, reviewer, fixer), model-specific author variants, and a prompt builder that injects an external data-source catalog',
       install: 'npm install @mobile-reality/mdma-prompt-pack',
       usage: 'import { buildSystemPrompt } from "@mobile-reality/mdma-prompt-pack"',
       category: 'ai',

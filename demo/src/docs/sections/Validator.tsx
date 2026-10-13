@@ -107,6 +107,12 @@ const result = validate(markdown);
             'Forward-only action references, no circular refs, one interactive component type per message.',
           ],
           [
+            'data-source',
+            'error',
+            '—',
+            '{ source, params } refs on table data, chart data, and select options. With a dataSourceCatalog, checks source names, kinds, declared and required params, types, allowed values, and that table columns and chart axes exist in the source.',
+          ],
+          [
             'expected-components',
             'error',
             '—',
@@ -114,6 +120,26 @@ const result = validate(markdown);
           ],
         ]}
       />
+
+      <h2>Data source catalog</h2>
+      <p>
+        The <code>data-source</code> rule always checks that a <code>{'{ source, params }'}</code>{' '}
+        ref names a source. Pass the host's catalog — the same definitions you register on the store
+        — to check the ref against it:
+      </p>
+      <Code lang="ts">
+        {'const result = validate(markdown, { dataSourceCatalog: dataSources });'}
+      </Code>
+      <p>
+        Messages include <code>Unknown data source "x"</code>,{' '}
+        <code>Data source "x" is kind "rows" but "data" needs kind "series"</code>,{' '}
+        <code>Data source "x" does not declare param "p"</code>,{' '}
+        <code>Data source "x" is missing required param "p"</code>,{' '}
+        <code>Column "c" is not provided by data source "x"</code>, and{' '}
+        <code>"xAxis" key "k" is not provided by data source "x"</code>. Pass the same catalog to{' '}
+        <code>buildFixerMessage(markdown, issues, {'{ dataSources }'})</code> so an LLM repair keeps
+        the ref instead of inventing rows.
+      </p>
 
       <h2>Auto-fix Pipeline</h2>
       <p>

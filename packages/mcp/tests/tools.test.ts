@@ -1,11 +1,12 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { getSpec } from '../src/tools/get-spec.js';
-import { getPrompt } from '../src/tools/get-prompt.js';
+import { AUTHOR_PROMPT_VARIANTS } from '@mobile-reality/mdma-prompt-pack';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildPrompt } from '../src/tools/build-system-prompt.js';
-import { validatePrompt } from '../src/tools/validate-prompt.js';
+import { getDoc, isAllowedPath, listDocs } from '../src/tools/get-doc.js';
+import { getPrompt } from '../src/tools/get-prompt.js';
+import { getSpec } from '../src/tools/get-spec.js';
 import { listPackages } from '../src/tools/list-packages.js';
-import { listDocs, getDoc, isAllowedPath } from '../src/tools/get-doc.js';
 import { listPromptVariants } from '../src/tools/list-prompt-variants.js';
+import { validatePrompt } from '../src/tools/validate-prompt.js';
 
 describe('get-spec', () => {
   it('returns spec with all 10 component types', () => {
@@ -31,6 +32,20 @@ describe('get-spec', () => {
     expect(spec.baseFields).toBeDefined();
     expect(spec.bindingSyntax.description).toContain('{{');
     expect(spec.bindingSyntax.examples.length).toBeGreaterThan(0);
+  });
+
+  it('documents external data sources with refs, descriptor shape and the three kinds', () => {
+    const { dataSources } = getSpec();
+    expect(dataSources.description).toContain('{ source, params }');
+    expect(Object.keys(dataSources.kinds).sort()).toEqual(['options', 'rows', 'series']);
+    expect(dataSources.kinds.rows).toContain('table.data');
+    expect(dataSources.kinds.series).toContain('chart.data');
+    expect(dataSources.kinds.options).toContain('select');
+    expect(JSON.stringify(dataSources.ref)).toContain('source');
+    const descriptor = JSON.stringify(dataSources.descriptor);
+    for (const key of ['kind', 'columns', 'params']) expect(descriptor).toContain(key);
+    expect(dataSources.definition).toContain('DataSourceDefinition');
+    expect(getSpec().authoringRules.some((r) => r.includes('{ source, params }'))).toBe(true);
   });
 
   it('includes authoring rules', () => {
@@ -107,6 +122,31 @@ describe('list-prompt-variants', () => {
     expect(ids).toContain('openai/gpt-5');
     expect(ids).toContain('anthropic/opus-4.7');
     expect(ids).toContain('x-ai/grok-4.20');
+  });
+
+  it('includes the newest vendor variants', () => {
+    const ids = listPromptVariants().map((v) => v.id);
+    for (const id of [
+      'anthropic/sonnet-5.5',
+      'openai/gpt-6-sol',
+      'google/gemini-3.8-flash',
+      'x-ai/grok-4.7',
+    ]) {
+      expect(ids).toContain(id);
+    }
+  });
+
+  it('mirrors the prompt-pack registry exactly', () => {
+    expect(listPromptVariants().map((v) => v.id)).toEqual(AUTHOR_PROMPT_VARIANTS.map((v) => v.id));
+  });
+
+  it('serves a distinct prompt for a new variant through get-prompt', () => {
+    const variant = getPrompt('mdma-author', 'anthropic/sonnet-5.5');
+    const fallback = getPrompt('mdma-author');
+    expect('content' in variant && 'content' in fallback).toBe(true);
+    if ('content' in variant && 'content' in fallback) {
+      expect(variant.content).not.toBe(fallback.content);
+    }
   });
 });
 
@@ -212,6 +252,18 @@ describe('list-packages', () => {
     }
   });
 
+  it('mentions external data sources in runtime, validator, prompt-pack and renderer', () => {
+    const byName = new Map(listPackages().map((p) => [p.name, p.purpose]));
+    for (const name of [
+      '@mobile-reality/mdma-runtime',
+      '@mobile-reality/mdma-validator',
+      '@mobile-reality/mdma-prompt-pack',
+      '@mobile-reality/mdma-renderer-react',
+    ]) {
+      expect(byName.get(name)).toMatch(/data[- ]source/i);
+    }
+  });
+
   it('includes the mcp package itself', () => {
     const packages = listPackages();
     expect(packages.some((p) => p.name === '@mobile-reality/mdma-mcp')).toBe(true);
@@ -236,6 +288,12 @@ describe('list-docs', () => {
     const paths = listDocs().map((d) => d.path);
     expect(paths).toContain('README.md');
     expect(paths).toContain('docs/getting-started/quick-start.md');
+  });
+
+  it('lists the external data sources guide and allows fetching it', () => {
+    const paths = listDocs().map((d) => d.path);
+    expect(paths).toContain('docs/guides/external-data-sources.md');
+    expect(isAllowedPath('docs/guides/external-data-sources.md')).toBe(true);
   });
 });
 
@@ -341,5 +399,53 @@ describe('get-doc', () => {
     if ('error' in result) {
       expect(result.error).toContain('ENETUNREACH');
     }
+  });
+});
+
+describe('build-system-prompt dataSources', () => {
+  const dataSources = [
+    {
+      name: 'incidents',
+      kind: 'rows' as const,
+      columns: [{ key: 'title', type: 'string' as const, sensitive: false }],
+    },
+  ];
+
+  it('returns only the custom part without dataSources', () => {
+    const result = buildPrompt({ domain: 'Ops' });
+    expect(result).toContain('Ops');
+    expect(result).not.toContain('## Available data sources');
+  });
+
+  it('returns the full system prompt with the catalog when dataSources is given', () => {
+    const result = buildPrompt({ domain: 'Ops', dataSources });
+    expect(result).toContain('## Available data sources');
+    expect(result).toContain('**incidents** (kind: rows)');
+    expect(result).toContain('## Role & Domain');
+    expect(result).toContain('### 10. custom');
+  });
+
+  it('accepts a rows and a series entry for the same data and renders both kinds', () => {
+    const result = buildPrompt({
+      dataSources: [
+        ...dataSources,
+        {
+          name: 'incidents-trend',
+          kind: 'series' as const,
+          columns: [
+            { key: 'day', type: 'date' as const, sensitive: false },
+            { key: 'count', type: 'number' as const, sensitive: false },
+          ],
+          params: [{ name: 'status', type: 'string' as const, required: false, allowed: ['open'] }],
+        },
+      ],
+    });
+    expect(result).toContain('**incidents** (kind: rows)');
+    expect(result).toContain('**incidents-trend** (kind: series)');
+    expect(result).toContain('status: string (optional, allowed: "open")');
+  });
+
+  it('works with dataSources only', () => {
+    expect(buildPrompt({ dataSources })).toContain('## Available data sources');
   });
 });

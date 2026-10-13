@@ -50,9 +50,10 @@ watchEffect(async () => {
       <p>
         Read document state through composables, each of which returns a <code>ComputedRef</code> so
         your components re-render as the store changes: <code>useComponentState(id)</code> for one
-        component's values, <code>useBinding(expr)</code> to resolve a <code>{'{{ binding }}'}</code>{' '}
-        expression, and <code>useDocumentState()</code> for the whole document. Read them as{' '}
-        <code>.value</code> in <code>setup</code>, or unwrapped in a template.
+        component's values, <code>useBinding(expr)</code> to resolve a{' '}
+        <code>{'{{ binding }}'}</code> expression, and <code>useDocumentState()</code> for the whole
+        document. Read them as <code>.value</code> in <code>setup</code>, or unwrapped in a
+        template.
       </p>
       <Code lang="vue">{`<script setup lang="ts">
 import { useBinding } from '@mobile-reality/mdma-renderer-vue';
@@ -64,19 +65,19 @@ const email = useBinding<string>('{{ signup.email }}');
   <p>Welcome, {{ email }}</p>
 </template>`}</Code>
       <p>
-        Providers use Vue's <code>provide</code>/<code>inject</code>: <code>MdmaDocument</code> wires
-        the store, theme, element overrides, and custom variants for everything beneath it. To render
-        a lone <code>MdmaBlock</code> outside a document, wrap it in <code>MdmaProvider</code> (store)
-        and <code>MdmaThemeProvider</code> (theme).
+        Providers use Vue's <code>provide</code>/<code>inject</code>: <code>MdmaDocument</code>{' '}
+        wires the store, theme, element overrides, and custom variants for everything beneath it. To
+        render a lone <code>MdmaBlock</code> outside a document, wrap it in{' '}
+        <code>MdmaProvider</code> (store) and <code>MdmaThemeProvider</code> (theme).
       </p>
 
       <h2>Styling &amp; theming</h2>
       <p>
-        Import <code>styles.css</code> once — it is driven by <code>--mdma-*</code> CSS variables, so
-        every component is themeable without touching markup. Pass a <code>theme</code> prop to{' '}
-        <code>MdmaDocument</code>: <code>"light"</code>, <code>"dark"</code>, <code>"auto"</code> (it
-        follows the OS preference), or a full <code>MdmaTheme</code> token object for custom colors,
-        spacing, radii, and type. The <strong>Theming</strong> page has a live editor.
+        Import <code>styles.css</code> once — it is driven by <code>--mdma-*</code> CSS variables,
+        so every component is themeable without touching markup. Pass a <code>theme</code> prop to{' '}
+        <code>MdmaDocument</code>: <code>"light"</code>, <code>"dark"</code>, <code>"auto"</code>{' '}
+        (it follows the OS preference), or a full <code>MdmaTheme</code> token object for custom
+        colors, spacing, radii, and type. The <strong>Theming</strong> page has a live editor.
       </p>
 
       <h2>Customizing components</h2>
@@ -100,6 +101,20 @@ const MyChartRenderer = defineComponent({
 });
 
 // <MdmaDocument :ast :store :customizations="{ components: { chart: MyChartRenderer } }" />`}</Code>
+
+      <h2>External data</h2>
+      <p>
+        Tables, charts, and form selects whose data is a <code>{'{ source, params }'}</code>{' '}
+        reference read their rows from the sources registered on the store (
+        <code>createDocumentStore(ast, {'{ dataSources }'})</code>). The renderer shows loading,
+        error (with Retry), and empty states, and sends paging, sorting, and the filter box to the
+        resolver. Swap the views with the <code>dataLoading</code>, <code>dataError</code>, and{' '}
+        <code>dataEmpty</code> entries of <code>components.&lt;type&gt;.elements</code>; they
+        receive the same props as the React ones (<code>componentId</code>, <code>reloading</code>,{' '}
+        <code>error</code>, <code>onRetry</code>, <code>label</code>). The{' '}
+        <code>useDataState(key)</code> composable exposes a slot's state for custom controls. See{' '}
+        <strong>Usage</strong> for declaring sources.
+      </p>
 
       <p>
         A runnable example — an OpenRouter-backed agent chat that renders streamed MDMA replies —

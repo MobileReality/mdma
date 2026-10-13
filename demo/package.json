@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run"
   },
   "dependencies": {
     "@mobile-reality/mdma-parser": "workspace:*",
@@ -33,8 +34,10 @@
     "@types/react-dom": "^19.0.0",
     "@types/three": "^0.185.1",
     "@vitejs/plugin-react": "^4.3.0",
+    "happy-dom": "^20.0.0",
     "react-native": "0.76.9",
     "typescript": "^5.7.0",
-    "vite": "^6.0.0"
+    "vite": "^6.0.0",
+    "vitest": "^3.2.0"
   }
 }

@@ -20,7 +20,8 @@ export type ValidationRuleId =
   | 'expected-components'
   | 'form-submit-action'
   | 'single-interactive-component'
-  | 'html-tags';
+  | 'html-tags'
+  | 'data-source';
 
 export interface ValidationIssue {
   /** Which rule flagged this */
@@ -133,6 +134,9 @@ export interface ValidatorOptions {
    * regenerated a previous step instead of advancing to the next one.
    */
   priorComponentIds?: string[];
+  dataSourceCatalog?:
+    | Record<string, import('@mobile-reality/mdma-spec').DataSourceDescriptor>
+    | readonly import('@mobile-reality/mdma-spec').DataSourceDefinition[];
 }
 
 export interface ValidationResult {

@@ -19,6 +19,7 @@ export {
   useDocumentState,
   useComponentState,
   useBinding,
+  useDataState,
 } from './hooks/use-document-store.js';
 export {
   MdmaThemeProvider,

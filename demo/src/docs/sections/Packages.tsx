@@ -43,11 +43,11 @@ export function Packages({ onNavigate }: PackagesProps) {
           ],
           [
             navLink('prompt-pack', 'mdma-prompt-pack', onNavigate),
-            'System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI.',
+            'System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, xAI, and our MDMA-IL model.',
           ],
           [
             navLink('validator', 'mdma-validator', onNavigate),
-            'Static analysis engine with 17 lint rules covering schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, and more.',
+            'Static analysis engine with 18 lint rules covering schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, and more.',
           ],
           [
             navLink('cli', 'mdma-cli', onNavigate),

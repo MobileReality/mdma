@@ -45,6 +45,12 @@ const DOC_CATALOG: DocEntry[] = [
     description: 'How to package a domain-specific MDMA blueprint',
   },
   {
+    path: 'docs/guides/external-data-sources.md',
+    title: 'External Data Sources',
+    description:
+      'Reference external API-backed data with { source, params }: descriptors, resolvers, kinds, and prompt catalog',
+  },
+  {
     path: 'docs/guides/enterprise-features.md',
     title: 'Enterprise Features',
     description: 'PII redaction, tamper-evident audit logs, policy engine',

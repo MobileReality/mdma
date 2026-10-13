@@ -1,8 +1,74 @@
+import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { memo } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
-import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
+import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
+import type { MdmaBlockRendererProps } from '../renderers/renderer-registry.js';
 import { useMdmaTheme } from '../theme/MdmaThemeProvider.js';
+
+function DataDrivenOptions({
+  dataKey,
+  fieldValue,
+  onSelect,
+  theme,
+}: {
+  dataKey: string;
+  fieldValue: string;
+  onSelect: (value: string) => void;
+  theme: ReturnType<typeof useMdmaTheme>;
+}) {
+  const { colors, spacing, fontSize, radius } = theme;
+  const store = useDocumentStore();
+  const dataState = useDataState(dataKey);
+
+  if (!dataState || dataState.status === 'loading') {
+    return <Text style={{ color: colors.textMuted, fontSize: fontSize.small }}>Loading…</Text>;
+  }
+  if (dataState.status === 'error') {
+    return (
+      <View style={{ gap: spacing.xs }}>
+        <Text style={{ color: colors.text, fontSize: fontSize.small }}>
+          {dataState.error ?? 'Failed to load options'}
+        </Text>
+        <Pressable accessibilityRole="button" onPress={() => store.retryData(dataKey)}>
+          <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Retry</Text>
+        </Pressable>
+      </View>
+    );
+  }
+
+  const options = dataState.rows as { label: string; value: string }[];
+
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+      {options.map((opt) => {
+        const selected = fieldValue === opt.value;
+        return (
+          <Pressable
+            key={opt.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected }}
+            onPress={() => onSelect(opt.value)}
+            style={{
+              paddingHorizontal: spacing.sm,
+              paddingVertical: spacing.xs,
+              borderRadius: radius.sm,
+              borderWidth: 1,
+              borderColor: selected ? colors.primary : colors.border,
+              backgroundColor: selected ? colors.primary : colors.background,
+            }}
+          >
+            <Text
+              style={{ color: selected ? colors.onPrimary : colors.text, fontSize: fontSize.body }}
+            >
+              {opt.label}
+            </Text>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
 
 /**
  * RN form renderer. Emits the same store actions as the web `FormRenderer`:
@@ -19,7 +85,7 @@ export const FormRenderer = memo(function FormRenderer({
   componentState,
   dispatch,
 }: MdmaBlockRendererProps) {
-  const { dataSources } = useMdmaContext();
+  const { dataSources, store } = useMdmaContext();
   const theme = useMdmaTheme();
   const { colors, spacing, fontSize, radius } = theme;
 
@@ -57,10 +123,16 @@ export const FormRenderer = memo(function FormRenderer({
         const handleChange = (value: unknown) =>
           dispatch({ type: 'FIELD_CHANGED', componentId: component.id, field: field.name, value });
 
+        const dataKey = `${component.id}.${field.name}`;
+        const isDataDriven = isDataDrivenOptions(field.options, dataKey, (key) =>
+          store.getDataState(key),
+        );
         const options =
           typeof field.options === 'string'
             ? (dataSources?.[field.options] ?? [])
-            : (field.options ?? []);
+            : Array.isArray(field.options)
+              ? field.options
+              : [];
 
         return (
           <View key={field.name} style={{ gap: spacing.xs }}>
@@ -76,36 +148,45 @@ export const FormRenderer = memo(function FormRenderer({
                 accessibilityLabel={field.label}
               />
             ) : field.type === 'select' ? (
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
-                {options.map((opt) => {
-                  const selected = fieldValue === opt.value;
-                  return (
-                    <Pressable
-                      key={opt.value}
-                      accessibilityRole="button"
-                      accessibilityState={{ selected }}
-                      onPress={() => handleChange(opt.value)}
-                      style={{
-                        paddingHorizontal: spacing.sm,
-                        paddingVertical: spacing.xs,
-                        borderRadius: radius.sm,
-                        borderWidth: 1,
-                        borderColor: selected ? colors.primary : colors.border,
-                        backgroundColor: selected ? colors.primary : colors.background,
-                      }}
-                    >
-                      <Text
+              isDataDriven ? (
+                <DataDrivenOptions
+                  dataKey={dataKey}
+                  fieldValue={fieldValue}
+                  onSelect={handleChange}
+                  theme={theme}
+                />
+              ) : (
+                <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs }}>
+                  {options.map((opt) => {
+                    const selected = fieldValue === opt.value;
+                    return (
+                      <Pressable
+                        key={opt.value}
+                        accessibilityRole="button"
+                        accessibilityState={{ selected }}
+                        onPress={() => handleChange(opt.value)}
                         style={{
-                          color: selected ? colors.onPrimary : colors.text,
-                          fontSize: fontSize.body,
+                          paddingHorizontal: spacing.sm,
+                          paddingVertical: spacing.xs,
+                          borderRadius: radius.sm,
+                          borderWidth: 1,
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: selected ? colors.primary : colors.background,
                         }}
                       >
-                        {opt.label}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </View>
+                        <Text
+                          style={{
+                            color: selected ? colors.onPrimary : colors.text,
+                            fontSize: fontSize.body,
+                          }}
+                        >
+                          {opt.label}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )
             ) : field.type === 'textarea' ? (
               <TextInput
                 multiline

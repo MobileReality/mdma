@@ -130,7 +130,7 @@ const ast = await processor.run(tree) as MdmaRoot;`}</Code>
     dir: 'prompt-pack',
     tagline: 'System prompts that teach LLMs how to author valid MDMA documents.',
     purpose:
-      'Curated, model-specialised prompt variants for every major provider — Anthropic, OpenAI, Google, and xAI. Each variant ships two prompts: an author prompt for inline chat workflows and an agent-tool prompt for tool-call agentic loops. Use buildSystemPrompt to merge them with your own agent instructions without overwriting either side.',
+      'Curated, model-specialised prompt variants for every major provider — Anthropic, OpenAI, Google, and xAI — plus our own MDMA-IL model. Pick one with getAuthorPromptVariant(modelId). Pass dataSources to buildSystemPrompt to describe your external data sources to the model. Each variant ships two prompts: an author prompt for inline chat workflows and an agent-tool prompt for tool-call agentic loops. Use buildSystemPrompt to merge them with your own agent instructions without overwriting either side.',
     seeAlso: { label: 'Prompt Matrix', slug: 'prompt-matrix' },
   },
   {
@@ -138,9 +138,9 @@ const ast = await processor.run(tree) as MdmaRoot;`}</Code>
     label: 'mdma-validator',
     npm: '@mobile-reality/mdma-validator',
     dir: 'validator',
-    tagline: 'Static analysis engine with 17 lint rules for MDMA documents.',
+    tagline: 'Static analysis engine with 18 lint rules for MDMA documents.',
     purpose:
-      'Validates documents against the spec and runs structural checks for ID uniqueness, binding syntax correctness, action-target references, PII sensitivity flags, and more. Works as an importable library or through the CLI. Integrate it into CI pipelines to catch malformed documents before they reach production.',
+      'Validates documents against the spec and runs structural checks for ID uniqueness, binding syntax correctness, action-target references, PII sensitivity flags, external data source refs (data-source), and more. Works as an importable library or through the CLI. Integrate it into CI pipelines to catch malformed documents before they reach production.',
     seeAlso: { label: 'Validator', slug: 'validator' },
   },
   {

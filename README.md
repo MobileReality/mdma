@@ -93,6 +93,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | Variant | one-shot | one-shot with custom prompt | conversation | specific flow of conversation |
 | :--- | :---: | :---: | :---: | :---: |
 | **OpenAI** | | | | |
+| `gpt-6.1-sol` | ✅ | ✅ | ✅ | ✅ |
+| `gpt-6-sol` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-sol` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-terra` | ✅ | ✅ | ✅ | ✅ |
 | `gpt-5.6-luna` | ✅ | ✅ | ✅ | ✅ |
@@ -109,6 +111,11 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `gpt-4.1-mini` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `gpt-4.1-nano` | ✅ | ✅ | ✅ \* | 🟡 \* |
 | **Anthropic** | | | | |
+| `claude-opus-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-opus-5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-sonnet-5.5` § | ✅ | ✅ | ✅ | ✅ |
+| `claude-sonnet-5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-haiku-5.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `claude-opus-4.8` | ✅ | ✅ | ✅ | ✅ |
 | `claude-opus-4.7` | ✅ | ✅ | ✅ | ✅ |
 | `claude-opus-4.6` | ✅ | ✅ | ✅ | ✅ |
@@ -116,6 +123,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-haiku-4.5` | ✅ | ✅ | ✅ \* | ✅ \* |
 | `claude-fable-5` | ✅ | ✅ | ✅ | ✅ |
 | **Google** | | | | |
+| `gemini-3.8-flash` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.7-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.5-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | 🟡 ‡ |
 | `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
@@ -127,6 +136,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | **xAI** | | | | |
 | `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
 | `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.7` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `grok-4.5` | ✅ | ✅ | ✅ | ✅ |
 | **Zhipu (z.ai)** | | | | |
 | `glm-4-plus` | TBD | TBD | TBD | TBD |
@@ -147,6 +158,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 ‡ **gemini-3.1-pro-preview stochastic preamble loop** — on ~7–15% of flow-eval runs, the model emits a chain-of-thought as visible Markdown prose (e.g. `**Investigating Production Errors**` repeated 3–5 times) instead of opening a ```` ```mdma ```` block, producing either `[yaml-correctness: outside fenced block]` or `[duplicate-ids]` errors. Per Google's official Gemini 3 prompting guide, this is a model-level behavior driven by temperature/sampling — prompt-level fixes shift which test loops rather than eliminating the loops. If deterministic flow output matters, prefer `gemini-2.5-pro` for production multi-step flows.
 
 \* Smaller / lower-tier models from any lab (OpenAI mini · nano, Anthropic Haiku, Google Gemini Flash, etc.) pass our eval suites, which exercise short, structured test cases. In longer real-world conversations they tend to hallucinate, forget earlier turns, or drift from the spec. For production use that involves multi-turn dialogue or stateful flows, prefer the flagship-tier model from the same family.
+
+§ **claude-sonnet-5.5 `thinking` wording** — the shared description of the `thinking` component ("AI reasoning or thinking process") makes Sonnet 5.5's safety classifier answer with `stop_reason: refusal` (category `reasoning_extraction`; 7 of 20 benign requests on Anthropic's API, shown as `finish_reason: content_filter` through OpenRouter). The `claude-sonnet-5.5` variant describes it as a plan summary instead and scores 100% on Anthropic's own API. Some OpenRouter upstreams still return `content_filter` for this model; pin the provider to Anthropic or call the API directly.
 
 \[i] Noticeably slow response times — single-turn responses commonly take tens of seconds and full eval runs measure in minutes.
 
@@ -207,11 +220,11 @@ Each cell shows the pass rate of the model-specialized MDMA_FIXER prompt variant
 
 | Component | Type key | Description |
 |-----------|----------|-------------|
-| **Form** | `form` | Multi-field forms with text, number, email, date, select, checkbox, textarea, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. |
+| **Form** | `form` | Multi-field forms with text, number, email, date, select, checkbox, textarea, and file fields. Supports validation, required fields, default values, and sensitive (PII) flags. Select options can be inline or loaded from an external data source. |
 | **Button** | `button` | Action buttons with `primary`, `secondary`, and `danger` variants. |
 | **Tasklist** | `tasklist` | Interactive checkbox task items with labels. |
-| **Table** | `table` | Data tables with typed columns and row data. |
-| **Chart** | `chart` | **Table fallback by default** — renders chart data as a simple HTML table to avoid forcing a charting dependency (~400KB). Override with your own renderer (e.g. recharts) via `customizations.components.chart` (see [Custom Chart Renderer](#custom-chart-renderer) below). |
+| **Table** | `table` | Data tables with typed columns and row data, inline or from an [external data source](docs/guides/external-data-sources.md). |
+| **Chart** | `chart` | **Table fallback by default** — renders chart data as a simple HTML table to avoid forcing a charting dependency (~400KB). Data can be inline CSV or an external data source. Override with your own renderer (e.g. recharts) via `customizations.components.chart` (see [Custom Chart Renderer](#custom-chart-renderer) below). |
 | **Callout** | `callout` | Alert banners with `info`, `warning`, `error`, and `success` variants. Supports optional title and dismiss button. |
 | **Approval Gate** | `approval-gate` | Approve/deny workflow gates with pending, approved, and denied states. |
 | **Webhook** | `webhook` | Webhook triggers with idle, executing, success, and error status indicators. |
@@ -301,13 +314,46 @@ store.dispatch({
 });
 ```
 
+### External Data
+
+Tables, charts, and form selects can take their data from your system instead of from the model. The LLM writes `{ source, params }` and never the rows; you register what each source name means:
+
+```typescript
+import { createDocumentStore } from '@mobile-reality/mdma-runtime';
+import { defineDataSource } from '@mobile-reality/mdma-spec';
+import type { DataSourceResolver } from '@mobile-reality/mdma-spec';
+
+const resolveIncidents: DataSourceResolver = async ({ params, page, pageSize }, { signal }) => {
+  const query = new URLSearchParams({ status: String(params.status), page: String(page ?? 1) });
+  if (pageSize) query.set('pageSize', String(pageSize));
+  const response = await fetch(`/api/incidents?${query}`, { signal });
+  const body = (await response.json()) as { items: unknown[]; count: number };
+  return { rows: body.items, total: body.count };
+};
+
+const incidents = defineDataSource({
+  name: 'incidents',
+  description: 'Operational incidents raised against internal services.',
+  kind: 'rows', // `rows` feed tables, `series` feed charts, `options` feed form selects
+  columns: [{ key: 'title', type: 'string', sensitive: false }],
+  params: [{ name: 'status', type: 'string', required: true, allowed: ['open', 'resolved'] }],
+  resolve: resolveIncidents,
+});
+
+const store = createDocumentStore(ast, { dataSources: [incidents] });
+```
+
+Pass the same definitions to `buildSystemPrompt({ dataSources })`, to the validator as `dataSourceCatalog`, and to `buildFixerMessage(..., { dataSources })`. See the [External Data Sources guide](docs/guides/external-data-sources.md).
+
 ### In a Chat
 
 ```typescript
 import { buildSystemPrompt, getAuthorPromptVariant } from '@mobile-reality/mdma-prompt-pack';
 
-// Pick the prompt variant tuned for your model (falls back to default if unknown)
-const { prompt: authorPrompt } = getAuthorPromptVariant('google/gemini-2.5-pro');
+// Pick the prompt variant tuned for your model (falls back to default if unknown).
+// Ids are listed in AUTHOR_PROMPT_VARIANTS, e.g. 'openai/gpt-6.1-sol', 'anthropic/opus-5.5',
+// 'google/gemini-3.8-flash', 'x-ai/grok-4.7'.
+const { prompt: authorPrompt } = getAuthorPromptVariant('openai/gpt-6.1-sol');
 
 // Optionally layer a custom prompt on top for domain-specific generation
 const systemPrompt = buildSystemPrompt({
@@ -350,7 +396,7 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
   method: 'POST',
   headers: { Authorization: `Bearer ${apiKey}` },
   body: JSON.stringify({
-    model: 'gemini-2.5-pro',
+    model: 'gpt-6.1-sol',
     messages: [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: 'The login page crashes after entering my password.' },
@@ -361,6 +407,8 @@ const response = await fetch('https://api.openai.com/v1/chat/completions', {
 // The LLM responds with regular markdown containing ```mdma blocks
 // Parse it into an AST + store as shown above
 ```
+
+`getAuthorPromptVariant(id)` looks the id up in `AUTHOR_PROMPT_VARIANTS` and falls back to `default` for an unknown id. The demo app does the same for you: picking a model in its chat or agent settings selects the matching variant (`openai/gpt-6.1-sol`, `anthropic/opus-5.5`, `google/gemini-3.8-flash`, `x-ai/grok-4.7`, and so on) through its model-to-variant mapping, and you can still override the variant by hand.
 
 ### React
 
@@ -398,10 +446,10 @@ The web renderers (`renderer-react`, `renderer-vue`, `renderer-vanilla`) and the
 | `@mobile-reality/mdma-renderer-react` | React rendering layer with components for all 10 MDMA types and hooks for state access. Provides `MdmaDocument` for full-document rendering and `useComponentState`/`useBinding` for fine-grained reactivity. |
 | `@mobile-reality/mdma-renderer-vue` | Vue 3 rendering layer — the same surface as the React renderer, in Vue idiom: `MdmaDocument`, `MdmaBlock`, and composables (`useComponentState`/`useBinding`) that return `ComputedRef`s. Ships the same `styles.css`, so a theme is portable between the two web renderers. |
 | `@mobile-reality/mdma-renderer-vanilla` | Framework-free rendering layer — plain DOM, no React or Vue. `mountMdmaDocument(container, { ast, store })` returns a handle you feed new ASTs to; renderers own their elements and update in place, so focus and in-progress form values survive the re-parses a streamed reply produces. Ships the same `styles.css` as the other web renderers. |
-| `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
-| `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
-| `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
-| `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
+| `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI (GPT-4.1 through GPT-6.1), Anthropic (Haiku, Sonnet, Opus 4.6 to 5.5, Fable 5), Google (Gemini 2.5 to 3.8, Gemma), xAI (Grok 4.3 to 4.7), and our MDMA-IL model — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
+| `@mobile-reality/mdma-validator` | Static analysis engine with 18 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
+| `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis and a `prompt` command that prints the system prompt; both take an external data source catalog via `--data-sources`. |
+| `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt` (with optional external `dataSources` catalog), `validate-prompt`, `list-packages`, `list-docs`, `get-doc`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
 
 ## Architecture
 
@@ -439,10 +487,29 @@ npx @mobile-reality/mdma-cli
 npx @mobile-reality/mdma-cli validate "docs/**/*.md"
 npx @mobile-reality/mdma-cli validate "docs/**/*.md" --fix  # auto-fix issues
 npx @mobile-reality/mdma-cli validate "docs/**/*.md" --json # JSON output
+
+# Check { source, params } refs against a catalog of external data sources
+npx @mobile-reality/mdma-cli validate "docs/**/*.md" --data-sources ./data-sources.json
+
+# Print the system prompt, including the data source catalog
+npx @mobile-reality/mdma-cli prompt --data-sources ./data-sources.json
+```
+
+`--data-sources` reads a JSON array of data source definitions without `resolve`, i.e. the descriptors you register on the store: `name`, `kind` (`rows` for `table.data`, `series` for `chart.data`, `options` for form select `options`), `columns` and `params`. Run `mdma prompt --help` or `mdma validate --help` for the file shape.
+
+```json
+[
+  {
+    "name": "incidents",
+    "kind": "rows",
+    "columns": [{ "key": "title", "type": "string" }],
+    "params": [{ "name": "status", "type": "string", "required": true }]
+  }
+]
 ```
 
 The prompt builder walks you through:
-1. **Pick components** — select from the 10 MDMA types (form, table, approval-gate, etc.)
+1. **Pick components** — select from the MDMA component types the builder offers (form, table, approval-gate, etc.)
 2. **Configure** — define fields, options, roles, sensitive flags, and business rules
 3. **Set triggers** — specify when the AI should generate MDMA components (keywords, contextual conditions)
 4. **Generate** — an LLM creates a tailored `customPrompt` based on your configuration
@@ -455,6 +522,8 @@ const systemPrompt = buildSystemPrompt({
   customPrompt: '<paste generated prompt here>',
 });
 ```
+
+The prompt that drives the generation, `MASTER_PROMPT`, also ships model-specialised variants you can import to run the generation yourself: `@mobile-reality/mdma-cli/prompts/anthropic/{haiku,sonnet,sonnet-5.5,opus}` and `@mobile-reality/mdma-cli/prompts/google/gemma` (exports `MASTER_PROMPT_HAIKU`, `MASTER_PROMPT_SONNET_5_5`, and so on). Claude Sonnet 5.5 has its own variant because it refuses system prompts that ask it to write out its reasoning, so there the `thinking` component is described as a plan summary. Other models, including GPT, Gemini and Grok, use the default `MASTER_PROMPT`.
 
 ## Validator
 
@@ -498,6 +567,7 @@ const result = validate(markdown, {
 | `placeholder-content` | info | -- | Catches `TODO`, `TBD`, `FIXME`, `...`, `lorem ipsum` in content fields. |
 | `flow-ordering` | warning | -- | Forward-only action references (targets defined later in the document), no circular refs, and multi-step flows flagged to be split across messages. |
 | `single-interactive-component` | warning | -- | At most one interactive component (form, button, webhook, approval-gate, tasklist) per message. |
+| `data-source` | error | -- | `{ source, params }` refs on table `data`, chart `data`, and select `options` name a source. With a `dataSourceCatalog`, also checks the source exists and is of the right kind, declared and required params, types, `allowed` values, and that table columns and chart axes exist in the source. |
 | `expected-components` | error | -- | Verifies that components present in the message match their expected types, form fields, and table columns. Components not in the message are silently skipped — useful for multi-turn flows where you pass all expected components upfront. |
 
 ### Auto-fix Pipeline
@@ -572,10 +642,10 @@ Add to your AI tool config (Claude Desktop, VS Code, Cursor, etc.):
 
 | Tool | Description |
 |------|-------------|
-| `get-spec` | Returns the full MDMA specification: component types, JSON schemas, binding syntax, and authoring rules |
+| `get-spec` | Returns the full MDMA specification: component types, JSON schemas, binding syntax, external data sources (`{ source, params }` refs and the `rows` / `series` / `options` kinds), and authoring rules |
 | `get-prompt` | Returns a named prompt (`mdma-author`, `mdma-reviewer`, or `mdma-fixer`). For `mdma-author`, accepts an optional `variantId` (e.g. `google/gemini-2.5-pro`) to return the model-optimised variant |
 | `list-prompt-variants` | Returns all available `MDMA_AUTHOR` prompt variants (id, label, description) — use the id with `get-prompt` to fetch the model-optimised prompt |
-| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules) |
+| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules). Pass `dataSources` (an external data-source catalog of `rows` / `series` / `options` entries) to get the full system prompt with the catalog and the rule to reference data via `{ source, params }`. |
 | `validate-prompt` | Validates a custom prompt against MDMA conventions — returns warnings, suggestions, and constraint reference |
 | `list-packages` | Returns all MDMA packages with purpose, install command, and usage example |
 | `list-docs` | Returns the catalog of MDMA documentation files (path, title, description) available for fetching from the public GitHub repo |

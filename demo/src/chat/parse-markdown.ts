@@ -1,9 +1,13 @@
-import { unified } from 'unified';
-import remarkParse from 'remark-parse';
-import remarkGfm from 'remark-gfm';
-import { remarkMdma, type RemarkMdmaOptions } from '@mobile-reality/mdma-parser';
-import { createDocumentStore, type DocumentStore } from '@mobile-reality/mdma-runtime';
+import { type RemarkMdmaOptions, remarkMdma } from '@mobile-reality/mdma-parser';
+import {
+  type DocumentStore,
+  type DocumentStoreOptions,
+  createDocumentStore,
+} from '@mobile-reality/mdma-runtime';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
+import remarkGfm from 'remark-gfm';
+import remarkParse from 'remark-parse';
+import { unified } from 'unified';
 
 /**
  * Create a markdown-to-MDMA parser, optionally configured with custom
@@ -26,6 +30,7 @@ export function createParser(options?: RemarkMdmaOptions) {
   return async function parseMarkdown(
     markdown: string,
     existingStore?: DocumentStore,
+    storeOptions?: DocumentStoreOptions,
   ): Promise<{ ast: MdmaRoot; store: DocumentStore }> {
     const tree = processor.parse(markdown);
     const ast = (await processor.run(tree)) as MdmaRoot;
@@ -33,7 +38,7 @@ export function createParser(options?: RemarkMdmaOptions) {
       existingStore.updateAst(ast);
       return { ast, store: existingStore };
     }
-    return { ast, store: createDocumentStore(ast) };
+    return { ast, store: createDocumentStore(ast, storeOptions) };
   };
 }
 

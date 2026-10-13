@@ -2,7 +2,11 @@ import { unified } from 'unified';
 import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import { remarkMdma } from '@mobile-reality/mdma-parser';
-import { AttachableRegistry, createDocumentStore } from '@mobile-reality/mdma-runtime';
+import {
+  AttachableRegistry,
+  createDocumentStore,
+  type DataSourceMap,
+} from '@mobile-reality/mdma-runtime';
 import { registerAllCoreAttachables } from '@mobile-reality/mdma-attachables-core';
 import type { MdmaRoot } from '@mobile-reality/mdma-spec';
 
@@ -15,11 +19,12 @@ const processor = unified().use(remarkParse).use(remarkGfm).use(remarkMdma, {});
  */
 export async function parseDoc(
   markdown: string,
+  options: { dataSources?: DataSourceMap } = {},
 ): Promise<{ ast: MdmaRoot; store: ReturnType<typeof createDocumentStore> }> {
   const ast = await parseAst(markdown);
   const registry = new AttachableRegistry();
   registerAllCoreAttachables(registry);
-  return { ast, store: createDocumentStore(ast, { registry }) };
+  return { ast, store: createDocumentStore(ast, { registry, dataSources: options.dataSources }) };
 }
 
 /** Parse markdown into an AST without creating a store — for streamed re-parses. */

@@ -1,3 +1,6 @@
+import { indexDataSources } from '@mobile-reality/mdma-spec';
+import type { DataSourceDefinition } from '@mobile-reality/mdma-spec';
+import { renderDataSourceCatalog } from './data-source-catalog.js';
 import { MDMA_AUTHOR_PROMPT } from './prompts/mdma-author/default.js';
 
 /**
@@ -31,6 +34,13 @@ export interface BuildSystemPromptOptions {
    * (or pass empty) and the model is told no custom components are available.
    */
   customComponents?: CustomComponentPromptEntry[];
+  /**
+   * Host-registered external data sources. When provided, rendered as an
+   * "Available data sources" catalog plus the rule to reference catalog data
+   * with `{ source, params }` instead of generating rows. Omit (or pass empty)
+   * and the prompt is unchanged.
+   */
+  dataSources?: readonly DataSourceDefinition[];
 }
 
 /** Render the host's custom-component catalog the model authors `custom` blocks against. */
@@ -61,13 +71,17 @@ ${items}`;
  * when providing their own system prompt.
  */
 export function buildSystemPrompt(options: BuildSystemPromptOptions = {}): string {
-  const { customPrompt, authorPrompt, customComponents } = options;
+  const { customPrompt, authorPrompt, customComponents, dataSources } = options;
   const author = authorPrompt ?? MDMA_AUTHOR_PROMPT;
 
   const catalog = customComponents?.length
     ? `\n\n---\n\n${renderCustomCatalog(customComponents)}`
     : '';
-  const base = `${author}${catalog}`;
+  if (dataSources) indexDataSources(dataSources);
+  const dataCatalog = dataSources?.length
+    ? `\n\n---\n\n${renderDataSourceCatalog(dataSources)}`
+    : '';
+  const base = `${author}${catalog}${dataCatalog}`;
 
   if (!customPrompt) {
     return base;
