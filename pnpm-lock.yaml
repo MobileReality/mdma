@@ -629,6 +629,9 @@ importers:
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.0
         version: 1.29.0(@cfworker/json-schema@4.1.1)(zod@3.25.76)
+      zod:
+        specifier: ^3.24.0
+        version: 3.25.76
       zod-to-json-schema:
         specifier: ^3.24.0
         version: 3.25.2(zod@3.25.76)
@@ -639,9 +642,6 @@ importers:
       vitest:
         specifier: ^3.2.0
         version: 3.2.4(@types/debug@4.1.12)(@types/node@24.13.3)(happy-dom@20.11.1)(jiti@2.6.1)(jsdom@28.1.0)(lightningcss@1.31.1)(terser@5.48.0)(tsx@4.21.0)(yaml@2.8.2)
-      zod:
-        specifier: ^3.24.0
-        version: 3.25.76
 
   packages/parser:
     dependencies:

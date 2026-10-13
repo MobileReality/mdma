@@ -51,6 +51,7 @@ Use this checklist every time you publish a new version (`0.2.4 → 0.2.5`, etc.
 - [ ] Update top-level `version` **and** `packages[0].version` in [manifest.json](manifest.json).
 - [ ] Add a changeset: `pnpm changeset` at repo root.
 - [ ] Run `pnpm build && pnpm test && pnpm typecheck` in this package.
+- [ ] Run `pnpm smoke:pack` in this package — it packs, installs the tarball into a clean directory and checks `tools/list` and `get-spec` over stdio; it must print `PASS` before you publish.
 
 ### 2. Publish to npm
 
