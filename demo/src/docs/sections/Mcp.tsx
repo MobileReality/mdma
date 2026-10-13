@@ -54,7 +54,7 @@ export function Mcp() {
         rows={[
           [
             'get-spec',
-            'Returns the full MDMA specification: component types, JSON schemas, binding syntax, and authoring rules.',
+            'Returns the full MDMA specification: component types, JSON schemas, binding syntax, external data sources ({ source, params } refs and the rows / series / options kinds), and authoring rules.',
           ],
           [
             'get-prompt',
@@ -66,7 +66,7 @@ export function Mcp() {
           ],
           [
             'build-system-prompt',
-            'Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules).',
+            'Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules). Pass dataSources (an external data-source catalog of rows / series / options entries) to get the full system prompt with the catalog and the rule to reference data via { source, params }.',
           ],
           ['validate-prompt', 'Validates a custom prompt against MDMA conventions.'],
           [
