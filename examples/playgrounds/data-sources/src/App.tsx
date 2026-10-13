@@ -45,7 +45,7 @@ type ViewMode = 'rendered' | 'raw';
 
 function ViewSwitch({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewMode) => void }) {
   return (
-    <div className="pg-switch" role="group" aria-label="View">
+    <fieldset className="pg-switch" aria-label="View">
       <button
         type="button"
         aria-pressed={mode === 'rendered'}
@@ -62,7 +62,7 @@ function ViewSwitch({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewM
       >
         Raw MD (MDMA)
       </button>
-    </div>
+    </fieldset>
   );
 }
 

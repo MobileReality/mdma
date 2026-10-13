@@ -123,8 +123,9 @@ body {
 
 .pg-switch {
   display: inline-flex;
-  margin-bottom: 12px;
+  margin: 0 0 12px;
   padding: 3px;
+  border: 0;
   background: #e4e6ee;
   border-radius: 999px;
 }

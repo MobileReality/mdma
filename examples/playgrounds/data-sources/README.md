@@ -25,6 +25,8 @@ Switch with the buttons or hash routes.
 
 The right-hand panel logs every resolver call: `request`, `resolved`, `abort`, `error`. Resolvers wait 600 ms and honour `AbortSignal`, so changing the service mid-request shows an `abort`. Data is deterministic (seeded PRNG).
 
+The Rendered / Raw MD switch above the document shows the scenario markdown as the model would write it: it holds only `{ source, params }`, no rows.
+
 ## Verify
 
 ```bash
