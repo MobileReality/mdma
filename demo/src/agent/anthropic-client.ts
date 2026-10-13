@@ -27,6 +27,7 @@ export interface AnthropicConfig {
   /** Token budget for extended thinking. Only used when provider is 'anthropic'. */
   thinkingBudget?: number;
   systemPromptId?: string;
+  externalDataSources?: boolean;
 }
 
 /**

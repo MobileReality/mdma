@@ -1,30 +1,30 @@
-import { useState, useCallback, useRef, useEffect } from 'react';
-import type { Dispatch, SetStateAction } from 'react';
 import {
-  buildSystemPrompt,
-  buildFixerPrompt,
-  buildFixerMessage,
-  getAuthorPromptVariant,
-  getAgentToolPromptVariant,
   MDMA_IL_AGENT_SYSTEM_PROMPT,
+  buildFixerMessage,
+  buildFixerPrompt,
+  buildSystemPrompt,
+  getAgentToolPromptVariant,
 } from '@mobile-reality/mdma-prompt-pack';
-import { validate } from '@mobile-reality/mdma-validator';
-import { GRAPH_3D_CATALOG_ENTRY } from '../custom-variants/Graph3DRenderer.js';
-import {
-  streamAgentMessages,
-  OWN_MODEL_DEFAULT_BASE_URL,
-  type AnthropicConfig,
-  type ApiMessage,
-  type ApiAssistantBlock,
-} from './anthropic-client.js';
-import {
-  streamOpenAIAgentMessages,
-  type OpenAIMessage,
-  type OpenAIAssistantMessage,
-} from './openai-agent-client.js';
+import { type ValidatorOptions, validate } from '@mobile-reality/mdma-validator';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { parseMarkdown } from '../chat/parse-markdown.js';
 import { getDefaultPromptVariantForModel } from '../model-prompt-variant.js';
-import type { AgentDisplayTurn, AssistantTurn, AgentBlock } from './types.js';
+import { buildAuthorSubAgentPrompt, buildInlineAgentPrompt } from './agent-prompts.js';
+import {
+  type AnthropicConfig,
+  type ApiAssistantBlock,
+  type ApiMessage,
+  OWN_MODEL_DEFAULT_BASE_URL,
+  streamAgentMessages,
+} from './anthropic-client.js';
+import { dataSourcesFor, storeOptionsFor } from './data-source-options.js';
+import {
+  type OpenAIAssistantMessage,
+  type OpenAIMessage,
+  streamOpenAIAgentMessages,
+} from './openai-agent-client.js';
+import type { AgentBlock, AgentDisplayTurn, AssistantTurn } from './types.js';
 
 // ── Tool definitions ─────────────────────────────────────────────────────────
 
@@ -198,64 +198,6 @@ interface BlockMeta {
   partialJson?: string;
 }
 
-/**
- * Host-registered custom components advertised to the model. Mirrors the
- * `customVariants` registered in custom-components.tsx — the model may only
- * emit a `custom` block whose `name` appears here.
- */
-const CUSTOM_COMPONENTS = [GRAPH_3D_CATALOG_ENTRY];
-
-/**
- * Demo-local agent rules, appended to this app's agent prompt only — NOT part
- * of the shared prompt-pack. They describe how THIS demo's registered custom
- * components must be wired, which is host knowledge, not MDMA spec.
- *
- * Why it exists: the agent emitted a `graph-3d` block with no `actions` map, so
- * clicking a bar could not reach the host — the component rendered but was
- * inert. It also narrated features the variant does not have ("zoom", "hover
- * tooltips", "category filtering", "reset-view button"), which reads as a
- * broken UI to the user.
- */
-const DEMO_CUSTOM_COMPONENT_RULES = `## Wiring custom components in this app
-
-!IMPORTANT: A \`custom\` block MUST include an \`actions\` map wiring EVERY event listed for that variant under "Available Custom Components". A custom block without \`actions\` is INCOMPLETE — the user's interaction cannot reach the host application, so the component renders but does nothing.
-
-INCOMPLETE — \`graph-3d\` with no \`actions\` (do NOT emit this):
-
-\`\`\`mdma
-type: custom
-id: sales-3d
-name: graph-3d
-props:
-  data: |
-    region, quarter, revenue
-    North, Q1, 120
-  x: region
-  z: quarter
-  y: revenue
-\`\`\`
-
-COMPLETE — every \`graph-3d\` block ends with an \`actions\` map:
-
-\`\`\`mdma
-type: custom
-id: sales-3d
-name: graph-3d
-props:
-  data: |
-    region, quarter, revenue
-    North, Q1, 120
-  x: region
-  z: quarter
-  y: revenue
-actions:
-  onSelect: sales-bar-selected
-\`\`\`
-
-Before you finish, check every \`custom\` block you wrote has its \`actions\` map. If one is missing, add it.
-
-Describe only what the variant actually documents. Do NOT tell the user about capabilities the variant does not list — no zoom, hover tooltips, category filtering, point-size controls, or reset-view buttons. Claiming absent features makes the rendered component look broken.`;
-
 // ── Sub-agent author dispatch ────────────────────────────────────────────────
 
 type AuthorSubAgent = (brief: string, signal: AbortSignal) => Promise<string>;
@@ -324,11 +266,7 @@ async function callAuthorOpenAI(
 }
 
 function makeAuthorSubAgent(config: AnthropicConfig): AuthorSubAgent {
-  const authorPrompt = buildSystemPrompt({
-    authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-    customPrompt: DEMO_CUSTOM_COMPONENT_RULES,
-    customComponents: CUSTOM_COMPONENTS,
-  });
+  const authorPrompt = buildAuthorSubAgentPrompt(config);
   const provider = config.provider ?? 'anthropic';
   return (brief, signal) =>
     provider === 'anthropic'
@@ -489,7 +427,9 @@ async function runAgentLoop(
           }
 
           document = await maybeFixDocument(config, document, signal);
-          const parsed = await parseMarkdown(document).catch(() => null);
+          const parsed = await parseMarkdown(document, undefined, storeOptionsFor(config)).catch(
+            () => null,
+          );
           const ast = parsed?.ast ?? null;
           const store = parsed?.store ?? null;
           setTurns((prev) =>
@@ -611,8 +551,14 @@ async function maybeFixDocument(
   signal: AbortSignal,
 ): Promise<string> {
   if (!document.trim()) return document;
+  const dataSources = dataSourcesFor(config);
+  const validateOptions: ValidatorOptions = {
+    exclude: ['thinking-block'],
+    autoFix: true,
+    ...(dataSources ? { dataSourceCatalog: dataSources } : {}),
+  };
   // 1. Deterministic auto-fix.
-  const r = validate(document, { exclude: ['thinking-block'], autoFix: true });
+  const r = validate(document, validateOptions);
   if (r.ok) return r.output;
 
   // 2. LLM fixer for the remaining issues.
@@ -623,11 +569,11 @@ async function maybeFixDocument(
 
   try {
     const system = `${buildSystemPrompt()}\n\n---\n\n${buildFixerPrompt('single-block')}`;
-    const userMessage = buildFixerMessage(document, unfixed, {});
+    const userMessage = buildFixerMessage(document, unfixed, { dataSources });
     const fixed = await chatOnce(config, system, userMessage, signal);
     if (fixed) {
       // Accept only if it actually improves validity.
-      const after = validate(fixed, { exclude: ['thinking-block'], autoFix: true });
+      const after = validate(fixed, validateOptions);
       if (after.summary.errors <= r.summary.errors) return after.output;
     }
   } catch {
@@ -796,7 +742,9 @@ async function runOpenAIAgentLoop(
           }
 
           document = await maybeFixDocument(config, document, signal);
-          const parsed = await parseMarkdown(document).catch(() => null);
+          const parsed = await parseMarkdown(document, undefined, storeOptionsFor(config)).catch(
+            () => null,
+          );
           setTurns((prev) =>
             patchBlock(prev, assistantTurnId, meta.displayId, {
               document,
@@ -918,13 +866,14 @@ export function useAgent(options: UseAgentOptions = {}) {
   useEffect(() => {
     const s = storedRef.current;
     if (!s) return;
+    const storeOptions = storeOptionsFor(loadConfig());
     for (const turn of s.turns) {
       if (turn.role !== 'assistant') continue;
       for (const block of (turn as AssistantTurn).blocks) {
         if (block.type === 'tool_use' && block.document) {
           const { id: blockId, document } = block;
           const turnId = turn.id;
-          parseMarkdown(document)
+          parseMarkdown(document, undefined, storeOptions)
             .then(({ ast, store }) =>
               setTurns((prev) => patchBlock(prev, turnId, blockId, { ast, store })),
             )
@@ -985,13 +934,7 @@ export function useAgent(options: UseAgentOptions = {}) {
           ? `${toolPrompt}\n\n---\n\n${options.flowPrompt}`
           : toolPrompt;
       } else {
-        systemPrompt = buildSystemPrompt({
-          authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
-          customPrompt: options.flowPrompt
-            ? `${toolPrompt}\n\n---\n\n${DEMO_CUSTOM_COMPONENT_RULES}\n\n---\n\n${options.flowPrompt}`
-            : `${toolPrompt}\n\n---\n\n${DEMO_CUSTOM_COMPONENT_RULES}`,
-          customComponents: CUSTOM_COMPONENTS,
-        });
+        systemPrompt = buildInlineAgentPrompt(config, options.flowPrompt);
       }
 
       const subAgent = useSubAgent ? makeAuthorSubAgent(config) : null;
