@@ -1968,12 +1968,20 @@ body {
   cursor: pointer;
 }
 
-/* Toggle row (e.g. "Generate with Own model") — label left, switch right. */
+.ai-setting-toggle-group {
+  grid-column: 1 / -1;
+}
+
+.ai-setting-toggle-group .agent-settings-note {
+  margin: 4px 0 0;
+}
+
 .ai-setting--toggle {
   flex-direction: row;
   align-items: center;
-  justify-content: space-between;
+  width: fit-content;
   gap: 10px;
+  cursor: pointer;
 }
 
 .ai-setting--toggle input[type="checkbox"] {
@@ -2009,6 +2017,11 @@ body {
 
 .ai-setting--toggle input[type="checkbox"]:checked::after {
   transform: translateX(16px);
+}
+
+.ai-setting--toggle input[type="checkbox"]:focus-visible {
+  outline: 2px solid #6c5ce7;
+  outline-offset: 2px;
 }
 
 .ai-setting-model-group {
@@ -6941,7 +6954,13 @@ body {
   color: #e5e7eb;
 }
 [data-theme="dark"] .ai-setting--toggle input[type="checkbox"] {
-  background: #2a3140;
+  background: #3b4558;
+}
+[data-theme="dark"] .ai-setting--toggle input[type="checkbox"]:checked {
+  background: #6c5ce7;
+}
+[data-theme="dark"] .ai-setting--toggle input[type="checkbox"]:focus-visible {
+  outline-color: #a29bfe;
 }
 
 /* ── Chat Messages ── */
