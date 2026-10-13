@@ -112,6 +112,7 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `gpt-4.1-nano` | ✅ | ✅ | ✅ \* | 🟡 \* |
 | **Anthropic** | | | | |
 | `claude-opus-5.5` | ✅ | ✅ | ✅ | ✅ |
+| `claude-opus-5` | ✅ | ✅ | ✅ | ✅ |
 | `claude-sonnet-5.5` § | ✅ | ✅ | ✅ | ✅ |
 | `claude-sonnet-5` | ✅ | ✅ | ✅ | ✅ |
 | `claude-haiku-5.5` | ✅ | ✅ | ✅ \* | ✅ \* |
@@ -123,6 +124,7 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | `claude-fable-5` | ✅ | ✅ | ✅ | ✅ |
 | **Google** | | | | |
 | `gemini-3.8-flash` | ✅ | ✅ | ✅ | ✅ |
+| `gemini-3.7-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.5-flash` | ✅ | ✅ | ✅ | ✅ |
 | `gemini-3.1-pro-preview` | ✅ | ✅ | ✅ | 🟡 ‡ |
 | `gemini-3.1-pro-preview-customtools` | ✅ | ✅ | ✅ | ✅ |
@@ -134,6 +136,8 @@ Each cell shows the pass rate of the model-specialized MDMA_AUTHOR prompt varian
 | **xAI** | | | | |
 | `grok-4.3` \[i] | 🟡 | 🔴 | 🔴 | 🔴 |
 | `grok-4.20` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.7` | ✅ | ✅ | ✅ | ✅ |
+| `grok-4.6` | ✅ | ✅ | ✅ | ✅ |
 | `grok-4.5` | ✅ | ✅ | ✅ | ✅ |
 | **Zhipu (z.ai)** | | | | |
 | `glm-4-plus` | TBD | TBD | TBD | TBD |

@@ -310,22 +310,19 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'anthropic/sonnet-5',
     label: 'Anthropic — Claude Sonnet 5',
-    description:
-      'Same Anthropic-styled framing as Sonnet (<scope_discipline> + <fence_closing>).',
+    description: 'Same Anthropic-styled framing as Sonnet (<scope_discipline> + <fence_closing>).',
     prompt: MDMA_AUTHOR_PROMPT_SONNET_5,
   },
   {
     id: 'anthropic/opus-5.5',
     label: 'Anthropic — Claude Opus 5.5',
-    description:
-      'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
+    description: 'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_5_5,
   },
   {
     id: 'anthropic/opus-5',
     label: 'Anthropic — Claude Opus 5',
-    description:
-      'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
+    description: 'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_5,
   },
   {
@@ -366,15 +363,13 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'x-ai/grok-4.7',
     label: 'xAI — Grok 4.7',
-    description:
-      'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
+    description: 'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_7,
   },
   {
     id: 'x-ai/grok-4.6',
     label: 'xAI — Grok 4.6',
-    description:
-      'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
+    description: 'Minimal composition — scope_discipline + select_options only, as for Grok 4.5.',
     prompt: MDMA_AUTHOR_PROMPT_GROK_4_6,
   },
 ];

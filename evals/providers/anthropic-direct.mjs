@@ -22,8 +22,9 @@ function toAnthropicMessages(raw) {
   try {
     parsed = JSON.parse(raw);
   } catch {
-    parsed = [{ role: 'user', content: raw }];
+    parsed = null;
   }
+  if (!Array.isArray(parsed)) parsed = [{ role: 'user', content: raw }];
   const system = [];
   const messages = [];
   for (const message of parsed) {
