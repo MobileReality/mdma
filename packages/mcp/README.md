@@ -6,10 +6,10 @@ MCP (Model Context Protocol) server for MDMA. Exposes the MDMA spec, authoring p
 
 | Tool | Purpose |
 |------|---------|
-| `get-spec` | Returns the full MDMA specification (component types, JSON schemas, binding syntax, authoring rules). |
-| `get-prompt` | Returns a named MDMA prompt (`mdma-author`, `mdma-reviewer`, `mdma-fixer`). For `mdma-author`, accepts an optional `variantId` (e.g. `google/gemini-2.5-pro`) to return the model-optimised variant — use `list-prompt-variants` to see all available ids. |
+| `get-spec` | Returns the full MDMA specification (component types, JSON schemas, binding syntax, external data sources with `{ source, params }` refs and the `rows` / `series` / `options` kinds, authoring rules). |
+| `get-prompt` | Returns a named MDMA prompt (`mdma-author`, `mdma-reviewer`, `mdma-fixer`). For `mdma-author`, accepts an optional `variantId` (e.g. `anthropic/sonnet-5.5`, `openai/gpt-6-sol`) to return the model-optimised variant — use `list-prompt-variants` to see all available ids. |
 | `list-prompt-variants` | Returns all available `MDMA_AUTHOR` prompt variants (id, label, description) without the prompt content. Use the id with `get-prompt` to fetch the model-optimised prompt. |
-| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules). |
+| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules). Pass `dataSources` (an external data-source catalog of `rows` / `series` / `options` entries) to get the full system prompt with the catalog and the rule to reference data via `{ source, params }`. |
 | `validate-prompt` | Validates a custom prompt against MDMA conventions. |
 | `list-packages` | Returns all MDMA npm packages with purpose, install command, usage example, and category. |
 | `list-docs` | Returns the catalog of MDMA documentation files available for fetching from the public GitHub repo. |

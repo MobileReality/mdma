@@ -414,7 +414,7 @@ The web renderers (`renderer-react`, `renderer-vue`, `renderer-vanilla`) and the
 | `@mobile-reality/mdma-prompt-pack` | System prompts that teach LLMs how to author valid MDMA documents. Ships model-specialised variants for OpenAI, Anthropic, Google, and xAI — select one with `getAuthorPromptVariant(modelId)`. Exports `buildSystemPrompt()` to combine the variant with optional custom instructions for domain-specific generation. |
 | `@mobile-reality/mdma-validator` | Static analysis engine with 17 lint rules covering YAML correctness, schema conformance, ID uniqueness, binding syntax, action references, PII sensitivity, expected component verification, and flow ordering. Includes 6 auto-fix strategies and fuzzy type/ID suggestions. Powers programmatic validation in CI pipelines and custom tooling. |
 | `@mobile-reality/mdma-cli` | Interactive CLI tool for creating custom MDMA prompts. Opens a local web app where you visually select components, configure fields, set domain rules and trigger conditions, then an LLM generates a tailored `customPrompt` for use with `buildSystemPrompt()`. Also includes a `validate` command for static document analysis. |
-| `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt`, `validate-prompt`, `list-packages`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
+| `@mobile-reality/mdma-mcp` | MCP (Model Context Protocol) server that exposes MDMA spec, prompts, and tooling to AI assistants. Tools: `get-spec`, `get-prompt` (with optional `variantId` for model-optimised prompts), `list-prompt-variants`, `build-system-prompt` (with optional external `dataSources` catalog), `validate-prompt`, `list-packages`, `list-docs`, `get-doc`. Works with Claude Desktop, VS Code, Cursor, and any MCP-compatible client. |
 
 ## Architecture
 
@@ -585,10 +585,10 @@ Add to your AI tool config (Claude Desktop, VS Code, Cursor, etc.):
 
 | Tool | Description |
 |------|-------------|
-| `get-spec` | Returns the full MDMA specification: component types, JSON schemas, binding syntax, and authoring rules |
+| `get-spec` | Returns the full MDMA specification: component types, JSON schemas, binding syntax, external data sources (`{ source, params }` refs and the `rows` / `series` / `options` kinds), and authoring rules |
 | `get-prompt` | Returns a named prompt (`mdma-author`, `mdma-reviewer`, or `mdma-fixer`). For `mdma-author`, accepts an optional `variantId` (e.g. `google/gemini-2.5-pro`) to return the model-optimised variant |
 | `list-prompt-variants` | Returns all available `MDMA_AUTHOR` prompt variants (id, label, description) — use the id with `get-prompt` to fetch the model-optimised prompt |
-| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules) |
+| `build-system-prompt` | Generates a custom MDMA prompt from structured input (domain, components, fields, steps, business rules). Pass `dataSources` (an external data-source catalog of `rows` / `series` / `options` entries) to get the full system prompt with the catalog and the rule to reference data via `{ source, params }`. |
 | `validate-prompt` | Validates a custom prompt against MDMA conventions — returns warnings, suggestions, and constraint reference |
 | `list-packages` | Returns all MDMA packages with purpose, install command, and usage example |
 | `list-docs` | Returns the catalog of MDMA documentation files (path, title, description) available for fetching from the public GitHub repo |

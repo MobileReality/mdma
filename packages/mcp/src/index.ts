@@ -1,13 +1,13 @@
+import { DataSourceDescriptorSchema } from '@mobile-reality/mdma-spec';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { DataSourceDescriptorSchema } from '@mobile-reality/mdma-spec';
-import { getSpec } from './tools/get-spec.js';
-import { getPrompt } from './tools/get-prompt.js';
 import { buildPrompt } from './tools/build-system-prompt.js';
-import { validatePrompt } from './tools/validate-prompt.js';
+import { getDoc, listDocs } from './tools/get-doc.js';
+import { getPrompt } from './tools/get-prompt.js';
+import { getSpec } from './tools/get-spec.js';
 import { listPackages } from './tools/list-packages.js';
-import { listDocs, getDoc } from './tools/get-doc.js';
 import { listPromptVariants } from './tools/list-prompt-variants.js';
+import { validatePrompt } from './tools/validate-prompt.js';
 
 export function createMdmaMcpServer(): McpServer {
   const server = new McpServer({
@@ -17,7 +17,7 @@ export function createMdmaMcpServer(): McpServer {
 
   server.tool(
     'get-spec',
-    'Returns the full MDMA specification: component types, schemas (as JSON Schema), binding syntax, and authoring rules',
+    'Returns the full MDMA specification: component types, schemas (as JSON Schema), binding syntax, external data sources ({ source, params } refs, the DataSourceDescriptor shape, and the rows / series / options kinds), and authoring rules',
     {},
     async () => ({
       content: [{ type: 'text', text: JSON.stringify(getSpec(), null, 2) }],
@@ -26,7 +26,7 @@ export function createMdmaMcpServer(): McpServer {
 
   server.tool(
     'get-prompt',
-    'Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer). For mdma-author, pass an optional variantId (e.g. "google/gemini-2.5-pro") to get the model-optimised variant — use list-prompt-variants to see all available ids.',
+    'Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer). For mdma-author, pass an optional variantId (e.g. "anthropic/sonnet-5.5", "openai/gpt-6-sol") to get the model-optimised variant — use list-prompt-variants to see all available ids.',
     {
       name: z.string().describe('Prompt name: mdma-author, mdma-reviewer, or mdma-fixer'),
       variantId: z
@@ -95,7 +95,7 @@ export function createMdmaMcpServer(): McpServer {
         .array(DataSourceDescriptorSchema)
         .optional()
         .describe(
-          'External data-source catalog (name, description, kind, columns, params). The model is told to reference these via { source, params } instead of generating rows.',
+          'External data-source catalog. Each entry: name, optional description, kind ("rows" for table.data, "series" for chart.data, "options" for form select options), optional columns [{ key, type: string|number|boolean|date, description?, sensitive? }], optional params [{ name, type: string|number|boolean, required?, allowed? }]. Names must be unique, but the same data may appear as a rows and a series entry under different names. The model is told to reference sources via { source, params } instead of generating rows.',
         ),
     },
     async (input) => ({
