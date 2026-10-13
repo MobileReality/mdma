@@ -335,7 +335,7 @@ const incidents = defineDataSource({
   name: 'incidents',
   description: 'Operational incidents raised against internal services.',
   kind: 'rows', // `rows` feed tables, `series` feed charts, `options` feed form selects
-  columns: [{ key: 'title', type: 'string' }],
+  columns: [{ key: 'title', type: 'string', sensitive: false }],
   params: [{ name: 'status', type: 'string', required: true, allowed: ['open', 'resolved'] }],
   resolve: resolveIncidents,
 });

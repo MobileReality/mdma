@@ -144,15 +144,15 @@ export const incidents = defineDataSource({
   description: 'Operational incidents raised against internal services.',
   kind: 'rows',
   columns: [
-    { key: 'id', type: 'string' },
-    { key: 'title', type: 'string' },
-    { key: 'severity', type: 'string' },
-    { key: 'status', type: 'string' },
-    { key: 'opened_at', type: 'date' },
+    { key: 'id', type: 'string', sensitive: false },
+    { key: 'title', type: 'string', sensitive: false },
+    { key: 'severity', type: 'string', sensitive: false },
+    { key: 'status', type: 'string', sensitive: false },
+    { key: 'opened_at', type: 'date', sensitive: false },
   ],
   params: [
     { name: 'status', type: 'string', required: true, allowed: ['open', 'resolved'] },
-    { name: 'service', type: 'string' },
+    { name: 'service', type: 'string', required: false },
   ],
   resolve: resolveIncidents,
 });
@@ -166,6 +166,10 @@ export const incidents = defineDataSource({
 | `columns` | `DataSourceColumnDescriptor[]` | Optional. The fields each row carries: `key`, `type` (`string`, `number`, `boolean`, `date`), optional `description`, and `sensitive` (default `false`). The validator checks table `columns[].key` and chart `xAxis` / `yAxis` against these keys. |
 | `params` | `DataSourceParamDescriptor[]` | Optional. The arguments the model may pass: `name`, `type` (`string`, `number`, `boolean`), `required` (default `false`), and `allowed` (a closed list of accepted values). |
 | `resolve` | `unknown[] \| DataSourceResolver` | The data. A resolver function, or a plain array for static data. Not sent to the model. |
+
+In TypeScript, `sensitive` and `required` are non-optional properties of the declared type, so spell them out (`false` when they do not apply); the JSON catalog used by the CLI fills in the defaults.
+
+In TypeScript, `sensitive` and `required` are non-optional properties of the declared type, so spell them out (`false` when they do not apply); the JSON catalog used by the CLI fills in the defaults.
 
 Everything except `resolve` is the **descriptor**: it is what the prompt, the validator, and the CLI see. Only the runtime ever calls `resolve`.
 

@@ -173,12 +173,12 @@ const incidents = defineDataSource({
   description: 'Operational incidents raised against internal services.',
   kind: 'rows',
   columns: [
-    { key: 'title', type: 'string' },
-    { key: 'severity', type: 'string' },
+    { key: 'title', type: 'string', sensitive: false },
+    { key: 'severity', type: 'string', sensitive: false },
   ],
   params: [
     { name: 'status', type: 'string', required: true, allowed: ['open', 'resolved'] },
-    { name: 'service', type: 'string' },
+    { name: 'service', type: 'string', required: false },
   ],
   resolve: resolveIncidents,
 });
