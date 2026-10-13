@@ -2,9 +2,9 @@
   "manifest_version": "0.2",
   "name": "@mobile-reality/mdma-mcp",
   "display_name": "MDMA",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "MCP server for MDMA — exposes spec, prompts, docs, and package metadata to AI assistants.",
-  "long_description": "Provides AI assistants with structured access to MDMA (Markdown Document with Mounted Applications) — an open-source library for building interactive Markdown documents with forms, approval gates, tables, and other mounted components. Use this server when developing chat apps, agents, or tools that generate MDMA documents: it exposes the format spec, authoring prompts, package metadata, and always-fresh docs fetched straight from the GitHub repository. Tools included: get-spec, get-prompt, build-system-prompt, validate-prompt, list-packages, list-docs, get-doc. Built and maintained by Mobile Reality — https://github.com/MobileReality/mdma",
+  "long_description": "Provides AI assistants with structured access to MDMA (Markdown Document with Mounted Applications) — an open-source library for building interactive Markdown documents with forms, approval gates, tables, and other mounted components. Use this server when developing chat apps, agents, or tools that generate MDMA documents: it exposes the format spec, authoring prompts, package metadata, and always-fresh docs fetched straight from the GitHub repository. Tools included: get-spec, get-prompt, list-prompt-variants, build-system-prompt, validate-prompt, list-packages, list-docs, get-doc. Built and maintained by Mobile Reality — https://github.com/MobileReality/mdma",
   "author": {
     "name": "Mobile Reality",
     "email": "marcin.sadowski@mobilereality.pl",
@@ -36,7 +36,11 @@
     },
     {
       "name": "get-prompt",
-      "description": "Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer)."
+      "description": "Returns a named MDMA prompt (mdma-author, mdma-reviewer, or mdma-fixer). For mdma-author, accepts an optional variantId for a model-optimised variant."
+    },
+    {
+      "name": "list-prompt-variants",
+      "description": "Returns all available MDMA_AUTHOR prompt variants with their id, label, and description."
     },
     {
       "name": "build-system-prompt",
