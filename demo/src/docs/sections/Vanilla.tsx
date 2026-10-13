@@ -118,6 +118,37 @@ doc.destroy();               // unsubscribe from the store and detach`}</Code>
   },
 });`}</Code>
       <p>
+        The <code>dataSources</code> above are fixed option lists a select field can reference by
+        name. For data that comes from your own system, register{' '}
+        <code>{'{ source, params }'}</code> sources on the store instead (
+        <code>createDocumentStore(ast, {'{ dataSources }'})</code>): tables, charts, and selects
+        that reference them show loading, error (with Retry), and empty states, and send paging,
+        sorting, and the filter to the resolver. Replace a state view with the{' '}
+        <code>dataLoading</code>, <code>dataError</code>, or <code>dataEmpty</code> element
+        override, each a function that returns <code>{'{ el, update }'}</code>:
+      </p>
+      <Code lang="ts">{`mountMdmaDocument(container, {
+  ast,
+  store,
+  customizations: {
+    components: {
+      table: {
+        elements: {
+          dataError: ({ error, onRetry }) => {
+            const root = document.createElement('p');
+            root.textContent = error + ' ';
+            const retry = document.createElement('button');
+            retry.textContent = 'Try again';
+            retry.addEventListener('click', onRetry);
+            root.append(retry);
+            return { el: root, update() {} };
+          },
+        },
+      },
+    },
+  },
+});`}</Code>
+      <p>
         A renderer is a function that returns an instance — an element plus an{' '}
         <code>update(props)</code> that is re-fed on every store or AST change, and an optional{' '}
         <code>destroy()</code>. For example, swap the built-in chart (which draws a plain table so

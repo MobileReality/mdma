@@ -69,6 +69,47 @@ function App({ ast, store }) {
   );
 }`}</Code>
 
+      <h2>External data</h2>
+      <p>
+        Tables, charts, and form selects whose data is a <code>{'{ source, params }'}</code>{' '}
+        reference fetch their rows through the sources registered on the store with{' '}
+        <code>createDocumentStore(ast, {'{ dataSources }'})</code>. The renderer draws loading,
+        error (with a Retry button), and empty states itself, and sends paging, sorting, and the
+        filter box to the source's resolver. Replace the state views with the{' '}
+        <code>dataLoading</code>, <code>dataError</code>, and <code>dataEmpty</code> element
+        overrides under <code>table</code>, <code>chart</code>, or <code>form</code> (or{' '}
+        <code>'*'</code> for all):
+      </p>
+      <Code lang="tsx">{`import {
+  MdmaDocument,
+  type DataEmptyElementProps,
+  type DataErrorElementProps,
+  type DataLoadingElementProps,
+} from '@mobile-reality/mdma-renderer-react';
+
+const Loading = ({ reloading }: DataLoadingElementProps) => (
+  <p>{reloading ? 'Refreshing…' : 'Loading…'}</p>
+);
+const Failed = ({ error, onRetry }: DataErrorElementProps) => (
+  <p role="alert">
+    {error} <button type="button" onClick={onRetry}>Try again</button>
+  </p>
+);
+const Empty = ({ label }: DataEmptyElementProps) => <p>{label ?? 'Nothing to show.'}</p>;
+
+<MdmaDocument
+  ast={ast}
+  store={store}
+  customizations={{
+    components: {
+      table: { elements: { dataLoading: Loading, dataError: Failed, dataEmpty: Empty } },
+    },
+  }}
+/>;`}</Code>
+      <p>
+        See <strong>Usage</strong> for declaring sources and writing resolvers.
+      </p>
+
       <p>
         For a desktop host, <code>examples/renderers/mdma-electron</code> renders streamed replies
         with this package unchanged in Electron&apos;s renderer process, while the API key, policy

@@ -101,6 +101,20 @@ const MyChartRenderer = defineComponent({
 
 // <MdmaDocument :ast :store :customizations="{ components: { chart: MyChartRenderer } }" />`}</Code>
 
+      <h2>External data</h2>
+      <p>
+        Tables, charts, and form selects whose data is a <code>{'{ source, params }'}</code>{' '}
+        reference read their rows from the sources registered on the store (
+        <code>createDocumentStore(ast, {'{ dataSources }'})</code>). The renderer shows loading,
+        error (with Retry), and empty states, and sends paging, sorting, and the filter box to the
+        resolver. Swap the views with the <code>dataLoading</code>, <code>dataError</code>, and{' '}
+        <code>dataEmpty</code> entries of <code>components.&lt;type&gt;.elements</code>; they
+        receive the same props as the React ones (<code>componentId</code>, <code>reloading</code>,{' '}
+        <code>error</code>, <code>onRetry</code>, <code>label</code>). The{' '}
+        <code>useDataState(key)</code> composable exposes a slot's state for custom controls. See{' '}
+        <strong>Usage</strong> for declaring sources.
+      </p>
+
       <p>
         A runnable example — an OpenRouter-backed agent chat that renders streamed MDMA replies —
         lives in the repo at <code>examples/renderers/mdma-vue</code>.
