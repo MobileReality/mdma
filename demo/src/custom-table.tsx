@@ -275,7 +275,9 @@ function SourceBackedTable({ component }: { component: TableComponent }) {
         />
       }
     >
-      {isReloading && <DataLoading componentId={component.id} reloading />}
+      <div className="custom-table-status">
+        {isReloading && <DataLoading componentId={component.id} reloading />}
+      </div>
       <CustomTableGrid
         component={component}
         rows={dataState.rows}

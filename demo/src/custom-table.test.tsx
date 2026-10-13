@@ -33,6 +33,11 @@ data:
 \`\`\`
 `;
 
+const FILTERABLE_INCIDENTS_DOCUMENT = INCIDENTS_DOCUMENT.replace(
+  'pageSize: 10',
+  'pageSize: 10\nfilterable: true',
+);
+
 const INLINE_DOCUMENT = `\`\`\`mdma
 id: team
 type: table
@@ -162,6 +167,28 @@ describe('custom table with a source-backed ref', () => {
 
     expect(cellTexts(view, 0)).toEqual(openIncidents({ page: 2 }).rows.map((row) => row.id));
     expect(view.querySelector('.custom-table-pagination-status')?.textContent).toContain('Page 2');
+  });
+
+  it('keeps the reload indicator out of the filter and leaves the filter usable', async () => {
+    const view = await renderDocument(FILTERABLE_INCIDENTS_DOCUMENT);
+    await settle();
+
+    const filterBox = view.querySelector('.custom-table-filter');
+    const input = view.querySelector<HTMLInputElement>('.custom-table-filter input');
+    input?.focus();
+    const next = Array.from(
+      view.querySelectorAll<HTMLButtonElement>('.custom-table-pagination button'),
+    ).find((button) => button.textContent === 'Next');
+    await act(async () => next?.click());
+
+    const indicator = view.querySelector('.mdma-table-loading-indicator');
+    expect(indicator).not.toBeNull();
+    expect(filterBox?.contains(indicator)).toBe(false);
+    expect(indicator?.parentElement?.className).toBe('custom-table-status');
+    expect(view.querySelector('.custom-table-scroll')?.contains(indicator)).toBe(false);
+    expect(view.querySelector('.custom-table-filter input')).toBe(input);
+    expect(input?.disabled).toBe(false);
+    expect(document.activeElement).toBe(input);
   });
 
   it('sorts through the resolver when a sortable header is clicked', async () => {
