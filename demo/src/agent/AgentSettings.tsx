@@ -243,19 +243,22 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
                 </select>
               )}
             </div>
-            <label className="ai-setting ai-setting--toggle">
-              <span>External data sources</span>
-              <input
-                type="checkbox"
-                checked={config.externalDataSources ?? false}
-                onChange={(e) => onUpdate({ externalDataSources: e.target.checked })}
-              />
-            </label>
+            <div className="ai-setting-toggle-group">
+              <label className="ai-setting ai-setting--toggle">
+                <span>External data sources</span>
+                <input
+                  type="checkbox"
+                  aria-describedby="external-data-sources-note"
+                  checked={config.externalDataSources ?? false}
+                  onChange={(e) => onUpdate({ externalDataSources: e.target.checked })}
+                />
+              </label>
+              <p id="external-data-sources-note" className="agent-settings-note">
+                Lets the agent reference prepared sources instead of inventing data: an incidents
+                table, countries select options and a sales-by-month chart.
+              </p>
+            </div>
           </div>
-          <p className="agent-settings-note">
-            Lets the agent reference prepared sources instead of inventing data: an incidents table,
-            countries select options and a sales-by-month chart.
-          </p>
           {provider === 'own-model' && (
             <p className="agent-settings-note">
               The entire agent runs on your self-hosted <strong>MDMA model</strong> endpoint
