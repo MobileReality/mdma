@@ -3247,7 +3247,7 @@ body {
 }
 
 .custom-table-filter {
-  padding: 0 18px 12px;
+  padding: 12px 18px;
 }
 
 .custom-table-filter input {
@@ -3338,10 +3338,15 @@ body {
   animation: custom-table-spin 0.8s linear infinite;
 }
 
+.custom-table-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 26px;
+  padding: 0 18px 4px;
+}
+
 .custom-table .mdma-table-loading-indicator {
-  position: absolute;
-  top: 10px;
-  right: 14px;
   display: inline-flex;
   align-items: center;
   gap: 8px;

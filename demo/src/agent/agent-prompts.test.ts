@@ -9,6 +9,7 @@ describe('external data sources toggle', () => {
     const prompt = buildAuthorSubAgentPrompt({ externalDataSources: true });
     expect(prompt).toContain(CATALOG_HEADING);
     expect(prompt).toContain('sales-by-month');
+    expect(prompt).toContain('sales-records');
   });
 
   it('adds the catalog to the inline agent prompt when on', () => {
@@ -28,6 +29,6 @@ describe('external data sources toggle', () => {
   it('gives document stores the resolvers only when on', () => {
     expect(dataSourcesFor({})).toBeUndefined();
     expect(storeOptionsFor({ externalDataSources: false })).toBeUndefined();
-    expect(storeOptionsFor({ externalDataSources: true })?.dataSources).toHaveLength(3);
+    expect(storeOptionsFor({ externalDataSources: true })?.dataSources).toHaveLength(4);
   });
 });

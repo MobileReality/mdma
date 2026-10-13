@@ -8,6 +8,7 @@ import { storeOptionsFor } from './agent/data-source-options.js';
 import { parseMarkdown } from './chat/parse-markdown.js';
 import { customizations } from './custom-components.js';
 import { INCIDENTS_LATENCY_MS, queryIncidents } from './data-sources/resolvers.js';
+import { salesForYear } from './data-sources/sales-data.js';
 
 // biome-ignore lint/suspicious/noExplicitAny: react's act() global switch has no typed home
 (globalThis as any).IS_REACT_ACT_ENVIRONMENT = true;
@@ -32,6 +33,11 @@ data:
     status: open
 \`\`\`
 `;
+
+const FILTERABLE_INCIDENTS_DOCUMENT = INCIDENTS_DOCUMENT.replace(
+  'pageSize: 10',
+  'pageSize: 10\nfilterable: true',
+);
 
 const INLINE_DOCUMENT = `\`\`\`mdma
 id: team
@@ -70,6 +76,22 @@ data:
   source: sales-by-month
   params:
     year: 2025
+\`\`\`
+`;
+
+const SALES_RECORDS_DOCUMENT = `\`\`\`mdma
+id: sales-table
+type: table
+label: Sales 2024
+columns:
+  - key: month
+    header: Month
+  - key: revenue
+    header: Revenue
+data:
+  source: sales-records
+  params:
+    year: 2024
 \`\`\`
 `;
 
@@ -164,6 +186,28 @@ describe('custom table with a source-backed ref', () => {
     expect(view.querySelector('.custom-table-pagination-status')?.textContent).toContain('Page 2');
   });
 
+  it('keeps the reload indicator out of the filter and leaves the filter usable', async () => {
+    const view = await renderDocument(FILTERABLE_INCIDENTS_DOCUMENT);
+    await settle();
+
+    const filterBox = view.querySelector('.custom-table-filter');
+    const input = view.querySelector<HTMLInputElement>('.custom-table-filter input');
+    input?.focus();
+    const next = Array.from(
+      view.querySelectorAll<HTMLButtonElement>('.custom-table-pagination button'),
+    ).find((button) => button.textContent === 'Next');
+    await act(async () => next?.click());
+
+    const indicator = view.querySelector('.mdma-table-loading-indicator');
+    expect(indicator).not.toBeNull();
+    expect(filterBox?.contains(indicator)).toBe(false);
+    expect(indicator?.parentElement?.className).toBe('custom-table-status');
+    expect(view.querySelector('.custom-table-scroll')?.contains(indicator)).toBe(false);
+    expect(view.querySelector('.custom-table-filter input')).toBe(input);
+    expect(input?.disabled).toBe(false);
+    expect(document.activeElement).toBe(input);
+  });
+
   it('sorts through the resolver when a sortable header is clicked', async () => {
     const view = await renderDocument(INCIDENTS_DOCUMENT);
     await settle();
@@ -207,6 +251,33 @@ describe('custom table with a source-backed ref', () => {
     await settle();
 
     expect(cellTexts(view, 1)).toEqual(['{{incidents.id}}']);
+  });
+
+  it('shows the months from the sales-records source', async () => {
+    const view = await renderDocument(SALES_RECORDS_DOCUMENT);
+    await settle();
+
+    expect(cellTexts(view, 0)).toEqual(salesForYear(2024).map((row) => row.month));
+    expect(view.textContent).not.toContain('No data available');
+  });
+
+  it('filters the sales-records rows through the resolver', async () => {
+    const view = await renderDocument(
+      SALES_RECORDS_DOCUMENT.replace('columns:', 'filterable: true\ncolumns:'),
+    );
+    await settle();
+
+    const input = view.querySelector<HTMLInputElement>('.custom-table-filter input');
+    await act(async () => {
+      if (!input) return;
+      Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')?.set?.call(input, 'jan');
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1000);
+    });
+
+    expect(cellTexts(view, 0)).toEqual(['Jan']);
   });
 
   it('shows the empty view when the resolver returns no rows', async () => {
