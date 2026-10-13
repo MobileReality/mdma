@@ -7,6 +7,7 @@ import {
   resolveCountries,
   resolveIncidents,
   resolveSalesByMonth,
+  resolveSalesRecords,
 } from './resolvers.js';
 import type { Incident } from './seeded-incidents.js';
 
@@ -48,11 +49,12 @@ const dataSourceIssues = (markdown: string) =>
     .map((issue) => issue.message);
 
 describe('demo data source catalog', () => {
-  it('passes indexDataSources with the three prepared sources', () => {
+  it('passes indexDataSources with the four prepared sources', () => {
     expect(Object.keys(indexDataSources(DEMO_DATA_SOURCES))).toEqual([
       'incidents',
       'countries',
       'sales-by-month',
+      'sales-records',
     ]);
   });
 
@@ -145,7 +147,41 @@ describe('sales-by-month resolver', () => {
   });
 });
 
+describe('sales-records resolver', () => {
+  it('returns the same rows as the series twin', async () => {
+    const params = { year: 2024 };
+    const records = await resolveSalesRecords({ source: 'sales-records', params }, ctx());
+    const series = await resolveSalesByMonth({ source: 'sales-by-month', params }, ctx());
+    expect(records.rows).toHaveLength(12);
+    expect(records.rows).toEqual(series.rows);
+  });
+});
+
+const salesTable = (source: string) => `\`\`\`mdma
+id: sales-table
+type: table
+label: Sales
+columns:
+  - key: month
+    header: Month
+  - key: revenue
+    header: Revenue
+data:
+  source: ${source}
+  params:
+    year: 2024
+\`\`\`
+`;
+
 describe('documents referencing the catalog', () => {
+  it('validates a table bound to sales-records without data-source issues', () => {
+    expect(dataSourceIssues(salesTable('sales-records'))).toEqual([]);
+  });
+
+  it('still flags a table bound to the series source', () => {
+    expect(dataSourceIssues(salesTable('sales-by-month'))).not.toEqual([]);
+  });
+
   it('validates an incidents table ref without data-source issues', () => {
     expect(dataSourceIssues(incidentsDocument('    status: open'))).toEqual([]);
   });

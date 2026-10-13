@@ -84,3 +84,5 @@ export const resolveSalesByMonth: DataResolver = async ({ params }) => {
   const rows = salesForYear(Number.isFinite(year) ? year : DEFAULT_SALES_YEAR);
   return { rows, total: rows.length };
 };
+
+export const resolveSalesRecords: DataResolver = resolveSalesByMonth;
