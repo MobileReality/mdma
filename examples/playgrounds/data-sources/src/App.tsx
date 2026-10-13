@@ -6,10 +6,10 @@ import { useEffect, useState } from 'react';
 import remarkGfm from 'remark-gfm';
 import remarkParse from 'remark-parse';
 import { unified } from 'unified';
+import { SourceChartRenderer } from './SourceChart.js';
 import { clearCallLog, useCallLog } from './call-log.js';
 import { createMockSources } from './mock-sources.js';
 import { SCENARIOS, type Scenario } from './scenarios.js';
-import { SourceChartRenderer } from './SourceChart.js';
 
 const customizations = { components: { chart: SourceChartRenderer } };
 
@@ -41,6 +41,31 @@ function useHashScenario(): Scenario {
   return scenario;
 }
 
+type ViewMode = 'rendered' | 'raw';
+
+function ViewSwitch({ mode, onChange }: { mode: ViewMode; onChange: (mode: ViewMode) => void }) {
+  return (
+    <fieldset className="pg-switch" aria-label="View">
+      <button
+        type="button"
+        aria-pressed={mode === 'rendered'}
+        data-view="rendered"
+        onClick={() => onChange('rendered')}
+      >
+        Rendered
+      </button>
+      <button
+        type="button"
+        aria-pressed={mode === 'raw'}
+        data-view="raw"
+        onClick={() => onChange('raw')}
+      >
+        Raw MD (MDMA)
+      </button>
+    </fieldset>
+  );
+}
+
 function CallLog() {
   const entries = useCallLog();
   return (
@@ -63,6 +88,7 @@ function CallLog() {
 export function App() {
   const scenario = useHashScenario();
   const [loaded, setLoaded] = useState<Loaded | null>(null);
+  const [mode, setMode] = useState<ViewMode>('rendered');
 
   useEffect(() => {
     let cancelled = false;
@@ -94,16 +120,25 @@ export function App() {
       </header>
       <p className="pg-hint">{scenario.hint}</p>
       <div className="pg-body">
-        <main className="pg-main" data-scenario-view={scenario.id}>
-          {loaded && (
-            <MdmaDocument
-              key={scenario.id}
-              ast={loaded.ast}
-              store={loaded.store}
-              customizations={customizations}
-            />
+        <div className="pg-column">
+          <ViewSwitch mode={mode} onChange={setMode} />
+          {mode === 'raw' ? (
+            <pre className="pg-raw" data-testid="raw-md">
+              {scenario.markdown}
+            </pre>
+          ) : (
+            <main className="pg-main" data-scenario-view={scenario.id}>
+              {loaded && (
+                <MdmaDocument
+                  key={scenario.id}
+                  ast={loaded.ast}
+                  store={loaded.store}
+                  customizations={customizations}
+                />
+              )}
+            </main>
           )}
-        </main>
+        </div>
         <CallLog />
       </div>
     </div>
