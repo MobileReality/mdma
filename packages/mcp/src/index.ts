@@ -12,7 +12,7 @@ import { validatePrompt } from './tools/validate-prompt.js';
 export function createMdmaMcpServer(): McpServer {
   const server = new McpServer({
     name: 'mdma-mcp',
-    version: '0.2.4',
+    version: '0.3.0',
   });
 
   server.tool(
