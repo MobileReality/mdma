@@ -9,11 +9,6 @@ import { dataSourcesFor } from './data-source-options.js';
 
 export type AgentPromptConfig = Pick<AnthropicConfig, 'systemPromptId' | 'externalDataSources'>;
 
-/**
- * Host-registered custom components advertised to the model. Mirrors the
- * `customVariants` registered in custom-components.tsx — the model may only
- * emit a `custom` block whose `name` appears here.
- */
 const CUSTOM_COMPONENTS = [GRAPH_3D_CATALOG_ENTRY];
 
 /**
