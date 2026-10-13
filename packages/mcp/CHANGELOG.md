@@ -1,5 +1,11 @@
 # @mobile-reality/mdma-mcp
 
+## 0.3.1
+
+### Patch Changes
+
+- db88a16: Declare `zod` as a runtime dependency so a clean install no longer resolves zod 4 and `tools/list` works again.
+
 ## 0.3.0
 
 ### Minor Changes
