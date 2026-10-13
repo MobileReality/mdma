@@ -255,7 +255,7 @@ export const AgentSettings = memo(function AgentSettings({ config, onUpdate }: A
               </label>
               <p id="external-data-sources-note" className="agent-settings-note">
                 Lets the agent reference prepared sources instead of inventing data: an incidents
-                table, countries select options and a sales-by-month chart.
+                table, countries select options and sales data as a chart or a table.
               </p>
             </div>
           </div>

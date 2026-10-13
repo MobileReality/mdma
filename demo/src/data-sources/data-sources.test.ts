@@ -7,6 +7,7 @@ import {
   resolveCountries,
   resolveIncidents,
   resolveSalesByMonth,
+  resolveSalesRecords,
 } from './resolvers.js';
 import type { Incident } from './seeded-incidents.js';
 
@@ -48,11 +49,12 @@ const dataSourceIssues = (markdown: string) =>
     .map((issue) => issue.message);
 
 describe('demo data source catalog', () => {
-  it('passes indexDataSources with the three prepared sources', () => {
+  it('passes indexDataSources with the four prepared sources', () => {
     expect(Object.keys(indexDataSources(DEMO_DATA_SOURCES))).toEqual([
       'incidents',
       'countries',
       'sales-by-month',
+      'sales-records',
     ]);
   });
 
@@ -145,7 +147,88 @@ describe('sales-by-month resolver', () => {
   });
 });
 
+describe('sales-records resolver', () => {
+  it('returns the same rows as the series twin', async () => {
+    const params = { year: 2024 };
+    const records = await resolveSalesRecords({ source: 'sales-records', params }, ctx());
+    const series = await resolveSalesByMonth({ source: 'sales-by-month', params }, ctx());
+    expect(records.rows).toHaveLength(12);
+    expect(records.rows).toEqual(series.rows);
+  });
+});
+
+describe('sales-records filter, sort and paging', () => {
+  const salesRequest = (overrides: Record<string, unknown> = {}) => ({
+    source: 'sales-records',
+    params: { year: 2025 },
+    ...overrides,
+  });
+
+  it('filters rows by a case-insensitive substring', async () => {
+    const result = await resolveSalesRecords(salesRequest({ filter: 'jan' }), ctx());
+    expect(result.rows).toEqual([{ month: 'Jan', revenue: 42, orders: 400 }]);
+    expect(result.total).toBe(1);
+  });
+
+  it('orders rows numerically by the requested key', async () => {
+    const result = await resolveSalesRecords(
+      salesRequest({ sort: { key: 'revenue', direction: 'desc' } }),
+      ctx(),
+    );
+    const revenues = (result.rows as { revenue: number }[]).map((row) => row.revenue);
+    expect(revenues).toEqual([...revenues].sort((a, b) => b - a));
+  });
+
+  it('pages only when a page size is given and keeps the full total', async () => {
+    const result = await resolveSalesRecords(salesRequest({ page: 3, pageSize: 5 }), ctx());
+    expect(result.rows).toHaveLength(2);
+    expect(result.total).toBe(12);
+  });
+
+  it('returns every row when no paging params are sent', async () => {
+    const result = await resolveSalesRecords(salesRequest(), ctx());
+    expect(result.rows).toHaveLength(12);
+    expect(result.total).toBe(12);
+  });
+});
+
+describe('countries filter', () => {
+  it('narrows options by a case-insensitive substring', async () => {
+    const all = await resolveCountries({ source: 'countries', params: {} }, ctx());
+    const filtered = await resolveCountries(
+      { source: 'countries', params: {}, filter: 'POLAND' },
+      ctx(),
+    );
+    expect(filtered.rows).toContainEqual({ label: 'Poland', value: expect.any(String) });
+    expect(filtered.total).toBeLessThan(all.total ?? 0);
+  });
+});
+
+const salesTable = (source: string) => `\`\`\`mdma
+id: sales-table
+type: table
+label: Sales
+columns:
+  - key: month
+    header: Month
+  - key: revenue
+    header: Revenue
+data:
+  source: ${source}
+  params:
+    year: 2024
+\`\`\`
+`;
+
 describe('documents referencing the catalog', () => {
+  it('validates a table bound to sales-records without data-source issues', () => {
+    expect(dataSourceIssues(salesTable('sales-records'))).toEqual([]);
+  });
+
+  it('still flags a table bound to the series source', () => {
+    expect(dataSourceIssues(salesTable('sales-by-month'))).not.toEqual([]);
+  });
+
   it('validates an incidents table ref without data-source issues', () => {
     expect(dataSourceIssues(incidentsDocument('    status: open'))).toEqual([]);
   });
