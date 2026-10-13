@@ -62,6 +62,7 @@ Use this checklist every time you publish a new version (`0.2.4 → 0.2.5`, etc.
 
 - [ ] Ensure `mcp-publisher` is authenticated: `mcp-publisher login github` (re-auth if tokens expired).
 - [ ] `mcp-publisher publish` from this directory.
+  - Alternative: run the "Publish to MCP Registry" workflow from the Actions tab on `main` after the npm publish. Interactive `mcp-publisher login github` fails when the organization restricts OAuth apps; the workflow uses GitHub OIDC instead.
 - [ ] Verify: `curl "https://registry.modelcontextprotocol.io/v0.1/servers?search=io.github.MobileReality/mdma"` shows the new version.
 
 > **Do not commit** `.mcpregistry_github_token` / `.mcpregistry_registry_token` — they are in [.gitignore](../../.gitignore). GitHub's push protection will block the push anyway; this is a belt-and-braces reminder.
