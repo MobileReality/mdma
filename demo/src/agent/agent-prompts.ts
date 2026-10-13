@@ -1,13 +1,18 @@
 import {
+  MDMA_IL_AGENT_SYSTEM_PROMPT,
   buildSystemPrompt,
   getAgentToolPromptVariant,
   getAuthorPromptVariant,
 } from '@mobile-reality/mdma-prompt-pack';
+import type { DataSourceDefinition } from '@mobile-reality/mdma-spec';
 import { GRAPH_3D_CATALOG_ENTRY } from '../custom-variants/Graph3DRenderer.js';
 import type { AnthropicConfig } from './anthropic-client.js';
 import { dataSourcesFor } from './data-source-options.js';
 
-export type AgentPromptConfig = Pick<AnthropicConfig, 'systemPromptId' | 'externalDataSources'>;
+export type AgentPromptConfig = Pick<
+  AnthropicConfig,
+  'systemPromptId' | 'externalDataSources' | 'provider'
+>;
 
 const CUSTOM_COMPONENTS = [GRAPH_3D_CATALOG_ENTRY];
 
@@ -62,6 +67,31 @@ Before you finish, check every \`custom\` block you wrote has its \`actions\` ma
 
 Describe only what the variant actually documents. Do NOT tell the user about capabilities the variant does not list — no zoom, hover tooltips, category filtering, point-size controls, or reset-view buttons. Claiming absent features makes the rendered component look broken.`;
 
+function buildDataSourceDelegationSection(sources: readonly DataSourceDefinition[]): string {
+  const catalog = sources
+    .map((source) => `- \`${source.name}\` (${source.kind}) — ${source.description}`)
+    .join('\n');
+  return `## Available data sources
+
+This app has prepared external data sources. The MDMA Author can bind a table, chart or select to one of them, so the data is fetched at render time instead of being written into the document.
+
+${catalog}
+
+Rules:
+- When the user asks for a table, chart or select options over this kind of data, call \`generate_mdma\` and name the source (and any parameters it needs) in the brief.
+- NEVER write MDMA blocks yourself and NEVER invent rows, series or options for data a source above covers.
+- If no source above fits what the user asks for, say that the data is not available. Do not make it up.`;
+}
+
+function buildAgentToolPrompt(config: AgentPromptConfig, flowPrompt?: string): string {
+  const toolPrompt = getAgentToolPromptVariant(config.systemPromptId).prompt;
+  const sources = dataSourcesFor(config);
+  const base = sources
+    ? `${toolPrompt}\n\n---\n\n${buildDataSourceDelegationSection(sources)}`
+    : toolPrompt;
+  return flowPrompt ? `${base}\n\n---\n\n${flowPrompt}` : base;
+}
+
 export function buildAuthorSubAgentPrompt(config: AgentPromptConfig): string {
   return buildSystemPrompt({
     authorPrompt: getAuthorPromptVariant(config.systemPromptId).prompt,
@@ -81,4 +111,19 @@ export function buildInlineAgentPrompt(config: AgentPromptConfig, flowPrompt?: s
     customComponents: CUSTOM_COMPONENTS,
     dataSources: dataSourcesFor(config),
   });
+}
+
+export function buildConversationPrompt(
+  config: AgentPromptConfig,
+  useAuthorSubAgent: boolean,
+  flowPrompt?: string,
+): string {
+  if (config.provider === 'own-model') {
+    return flowPrompt
+      ? `${MDMA_IL_AGENT_SYSTEM_PROMPT}\n\n---\n\n${flowPrompt}`
+      : MDMA_IL_AGENT_SYSTEM_PROMPT;
+  }
+  return useAuthorSubAgent
+    ? buildAgentToolPrompt(config, flowPrompt)
+    : buildInlineAgentPrompt(config, flowPrompt);
 }
