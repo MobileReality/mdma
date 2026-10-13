@@ -116,3 +116,43 @@ body {
   margin: 0;
   color: #5b6072;
 }
+
+.pg-column {
+  min-width: 0;
+}
+
+.pg-switch {
+  display: inline-flex;
+  margin-bottom: 12px;
+  padding: 3px;
+  background: #e4e6ee;
+  border-radius: 999px;
+}
+
+.pg-switch button {
+  padding: 6px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #1a1a2e;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.pg-switch button[aria-pressed="true"] {
+  background: #fff;
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+}
+
+.pg-raw {
+  margin: 0;
+  padding: 16px;
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #d5d8e2;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.5;
+}
