@@ -1,6 +1,6 @@
 {
   "name": "@mobile-reality/mdma-genui-format-benchmark",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "description": "Cross-format generative-UI reliability benchmark: MDMA vs OpenUI Lang vs json-render vs A2UI",

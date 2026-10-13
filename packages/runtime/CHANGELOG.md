@@ -1,5 +1,40 @@
 # @mobile-reality/mdma-runtime
 
+## 0.5.0
+
+### Minor Changes
+
+- 776cab5: Declare each external data source once and reuse it everywhere.
+
+  - `@mobile-reality/mdma-spec`: new `DataSourceDefinition` (a `DataSourceDescriptor` plus optional `resolve`: static rows or an async resolver), the `defineDataSource()` identity helper, and the resolver types `DataSourceResolver`, `DataSourceRequest`, `DataSourceResult`, `DataSourceSort`.
+  - `@mobile-reality/mdma-prompt-pack`: `buildSystemPrompt({ dataSources })` accepts `DataSourceDefinition[]` and ignores `resolve`.
+  - `@mobile-reality/mdma-runtime`: `createDocumentStore(ast, { dataSources })` accepts the existing name-keyed map or a `DataSourceDefinition[]`; a definition without `resolve` errors with "no resolver registered" when referenced.
+  - `@mobile-reality/mdma-validator`: `dataSourceCatalog` accepts the existing name-keyed record or a `DataSourceDefinition[]`.
+  - Duplicate names in an array throw at the API boundary. `@mobile-reality/mdma-cli`: the `toCatalog` export is removed; pass the descriptor array straight to the validator.
+
+- 85cfde8: Add host-registered external data sources: form select options, `table.data`, and `chart.data`
+  can reference `{ source, params }` instead of literal rows, so an MDMA document can show
+  large API-backed data without the LLM generating it.
+
+  - `@mobile-reality/mdma-spec`: `DataSourceRefSchema` (`{ source, params? }`) accepted alongside
+    the existing literal/binding forms; `DataSourceDescriptor` for a future source catalog.
+  - `@mobile-reality/mdma-runtime`: `createDocumentStore(ast, { dataSources })` resolves static
+    arrays or async resolvers, with per-slot `idle|loading|ready|error` state, pagination/sort/filter
+    (server-side when the resolver supports it, in-memory fallback otherwise), abort + debounce on
+    bound param changes, cache/dedupe, and `resolveAllData(store)` for server-side use.
+  - `@mobile-reality/mdma-validator`: new `data-source` rule (syntax always; catalog-aware via
+    `ValidatorOptions.dataSourceCatalog`); `select-options` now defers a string ref's validity to it.
+  - All four renderers (React, Vue, React Native, vanilla DOM): loading/error-with-retry/empty
+    states (overridable via each renderer's element-override system), table pagination/sort driven
+    by runtime state, and chart data from a source. `customizations.dataSources` keeps working
+    unchanged.
+
+### Patch Changes
+
+- Updated dependencies [776cab5]
+- Updated dependencies [85cfde8]
+  - @mobile-reality/mdma-spec@0.5.0
+
 ## 0.4.0
 
 ### Minor Changes
