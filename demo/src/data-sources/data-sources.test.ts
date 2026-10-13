@@ -157,6 +157,53 @@ describe('sales-records resolver', () => {
   });
 });
 
+describe('sales-records filter, sort and paging', () => {
+  const salesRequest = (overrides: Record<string, unknown> = {}) => ({
+    source: 'sales-records',
+    params: { year: 2025 },
+    ...overrides,
+  });
+
+  it('filters rows by a case-insensitive substring', async () => {
+    const result = await resolveSalesRecords(salesRequest({ filter: 'jan' }), ctx());
+    expect(result.rows).toEqual([{ month: 'Jan', revenue: 42, orders: 400 }]);
+    expect(result.total).toBe(1);
+  });
+
+  it('orders rows numerically by the requested key', async () => {
+    const result = await resolveSalesRecords(
+      salesRequest({ sort: { key: 'revenue', direction: 'desc' } }),
+      ctx(),
+    );
+    const revenues = (result.rows as { revenue: number }[]).map((row) => row.revenue);
+    expect(revenues).toEqual([...revenues].sort((a, b) => b - a));
+  });
+
+  it('pages only when a page size is given and keeps the full total', async () => {
+    const result = await resolveSalesRecords(salesRequest({ page: 3, pageSize: 5 }), ctx());
+    expect(result.rows).toHaveLength(2);
+    expect(result.total).toBe(12);
+  });
+
+  it('returns every row when no paging params are sent', async () => {
+    const result = await resolveSalesRecords(salesRequest(), ctx());
+    expect(result.rows).toHaveLength(12);
+    expect(result.total).toBe(12);
+  });
+});
+
+describe('countries filter', () => {
+  it('narrows options by a case-insensitive substring', async () => {
+    const all = await resolveCountries({ source: 'countries', params: {} }, ctx());
+    const filtered = await resolveCountries(
+      { source: 'countries', params: {}, filter: 'POLAND' },
+      ctx(),
+    );
+    expect(filtered.rows).toContainEqual({ label: 'Poland', value: expect.any(String) });
+    expect(filtered.total).toBeLessThan(all.total ?? 0);
+  });
+});
+
 const salesTable = (source: string) => `\`\`\`mdma
 id: sales-table
 type: table
