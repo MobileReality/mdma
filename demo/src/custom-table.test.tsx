@@ -195,6 +195,20 @@ describe('custom table with a source-backed ref', () => {
     expect(view.querySelector('.mdma-data-error button')?.textContent).toBe('Retry');
   });
 
+  it('keeps binding-looking resolver values literal', async () => {
+    const view = await renderDocument(INCIDENTS_DOCUMENT, {
+      dataSources: {
+        incidents: async () => ({
+          rows: [{ id: 'INC-1', title: '{{incidents.id}}', severity: 'low' }],
+          total: 1,
+        }),
+      },
+    });
+    await settle();
+
+    expect(cellTexts(view, 1)).toEqual(['{{incidents.id}}']);
+  });
+
   it('shows the empty view when the resolver returns no rows', async () => {
     const view = await renderDocument(INCIDENTS_DOCUMENT, {
       dataSources: { incidents: async () => ({ rows: [], total: 0 }) },

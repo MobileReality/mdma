@@ -86,7 +86,7 @@ function CustomTableGrid({
 }: {
   component: TableComponent;
   rows: unknown[];
-  resolveBinding: (expr: string) => unknown;
+  resolveBinding?: (expr: string) => unknown;
   revealScope?: unknown;
   sort?: SortState;
   onSort?: (key: string) => void;
@@ -128,7 +128,9 @@ function CustomTableGrid({
               {component.columns.map((col) => {
                 const raw = (row as Record<string, unknown>)[col.key] ?? '';
                 const resolved =
-                  typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw) ? resolveBinding(raw) : raw;
+                  resolveBinding && typeof raw === 'string' && /^\{\{.+\}\}$/.test(raw)
+                    ? resolveBinding(raw)
+                    : raw;
                 const cellValue = String(resolved ?? '');
                 return (
                   <td key={col.key}>
@@ -210,13 +212,7 @@ function CustomTablePagination({
   );
 }
 
-function SourceBackedTable({
-  component,
-  resolveBinding,
-}: {
-  component: TableComponent;
-  resolveBinding: (expr: string) => unknown;
-}) {
+function SourceBackedTable({ component }: { component: TableComponent }) {
   const store = useDocumentStore();
   const dataState = useDataState(component.id);
   const DataLoading = useElementOverride('table', 'dataLoading') ?? DefaultDataLoading;
@@ -283,7 +279,6 @@ function SourceBackedTable({
       <CustomTableGrid
         component={component}
         rows={dataState.rows}
-        resolveBinding={resolveBinding}
         revealScope={dataState.rows}
         sort={dataState.sort}
         onSort={(key) => store.setDataSort(component.id, nextSort(dataState.sort, key))}
@@ -298,8 +293,7 @@ export const CustomTableRenderer = memo(function CustomTableRenderer({
 }: MdmaBlockRendererProps) {
   if (component.type !== 'table') return null;
 
-  if (isDataSourceRef(component.data))
-    return <SourceBackedTable component={component} resolveBinding={resolveBinding} />;
+  if (isDataSourceRef(component.data)) return <SourceBackedTable component={component} />;
 
   const rawData =
     typeof component.data === 'string' ? resolveBinding(component.data) : component.data;
