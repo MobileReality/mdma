@@ -46,6 +46,7 @@ describe('public API', () => {
     for (const name of [
       'DefaultInput',
       'DefaultSelect',
+      'DefaultCombobox',
       'DefaultCheckbox',
       'DefaultTextarea',
       'DefaultFile',

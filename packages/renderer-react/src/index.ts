@@ -32,6 +32,7 @@ export {
   type ElementOverridesProviderProps,
   type FormInputElementProps,
   type FormSelectElementProps,
+  type FormComboboxElementProps,
   type FormCheckboxElementProps,
   type FormTextareaElementProps,
   type FormFileElementProps,

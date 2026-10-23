@@ -36,6 +36,12 @@ export const DATA_SOURCES = [
     ],
   },
   {
+    name: 'products',
+    description:
+      'Food products catalog with tens of thousands of items, searched by name. Usable as select options.',
+    kind: 'options',
+  },
+  {
     name: 'sales-by-month',
     description: 'Monthly sales totals for a calendar year, as a chart series.',
     kind: 'series',

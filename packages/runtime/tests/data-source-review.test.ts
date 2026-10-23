@@ -269,3 +269,122 @@ describe('dependent select', () => {
     expect(store.getComponentState('intake')?.values.city).toBe('WAW');
   });
 });
+
+describe('searchable select', () => {
+  const products = [
+    { label: 'Oat flakes', value: 'oat' },
+    { label: 'Skyr natural', value: 'skyr' },
+    { label: 'Chicken breast', value: 'chicken' },
+  ];
+
+  function productAst() {
+    return makeAst([
+      formComp('meal', [
+        {
+          name: 'product',
+          type: 'select',
+          label: 'Product',
+          searchable: true,
+          options: { source: 'products' },
+        },
+      ]),
+    ]);
+  }
+
+  const resolver = vi.fn(
+    async (req: DataRequest): Promise<DataResult> => ({
+      rows: products.filter((p) =>
+        p.label.toLowerCase().includes((req.filter ?? '').toLowerCase()),
+      ),
+    }),
+  );
+
+  it('sends the typed text to the resolver as filter', async () => {
+    resolver.mockClear();
+    const store = createDocumentStore(productAst(), { dataSources: { products: resolver } });
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.status).toBe('ready'));
+
+    store.setDataFilter('meal.product', 'sky');
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.rows).toEqual([products[1]]));
+    expect(resolver).toHaveBeenLastCalledWith(
+      expect.objectContaining({ source: 'products', filter: 'sky' }),
+      expect.anything(),
+    );
+  });
+
+  it('keeps the selected value when a new search no longer returns it', async () => {
+    const store = createDocumentStore(productAst(), { dataSources: { products: resolver } });
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.status).toBe('ready'));
+    store.dispatch({ type: 'FIELD_CHANGED', componentId: 'meal', field: 'product', value: 'oat' });
+
+    store.setDataFilter('meal.product', 'chicken');
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.rows).toEqual([products[2]]));
+    expect(store.getComponentState('meal')?.values.product).toBe('oat');
+  });
+
+  it('keeps a default value on the first load', async () => {
+    const ast = makeAst([
+      formComp('meal', [
+        {
+          name: 'product',
+          type: 'select',
+          label: 'Product',
+          searchable: true,
+          defaultValue: 'not-in-first-page',
+          options: { source: 'products' },
+        },
+      ]),
+    ]);
+    const store = createDocumentStore(ast, { dataSources: { products: resolver } });
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.status).toBe('ready'));
+    expect(store.getComponentState('meal')?.values.product).toBe('not-in-first-page');
+  });
+
+  it('clears the value when its params change and the new options lack it', async () => {
+    const citiesByCountry: Record<string, Array<{ label: string; value: string }>> = {
+      PL: [{ label: 'Warsaw', value: 'WAW' }],
+      DE: [{ label: 'Berlin', value: 'BER' }],
+    };
+    const ast = makeAst([
+      formComp('intake', [
+        { name: 'country', type: 'select', label: 'Country', defaultValue: 'PL' },
+        {
+          name: 'city',
+          type: 'select',
+          label: 'City',
+          searchable: true,
+          options: { source: 'cities', params: { country: '{{intake.country}}' } },
+        },
+      ]),
+    ]);
+    const cities = async (req: DataRequest): Promise<DataResult> => ({
+      rows: citiesByCountry[String(req.params.country)] ?? [],
+    });
+    const store = createDocumentStore(ast, { dataSources: { cities } });
+    await vi.waitFor(() => expect(store.getDataState('intake.city')?.status).toBe('ready'));
+    store.dispatch({ type: 'FIELD_CHANGED', componentId: 'intake', field: 'city', value: 'WAW' });
+
+    store.dispatch({ type: 'FIELD_CHANGED', componentId: 'intake', field: 'country', value: 'DE' });
+    await vi.waitFor(() =>
+      expect(store.getDataState('intake.city')?.rows).toEqual(citiesByCountry.DE),
+    );
+    expect(store.getComponentState('intake')?.values).not.toHaveProperty('city');
+  });
+
+  it('drops the search filter when the field stops being searchable', async () => {
+    const store = createDocumentStore(productAst(), { dataSources: { products: resolver } });
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.status).toBe('ready'));
+    store.setDataFilter('meal.product', 'sky');
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.rows).toEqual([products[1]]));
+
+    store.updateAst(
+      makeAst([
+        formComp('meal', [
+          { name: 'product', type: 'select', label: 'Product', options: { source: 'products' } },
+        ]),
+      ]),
+    );
+    expect(store.getDataState('meal.product')?.filter).toBeUndefined();
+    await vi.waitFor(() => expect(store.getDataState('meal.product')?.rows).toEqual(products));
+  });
+});

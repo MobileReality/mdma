@@ -21,6 +21,7 @@ Switch with the buttons or hash routes.
 | `#/table` | About 10k seeded incidents, server-side paging and sorting, and a service filter: `params: { service: "{{filters.service}}" }` bound to a select whose `options: services` come from the store's `dataSources` |
 | `#/error` | First call fails on purpose; the error state with Retry, then recovery |
 | `#/empty` | Resolver returns zero rows |
+| `#/searchable` | A `searchable: true` select over the 10k incidents: typed text reaches the `incident-search` resolver as `filter`, which returns the top 20 matches |
 | `#/chart` | A chart fed by a source (`sales`) instead of CSV |
 
 The right-hand panel logs every resolver call: `request`, `resolved`, `abort`, `error`. Resolvers wait 600 ms and honour `AbortSignal`, so changing the service mid-request shows an `abort`. Data is deterministic (seeded PRNG).

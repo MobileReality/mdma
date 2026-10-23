@@ -541,6 +541,70 @@
   accent-color: var(--mdma-color-primary);
 }
 
+.mdma-combobox {
+  position: relative;
+  display: block;
+}
+
+.mdma-combobox-popup {
+  position: absolute;
+  z-index: 10;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  padding: var(--mdma-spacing-xs) 0;
+  background: var(--mdma-color-background);
+  border: 1px solid var(--mdma-color-border);
+  border-radius: var(--mdma-radius-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.mdma-combobox-popup[hidden],
+.mdma-combobox-listbox[hidden],
+.mdma-combobox-status:empty {
+  display: none;
+}
+
+.mdma-combobox-listbox {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mdma-combobox-option,
+.mdma-combobox-status {
+  padding: 6px 12px;
+  font-size: 14px;
+  color: var(--mdma-color-text);
+}
+
+.mdma-combobox-option {
+  cursor: pointer;
+}
+
+.mdma-combobox-option:hover,
+.mdma-combobox-option--active {
+  background: var(--mdma-color-surface);
+}
+
+.mdma-combobox-option[aria-selected="true"] {
+  font-weight: 600;
+}
+
+.mdma-combobox-status {
+  color: var(--mdma-color-text-muted);
+}
+
+.mdma-combobox-status--error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mdma-spacing-sm);
+  color: var(--mdma-color-error);
+}
+
 .mdma-input-wrapper {
   display: flex;
   align-items: center;

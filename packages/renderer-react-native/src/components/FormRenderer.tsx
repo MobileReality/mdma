@@ -1,5 +1,5 @@
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
-import { memo } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { Pressable, Switch, Text, TextInput, View } from 'react-native';
 import { useMdmaContext } from '../context/MdmaProvider.js';
 import { useDataState, useDocumentStore } from '../hooks/use-document-store.js';
@@ -70,6 +70,248 @@ function DataDrivenOptions({
   );
 }
 
+type SelectOption = { label: string; value: string };
+
+function inlineOptions(
+  options: unknown,
+  dataSources: Record<string, SelectOption[]> | undefined,
+): SelectOption[] {
+  if (typeof options === 'string') return dataSources?.[options] ?? [];
+  return Array.isArray(options) ? options : [];
+}
+
+function matchesQuery(option: SelectOption, query: string): boolean {
+  return option.label.toLowerCase().includes(query.trim().toLowerCase());
+}
+
+/**
+ * A `searchable: true` select. Inline options are filtered here; a data-source
+ * slot gets the typed text as its `filter`, so the resolver does the search.
+ */
+function SearchableSelect({
+  dataKey,
+  staticOptions,
+  label,
+  value,
+  onChange,
+}: {
+  dataKey?: string;
+  staticOptions: SelectOption[];
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const store = useDocumentStore();
+  const dataState = useDataState(dataKey ?? '');
+  const [query, setQuery] = useState('');
+
+  // a filter left by an earlier mount would hide options behind an empty input
+  useEffect(() => {
+    if (dataKey && store.getDataState(dataKey)?.filter) store.setDataFilter(dataKey, undefined);
+  }, [dataKey, store]);
+
+  const handleQueryChange = (next: string) => {
+    setQuery(next);
+    if (dataKey) store.setDataFilter(dataKey, next.trim() || undefined);
+  };
+  const handleChange = (value: string) => {
+    onChange(value);
+    handleQueryChange('');
+  };
+
+  if (!dataKey) {
+    return (
+      <Combobox
+        label={label}
+        value={value}
+        onChange={handleChange}
+        query={query}
+        onQueryChange={handleQueryChange}
+        options={query ? staticOptions.filter((o) => matchesQuery(o, query)) : staticOptions}
+      />
+    );
+  }
+
+  return (
+    <Combobox
+      label={label}
+      value={value}
+      onChange={handleChange}
+      query={query}
+      onQueryChange={handleQueryChange}
+      options={(dataState?.rows ?? []) as SelectOption[]}
+      loading={!dataState || dataState.status === 'loading' || dataState.status === 'idle'}
+      error={
+        dataState?.status === 'error' ? (dataState.error ?? 'Failed to load options') : undefined
+      }
+      onRetry={() => store.retryData(dataKey)}
+    />
+  );
+}
+
+interface ComboboxProps {
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  query: string;
+  onQueryChange: (query: string) => void;
+  loading?: boolean;
+  error?: string;
+  onRetry?: () => void;
+}
+
+function Combobox({
+  value,
+  onChange,
+  label,
+  options,
+  query,
+  onQueryChange,
+  loading,
+  error,
+  onRetry,
+}: ComboboxProps) {
+  const { colors, spacing, fontSize, radius } = useMdmaTheme();
+  const inputRef = useRef<TextInput>(null);
+  const [open, setOpen] = useState(false);
+  const [focused, setFocused] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // the picked option may drop out of later search results; keep its label
+  const [picked, setPicked] = useState<SelectOption | null>(null);
+
+  const selectedLabel =
+    options.find((o) => o.value === value)?.label ??
+    (picked?.value === value ? picked.label : value);
+
+  const choose = (option: SelectOption) => {
+    setPicked(option);
+    setOpen(false);
+    setFocused(false);
+    onChange(option.value);
+    inputRef.current?.blur();
+  };
+
+  const cancelClose = () => {
+    if (closeTimer.current !== null) clearTimeout(closeTimer.current);
+  };
+  useEffect(
+    () => () => {
+      if (closeTimer.current !== null) clearTimeout(closeTimer.current);
+    },
+    [],
+  );
+
+  const statusStyle = {
+    color: colors.textMuted,
+    fontSize: fontSize.small,
+    padding: spacing.sm,
+  } as const;
+
+  return (
+    <View style={{ gap: spacing.xs }}>
+      <TextInput
+        ref={inputRef}
+        accessibilityRole="combobox"
+        accessibilityLabel={label}
+        accessibilityState={{ expanded: open, busy: loading }}
+        autoCapitalize="none"
+        autoCorrect={false}
+        placeholder="Search..."
+        placeholderTextColor={colors.textMuted}
+        value={focused ? query : selectedLabel}
+        onFocus={() => {
+          cancelClose();
+          setFocused(true);
+          setOpen(true);
+        }}
+        onBlur={() => {
+          setFocused(false);
+          // deferred for hosts whose keyboardShouldPersistTaps lets a press blur the input before it fires
+          closeTimer.current = setTimeout(() => setOpen(false), 150);
+        }}
+        onChangeText={(text) => {
+          setOpen(true);
+          onQueryChange(text);
+        }}
+        style={{
+          borderWidth: 1,
+          borderColor: focused ? colors.primary : colors.border,
+          borderRadius: radius.sm,
+          paddingHorizontal: spacing.sm,
+          paddingVertical: spacing.sm,
+          color: colors.text,
+          backgroundColor: colors.background,
+          fontSize: fontSize.body,
+        }}
+      />
+      {open ? (
+        <View
+          style={{
+            borderWidth: 1,
+            borderColor: colors.border,
+            borderRadius: radius.sm,
+            backgroundColor: colors.background,
+            overflow: 'hidden',
+          }}
+        >
+          {error ? (
+            <View style={{ padding: spacing.sm, gap: spacing.xs }}>
+              <Text
+                accessibilityRole="alert"
+                accessibilityLiveRegion="polite"
+                style={{ color: colors.text, fontSize: fontSize.small }}
+              >
+                {error}
+              </Text>
+              {onRetry ? (
+                <Pressable accessibilityRole="button" onPress={onRetry}>
+                  <Text style={{ color: colors.primary, fontSize: fontSize.small }}>Retry</Text>
+                </Pressable>
+              ) : null}
+            </View>
+          ) : loading && options.length === 0 ? (
+            <Text accessibilityLiveRegion="polite" style={statusStyle}>
+              Searching...
+            </Text>
+          ) : options.length === 0 ? (
+            <Text accessibilityLiveRegion="polite" style={statusStyle}>
+              No matches
+            </Text>
+          ) : (
+            options.map((opt) => {
+              const selected = opt.value === value;
+              return (
+                <Pressable
+                  key={opt.value}
+                  // biome-ignore lint/a11y/useSemanticElements: RN role prop, there is no <option> element
+                  role="option"
+                  accessibilityState={{ selected }}
+                  onPress={() => choose(opt)}
+                  style={{
+                    paddingHorizontal: spacing.sm,
+                    paddingVertical: spacing.sm,
+                    backgroundColor: selected ? colors.primary : colors.background,
+                  }}
+                >
+                  <Text
+                    style={{
+                      color: selected ? colors.onPrimary : colors.text,
+                      fontSize: fontSize.body,
+                    }}
+                  >
+                    {opt.label}
+                  </Text>
+                </Pressable>
+              );
+            })
+          )}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 /**
  * RN form renderer. Emits the same store actions as the web `FormRenderer`:
  * `FIELD_CHANGED` per field, `ACTION_TRIGGERED` on submit.
@@ -127,12 +369,7 @@ export const FormRenderer = memo(function FormRenderer({
         const isDataDriven = isDataDrivenOptions(field.options, dataKey, (key) =>
           store.getDataState(key),
         );
-        const options =
-          typeof field.options === 'string'
-            ? (dataSources?.[field.options] ?? [])
-            : Array.isArray(field.options)
-              ? field.options
-              : [];
+        const options = inlineOptions(field.options, dataSources);
 
         return (
           <View key={field.name} style={{ gap: spacing.xs }}>
@@ -146,6 +383,14 @@ export const FormRenderer = memo(function FormRenderer({
                 value={Boolean(componentState?.values[field.name])}
                 onValueChange={(checked) => handleChange(checked)}
                 accessibilityLabel={field.label}
+              />
+            ) : field.type === 'select' && field.searchable ? (
+              <SearchableSelect
+                dataKey={isDataDriven ? dataKey : undefined}
+                staticOptions={options}
+                label={field.label}
+                value={fieldValue}
+                onChange={handleChange}
               />
             ) : field.type === 'select' ? (
               isDataDriven ? (

@@ -145,6 +145,17 @@ function queryIncidents(req: DataRequest): DataResult {
   return { rows: rows.slice(start, start + pageSize), total };
 }
 
+function searchIncidents(req: DataRequest): DataResult {
+  const needle = (req.filter ?? '').toLowerCase();
+  const rows = INCIDENTS.map((row) => ({
+    label: `#${row.id} ${row.title} (${row.service})`,
+    value: String(row.id),
+  }))
+    .filter((option) => option.label.toLowerCase().includes(needle))
+    .slice(0, 20);
+  return { rows };
+}
+
 export function createMockSources() {
   let flakyAttempts = 0;
 
@@ -154,6 +165,7 @@ export function createMockSources() {
       ...SERVICES.map((service) => ({ label: service, value: service })),
     ],
     incidents: instrument('incidents', queryIncidents),
+    'incident-search': instrument('incident-search', searchIncidents),
     sales: instrument('sales', () => ({ rows: SALES, total: SALES.length })),
     empty: instrument('empty', () => ({ rows: [], total: 0 })),
     flaky: instrument('flaky', (req) => {

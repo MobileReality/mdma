@@ -100,6 +100,42 @@ onSubmit: apply-filters
 
 If the selected value is no longer among the options after they reload (for example the `region` param changed), the runtime clears the field.
 
+#### Searchable select
+
+For a catalog too large to load as one list (products, customers, cities), add `searchable: true`. The renderer shows a text input with a list of matches; what the user types is sent to the resolver as `request.filter`, debounced like any filter, so your resolver runs the search and returns the top matches:
+
+```mdma
+id: meal-entry
+type: form
+fields:
+  - name: product
+    type: select
+    label: Product
+    searchable: true
+    options:
+      source: products
+onSubmit: log-meal
+```
+
+```ts
+defineDataSource({
+  name: 'products',
+  kind: 'options',
+  description: 'Food products catalog, searched by name.',
+  resolve: async ({ filter }, { signal }) => {
+    const res = await fetch(`/api/products?q=${encodeURIComponent(filter ?? '')}&limit=20`, { signal });
+    const products: Array<{ id: string; name: string }> = await res.json();
+    return { rows: products.map((p) => ({ label: p.name, value: p.id })) };
+  },
+});
+```
+
+A searchable select's rows are search results, not the full option set, so the runtime does **not** clear the chosen value when a later search no longer returns it; the renderer keeps showing the chosen label. When the source's **params** change (for example a bound `country`), the value is checked against the new results and cleared if they no longer contain it, like a plain select.
+
+The label shown for the value comes from the options the user picked from. A value restored from `initialState`, or set as `defaultValue`, shows its label only once a result set contains it; until then the raw value is shown. A resolver only knows the current value if you pass it in, so to have its option in the first result set bind the value into a param (for example `params: { selected: "{{meal-entry.product}}" }`) and return that option when `filter` is empty.
+
+React, Vue and vanilla expose the input as the `combobox` form element override. In React Native, render the document inside a `ScrollView` with `keyboardShouldPersistTaps="handled"` so the first tap on a result picks it instead of only dismissing the keyboard.
+
 ### Params that follow other components
 
 A param value can be a [binding](../getting-started/concepts.md#bindings). When the bound value changes, the source is requested again:
@@ -238,7 +274,7 @@ interface DataSourceResult<TRow = unknown> {
 | `page` | 1-based page number. Starts at 1 and resets to 1 whenever params, sort, or filter change. |
 | `pageSize` | The table's `pageSize`, when set. |
 | `sort` | The column the user sorted by (tables with `sortable` columns). |
-| `filter` | The text typed in the table's filter box (tables with `filterable: true`). |
+| `filter` | The text typed in the table's filter box (tables with `filterable: true`), or in a searchable select. |
 
 Return `rows` for the requested page. Return `total` as the row count across **all** pages: the table uses it to compute the page count.
 

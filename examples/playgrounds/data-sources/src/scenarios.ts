@@ -90,6 +90,26 @@ data:
 `,
   },
   {
+    id: 'searchable',
+    title: 'Searchable select',
+    hint: 'Type to search 10,000 incidents: the text reaches the resolver as filter, top 20 come back.',
+    markdown: `# Link an incident
+
+\`\`\`mdma
+id: link-incident
+type: form
+fields:
+  - name: incident
+    type: select
+    label: Incident
+    searchable: true
+    options:
+      source: incident-search
+onSubmit: link
+\`\`\`
+`,
+  },
+  {
     id: 'chart',
     title: 'Chart',
     hint: 'A chart fed by a source instead of CSV.',

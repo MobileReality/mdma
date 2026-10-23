@@ -2,6 +2,7 @@ import type { ElementInstance, ElementRenderer } from '../../context/render-cont
 import { clear, el, isFocused, setInputValue } from '../../dom/el.js';
 import type {
   FormCheckboxElementProps,
+  FormComboboxElementProps,
   FormFileElementProps,
   FormInputElementProps,
   FormSelectElementProps,
@@ -114,6 +115,167 @@ export const DefaultSelect: ElementRenderer<FormSelectElementProps> = (initial) 
   return {
     el: select,
     update(next) {
+      props = next;
+      apply();
+    },
+  };
+};
+
+type SelectOption = FormSelectElementProps['options'][number];
+
+const resultsKey = (options: SelectOption[]) => options.map((option) => option.value).join('\n');
+
+/**
+ * The input persists across updates — only its attributes and the popup are
+ * redrawn — so a store notify mid-typing never steals focus or the caret.
+ */
+export const DefaultCombobox: ElementRenderer<FormComboboxElementProps> = (initial) => {
+  let props = initial;
+  let open = false;
+  let active = -1;
+  // the picked option may drop out of later search results; keep its label
+  let picked: SelectOption | null = null;
+  // what the option rows were last drawn from; unrelated form updates skip the redraw
+  let renderedKey: string | undefined;
+
+  const preventBlur = (event: Event) => event.preventDefault();
+
+  const input = el('input', {
+    type: 'text',
+    role: 'combobox',
+    autocomplete: 'off',
+    'aria-autocomplete': 'list',
+    placeholder: 'Search...',
+    on: {
+      focus: () => {
+        open = true;
+        apply();
+      },
+      blur: () => {
+        open = false;
+        active = -1;
+        apply();
+      },
+      input: () => {
+        open = true;
+        active = -1;
+        props.onQueryChange(input.value);
+        apply(false);
+      },
+      keydown: (event) => onKeyDown(event as KeyboardEvent),
+    },
+  });
+  const listbox = el('ul', { role: 'listbox', class: 'mdma-combobox-listbox' });
+  const statusEl = el('output', { class: 'mdma-combobox-status' });
+  const popup = el('div', { class: 'mdma-combobox-popup' }, [listbox, statusEl]);
+  const root = el('span', { class: 'mdma-combobox' }, [input, popup]);
+
+  function choose(option: SelectOption) {
+    picked = option;
+    open = false;
+    active = -1;
+    props.onChange(option.value);
+    apply();
+  }
+
+  function onKeyDown(event: KeyboardEvent) {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      open = true;
+      active = Math.min(active + 1, props.options.length - 1);
+      apply();
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      active = Math.max(active - 1, 0);
+      apply();
+    } else if (event.key === 'Enter' && open && props.error && props.onRetry) {
+      event.preventDefault();
+      props.onRetry();
+    } else if (event.key === 'Enter' && open && props.options[active]) {
+      event.preventDefault();
+      choose(props.options[active]);
+    } else if (event.key === 'Escape') {
+      open = false;
+      active = -1;
+      props.onQueryChange('');
+      apply();
+    }
+  }
+
+  function renderOptions() {
+    return props.options.map((option, index) =>
+      el(
+        'li',
+        {
+          id: `${props.id}-option-${index}`,
+          role: 'option',
+          'aria-selected': String(option.value === props.value),
+          class: `mdma-combobox-option${index === active ? ' mdma-combobox-option--active' : ''}`,
+          on: { mousedown: preventBlur, click: () => choose(option) },
+        },
+        [option.label],
+      ),
+    );
+  }
+
+  function statusText() {
+    if (props.error) return props.error;
+    if (props.options.length > 0) return '';
+    return props.loading ? 'Searching...' : 'No matches';
+  }
+
+  /** `syncValue` is off right after an input event: the typed text is already there. */
+  function apply(syncValue = true) {
+    const listboxId = `${props.id}-listbox`;
+    const status = statusText();
+    input.id = props.id;
+    input.setAttribute('aria-expanded', String(open && !status));
+    input.setAttribute('aria-controls', listboxId);
+    if (open && active >= 0)
+      input.setAttribute('aria-activedescendant', `${props.id}-option-${active}`);
+    else input.removeAttribute('aria-activedescendant');
+    if (props.loading) input.setAttribute('aria-busy', 'true');
+    else input.removeAttribute('aria-busy');
+    input.toggleAttribute('required', props.required === true && !props.value);
+
+    if (syncValue) {
+      const selectedLabel =
+        props.options.find((option) => option.value === props.value)?.label ??
+        (picked?.value === props.value ? picked.label : props.value);
+      const shown = open ? props.query : selectedLabel;
+      if (input.value !== shown) input.value = shown;
+    }
+
+    popup.hidden = !open;
+    listbox.id = listboxId;
+    listbox.hidden = Boolean(status);
+    const key = JSON.stringify([props.id, props.value, active, props.options]);
+    if (key !== renderedKey) {
+      listbox.replaceChildren(...renderOptions());
+      renderedKey = key;
+    }
+
+    statusEl.className = `mdma-combobox-status${props.error ? ' mdma-combobox-status--error' : ''}`;
+    statusEl.replaceChildren();
+    if (open) {
+      statusEl.append(status);
+      const onRetry = props.onRetry;
+      if (props.error && onRetry) {
+        statusEl.appendChild(
+          el('button', { type: 'button', on: { mousedown: preventBlur, click: () => onRetry() } }, [
+            'Retry',
+          ]),
+        );
+      }
+    }
+  }
+  apply();
+
+  return {
+    el: root,
+    update(next) {
+      // the highlight belongs to one result set; new results drop it
+      if (resultsKey(next.options) !== resultsKey(props.options)) active = -1;
       props = next;
       apply();
     },

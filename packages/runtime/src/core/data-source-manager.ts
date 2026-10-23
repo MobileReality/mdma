@@ -53,6 +53,7 @@ interface DataSlot {
   pageSize?: number;
   state: DataSlotState;
   resolvedParams: Record<string, unknown>;
+  lastReady?: { source: string; params: Record<string, unknown> };
   fetchToken: number;
   abortController?: AbortController;
   debounceTimer?: ReturnType<typeof setTimeout>;
@@ -67,7 +68,8 @@ export interface DataSourceManagerOptions {
     payload: Record<string, unknown>;
   }) => void;
   onChange?: () => void;
-  onResolved?: (key: string, rows: unknown[]) => void;
+  /** `paramsChanged`: these rows answer different params than the previous ready result. */
+  onResolved?: (key: string, rows: unknown[], meta: { paramsChanged: boolean }) => void;
 }
 
 function resolveParams(
@@ -398,7 +400,13 @@ export class DataSourceManager {
         rowCount: result.rows.length,
         total: result.total,
       });
-      this.onResolved?.(slot.key, result.rows);
+      const previous = slot.lastReady;
+      slot.lastReady = { source: request.source, params: request.params };
+      this.onResolved?.(slot.key, result.rows, {
+        paramsChanged:
+          previous !== undefined &&
+          (previous.source !== request.source || !paramsEqual(previous.params, request.params)),
+      });
       this.onChange?.();
     } catch (err) {
       if (controller.signal.aborted) return;
