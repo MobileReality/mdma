@@ -205,6 +205,63 @@ async function emptyScenario(page) {
   });
 }
 
+async function searchableScenario(page) {
+  console.log('searchable');
+  await open(page, 'searchable');
+  const input = page.getByRole('combobox');
+
+  await step('typed text reaches the resolver as filter', async () => {
+    await input.waitFor({ timeout: T });
+    await input.fill('queue backlog');
+    // focusing shows the unfiltered first page; wait for the filtered result to land
+    await page.waitForFunction(
+      () => {
+        const items = [...document.querySelectorAll('[data-testid="call-log"] li')];
+        const asked = items.findIndex((li) => li.textContent?.includes('queue backlog'));
+        return (
+          asked >= 0 &&
+          items
+            .slice(asked + 1)
+            .some(
+              (li) =>
+                li.getAttribute('data-kind') === 'resolved' &&
+                li.getAttribute('data-source') === 'incident-search',
+            )
+        );
+      },
+      undefined,
+      { timeout: T },
+    );
+    await page.waitForFunction(
+      () => !document.querySelector('[role="combobox"][aria-busy]'),
+      undefined,
+      {
+        timeout: T,
+      },
+    );
+    const labels = await page.getByRole('option').allTextContents();
+    assert(labels.length > 0 && labels.length <= 20, `expected 1-20 matches, got ${labels.length}`);
+    assert(
+      labels.every((label) => label.toLowerCase().includes('queue backlog')),
+      'a match does not contain the query',
+    );
+    const log = await logEntries(page);
+    assert(
+      log.some((e) => e.source === 'incident-search' && /queue backlog/.test(e.text)),
+      'incident-search never received the filter',
+    );
+    await shot(page, '10-searchable-results');
+  });
+
+  await step('picking an option shows its label', async () => {
+    const first = (await page.getByRole('option').first().textContent()) ?? '';
+    await page.getByRole('option').first().click();
+    await input.blur();
+    assert((await input.inputValue()) === first, 'input does not show the picked label');
+    await shot(page, '11-searchable-picked');
+  });
+}
+
 async function chartScenario(page) {
   console.log('chart');
   await open(page, 'chart');
@@ -241,6 +298,7 @@ async function main() {
     await tableScenario(page);
     await errorScenario(page);
     await emptyScenario(page);
+    await searchableScenario(page);
     await chartScenario(page);
 
     if (pageErrors.length > 0) failures.push(`page errors: ${pageErrors.join(' | ')}`);

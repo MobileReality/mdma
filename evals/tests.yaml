@@ -1152,8 +1152,9 @@
 
 # ===========================================================================
 # External data sources — the host catalog (from data-sources.mjs) is:
-# incidents (rows), countries (options), sales-by-month (series), sales-records
-# (rows twin of sales-by-month). Scenarios
+# incidents (rows), countries (options), products (options, large searched
+# catalog), sales-by-month (series), sales-records (rows twin of
+# sales-by-month). Scenarios
 # cover referencing a source with valid params instead of generating rows, and
 # NOT inventing a source when the catalog cannot serve the request.
 # ===========================================================================
@@ -1274,3 +1275,45 @@
       value: file://assertions/no-invented-source.mjs
       config:
         forbidCatalogSources: true
+
+# ---------------------------------------------------------------------------
+# Searchable select 1. Large catalog → searchable select over the source
+# ---------------------------------------------------------------------------
+- description: Product picker over a large catalog is a searchable select
+  vars:
+    dataSources: true
+    request: |
+      Create a meal logging form: the user picks a food product and enters
+      the amount in grams.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/data-source-ref.mjs
+      config:
+        component: form
+        source: products
+    - type: javascript
+      value: file://assertions/searchable-select.mjs
+      config:
+        expect: true
+
+# ---------------------------------------------------------------------------
+# Searchable select 2. Short fixed list → plain select, no searchable
+# ---------------------------------------------------------------------------
+- description: Short priority dropdown is not made searchable
+  vars:
+    request: |
+      Create a support ticket form with a subject, a description and a
+      priority dropdown with low, medium and high.
+  assert:
+    - type: javascript
+      value: file://assertions/only-components.mjs
+      config:
+        allowed: [form]
+    - type: javascript
+      value: file://assertions/searchable-select.mjs
+      config:
+        expect: false

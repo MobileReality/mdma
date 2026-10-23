@@ -11,6 +11,7 @@ import type {
 import { renderDataError, renderDataLoading } from './data-state-views.js';
 import {
   DefaultCheckbox,
+  DefaultCombobox,
   DefaultFile,
   DefaultInput,
   DefaultSelect,
@@ -18,6 +19,7 @@ import {
   DefaultSubmitButton,
   DefaultTextarea,
 } from './form/default-elements.js';
+import type { FormComboboxElementProps } from './form/element-props.js';
 
 type GetProps = () => MdmaBlockRendererProps;
 type Field = FormComponent['fields'][number];
@@ -90,13 +92,100 @@ function createDataDrivenSelect(
   };
 }
 
+type SelectOption = FormComboboxElementProps['options'][number];
+
+const matchesQuery = (option: SelectOption, query: string) =>
+  option.label.toLowerCase().includes(query.trim().toLowerCase());
+
+/**
+ * A `searchable: true` select. Inline options are filtered here; a data-source
+ * slot gets the typed text as its `filter`, so the resolver does the search.
+ * Unlike the plain data-driven select it never swaps in the loading view —
+ * the combobox stays mounted so the input keeps focus.
+ */
+function createSearchableSelect(
+  component: FormComponent,
+  field: Field,
+  getProps: GetProps,
+  dataKey: string | undefined,
+): ElementInstance<never> {
+  let query = '';
+
+  // a filter left on the slot by an earlier mount would hide options behind an
+  // empty input; deferred because the store notifies synchronously mid-mount
+  if (dataKey) {
+    queueMicrotask(() => {
+      if (!query && getProps().getDataState(dataKey)?.filter) {
+        getProps().setDataFilter(dataKey, undefined);
+      }
+    });
+  }
+
+  function setQuery(next: string) {
+    query = next;
+    if (dataKey) getProps().setDataFilter(dataKey, next.trim() || undefined);
+    combobox.update(comboboxProps());
+  }
+
+  function comboboxProps(): FormComboboxElementProps {
+    const props = getProps();
+    const values = props.componentState?.values ?? {};
+    const base = {
+      id: `${component.id}-${field.name}`,
+      name: field.name,
+      label: field.label,
+      type: 'select',
+      value: String(values[field.name] ?? ''),
+      required: field.required,
+      sensitive: field.sensitive,
+      query,
+      onQueryChange: setQuery,
+      onChange: (value: string) => {
+        getProps().dispatch({
+          type: 'FIELD_CHANGED',
+          componentId: component.id,
+          field: field.name,
+          value,
+        });
+        setQuery('');
+      },
+    };
+
+    if (!dataKey) {
+      const options = optionsFor(field, props);
+      return { ...base, options: query ? options.filter((o) => matchesQuery(o, query)) : options };
+    }
+
+    const state = props.getDataState(dataKey);
+    return {
+      ...base,
+      options: (state?.rows ?? []) as SelectOption[],
+      loading: !state || state.status === 'loading' || state.status === 'idle',
+      error: state?.status === 'error' ? (state.error ?? 'Failed to load options') : undefined,
+      onRetry: () => getProps().retryData(dataKey),
+    };
+  }
+
+  const create = (resolveElementOverride<never>(getProps().context, 'form', 'combobox') ??
+    DefaultCombobox) as (p: FormComboboxElementProps) => ElementInstance<FormComboboxElementProps>;
+  const combobox = create(comboboxProps());
+
+  return {
+    el: combobox.el,
+    update() {
+      combobox.update(comboboxProps());
+    },
+  };
+}
+
 /** Any change here alters the form's structure, so the fields are rebuilt rather than updated. */
 const shapeOf = (component: FormComponent) =>
   [
     component.label ?? '',
     component.onSubmit ?? '',
     ...component.fields.map(
-      (field) => `${field.name}:${field.type}:${field.label}:${field.required}:${field.sensitive}`,
+      (field) =>
+        `${field.name}:${field.type}:${field.label}:${field.required}:${field.sensitive}:${field.searchable}`,
     ),
   ].join('|');
 
@@ -107,11 +196,11 @@ interface Built {
   shape: string;
 }
 
-function optionsFor(field: Field, props: MdmaBlockRendererProps) {
+function optionsFor(field: Field, props: MdmaBlockRendererProps): SelectOption[] {
   if (typeof field.options === 'string') {
     return props.context.dataSources?.[field.options] ?? [];
   }
-  return field.options ?? [];
+  return Array.isArray(field.options) ? field.options : [];
 }
 
 function elementPropsFor(
@@ -191,15 +280,18 @@ function build(props: MdmaBlockRendererProps, component: FormComponent, getProps
   const fields = new Map<string, ElementInstance<never>>();
 
   const rows = component.fields.map((field) => {
-    const instance =
+    const dataKey = `${component.id}.${field.name}`;
+    const dataDriven =
       field.type === 'select' &&
-      isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
-        props.getDataState(key),
-      )
-        ? createDataDrivenSelect(component, field, getProps, `${component.id}.${field.name}`)
-        : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
-            elementPropsFor(field, component, props, getProps),
-          );
+      isDataDrivenOptions(field.options, dataKey, (key) => props.getDataState(key));
+    const instance =
+      field.type === 'select' && field.searchable
+        ? createSearchableSelect(component, field, getProps, dataDriven ? dataKey : undefined)
+        : dataDriven
+          ? createDataDrivenSelect(component, field, getProps, dataKey)
+          : (elementFor(field, props) as (p: unknown) => ElementInstance<never>)(
+              elementPropsFor(field, component, props, getProps),
+            );
     fields.set(field.name, instance);
 
     const indicator = field.sensitive

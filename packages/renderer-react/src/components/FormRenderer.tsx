@@ -1,7 +1,8 @@
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
-import { memo, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import {
   type FormCheckboxElementProps,
+  type FormComboboxElementProps,
   type FormFileElementProps,
   type FormInputElementProps,
   type FormSelectElementProps,
@@ -42,6 +43,81 @@ function DataDrivenSelect({
   }
   const options = dataState.rows as { label: string; value: string }[];
   return <Select {...rest} options={options} />;
+}
+
+type SelectOption = { label: string; value: string };
+
+function inlineOptions(
+  options: unknown,
+  dataSources: Record<string, SelectOption[]> | undefined,
+): SelectOption[] {
+  if (typeof options === 'string') return dataSources?.[options] ?? [];
+  return Array.isArray(options) ? options : [];
+}
+
+function matchesQuery(option: SelectOption, query: string): boolean {
+  return option.label.toLowerCase().includes(query.trim().toLowerCase());
+}
+
+/**
+ * A `searchable: true` select. Inline options are filtered here; a data-source
+ * slot gets the typed text as its `filter`, so the resolver does the search.
+ */
+function SearchableSelect({
+  Combobox,
+  dataKey,
+  staticOptions,
+  onChange,
+  ...rest
+}: {
+  Combobox: React.ComponentType<FormComboboxElementProps>;
+  dataKey?: string;
+  staticOptions: SelectOption[];
+} & Omit<FormSelectElementProps, 'options'>) {
+  const store = useDocumentStore();
+  const dataState = useDataState(dataKey ?? '');
+  const [query, setQuery] = useState('');
+
+  // a filter left on the slot by an earlier mount would hide options behind an empty input
+  useEffect(() => {
+    if (dataKey && store.getDataState(dataKey)?.filter) store.setDataFilter(dataKey, undefined);
+  }, [dataKey, store]);
+
+  const handleQueryChange = (next: string) => {
+    setQuery(next);
+    if (dataKey) store.setDataFilter(dataKey, next.trim() || undefined);
+  };
+  const handleChange = (value: string) => {
+    onChange(value);
+    handleQueryChange('');
+  };
+
+  if (!dataKey) {
+    return (
+      <Combobox
+        {...rest}
+        onChange={handleChange}
+        query={query}
+        onQueryChange={handleQueryChange}
+        options={query ? staticOptions.filter((o) => matchesQuery(o, query)) : staticOptions}
+      />
+    );
+  }
+
+  return (
+    <Combobox
+      {...rest}
+      onChange={handleChange}
+      query={query}
+      onQueryChange={handleQueryChange}
+      options={(dataState?.rows ?? []) as SelectOption[]}
+      loading={!dataState || dataState.status === 'loading' || dataState.status === 'idle'}
+      error={
+        dataState?.status === 'error' ? (dataState.error ?? 'Failed to load options') : undefined
+      }
+      onRetry={() => store.retryData(dataKey)}
+    />
+  );
 }
 
 // ─── Sensitive field indicator ──────────────────────────────────────────────
@@ -94,6 +170,128 @@ function DefaultSelect({ id, value, onChange, required, options }: FormSelectEle
         </option>
       ))}
     </select>
+  );
+}
+
+function DefaultCombobox({
+  id,
+  value,
+  onChange,
+  required,
+  options,
+  query,
+  onQueryChange,
+  loading,
+  error,
+  onRetry,
+}: FormComboboxElementProps) {
+  const [open, setOpen] = useState(false);
+  // the highlight belongs to one result set; new results drop it
+  const resultsKey = options.map((o) => o.value).join('\n');
+  const [highlight, setHighlight] = useState({ resultsKey, index: -1 });
+  const active = highlight.resultsKey === resultsKey ? highlight.index : -1;
+  const setActive = (index: number) => setHighlight({ resultsKey, index });
+  // the picked option may drop out of later search results; keep its label
+  const [picked, setPicked] = useState<SelectOption | null>(null);
+  const listboxId = `${id}-listbox`;
+
+  const selectedLabel =
+    options.find((o) => o.value === value)?.label ??
+    (picked?.value === value ? picked.label : value);
+
+  const status = error
+    ? error
+    : loading && options.length === 0
+      ? 'Searching...'
+      : options.length === 0
+        ? 'No matches'
+        : '';
+
+  const choose = (option: SelectOption) => {
+    setPicked(option);
+    setOpen(false);
+    setActive(-1);
+    onChange(option.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setOpen(true);
+      setActive(Math.min(active + 1, options.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActive(Math.max(active - 1, 0));
+    } else if (e.key === 'Enter' && open && error && onRetry) {
+      e.preventDefault();
+      onRetry();
+    } else if (e.key === 'Enter' && open && options[active]) {
+      e.preventDefault();
+      choose(options[active]);
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setActive(-1);
+      onQueryChange('');
+    }
+  };
+
+  return (
+    <span className="mdma-combobox">
+      <input
+        id={id}
+        type="text"
+        role="combobox"
+        autoComplete="off"
+        aria-autocomplete="list"
+        aria-expanded={open && !status}
+        aria-controls={listboxId}
+        aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined}
+        aria-busy={loading || undefined}
+        required={required && !value}
+        placeholder="Search..."
+        value={open ? query : selectedLabel}
+        onFocus={() => setOpen(true)}
+        onBlur={() => {
+          setOpen(false);
+          setActive(-1);
+        }}
+        onChange={(e) => {
+          setOpen(true);
+          setActive(-1);
+          onQueryChange(e.target.value);
+        }}
+        onKeyDown={handleKeyDown}
+      />
+      <div className="mdma-combobox-popup" hidden={!open}>
+        {/* ARIA combobox pattern: focus stays on the input, aria-activedescendant points into the list */}
+        {/* biome-ignore lint/a11y/useFocusableInteractive lint/a11y/noNoninteractiveElementToInteractiveRole lint/a11y/useSemanticElements: see above */}
+        <ul id={listboxId} role="listbox" className="mdma-combobox-listbox" hidden={!!status}>
+          {options.map((opt, index) => (
+            // biome-ignore lint/a11y/useFocusableInteractive: options are reached via aria-activedescendant
+            <li
+              key={opt.value}
+              id={`${id}-option-${index}`}
+              // biome-ignore lint/a11y/noNoninteractiveElementToInteractiveRole lint/a11y/useSemanticElements: ARIA combobox listbox option
+              role="option"
+              aria-selected={opt.value === value}
+              className={`mdma-combobox-option${index === active ? ' mdma-combobox-option--active' : ''}`}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => choose(opt)}
+            >
+              {opt.label}
+            </li>
+          ))}
+        </ul>
+        <output className={`mdma-combobox-status${error ? ' mdma-combobox-status--error' : ''}`}>
+          {open && status}
+          {open && error && onRetry && (
+            <button type="button" onMouseDown={(e) => e.preventDefault()} onClick={onRetry}>
+              Retry
+            </button>
+          )}
+        </output>
+      </div>
+    </span>
   );
 }
 
@@ -164,6 +362,8 @@ export const FormRenderer = memo(function FormRenderer({
   const { dataSources, store } = useMdmaContext();
   const Input = useElementOverride<FormInputElementProps>('form', 'input') ?? DefaultInput;
   const Select = useElementOverride<FormSelectElementProps>('form', 'select') ?? DefaultSelect;
+  const Combobox =
+    useElementOverride<FormComboboxElementProps>('form', 'combobox') ?? DefaultCombobox;
   const Checkbox =
     useElementOverride<FormCheckboxElementProps>('form', 'checkbox') ?? DefaultCheckbox;
   const Textarea =
@@ -209,7 +409,27 @@ export const FormRenderer = memo(function FormRenderer({
               {field.label}
               {field.sensitive && <SensitiveMark name={field.name} label={field.label} />}
             </label>
-            {field.type === 'select' ? (
+            {field.type === 'select' && field.searchable ? (
+              <SearchableSelect
+                Combobox={Combobox}
+                dataKey={
+                  isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
+                    store.getDataState(key),
+                  )
+                    ? `${component.id}.${field.name}`
+                    : undefined
+                }
+                staticOptions={inlineOptions(field.options, dataSources)}
+                id={fieldId}
+                name={field.name}
+                label={field.label}
+                type="select"
+                value={fieldValue}
+                onChange={handleChange}
+                required={field.required}
+                sensitive={field.sensitive}
+              />
+            ) : field.type === 'select' ? (
               isDataDrivenOptions(field.options, `${component.id}.${field.name}`, (key) =>
                 store.getDataState(key),
               ) ? (
@@ -235,13 +455,7 @@ export const FormRenderer = memo(function FormRenderer({
                   onChange={handleChange}
                   required={field.required}
                   sensitive={field.sensitive}
-                  options={
-                    typeof field.options === 'string'
-                      ? (dataSources?.[field.options] ?? [])
-                      : Array.isArray(field.options)
-                        ? field.options
-                        : []
-                  }
+                  options={inlineOptions(field.options, dataSources)}
                 />
               )
             ) : field.type === 'checkbox' ? (

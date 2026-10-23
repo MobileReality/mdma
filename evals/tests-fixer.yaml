@@ -670,3 +670,44 @@
         source: incidents
     - type: javascript
       value: file://assertions/no-invented-source.mjs
+
+# ---------------------------------------------------------------------------
+# searchable on a non-select field, next to a valid searchable select
+# ---------------------------------------------------------------------------
+- description: Removes searchable from a non-select field and keeps it on the select
+  vars:
+    dataSources: true
+    brokenDocument: |
+      ```mdma
+      type: form
+      id: meal-entry
+      fields:
+        - name: product
+          type: select
+          label: Product
+          required: true
+          searchable: true
+          options:
+            source: products
+        - name: grams
+          type: number
+          label: Amount (g)
+          required: true
+          searchable: true
+      onSubmit: log-meal
+      ```
+  assert:
+    - type: javascript
+      value: file://assertions/fixer-resolves-errors.mjs
+      config:
+        maxWarnings: 0
+    - type: javascript
+      value: file://assertions/fixer-keeps-data-source-ref.mjs
+      config:
+        component: form
+        source: products
+    - type: javascript
+      value: file://assertions/searchable-select.mjs
+      config:
+        field: product
+        expect: true

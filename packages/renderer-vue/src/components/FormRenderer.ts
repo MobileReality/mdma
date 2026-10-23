@@ -1,4 +1,4 @@
-import { defineComponent, h, ref, type PropType, type VNodeChild } from 'vue';
+import { computed, defineComponent, h, ref, watch, type PropType, type VNodeChild } from 'vue';
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { blockRendererProps } from '../renderers/renderer-props.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
@@ -6,6 +6,7 @@ import { useDataState, useDocumentStore } from '../composables/use-document-stor
 import {
   useElementOverride,
   type FormCheckboxElementProps,
+  type FormComboboxElementProps,
   type FormFileElementProps,
   type FormInputElementProps,
   type FormSelectElementProps,
@@ -14,6 +15,20 @@ import {
   type FormTextareaElementProps,
 } from '../context/ElementOverridesContext.js';
 import { DefaultDataLoading, DefaultDataError } from './DataStateViews.js';
+
+type SelectOption = { label: string; value: string };
+
+function inlineOptions(
+  options: unknown,
+  dataSources: Record<string, SelectOption[]> | undefined,
+): SelectOption[] {
+  if (typeof options === 'string') return dataSources?.[options] ?? [];
+  return Array.isArray(options) ? options : [];
+}
+
+function matchesQuery(option: SelectOption, query: string): boolean {
+  return option.label.toLowerCase().includes(query.trim().toLowerCase());
+}
 
 // ─── Sensitive field indicator ──────────────────────────────────────────────
 
@@ -116,6 +131,147 @@ const DefaultSelect = defineComponent({
           ),
         ],
       );
+  },
+});
+
+const DefaultCombobox = defineComponent({
+  name: 'MdmaCombobox',
+  props: {
+    ...baseElementProps,
+    type: { type: String, required: true },
+    value: { type: String, required: true },
+    options: { type: Array as PropType<SelectOption[]>, required: true },
+    query: { type: String, required: true },
+    onQueryChange: { type: Function as PropType<(query: string) => void>, required: true },
+    loading: { type: Boolean, default: undefined },
+    error: { type: String, default: undefined },
+    onRetry: { type: Function as PropType<() => void>, default: undefined },
+  },
+  setup(props: FormComboboxElementProps) {
+    const open = ref(false);
+    // the highlight belongs to one result set; new results drop it
+    const resultsKey = computed(() => props.options.map((o) => o.value).join('\n'));
+    const highlight = ref({ resultsKey: resultsKey.value, index: -1 });
+    const active = computed(() =>
+      highlight.value.resultsKey === resultsKey.value ? highlight.value.index : -1,
+    );
+    const setActive = (index: number) => {
+      highlight.value = { resultsKey: resultsKey.value, index };
+    };
+    // the picked option may drop out of later search results; keep its label
+    const picked = ref<SelectOption | null>(null);
+
+    const choose = (option: SelectOption) => {
+      picked.value = option;
+      open.value = false;
+      setActive(-1);
+      props.onChange(option.value);
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        open.value = true;
+        setActive(Math.min(active.value + 1, props.options.length - 1));
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setActive(Math.max(active.value - 1, 0));
+      } else if (e.key === 'Enter' && open.value && props.error && props.onRetry) {
+        e.preventDefault();
+        props.onRetry();
+      } else if (e.key === 'Enter' && open.value && props.options[active.value]) {
+        e.preventDefault();
+        choose(props.options[active.value]);
+      } else if (e.key === 'Escape') {
+        open.value = false;
+        setActive(-1);
+        props.onQueryChange('');
+      }
+    };
+
+    return () => {
+      const listboxId = `${props.id}-listbox`;
+      const selectedLabel =
+        props.options.find((o) => o.value === props.value)?.label ??
+        (picked.value?.value === props.value ? picked.value.label : props.value);
+      const status = props.error
+        ? props.error
+        : props.loading && props.options.length === 0
+          ? 'Searching...'
+          : props.options.length === 0
+            ? 'No matches'
+            : '';
+
+      return h('span', { class: 'mdma-combobox' }, [
+        h('input', {
+          id: props.id,
+          type: 'text',
+          role: 'combobox',
+          autocomplete: 'off',
+          'aria-autocomplete': 'list',
+          'aria-expanded': open.value && !status,
+          'aria-controls': listboxId,
+          'aria-activedescendant':
+            open.value && active.value >= 0 ? `${props.id}-option-${active.value}` : undefined,
+          'aria-busy': props.loading || undefined,
+          required: props.required && !props.value,
+          placeholder: 'Search...',
+          value: open.value ? props.query : selectedLabel,
+          onFocus: () => {
+            open.value = true;
+          },
+          onBlur: () => {
+            open.value = false;
+            setActive(-1);
+          },
+          onInput: (e: Event) => {
+            open.value = true;
+            setActive(-1);
+            props.onQueryChange((e.target as HTMLInputElement).value);
+          },
+          onKeydown: handleKeyDown,
+        }),
+        h('div', { class: 'mdma-combobox-popup', hidden: !open.value }, [
+          h(
+            'ul',
+            { id: listboxId, role: 'listbox', class: 'mdma-combobox-listbox', hidden: !!status },
+            props.options.map((opt, index) =>
+              h(
+                'li',
+                {
+                  key: opt.value,
+                  id: `${props.id}-option-${index}`,
+                  role: 'option',
+                  'aria-selected': opt.value === props.value,
+                  class: `mdma-combobox-option${index === active.value ? ' mdma-combobox-option--active' : ''}`,
+                  onMousedown: (e: MouseEvent) => e.preventDefault(),
+                  onClick: () => choose(opt),
+                },
+                opt.label,
+              ),
+            ),
+          ),
+          h(
+            'output',
+            { class: `mdma-combobox-status${props.error ? ' mdma-combobox-status--error' : ''}` },
+            [
+              open.value ? status : null,
+              open.value && props.error && props.onRetry
+                ? h(
+                    'button',
+                    {
+                      type: 'button',
+                      onMousedown: (e: MouseEvent) => e.preventDefault(),
+                      onClick: props.onRetry,
+                    },
+                    'Retry',
+                  )
+                : null,
+            ],
+          ),
+        ]),
+      ]);
+    };
   },
 });
 
@@ -257,6 +413,69 @@ const DataDrivenSelect = defineComponent({
   },
 });
 
+/**
+ * A `searchable: true` select. Inline options are filtered here; a data-source
+ * slot gets the typed text as its `filter`, so the resolver does the search.
+ */
+const SearchableSelect = defineComponent({
+  name: 'MdmaSearchableSelect',
+  props: {
+    combobox: { type: Object, required: true },
+    dataKey: { type: String, default: undefined },
+    staticOptions: { type: Array as PropType<SelectOption[]>, required: true },
+    selectProps: { type: Object, required: true },
+  },
+  setup(props) {
+    const store = useDocumentStore();
+    const dataState = useDataState(() => props.dataKey ?? '');
+    const query = ref('');
+
+    // a filter left on the slot by an earlier mount would hide options behind an empty input
+    watch(
+      [() => props.dataKey, store],
+      ([key, s]) => {
+        if (key && s.getDataState(key)?.filter) s.setDataFilter(key, undefined);
+      },
+      { immediate: true, flush: 'post' },
+    );
+
+    const handleQueryChange = (next: string) => {
+      query.value = next;
+      if (props.dataKey) store.value.setDataFilter(props.dataKey, next.trim() || undefined);
+    };
+    const handleChange = (value: string) => {
+      (props.selectProps as Pick<FormSelectElementProps, 'onChange'>).onChange(value);
+      handleQueryChange('');
+    };
+
+    return () => {
+      const shared = {
+        ...(props.selectProps as Record<string, unknown>),
+        onChange: handleChange,
+        query: query.value,
+        onQueryChange: handleQueryChange,
+      };
+      const dataKey = props.dataKey;
+      if (!dataKey) {
+        return h(props.combobox as object, {
+          ...shared,
+          options: query.value
+            ? props.staticOptions.filter((o) => matchesQuery(o, query.value))
+            : props.staticOptions,
+        });
+      }
+      const state = dataState.value;
+      return h(props.combobox as object, {
+        ...shared,
+        options: (state?.rows ?? []) as SelectOption[],
+        loading: !state || state.status === 'loading' || state.status === 'idle',
+        error: state?.status === 'error' ? (state.error ?? 'Failed to load options') : undefined,
+        onRetry: () => store.value.retryData(dataKey),
+      });
+    };
+  },
+});
+
 // ─── FormRenderer ────────────────────────────────────────────────────────────
 
 export const FormRenderer = defineComponent({
@@ -268,6 +487,7 @@ export const FormRenderer = defineComponent({
     // the sub-elements without remounting the form.
     const Input = useElementOverride('form', 'input');
     const Select = useElementOverride('form', 'select');
+    const Combobox = useElementOverride('form', 'combobox');
     const Checkbox = useElementOverride('form', 'checkbox');
     const Textarea = useElementOverride('form', 'textarea');
     const FileInput = useElementOverride('form', 'file');
@@ -320,7 +540,19 @@ export const FormRenderer = defineComponent({
           const isDataDriven = isDataDrivenOptions(field.options, dataKey, (key) =>
             ctx.value.store.getDataState(key),
           );
-          if (isDataDriven) {
+          if (field.searchable) {
+            control = h(SearchableSelect, {
+              combobox: Combobox.value ?? DefaultCombobox,
+              dataKey: isDataDriven ? dataKey : undefined,
+              staticOptions: inlineOptions(field.options, ctx.value.dataSources),
+              selectProps: {
+                ...shared,
+                type: 'select',
+                value: fieldValue,
+                onChange: handleChange,
+              },
+            });
+          } else if (isDataDriven) {
             control = h(DataDrivenSelect, {
               dataKey,
               select: Select.value ?? DefaultSelect,
@@ -337,10 +569,7 @@ export const FormRenderer = defineComponent({
               type: 'select',
               value: fieldValue,
               onChange: handleChange,
-              options:
-                typeof field.options === 'string'
-                  ? (ctx.value.dataSources?.[field.options] ?? [])
-                  : (field.options ?? []),
+              options: inlineOptions(field.options, ctx.value.dataSources),
             });
           }
         } else if (field.type === 'checkbox') {

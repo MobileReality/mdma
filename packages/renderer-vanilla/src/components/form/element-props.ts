@@ -14,6 +14,21 @@ export interface FormSelectElementProps extends FormInputElementProps {
   options: { label: string; value: string }[];
 }
 
+/**
+ * Props for a `select` field with `searchable: true`. `options` are the
+ * current matches for `query`; the renderer owns filtering, so a custom
+ * combobox only reports what the user typed through `onQueryChange`.
+ */
+export interface FormComboboxElementProps extends FormSelectElementProps {
+  query: string;
+  onQueryChange: (query: string) => void;
+  /** True while a data source is resolving matches for `query`. */
+  loading?: boolean;
+  /** Set when the data source failed to resolve matches. */
+  error?: string;
+  onRetry?: () => void;
+}
+
 export interface FormCheckboxElementProps {
   id: string;
   name: string;
