@@ -130,6 +130,8 @@ defineDataSource({
 });
 ```
 
+The combobox has no paging: it shows the rows of the first page only (`page` is always `1`, `pageSize` is not set) and offers no "load more". Return the best matches for `filter`, capped at a size that fits a dropdown (10 to 50 rows), ranked so the likeliest option comes first. A user who does not see their option refines the query. Clearing the input, pressing Escape, picking an option, or leaving the field resets the filter, so the next search starts from an empty `filter`.
+
 A searchable select's rows are search results, not the full option set, so the runtime does **not** clear the chosen value when a later search no longer returns it; the renderer keeps showing the chosen label. When the source's **params** change (for example a bound `country`), the value is checked against the new results and cleared if they no longer contain it, like a plain select.
 
 The label shown for the value comes from the options the user picked from. A value restored from `initialState`, or set as `defaultValue`, shows its label only once a result set contains it; until then the raw value is shown. A resolver only knows the current value if you pass it in, so to have its option in the first result set bind the value into a param (for example `params: { selected: "{{meal-entry.product}}" }`) and return that option when `filter` is empty.
