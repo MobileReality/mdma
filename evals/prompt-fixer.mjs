@@ -5,7 +5,7 @@ import {
 } from '@mobile-reality/mdma-prompt-pack';
 import { validate } from '@mobile-reality/mdma-validator';
 import { DATA_SOURCES, toCatalog } from './data-sources.mjs';
-import { selectFixerPrompt } from './select-prompt.mjs';
+import { selectAuthorPrompt, selectFixerPrompt } from './select-prompt.mjs';
 
 /**
  * Promptfoo prompt function for fixer eval tests.
@@ -44,7 +44,14 @@ export default async function ({ vars, provider }) {
   const fixerPrompt = fixerSource.startsWith('default')
     ? buildFixerPrompt(variantKey)
     : variantPrompt;
-  const systemPrompt = `${buildSystemPrompt()}\n\n---\n\n${fixerPrompt}`;
+  // The fixer runs on top of the author prompt the host ships for this model,
+  // so a variant's wording (e.g. the Claude 5.5 plan-summary `thinking`
+  // description that avoids `reasoning_extraction` refusals) applies here too.
+  const { prompt: authorPrompt, source: authorSource } = await selectAuthorPrompt(
+    provider?.id ?? process.env.EVAL_PROVIDER,
+  );
+  const authorOptions = authorSource.startsWith('default') ? {} : { authorPrompt };
+  const systemPrompt = `${buildSystemPrompt(authorOptions)}\n\n---\n\n${fixerPrompt}`;
 
   // Pass the original broken document (not auto-fixed output) so the model
   // sees every issue in full context, including ones the auto-fixer silently

@@ -4,7 +4,11 @@ const leaksReasoningTokens =
   provider.includes('gemini-3.5') ||
   provider.includes('grok-4.3') ||
   provider.includes('grok-4.5') ||
-  provider.includes('fable');
+  provider.includes('fable') ||
+  provider.includes('claude-opus-5') ||
+  provider.includes('gemini-3.7') ||
+  provider.includes('gpt-5.6') ||
+  provider.includes('gpt-6');
 
 const providerConfig = {
   max_tokens: 8192,

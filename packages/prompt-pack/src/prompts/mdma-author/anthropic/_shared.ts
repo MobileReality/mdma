@@ -106,3 +106,48 @@ fields:
 
 The label can read naturally to the user; the value is the stable string identifier sent on submit. \`value: 1\` (number) and \`value: true\` (boolean) fail validation.
 </select_options>`;
+
+/**
+ * Claude 5.5 models (Sonnet 5.5, Opus 5.5) answer with `stop_reason: refusal`
+ * (category `reasoning_extraction`) when a system prompt asks the model to
+ * write out its reasoning process; through OpenRouter the same refusal
+ * surfaces as `finish_reason: content_filter`. With the shared wording 7 of 20
+ * benign requests were refused on Sonnet 5.5, and every author and fixer
+ * request on Opus 5.5. Describing the `thinking` component as a short plan
+ * summary stops it. The block keeps its role and its fields; only the
+ * description of what goes in `content` changes.
+ *
+ * Throws when the shared body no longer contains a phrase, so a later edit to
+ * `BASE_BODY` cannot silently bring the refusal back.
+ */
+const THINKING_AS_PLAN_SUMMARY: ReadonlyArray<readonly [string, string]> = [
+  [
+    'AI reasoning or thinking process. Useful for transparency about how the AI arrived at conclusions or recommendations.',
+    'a short plan summary: what the document below contains and how it is structured.',
+  ],
+  ['free-form reasoning text', 'free-form plan summary text'],
+  ['<reasoning text>', '<plan summary>'],
+  ['to show your reasoning process', 'to summarize your plan for the document'],
+  [
+    'All reasoning belongs inside the `thinking` block',
+    'All planning notes belong inside the `thinking` block',
+  ],
+  ['**Example — analysis reasoning:**', '**Example — plan summary:**'],
+  [
+    `First, I examined the quarterly revenue trends.
+  Q3 shows a 15% dip which correlates with seasonal patterns.
+  However, year-over-year growth remains strong at 23%.
+  Recommendation: maintain current strategy with Q3 adjustments.`,
+    `Plan: a table of quarterly revenue with a year-over-year summary.
+  Columns: quarter, revenue, change vs. the previous year.`,
+  ],
+];
+
+export function describeThinkingAsPlanSummary(body: string, variant: string): string {
+  return THINKING_AS_PLAN_SUMMARY.reduce((next, [from, to]) => {
+    if (!next.includes(from)) {
+      throw new Error(`${variant} prompt: shared body no longer contains "${from.slice(0, 60)}"`);
+    }
+    return next.split(from).join(to);
+  }, body);
+}

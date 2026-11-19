@@ -1229,7 +1229,7 @@
   vars:
     dataSources: true
     request: |
-      Show the sales by month data in a table.
+      Show the sales by month data for 2025 in a table.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
@@ -1240,6 +1240,8 @@
       config:
         component: table
         source: sales-records
+        expectParams:
+          year: 2025
 
 # ---------------------------------------------------------------------------
 # Data source 3c. Monthly sales bar chart binds the series source
@@ -1248,7 +1250,7 @@
   vars:
     dataSources: true
     request: |
-      Show the monthly sales as a bar chart.
+      Show the monthly sales for 2025 as a bar chart.
   assert:
     - type: javascript
       value: file://assertions/only-components.mjs
@@ -1259,6 +1261,8 @@
       config:
         component: chart
         source: sales-by-month
+        expectParams:
+          year: 2025
 
 # ---------------------------------------------------------------------------
 # Data source 4. Anti-hallucination — data outside the catalog
