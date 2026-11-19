@@ -544,6 +544,12 @@
 .mdma-combobox {
   position: relative;
   display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.mdma-form-field .mdma-combobox input {
+  box-sizing: border-box;
 }
 
 .mdma-combobox-popup {

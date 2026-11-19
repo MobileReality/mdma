@@ -228,7 +228,10 @@ function Combobox({
         onBlur={() => {
           setFocused(false);
           // deferred for hosts whose keyboardShouldPersistTaps lets a press blur the input before it fires
-          closeTimer.current = setTimeout(() => setOpen(false), 150);
+          closeTimer.current = setTimeout(() => {
+            setOpen(false);
+            onQueryChange('');
+          }, 150);
         }}
         onChangeText={(text) => {
           setOpen(true);

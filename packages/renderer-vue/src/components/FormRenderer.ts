@@ -1,4 +1,13 @@
-import { computed, defineComponent, h, ref, watch, type PropType, type VNodeChild } from 'vue';
+import {
+  computed,
+  defineComponent,
+  h,
+  ref,
+  watch,
+  watchPostEffect,
+  type PropType,
+  type VNodeChild,
+} from 'vue';
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
 import { blockRendererProps } from '../renderers/renderer-props.js';
 import { useMdmaContext } from '../context/MdmaProvider.js';
@@ -134,6 +143,8 @@ const DefaultSelect = defineComponent({
   },
 });
 
+const COMBOBOX_REQUIRED_MESSAGE = 'Select an option from the list.';
+
 const DefaultCombobox = defineComponent({
   name: 'MdmaCombobox',
   props: {
@@ -160,6 +171,14 @@ const DefaultCombobox = defineComponent({
     };
     // the picked option may drop out of later search results; keep its label
     const picked = ref<SelectOption | null>(null);
+    const inputEl = ref<HTMLInputElement | null>(null);
+
+    // typed text is only a search query, so it never satisfies `required` on its own
+    watchPostEffect(() => {
+      inputEl.value?.setCustomValidity(
+        props.required && !props.value ? COMBOBOX_REQUIRED_MESSAGE : '',
+      );
+    });
 
     const choose = (option: SelectOption) => {
       picked.value = option;
@@ -204,6 +223,7 @@ const DefaultCombobox = defineComponent({
 
       return h('span', { class: 'mdma-combobox' }, [
         h('input', {
+          ref: inputEl,
           id: props.id,
           type: 'text',
           role: 'combobox',
@@ -214,7 +234,7 @@ const DefaultCombobox = defineComponent({
           'aria-activedescendant':
             open.value && active.value >= 0 ? `${props.id}-option-${active.value}` : undefined,
           'aria-busy': props.loading || undefined,
-          required: props.required && !props.value,
+          required: props.required,
           placeholder: 'Search...',
           value: open.value ? props.query : selectedLabel,
           onFocus: () => {
@@ -223,6 +243,7 @@ const DefaultCombobox = defineComponent({
           onBlur: () => {
             open.value = false;
             setActive(-1);
+            props.onQueryChange('');
           },
           onInput: (e: Event) => {
             open.value = true;

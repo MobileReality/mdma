@@ -1,5 +1,5 @@
 import { isDataDrivenOptions } from '@mobile-reality/mdma-runtime';
-import { memo, useEffect, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import {
   type FormCheckboxElementProps,
   type FormComboboxElementProps,
@@ -173,6 +173,8 @@ function DefaultSelect({ id, value, onChange, required, options }: FormSelectEle
   );
 }
 
+const COMBOBOX_REQUIRED_MESSAGE = 'Select an option from the list.';
+
 function DefaultCombobox({
   id,
   value,
@@ -194,6 +196,12 @@ function DefaultCombobox({
   // the picked option may drop out of later search results; keep its label
   const [picked, setPicked] = useState<SelectOption | null>(null);
   const listboxId = `${id}-listbox`;
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // typed text is only a search query, so it never satisfies `required` on its own
+  useEffect(() => {
+    inputRef.current?.setCustomValidity(required && !value ? COMBOBOX_REQUIRED_MESSAGE : '');
+  }, [required, value]);
 
   const selectedLabel =
     options.find((o) => o.value === value)?.label ??
@@ -238,6 +246,7 @@ function DefaultCombobox({
   return (
     <span className="mdma-combobox">
       <input
+        ref={inputRef}
         id={id}
         type="text"
         role="combobox"
@@ -247,13 +256,14 @@ function DefaultCombobox({
         aria-controls={listboxId}
         aria-activedescendant={open && active >= 0 ? `${id}-option-${active}` : undefined}
         aria-busy={loading || undefined}
-        required={required && !value}
+        required={required}
         placeholder="Search..."
         value={open ? query : selectedLabel}
         onFocus={() => setOpen(true)}
         onBlur={() => {
           setOpen(false);
           setActive(-1);
+          onQueryChange('');
         }}
         onChange={(e) => {
           setOpen(true);

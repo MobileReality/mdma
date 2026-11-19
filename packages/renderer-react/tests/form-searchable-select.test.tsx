@@ -27,7 +27,7 @@ const PRODUCTS = [
   { label: 'Chicken breast', value: 'chicken' },
 ];
 
-function formWith(options: unknown) {
+function formWith(options: unknown, field: Record<string, unknown> = {}) {
   return {
     id: 'meal',
     type: 'form',
@@ -35,7 +35,9 @@ function formWith(options: unknown) {
     disabled: false,
     visible: true,
     onSubmit: 'log-meal',
-    fields: [{ name: 'product', type: 'select', label: 'Product', searchable: true, options }],
+    fields: [
+      { name: 'product', type: 'select', label: 'Product', searchable: true, options, ...field },
+    ],
   };
 }
 
@@ -54,8 +56,9 @@ async function renderForm(
   dataSources?: DataSourceMap,
   overrides?: Record<string, Record<string, React.ComponentType<never>>>,
   existingStore?: DocumentStore,
+  field?: Record<string, unknown>,
 ): Promise<DocumentStore> {
-  const component = formWith(options);
+  const component = formWith(options, field);
   const ast = {
     type: 'root',
     children: [{ type: 'mdmaBlock', rawYaml: '', component }],
@@ -138,6 +141,46 @@ describe('FormRenderer searchable select', () => {
     expect(store.getComponentState('meal')?.values.product).toBe('chicken');
     await act(async () => input().blur());
     expect(input().value).toBe('Chicken breast');
+  });
+
+  it('clears the typed text on blur, so refocus starts from the full list', async () => {
+    await renderForm(PRODUCTS);
+    await type('sky');
+    expect(optionLabels()).toEqual(['Skyr natural']);
+    await act(async () => input().blur());
+    expect(input().value).toBe('');
+    await act(async () => input().focus());
+    expect(input().value).toBe('');
+    expect(optionLabels()).toEqual(['Oat flakes', 'Skyr natural', 'Chicken breast']);
+  });
+
+  it('clears the data source filter on blur', async () => {
+    const resolve = vi.fn(
+      async (req: DataRequest): Promise<DataResult> => ({
+        rows: PRODUCTS.filter((p) =>
+          p.label.toLowerCase().includes((req.filter ?? '').toLowerCase()),
+        ),
+      }),
+    );
+    const store = await renderForm({ source: 'products' }, { products: resolve });
+    await type('oat');
+    await settle();
+    expect(store.getDataState('meal.product')?.filter).toBe('oat');
+    await act(async () => input().blur());
+    await settle();
+    expect(input().value).toBe('');
+    expect(store.getDataState('meal.product')?.filter).toBeUndefined();
+    expect(optionLabels()).toEqual(['Oat flakes', 'Skyr natural', 'Chicken breast']);
+  });
+
+  it('does not let typed text satisfy required until an option is chosen', async () => {
+    await renderForm(PRODUCTS, undefined, undefined, undefined, { required: true });
+    await type('chick');
+    expect(input().required).toBe(true);
+    expect(input().checkValidity()).toBe(false);
+    await key('ArrowDown');
+    await key('Enter');
+    expect(input().checkValidity()).toBe(true);
   });
 
   it('sends the typed text to the data source as filter', async () => {

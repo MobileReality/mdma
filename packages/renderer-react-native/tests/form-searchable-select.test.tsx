@@ -147,6 +147,29 @@ async function settle() {
 }
 
 describe('FormRenderer searchable select', () => {
+  it('clears the typed text and the source filter once the input loses focus', async () => {
+    const store = await renderForm(
+      { source: 'products' },
+      {
+        products: async (req: DataRequest): Promise<DataResult> => ({
+          rows: PRODUCTS.filter((p) =>
+            p.label.toLowerCase().includes((req.filter ?? '').toLowerCase()),
+          ),
+        }),
+      },
+    );
+    await type('oat');
+    await settle();
+    expect(store.getDataState('meal.product')?.filter).toBe('oat');
+    await blur();
+    await waitForClose();
+    await settle();
+    expect(input().props.value).toBe('');
+    expect(store.getDataState('meal.product')?.filter).toBeUndefined();
+    await act(async () => input().props.onFocus());
+    expect(input().props.value).toBe('');
+    expect(optionLabels()).toEqual(['Oat flakes', 'Skyr natural', 'Chicken breast']);
+  });
   it('renders a search input instead of option chips', async () => {
     await renderForm(PRODUCTS);
     expect(input().props.accessibilityRole).toBe('combobox');

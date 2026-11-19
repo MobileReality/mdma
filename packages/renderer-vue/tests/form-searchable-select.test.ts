@@ -53,6 +53,8 @@ fields:
       source: products
 `);
 
+const REQUIRED_INLINE = INLINE.replace('searchable: true', 'searchable: true\n    required: true');
+
 const searchProducts = async (req: DataRequest): Promise<DataResult> => ({
   rows: PRODUCTS.filter((p) => p.label.toLowerCase().includes((req.filter ?? '').toLowerCase())),
 });
@@ -119,6 +121,40 @@ describe('FormRenderer searchable select', () => {
     expect(store.getComponentState('meal')?.values.product).toBe('chicken');
     await input(wrapper).trigger('blur');
     expect((input(wrapper).element as HTMLInputElement).value).toBe('Chicken breast');
+  });
+
+  it('clears the typed text on blur, so refocus starts from the full list', async () => {
+    const { wrapper } = await mountForm(INLINE);
+    await type(wrapper, 'sky');
+    expect(optionLabels(wrapper)).toEqual(['Skyr natural']);
+    await input(wrapper).trigger('blur');
+    expect((input(wrapper).element as HTMLInputElement).value).toBe('');
+    await input(wrapper).trigger('focus');
+    expect((input(wrapper).element as HTMLInputElement).value).toBe('');
+    expect(optionLabels(wrapper)).toEqual(['Oat flakes', 'Skyr natural', 'Chicken breast']);
+  });
+
+  it('clears the data source filter on blur', async () => {
+    const { wrapper, store } = await mountForm(DATA_DRIVEN, { products: searchProducts });
+    await type(wrapper, 'oat');
+    await settle();
+    expect(store.getDataState('meal.product')?.filter).toBe('oat');
+    await input(wrapper).trigger('blur');
+    await settle();
+    expect((input(wrapper).element as HTMLInputElement).value).toBe('');
+    expect(store.getDataState('meal.product')?.filter).toBeUndefined();
+    expect(optionLabels(wrapper)).toEqual(['Oat flakes', 'Skyr natural', 'Chicken breast']);
+  });
+
+  it('does not let typed text satisfy required until an option is chosen', async () => {
+    const { wrapper } = await mountForm(REQUIRED_INLINE);
+    await type(wrapper, 'chick');
+    const el = input(wrapper).element as HTMLInputElement;
+    expect(el.required).toBe(true);
+    expect(el.checkValidity()).toBe(false);
+    await input(wrapper).trigger('keydown', { key: 'ArrowDown' });
+    await input(wrapper).trigger('keydown', { key: 'Enter' });
+    expect(el.checkValidity()).toBe(true);
   });
 
   it('sends the typed text to the data source as filter', async () => {

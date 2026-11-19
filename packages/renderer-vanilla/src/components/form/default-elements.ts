@@ -154,6 +154,7 @@ export const DefaultCombobox: ElementRenderer<FormComboboxElementProps> = (initi
       blur: () => {
         open = false;
         active = -1;
+        props.onQueryChange('');
         apply();
       },
       input: () => {
@@ -236,7 +237,11 @@ export const DefaultCombobox: ElementRenderer<FormComboboxElementProps> = (initi
     else input.removeAttribute('aria-activedescendant');
     if (props.loading) input.setAttribute('aria-busy', 'true');
     else input.removeAttribute('aria-busy');
-    input.toggleAttribute('required', props.required === true && !props.value);
+    input.toggleAttribute('required', props.required === true);
+    // typed text is only a search query, so it never satisfies `required` on its own
+    input.setCustomValidity(
+      props.required === true && !props.value ? 'Select an option from the list.' : '',
+    );
 
     if (syncValue) {
       const selectedLabel =
