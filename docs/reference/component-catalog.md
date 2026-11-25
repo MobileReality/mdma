@@ -41,6 +41,7 @@ Collects structured user input through typed fields with validation.
 | `sensitive` | `boolean` | `false` | If true, this field's value is redacted in event logs. |
 | `defaultValue` | `unknown` | -- | Initial value. |
 | `options` | `{ label: string, value: string }[] \| { source, params? }` | -- | Required when `type` is `"select"`. Either an inline list or a reference to an `options` [data source](../guides/external-data-sources.md). |
+| `searchable` | `boolean` | `false` | Select only. Renders a type-to-search input instead of a dropdown. Inline options are filtered locally; with a data source, the typed text is sent to the resolver as `filter`. Use it for long lists and large catalogs. |
 | `validation` | `object` | -- | Optional validation rules (see below). |
 | `bind` | `string` | -- | Binding expression in `{{path}}` format. |
 
@@ -107,6 +108,26 @@ fields:
       params:
         region: Europe
 onSubmit: submit-country
+```
+
+For a large catalog, make the select searchable so the user types to find an option and the source does the search:
+
+```mdma
+id: meal-entry
+type: form
+fields:
+  - name: product
+    type: select
+    label: Product
+    required: true
+    searchable: true
+    options:
+      source: products
+  - name: grams
+    type: number
+    label: Amount (g)
+    required: true
+onSubmit: log-meal
 ```
 
 ---

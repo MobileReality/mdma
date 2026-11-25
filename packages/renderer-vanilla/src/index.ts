@@ -69,6 +69,7 @@ export { WebhookRenderer } from './components/WebhookRenderer.js';
 
 export type {
   FormCheckboxElementProps,
+  FormComboboxElementProps,
   FormFileElementProps,
   FormInputElementProps,
   FormSelectElementProps,
@@ -78,6 +79,7 @@ export type {
 } from './components/form/element-props.js';
 export {
   DefaultCheckbox,
+  DefaultCombobox,
   DefaultFile,
   DefaultInput,
   DefaultSelect,

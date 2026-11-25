@@ -19,9 +19,23 @@ export const selectOptionsRule: ValidationRule = {
       for (let i = 0; i < fields.length; i++) {
         const field = fields[i];
         if (typeof field !== 'object' || field === null) continue;
-        if (field.type !== 'select') continue;
 
         const name = typeof field.name === 'string' ? field.name : `fields[${i}]`;
+
+        if (field.type !== 'select') {
+          if (field.searchable === true) {
+            context.issues.push({
+              ruleId: 'select-options',
+              severity: 'warning',
+              message: `Field "${name}" sets "searchable", which only applies to select fields`,
+              componentId: id,
+              field: `fields[${i}]`,
+              blockIndex: block.index,
+              fixed: false,
+            });
+          }
+          continue;
+        }
 
         if (field.options == null) {
           context.issues.push({

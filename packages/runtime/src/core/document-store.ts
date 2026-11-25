@@ -85,7 +85,10 @@ export function createDocumentStore(
   const listeners = new Set<(state: DocumentState) => void>();
 
   let disposed = false;
-  const optionSlots = new Map<string, { componentId: string; field: string }>();
+  const optionSlots = new Map<
+    string,
+    { componentId: string; field: string; searchable: boolean }
+  >();
 
   function notify() {
     if (disposed) return;
@@ -130,8 +133,13 @@ export function createDocumentStore(
         const ref = optionsRef(field.options);
         if (ref) {
           live.add(key);
-          optionSlots.set(key, { componentId: comp.id, field: field.name });
+          const searchable = field.searchable === true;
+          const wasSearchable = optionSlots.get(key)?.searchable === true;
+          optionSlots.set(key, { componentId: comp.id, field: field.name, searchable });
           dataManager.sync(key, ref, state.bindings);
+          if (wasSearchable && !searchable && dataManager.getState(key)?.filter) {
+            dataManager.setFilter(key, undefined);
+          }
         }
       }
     }
@@ -143,9 +151,10 @@ export function createDocumentStore(
     }
   }
 
-  function clearStaleOptionValue(key: string, rows: unknown[]) {
+  function clearStaleOptionValue(key: string, rows: unknown[], meta: { paramsChanged: boolean }) {
     const slot = optionSlots.get(key);
-    if (!slot) return;
+    // a searchable select's rows are search results: only new params can make its value stale
+    if (!slot || (slot.searchable && !meta.paramsChanged)) return;
     const comp = state.components.get(slot.componentId);
     const current = comp?.values[slot.field];
     if (!comp || current === undefined || current === null || current === '') return;

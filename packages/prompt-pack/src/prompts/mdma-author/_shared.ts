@@ -69,6 +69,7 @@ fields:
     options:                     # required when type is "select" — a list, OR { source, params } from a data-source catalog
       - label: <label>
         value: <value>           # string — quote numeric-looking values, e.g. "1" not 1
+    searchable: true             # optional, select only — type-to-search; use for long option lists or large catalogs (e.g. products, cities), omit for short lists
     validation:                  # optional
       pattern: <regex>
       min: <number>

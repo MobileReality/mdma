@@ -93,6 +93,41 @@ describe('select-options rule', () => {
     expect(ctx.issues).toHaveLength(0);
   });
 
+  it('passes for a searchable select backed by a data source', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'f',
+        fields: [
+          {
+            name: 'product',
+            type: 'select',
+            label: 'Product',
+            searchable: true,
+            options: { source: 'products' },
+          },
+        ],
+      }),
+    ]);
+    selectOptionsRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(0);
+  });
+
+  it('warns when searchable is set on a non-select field', () => {
+    const ctx = createContext([
+      createBlock(0, {
+        type: 'form',
+        id: 'f',
+        fields: [{ name: 'notes', type: 'text', label: 'Notes', searchable: true }],
+      }),
+    ]);
+    selectOptionsRule.validate(ctx);
+    expect(ctx.issues).toHaveLength(1);
+    expect(ctx.issues[0].severity).toBe('warning');
+    expect(ctx.issues[0].field).toBe('fields[0]');
+    expect(ctx.issues[0].message).toContain('only applies to select');
+  });
+
   it('skips non-form components', () => {
     const ctx = createContext([createBlock(0, { type: 'callout', id: 'c', content: 'hi' })]);
     selectOptionsRule.validate(ctx);

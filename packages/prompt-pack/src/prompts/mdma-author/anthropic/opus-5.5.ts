@@ -1,16 +1,18 @@
 /**
  * MDMA Author Prompt — Anthropic Claude Opus 5.5 variant.
  *
- * Baseline: the same composition as `./opus-4.8.ts`, carried over unchanged
- * because no Anthropic Claude Opus 5.5-specific failure mode has been observed yet. Diverge THIS
- * file (add or drop framing blocks) only once an eval run shows a pattern
- * specific to this model; keep sibling variants independent.
+ * The same composition as `./opus-4.8.ts`, with the `thinking` component
+ * described as a plan summary (see `describeThinkingAsPlanSummary`). With the
+ * shared "AI reasoning" wording, Anthropic's API refused every author request
+ * on this model with `stop_reason: refusal` (`reasoning_extraction`).
  *
  * Routing: substring match on `opus-5.5` (normalized `opus-5-5`).
  */
 
 import { BASE_BODY, BASE_CHECKLIST, BASE_OPENING } from '../_shared.js';
-import { SCOPE_DISCIPLINE_BLOCK } from './_shared.js';
+import { SCOPE_DISCIPLINE_BLOCK, describeThinkingAsPlanSummary } from './_shared.js';
+
+const BODY = describeThinkingAsPlanSummary(BASE_BODY, 'opus-5.5');
 
 export const MDMA_AUTHOR_PROMPT_OPUS_5_5 = `${BASE_OPENING}
 
@@ -20,7 +22,7 @@ Your output IS the Markdown document — write headings, paragraphs, and \`\`\`m
 
 ${SCOPE_DISCIPLINE_BLOCK}
 
-${BASE_BODY}
+${BODY}
 
 <self_check>
 ${BASE_CHECKLIST}

@@ -40,6 +40,7 @@ function getDataSourcesSpec() {
       'The referenced source kind must match the slot: select options need options, table.data needs rows, chart.data needs series',
       'Params must match the declared type, respect allowed values, and include all required params; a param may be a {{binding}}',
       'The same underlying data may be offered as a rows source and a series source under different names',
+      'A select over a large options source (products, customers, cities) sets searchable: true; the typed text reaches the resolver as filter',
     ],
   };
 }

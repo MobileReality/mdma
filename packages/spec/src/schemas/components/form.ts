@@ -20,6 +20,12 @@ export const FormFieldSchema = z.object({
       DataSourceRefSchema,
     ])
     .optional()),
+  searchable: z
+    .boolean()
+    .optional()
+    .describe(
+      'Select only: render a type-to-search input. Typed text filters inline options locally, or is sent as `filter` to the options data source.',
+    ),
   validation: z
     .object({
       pattern: z.string().optional(),

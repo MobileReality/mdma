@@ -94,6 +94,48 @@ describe('FormComponentSchema', () => {
     expect(result.fields[0].options).toBe('countries');
   });
 
+  it('accepts a searchable select backed by a data source', () => {
+    const form = {
+      id: 'product-form',
+      type: 'form',
+      fields: [
+        {
+          name: 'product',
+          type: 'select',
+          label: 'Product',
+          searchable: true,
+          options: { source: 'products', params: { category: 'food' } },
+        },
+      ],
+      onSubmit: 'submit-action',
+    };
+    const result = FormComponentSchema.parse(form);
+    expect(result.fields[0].searchable).toBe(true);
+    expect(result.fields[0].options).toEqual({ source: 'products', params: { category: 'food' } });
+  });
+
+  it('leaves searchable undefined when omitted', () => {
+    const form = {
+      id: 'plain-form',
+      type: 'form',
+      fields: [{ name: 'country', type: 'select', label: 'Country', options: ['PL', 'DE'] }],
+      onSubmit: 'submit-action',
+    };
+    expect(FormComponentSchema.parse(form).fields[0].searchable).toBeUndefined();
+  });
+
+  it('rejects a non-boolean searchable', () => {
+    const form = {
+      id: 'bad-form',
+      type: 'form',
+      fields: [
+        { name: 'country', type: 'select', label: 'Country', options: ['PL'], searchable: 'yes' },
+      ],
+      onSubmit: 'submit-action',
+    };
+    expect(() => FormComponentSchema.parse(form)).toThrow();
+  });
+
   it('rejects form with no fields', () => {
     expect(() => FormComponentSchema.parse({ id: 'f', type: 'form', fields: [] })).toThrow();
   });

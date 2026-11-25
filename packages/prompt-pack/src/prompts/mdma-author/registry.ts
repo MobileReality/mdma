@@ -316,7 +316,8 @@ export const AUTHOR_PROMPT_VARIANTS: AuthorPromptVariant[] = [
   {
     id: 'anthropic/opus-5.5',
     label: 'Anthropic — Claude Opus 5.5',
-    description: 'Flagship Opus — same Anthropic-styled framing as opus-4.8 (<scope_discipline>).',
+    description:
+      'Flagship Opus — opus-4.8 framing (<scope_discipline>) with the `thinking` component described as a plan summary; the shared wording ("AI reasoning") draws `reasoning_extraction` refusals from this model.',
     prompt: MDMA_AUTHOR_PROMPT_OPUS_5_5,
   },
   {
