@@ -1,5 +1,13 @@
 # @mobile-reality/mdma-attachables-core
 
+## 0.2.8
+
+### Patch Changes
+
+- Updated dependencies [0046a97]
+  - @mobile-reality/mdma-spec@0.6.0
+  - @mobile-reality/mdma-runtime@0.6.0
+
 ## 0.2.7
 
 ### Patch Changes

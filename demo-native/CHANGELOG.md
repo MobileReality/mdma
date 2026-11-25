@@ -1,5 +1,18 @@
 # @mobile-reality/mdma-demo-native
 
+## 0.0.8
+
+### Patch Changes
+
+- Updated dependencies [0046a97]
+  - @mobile-reality/mdma-spec@0.6.0
+  - @mobile-reality/mdma-runtime@0.6.0
+  - @mobile-reality/mdma-renderer-react-native@0.5.0
+  - @mobile-reality/mdma-prompt-pack@0.7.0
+  - @mobile-reality/mdma-agui@0.3.1
+  - @mobile-reality/mdma-attachables-core@0.2.8
+  - @mobile-reality/mdma-parser@0.3.2
+
 ## 0.0.7
 
 ### Patch Changes

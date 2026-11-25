@@ -1,5 +1,13 @@
 # @mobile-reality/mdma-genui-format-benchmark
 
+## 0.0.2
+
+### Patch Changes
+
+- Updated dependencies [0046a97]
+  - @mobile-reality/mdma-validator@0.5.0
+  - @mobile-reality/mdma-prompt-pack@0.7.0
+
 ## 0.0.1
 
 ### Patch Changes
