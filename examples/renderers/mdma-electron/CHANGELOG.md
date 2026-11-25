@@ -1,5 +1,17 @@
 # mdma-example-electron
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [0046a97]
+  - @mobile-reality/mdma-spec@0.6.0
+  - @mobile-reality/mdma-runtime@0.6.0
+  - @mobile-reality/mdma-renderer-react@0.8.0
+  - @mobile-reality/mdma-prompt-pack@0.7.0
+  - @mobile-reality/mdma-attachables-core@0.2.8
+  - @mobile-reality/mdma-parser@0.3.2
+
 ## 0.0.2
 
 ### Patch Changes
